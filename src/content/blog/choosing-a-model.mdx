@@ -1,0 +1,120 @@
+export const meta = {
+  slug: "choosing-a-model",
+  title: "Choosing a model is a routing problem",
+  description:
+    "Why 'which model is best' is the wrong question, how to build a routing policy you can defend, and why escalating on failure is a trap.",
+  dek: "There is no best model. There is a best model for a task, at a quality bar, within a latency and cost budget — and that decision is a routing policy, not a benchmark.",
+  date: "2026-09-10",
+  readingTime: "8 min",
+  layers: [2],
+  sections: ["routing-gateways", "inference-serving"],
+  related: ["the-gateway-is-the-product", "the-cost-model"],
+};
+
+Every few months a new model tops a benchmark, and every few months a team
+reorganises around it. Then six months later they are paying more, getting
+roughly the same quality, and unable to say why.
+
+The underlying mistake is treating model choice as a selection problem. You
+pick one, you wire it in, you are done. It is a *routing* problem, because
+your traffic is not one task — it is a distribution of tasks with different
+difficulty, different latency requirements and different tolerances for error.
+
+## The escalation trap
+
+The intuitive policy is: start cheap, escalate to a big model if the answer
+looks bad. It is wrong more often than it works, for three reasons.
+
+**You cannot tell whether the answer is bad.** The model that produced the
+answer is a poor judge of its own output, and a cheap model judging a big
+model's work is worse still. Without an external signal — a validator, a
+schema check, a downstream test — "looks bad" is a vibe.
+
+**Failures cluster on hard cases.** The requests a small model gets wrong are
+not random; they are the genuinely hard ones. So escalation does not rescue the
+weak case, it just pays twice for it. You have saved nothing on the easy 90% —
+you already served those — and you have *doubled* the cost of the hard 10%.
+
+**The retry loop is where the spend goes.** A policy that escalates on failure
+is one provider hiccup away from a retry storm against your most expensive
+model, with your most expensive model, on the requests most likely to time out.
+
+## Route on something you can observe
+
+Policies that work route on signals that exist before the model is called:
+
+**Explicit task identity.** If your system has named operations — classify,
+extract, summarise, rewrite, reason — route on the operation. This is the
+cleanest signal available and most teams already have it implicitly in their
+code structure. It requires no classifier and no guessing.
+
+**User or tenant tier.** A paying customer and a free trial are different
+quality bars. This is blunt but it is honest, and it is trivially enforceable.
+
+**Deterministic input properties.** Length, whether a schema is required,
+whether the input is code, whether it contains a retrieval result. All of these
+are knowable before inference and correlate with difficulty more reliably than
+anything you can infer from the text itself.
+
+**An explicit difficulty classifier.** A small model that scores input
+difficulty before you route. This works, and it is the right structure — the
+point is that the classifier makes an up-front decision rather than judging
+output after the fact. RouteLLM and commercial routers are built this way.
+
+What you should *not* route on is a subjective read of the prompt. "This
+sounds hard" is where the escalation trap starts.
+
+## Keep the decision in one place
+
+Wherever the routing decision is made, it needs three properties:
+
+**It is measurable.** A routing policy you cannot evaluate is a guess with
+extra steps. Each route needs its own quality number on a
+[shared eval set](/blog/evals-are-the-asset), so that moving a boundary
+between routes is a decision you can check rather than a change you hope for.
+
+**It has a fallback.** Per-provider, per-model circuit breakers, with jitter on
+retries so a partial outage does not become a total one by stampeding the
+survivor. Provider error rates are real and they are not independent.
+
+**It degrades rather than fails.** When the big model is unavailable, the
+correct behaviour is usually the small model with a caveat, not a 500.
+
+## Escape hatches, and their cost
+
+Two legitimate reasons to escalate on failure exist, and both are narrow:
+
+- **Validated output.** If a schema or test gates the result, a failure is
+  *observable* and a retry is *justified*. This is the exception that proves
+  the rule — it works because you have an external signal. [Structured
+  output](/blog/prompt-or-finetune) is what makes this cheap.
+- **Human in the loop.** Where a person sees the failure, escalation is a UX
+  decision rather than an optimisation, and cost is much less sensitive.
+
+What does not work is judging quality with the same class of model that
+produced it, in the same call, at the same price.
+
+## Keep the provider behind an interface, not behind a hard choice
+
+The real insurance is that swapping models should not require touching
+application code. That means a [gateway](/blog/the-gateway-is-the-product) in
+front from day one, even if it initially does nothing but log requests and map
+model IDs.
+
+The cost of that day-one indirection is a few hours. The cost of not having it
+is that every provider deprecation becomes an incident, and you will pay that
+bill within the first year.
+
+## Where to start
+
+1. Enumerate the distinct operations in your codebase. You probably have five
+   to eight, not one.
+2. Assign each to the cheapest model that clears your quality bar on a real
+   eval set.
+3. Put a gateway in front and move the routing decision into it.
+4. Measure cost per successful outcome, not cost per request — see
+   [the cost model](/blog/the-cost-model).
+
+The [Routing & Gateways](/routing-gateways) section covers the tooling, and
+[Inference & Serving](/inference-serving) covers what you run when you decide
+to self-host.

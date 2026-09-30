@@ -1,0 +1,112 @@
+export const meta = {
+  slug: "the-cost-model",
+  title: "Build a cost model before you optimise",
+  description:
+    "Token pricing is the least interesting part of LLM cost. How to attribute spend to features, find the lever that actually moves the number, and stop guessing.",
+  dek: "Teams optimise the thing they can see in the dashboard. The dashboard shows tokens. The number that matters is cost per successful outcome, and nobody is measuring it.",
+  date: "2026-09-12",
+  readingTime: "7 min",
+  layers: [2, 9],
+  sections: ["routing-gateways", "evaluation-observability"],
+  related: ["the-gateway-is-the-product", "prompt-or-finetune"],
+};
+
+Cost work in LLM systems usually goes like this: the bill goes up, someone
+opens the usage dashboard, sees a lot of tokens, and starts compressing
+prompts. Sometimes this works. More often it produces a cheaper system that is
+also worse, and nobody notices because they were not measuring the thing that
+mattered.
+
+The problem is almost always that cost was never attributed in the first place.
+
+## You cannot control what you cannot attribute
+
+A bill tells you that you spent forty thousand dollars. It does not tell you
+which feature spent it, which customer incurred it, or whether that customer
+got anything useful in return.
+
+Attribution is not primarily a finance exercise — it is a prerequisite for
+every cost decision you will make afterwards. Without it, "reduce costs" has no
+actionable interpretation, because the cheapest 20% of your traffic might be
+generating all of your revenue.
+
+Two things have to be true:
+
+**Identity propagates.** A user, tenant or feature identifier must travel from
+the entry point through the [gateway](/blog/the-gateway-is-the-product) into
+every log line. Retrofitting this means touching every call site, so it is
+worth doing early even though it is invisible on the dashboard.
+
+**Every response records what it cost.** Tokens in, tokens out, cache status,
+which model answered, and how long it took. Not per provider — per logical
+operation, so that a five-hop agent loop is one line item rather than five.
+
+## The metric that actually matters
+
+Tokens are an input. The number you want is **cost per successful outcome**.
+
+An outcome is domain-specific: a resolved ticket, an accepted extraction, a
+completed task. But you can approximate it cheaply: take total spend, divide by
+the count of requests that passed whatever quality bar you can define, and you
+have cost per success.
+
+This single change in framing tends to invert priorities. Work that fails often
+and retries becomes visibly expensive. Long contexts that do not improve
+accuracy become visibly wasteful. Model calls made "just in case" stop being
+invisible.
+
+## Where the money usually is
+
+Ranked by how much they typically move the number:
+
+**Retries and wasted generations.** Any system that regenerates on a
+disappointing result pays twice for one answer. If you validate and retry
+aggressively, you are running two models per user request and should budget
+accordingly. Structured output eliminates most of this — see
+[structured output](/blog/prompt-or-finetune) — but where retries remain,
+count them.
+
+**Over-long context.** Covered in
+[context is a budget](/blog/context-is-a-budget). A 40,000-token prompt that
+works as well as a 4,000-token one is paying ten times the input cost for
+nothing, and this is the single most common finding on a first audit.
+
+**The wrong model for the task.** If a classification step is running on a
+flagship model, that is usually an oversight from prototyping rather than a
+decision. Routing the easy cases down is worth more than every prompt
+optimisation combined — see [choosing a model](/blog/choosing-an-inference-runtime).
+
+**Cache misses on stable prefixes.** If you have a long system prompt that
+changes per request, you are paying full input cost every time. Splitting the
+stable prefix out is frequently the single largest win available and is a
+routing-layer change, not a prompt change.
+
+**Observability you never look at.** Trace everything if you want, but sample
+aggressibly. Logging every request at full fidelity on a high-volume system can
+cost real money and rarely changes a decision.
+
+## The changes that reliably work
+
+1. **Route by task, not by vibes.** A cheap model for classification, an
+   expensive one for generation. This is the highest-leverage change and it
+   needs an [eval set](/blog/evals-are-the-asset) to verify you did not lose
+   quality.
+2. **Cache stable prefixes.** Split the invariant part of the prompt out.
+3. **Cap retries.** A hard ceiling, enforced in the host, with a fallback that
+   degrades rather than loops.
+4. **Set per-tenant budgets.** A single noisy tenant should not be able to
+   exhaust your quota, and this requires the identity propagation above.
+5. **Distil the easy 80%.** If most traffic is one well-defined task, training
+   a small model against the big one's outputs is the durable answer.
+
+## Measure before and after, or do not bother
+
+Every one of these changes quality in some cases. Without a quality baseline
+you are trading accuracy for margin without knowing the exchange rate — and
+that is how cost work ends up being reversed six months later by an engineer
+who cannot reproduce the original problem.
+
+This is the same argument as [evals are the asset](/blog/evals-are-the-asset),
+applied to money. The tooling for attribution lives in
+[Evaluation & Observability](/evaluation-observability); the routing layer that
+enforces budgets is in [Routing & Gateways](/routing-gateways).

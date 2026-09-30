@@ -210,6 +210,7 @@ export const categories: Category[] = [
       t("Agenta", "agenta.ai", "Platform", "Open-source prompt management with a playground and versioning."),
       t("Promptwatch", "promptwatch.com", "Testing", "Prompt regression tests and side-by-side comparison."),
       t("TextGrad", "github.com/zou-group/textgrad", "Research", "Automatic prompt optimisation via textual feedback loops."),
+      t("Outlines", "dottxt-ai.github.io/outlines", "Structured", "Constrained generation that masks the token space to valid output."),
     ],
   },
   {
@@ -313,3 +314,18 @@ for (const category of categories) {
 
 export const getCategory = (slug: string) =>
   categories.find((category) => category.slug === slug);
+
+/**
+ * Look a tool up by display name. Comparisons reference tools by name rather
+ * than restating their URLs, so a renamed or moved entry stays in sync and a
+ * typo fails loudly at build time rather than rendering a dead link.
+ */
+export function getToolByName(name: string) {
+  const found = allTools.find((t) => t.name === name);
+  if (!found) {
+    throw new Error(
+      `Unknown tool "${name}" referenced in a comparison. Add it to data.ts first.`,
+    );
+  }
+  return found;
+}

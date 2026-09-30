@@ -1,10 +1,11 @@
 import { categories, toolCount } from "@/lib/data";
 import { posts } from "@/lib/posts";
+import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
 
 /**
- * /llms.txt — a plain-text index of the directory and its essays, generated
- * from the same data as the UI so it can never drift out of sync.
+ * /llms.txt — a plain-text index of the directory, its comparisons and its
+ * essays, generated from the same data as the UI so it can never drift.
  */
 export function GET() {
   const lines: string[] = [
@@ -12,7 +13,7 @@ export function GET() {
     "",
     `> ${site.description}`,
     "",
-    `${toolCount} tools across ${categories.length} categories, plus ${posts.length} essays.`,
+    `${toolCount} tools across ${categories.length} sections, ${resolvedComparisons.length} comparisons, and ${posts.length} essays.`,
     "Listed tools belong to their respective authors.",
     "",
     "## Essays",
@@ -24,7 +25,14 @@ export function GET() {
       `- [${post.meta.title}](${site.url}/blog/${post.meta.slug}) — ${post.meta.dek}`,
     );
   }
+  lines.push("");
 
+  lines.push("## Comparisons", "");
+  for (const c of resolvedComparisons) {
+    lines.push(
+      `- [${c.title}](${site.url}/compare/${c.slug}) — ${c.verdict}`,
+    );
+  }
   lines.push("");
 
   for (const category of categories) {

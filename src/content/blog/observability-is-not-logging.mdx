@@ -1,0 +1,103 @@
+export const meta = {
+  slug: "observability-is-not-logging",
+  title: "Observability is not logging",
+  description:
+    "What to capture on an LLM request, what to leave out, and how to build a trace that can actually answer a question six weeks later.",
+  dek: "A log line with a status code is not a trace. The difference is whether it can reconstruct a decision after the model that made it has been replaced twice.",
+  date: "2026-09-08",
+  readingTime: "7 min",
+  layers: [9],
+  sections: ["evaluation-observability"],
+  related: ["evals-are-the-asset", "the-gateway-is-the-product"],
+};
+
+Teams instrument their LLM systems, then discover during their first incident
+that they cannot answer the only question that mattered: what did the model
+actually receive, and what did it actually return?
+
+The reason is usually that they logged what is easy — status, latency, token
+count — rather than what a question requires.
+
+## What a trace has to contain
+
+For a trace to be useful six weeks later, it has to be sufficient to
+reconstruct the decision. That means capturing, on every request:
+
+**The full input.** The complete system prompt and user message as sent, not a
+truncated preview. Truncation is where traces become useless, and it is usually
+done for cost reasons that are dwarfed by the value of being able to debug.
+
+**The full output**, plus the stop reason. A truncated response and a refusal
+look identical in a metrics dashboard and completely different in an incident.
+
+**The resolved model identity**, including the version. "gpt-4" is not an
+identifier; the specific snapshot is. Model aliases move underneath you and
+this is the single most common reason a bug cannot be reproduced.
+
+**Per-hop detail.** In a multi-step system, which steps ran, in what order,
+what each returned, and what each cost. A trace that only records the final
+answer records the least useful part.
+
+**Parameters that were not defaults.** Temperature, top-p, the schema if one
+was enforced, the retrieval results if retrieval ran. These are the things
+that change behaviour and that nobody remembers.
+
+**Outcome signals.** Validation passed or failed, which route was taken, cache
+hit or miss, user feedback, downstream business result if you have one. These
+are what turn a trace log into the raw material of an
+[eval set](/blog/evals-are-the-asset).
+
+## What to leave out
+
+**Secrets and regulated data.** Redact at write time, not at read time. A trace
+store holding unredacted PII is a liability that grows with every request, and
+you cannot retroactively redact what you already logged.
+
+**Full verbosity on high-volume paths.** Sample. A trace at 100% on a
+high-traffic system can cost real money and rarely changes a decision — because
+the interesting requests are rare by definition. Sample the boring ones
+aggressively and keep everything that errored, retried or drew feedback.
+
+**Derived state you can recompute.** If a token count can be recomputed from
+the text, do not store both.
+
+## Emit one standard, not four
+
+The failure mode of home-grown instrumentation is schema drift. Every service
+logs slightly different fields, and the cross-service question — "did this slow
+request also cost more?" — becomes a manual join nobody performs.
+
+Adopt OpenTelemetry as your export format even if you use a proprietary
+collector. It costs almost nothing to emit and it is the only way your traces
+survive a change of vendor. Every platform in
+[Evaluation & Observability](/evaluation-observability) that is worth using
+speaks it.
+
+## Make the trace answerable from the UI
+
+A trace you have to export and query with hand-written SQL is a trace nobody
+will use during an incident. The properties that matter:
+
+**Filter by any field.** Identity, route, model, outcome. This is what turns
+"LLM requests are slow" into "agent loop step three is slow for tenants over
+a certain size".
+
+**Show the diff between two runs.** The most common debugging question is not
+"what happened" but "what changed". If you can put a failed trace next to a
+successful one from last week, you will solve most incidents in minutes.
+
+**Link a trace to a cost and a latency figure per hop.** Not aggregate —
+per hop. Aggregate cost tells you where to look; per-hop cost tells you what
+to change.
+
+## Retention is a product decision
+
+Set it deliberately. Full-fidelity traces for thirty days, sampled metadata
+for a year, outcomes forever. The reason outcomes deserve the longest life is
+that they are small and they are the only thing that lets you compare a change
+from eighteen months ago against today.
+
+The [Evaluation & Observability](/evaluation-observability) section covers the
+tooling. If you want the discipline rather than the tools, start with
+[evals are the asset](/blog/evals-are-the-asset) — because a trace with no
+outcomes attached is a very expensive log file.

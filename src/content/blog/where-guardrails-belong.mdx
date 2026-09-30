@@ -1,0 +1,107 @@
+export const meta = {
+  slug: "where-guardrails-belong",
+  title: "Where guardrails belong",
+  description:
+    "Input filtering, output filtering, and tool permissions are three different controls placed in three different places. Putting them all in the wrong layer is why safety work feels ineffective.",
+  dek: "Safety is not a layer you add. It is a set of controls at specific points in a request's path, and each one catches a different class of failure.",
+  date: "2026-09-16",
+  readingTime: "8 min",
+  layers: [7],
+  sections: ["guardrails-safety"],
+  related: ["the-gateway-is-the-product", "agents-need-a-durable-host"],
+};
+
+Most teams treat guardrails as a feature to switch on. They buy a moderation
+product, wire it around the model call, and then discover six months later that
+it is blocking the wrong things and missing the things that matter.
+
+The problem is not the tool. It is that "safety" is three distinct controls
+that belong in three distinct places, and most incidents are one of them
+missing while the other two are fine.
+
+## Three controls, three places
+
+**Input filtering sits in front of the model.** It catches prompt injection,
+jailbreak attempts, and requests for content you will not serve. It must run
+before tokens are spent, and it must be cheap, because it sees every request.
+
+Put it at the [gateway](/blog/the-gateway-is-the-product), not in your
+application code. That way it cannot be bypassed by a code path someone forgot,
+and it can be tuned centrally when a new attack class appears.
+
+**Output filtering sits behind the model.** It catches what the model produced
+when the model was not asked to produce it — leaked system prompts, generated
+PII, content policy violations. It is fundamentally a classifier, and it is
+unavoidably a probabilistic control. A 1% false-negative rate on a filter that
+sees a million requests a day is ten thousand leaks.
+
+The only real mitigation is a second, independent check on the actions that
+matter. Which brings us to the third control.
+
+**Tool permissions sit around the actions.** This is the one that actually
+matters and the one that is almost always missing. A model that can call
+`delete_all_records` is a much bigger problem than a model that can say
+something you would rather it did not.
+
+## Treat tools as untrusted input
+
+The single highest-value safety change most teams can make: apply the same
+suspicion to tool arguments as they apply to user input.
+
+A tool call is model output. It has the same failure modes — injection, error
+messages containing instructions, a model persuaded by retrieved content to
+pass a hostile argument. If your tools trust their arguments because "the model
+asked nicely", you have moved your attack surface, not removed it.
+
+Three practices, roughly in order of value:
+
+**Allowlist, never denylist.** Name the tools that may be called in a given
+context rather than the ones that may not. New capabilities should be denied
+until someone adds them.
+
+**Validate arguments independently of the model.** A schema check is cheap. A
+range check on a deletion is cheaper. Anything that crosses a trust boundary
+should be re-derived from authoritative state, not taken from the model's
+claim. If the model says "delete order 1234", look up order 1234 and check that
+the current user may delete it — do not trust the model to have checked.
+
+**Separate read from write.** A read-only tool that returns data cannot destroy
+anything, and the model can be allowed to call it freely. Write tools should be
+a separate, deliberately invoked path. This one change removes an enormous
+class of incident.
+
+## What a red team is actually for
+
+Security tooling like [garak](https://github.com/NVIDIA/garak) and
+[PyRIT](https://github.com/Azure/PyRIT) is often adopted as a compliance
+checkbox. Its real value is narrower and more useful: it tells you which of
+your controls are decorative.
+
+Run it against the *system*, not the model. The interesting result is
+frequently that your input filter passes a payload your tool happily executes,
+because nobody tested the seam between them. That seam is where the risk lives,
+and it is exactly the part a model-level scanner cannot see.
+
+## Calibrate, or the filter gets switched off
+
+The failure mode of over-filtering is worse than the failure mode of
+under-filtering, because it is self-correcting in the wrong direction. Users
+work around a filter that blocks legitimate requests, and eventually someone
+disables it in a ticket nobody reads.
+
+So treat precision as a first-class metric. Log every block, sample false
+positives, and make the threshold adjustable per route. A support agent's
+refund classifier and a public chatbot do not need the same aggressiveness, and
+a global threshold cannot serve both.
+
+## Where to start this week
+
+1. List every tool the model can call, and mark which can write.
+2. Re-derive permissions from authoritative state rather than trusting the model.
+3. Move input filtering into the gateway so it cannot be bypassed.
+4. Log every block, and look at a sample of them this month.
+
+The [Guardrails & Safety](/guardrails-safety) section has the tooling for each
+of these. And if your tools can be interrupted mid-run, the
+[durability argument](/blog/agents-need-a-durable-host) applies to your
+rollback path as much as to your retries.

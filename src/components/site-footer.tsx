@@ -33,7 +33,7 @@ export function SiteFooter() {
                     <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
                       {c.index}
                     </span>
-                    <span className="truncate">{c.title}</span>
+                    <span className="truncate">{c.short}</span>
                   </Link>
                 </li>
               ))}
@@ -51,6 +51,14 @@ export function SiteFooter() {
                   className="text-[13px] text-fg-muted transition-colors hover:text-fg"
                 >
                   Essays
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/compare"
+                  className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                >
+                  Comparisons
                 </Link>
               </li>
               {categories

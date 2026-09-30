@@ -1,0 +1,111 @@
+export const meta = {
+  slug: "context-is-a-budget",
+  title: "Context is a budget, not a container",
+  description:
+    "Why more context reliably makes models worse, how attention degrades in the middle of a long window, and the three techniques that keep long-running work coherent.",
+  dek: "The instinct is to keep everything in case it is needed. The models are not filing systems, and past a certain length the middle of your context is doing nothing but costing money.",
+  date: "2026-09-14",
+  readingTime: "7 min",
+  layers: [1, 8],
+  sections: ["inference-serving", "prompt-engineering"],
+  related: ["fix-the-ranking-not-the-prompt", "agents-need-a-durable-host"],
+};
+
+Every long-running AI system eventually discovers that its quality gets worse
+as it accumulates context, and the reflex is to look for a bigger context
+window. The industry has been shipping longer windows for three years. This is
+the wrong fix, and the evidence has been reasonably clear for a while.
+
+Long contexts do not degrade gracefully. They degrade *silently*, which is
+worse, because nothing tells you.
+
+## What the research actually shows
+
+The "lost in the middle" result is the canonical one: given a long document
+with a fact somewhere inside it, models reliably answer from the beginning and
+the end, and perform close to chance on facts buried in the middle. This holds
+across model families and context lengths.
+
+The practical consequence is that a 50,000-token context is not 50,000 tokens
+of usable information. It is a few thousand tokens of reliable signal, some
+usable material at the edges, and a large quantity of material that is
+present, billed, and being largely ignored.
+
+Which is exactly why pasting more retrieved documents makes answers worse. You
+have not added information; you have added noise and moved your real evidence
+towards the middle.
+
+## Three techniques that work
+
+### Put the instruction where attention is strongest
+
+Position matters more than most people expect. The system prompt and the
+question should be at the extremes — the beginning and the end — with the
+material in between. A model asked to answer at the end of a long document
+performs considerably better than one asked at the start.
+
+This costs nothing and is almost never done deliberately.
+
+### Retrieve less, and rerank harder
+
+The single best structural fix is to cut the context, not grow it. Fetch fifty
+candidates, rerank to five, and give the model five. Most of the quality
+difference between a mediocre RAG system and a good one is this one decision.
+
+This is covered properly in
+[fix the ranking, not the prompt](/blog/fix-the-ranking-not-the-prompt), and it
+is worth reading even if retrieval is not your problem, because the underlying
+lesson generalises: **the job is to select, not to accumulate.**
+
+### Take bulk data out of band
+
+Large tool outputs do not need to be re-read on every turn. Store the full
+result, put a summary and a handle in the context, and let the model fetch
+detail if it wants it.
+
+A file listing with 4,000 lines is not context — it is a tool result that
+should have been summarised at the point of return. This pattern alone fixes
+most of the "the agent gets confused after twenty tool calls" complaints.
+
+## Summarise the middle, preserve the ends
+
+For genuinely long-running work — an agent loop, a multi-stage pipeline — the
+context needs active management rather than passive accumulation.
+
+The shape that works: **the first few turns contain the task and the decisions
+that shaped the approach. The last few turns contain the current state. The
+middle is mostly tool output that has already been used.** Compress the middle
+while keeping both ends intact.
+
+The ends matter more than they look. The opening is what keeps the model
+consistent with the original intent after an hour of work; the closing is what
+it actually conditions on. Discard either and long tasks drift.
+
+## Sizing it, honestly
+
+Some rough numbers that have held up in practice:
+
+| Purpose | Reasonable size |
+| --- | --- |
+| Instruction plus one document | 2–8k tokens |
+| RAG generation step | 1–3k tokens of evidence |
+| Single agent turn | 3–10k tokens |
+| Long agent loop | Compress aggressively; do not just grow |
+
+Note how none of these is "as much as the window allows". The window is a
+ceiling on what you *can* send, not a target for what you *should*.
+
+There is a cost angle too, and it compounds: providers price input tokens, most
+requests have large shared prefixes, and prefix caching means a long stable
+prefix is cheap while a long *changing* one is not. Context you re-send every
+turn and change every turn is the expensive case.
+
+## The one thing to check
+
+Take a real request that produced a bad answer and count the tokens. Then ask
+which ones actually changed the outcome. In most systems a small minority of
+the context is load-bearing, and you can delete the rest today.
+
+The [Inference & Serving](/inference-serving) section covers the runtimes that
+make long contexts affordable, and [Prompt Engineering](/prompt-engineering)
+covers the discipline of treating the prompt as a versioned artifact.
