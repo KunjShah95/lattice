@@ -1,5 +1,37 @@
+/**
+ * Deployment model. This is the constraint that decides most real
+ * adoptions — whether a tool can run inside your own network is a
+ * compliance question before it is a technical one.
+ */
+export type Deployment = "self-hosted" | "managed" | "saas";
+
+/**
+ * What kind of thing a tool is. Replaces the old overloaded `tag`, which was
+ * doing three jobs at once (kind, vendor and topic) and produced 45
+ * uncontrolled values.
+ */
+export type ToolKind =
+  | "runtime"
+  | "database"
+  | "framework"
+  | "library"
+  | "service"
+  | "platform"
+  | "reading";
+
+/**
+ * How the thing is paid for. Deliberately coarse: the point is the filter
+ * ("can I try this without a procurement conversation?"), not the price list,
+ * which changes too often to belong in a curated index.
+ */
+export type CostModel =
+  | "free"
+  | "free-tier"
+  | "usage-based"
+  | "subscription";
+
 export type Tool = {
-  /** URL-safe identifier, unique within a category. */
+  /** URL-safe identifier, unique within a section. */
   slug: string;
   name: string;
   /** Bare hostname, e.g. "github.com". Used for search matching and display. */
@@ -7,8 +39,49 @@ export type Tool = {
   url: string;
   /** One-line factual summary. Original copy. */
   blurb: string;
-  /** Optional short qualifier shown as a mono tag. */
-  tag?: string;
+
+  // ---- Structured attributes -------------------------------------------
+  // These replaced a single overloaded `tag`. Each is a controlled value, so
+  // facets on them are meaningful rather than a list of vendor names.
+
+  kind: ToolKind;
+  deployment: Deployment;
+  /**
+   * SPDX identifier, "proprietary" for a closed service, or null where the
+   * licence could not be confirmed. Null is a real answer: guessing here would
+   * be worse than saying nothing, because licence choice drives architecture.
+   */
+  license: string | null;
+  /** Primary implementation language, or null for a managed service. */
+  language: string | null;
+  cost: CostModel;
+
+  // ---- The decision fields ----------------------------------------------
+  // The site's thesis is decisions, not listings. These two are the payload
+  // that makes that thesis actionable per tool, and they are what the
+  // comparison tables are currently written by hand.
+
+  /** One clause: the situation in which this is the right choice. */
+  useWhen: string;
+  /** One clause: the situation in which it is the wrong choice. */
+  skipWhen: string;
+
+  // ---- Relationships ----------------------------------------------------
+
+  /**
+   * Slugs of genuine substitutes, searched in the same section first. These
+   * seed the alternatives graph and the hand-written comparisons.
+   */
+  alternatives?: string[];
+
+  // ---- Provenance -------------------------------------------------------
+
+  /**
+   * YYYY-MM. When `license` and `cost` were last confirmed against the
+   * project. Both rot, and a stale-but-confident figure is worse than an
+   * absent one, so the staleness test fails when this ages out.
+   */
+  asOf: string;
 };
 
 /**
