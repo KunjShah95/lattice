@@ -1,15 +1,43 @@
-import type { Tool } from "./types";
+/**
+ * What a search hit is. Tools are the bulk of the index, but the essays and
+ * the comparisons are where the site's actual argument lives — a query for
+ * "evals" that only returns tools is hiding the best answer on the site.
+ */
+export type SearchKind = "tool" | "essay" | "comparison";
 
-/** A tool plus the section it belongs to — the unit the palette searches. */
-export type SearchableTool = Tool & {
+/**
+ * One row in the search index. Deliberately flattened rather than a union of
+ * three shapes: the ranking below reads name / blurb / category / tag / domain
+ * for every kind, and a discriminated union would just push the branching
+ * into the scoring function.
+ *
+ * `name` is the display label and the strongest matching signal, whatever the
+ * underlying thing is. For a tool that is its name; for an essay, its title.
+ */
+export type SearchEntry = {
+  kind: SearchKind;
+  /** Display label and primary match field. */
+  name: string;
+  /** Secondary line shown under the label. */
+  blurb: string;
+  /** Owning section, used for the category line and the accent rule. */
   categoryTitle: string;
-  categorySlug: string;
-  /** Stack depth of the owning section. Null = off-stack. */
+  /** Stack depth for the accent. Null renders muted. */
   categoryLayer: number | null;
+  /** Internal route — every hit has one, so the palette always navigates. */
+  href: string;
+  /** Present on tools only: the tool's own site, opened in a new tab. */
+  external?: string;
+  /** Host for tools, tag for everything. */
+  domain?: string;
+  tag?: string;
 };
 
+/** @deprecated Retained so existing imports keep working during the rename. */
+export type SearchableTool = SearchEntry;
+
 type IndexedTool = {
-  entry: SearchableTool;
+  entry: SearchEntry;
   name: string;
   /** Individual words in the name, so "guard" can find "Llama Guard". */
   nameWords: string[];
@@ -57,7 +85,7 @@ const MIN_FUZZY_QUERY = 2;
 export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
   return entries.map((entry) => {
     const name = entry.name.toLowerCase();
-    const domain = entry.domain.toLowerCase();
+    const domain = (entry.domain ?? "").toLowerCase();
     const blurb = entry.blurb.toLowerCase();
     const category = entry.categoryTitle.toLowerCase();
     const tag = (entry.tag ?? "").toLowerCase();

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# Cancel superseded runs on the same ref — nobody wants to read a log from a
+# commit that has already been superseded.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      # `next build` passing is not sufficient for this route shape. A dynamic
+      # segment named inconsistently builds cleanly and then 500s at runtime,
+      # so the server is actually started and a sample of routes is requested.
+      - name: Smoke-test the built server
+        run: |
+          npx next start -p 3111 &
+          for i in $(seq 1 40); do
+            curl -sf "http://localhost:3111/" >/dev/null && break
+            sleep 1
+          done
+          fail=0
+          for path in / /all /blog /compare /inference-serving \
+                      /inference-serving/vllm /blog/evals-are-the-asset \
+                      /compare/vector-databases /feed.xml /llms.txt /sitemap.xml; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
+            echo "$code $path"
+            [ "$code" = "200" ] || fail=1
+          done
+          # An unknown path must 404, not 200 or 500.
+          code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111/definitely-not-a-page")
+          echo "$code /definitely-not-a-page"
+          [ "$code" = "404" ] || fail=1
+          exit $fail

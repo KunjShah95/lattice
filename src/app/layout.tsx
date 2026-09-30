@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
 import "./globals.css";
 
-import { SearchProvider, type SearchEntry } from "@/components/search-provider";
+import { SearchProvider } from "@/components/search-provider";
+import type { SearchEntry } from "@/lib/search";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { themeInitScript } from "@/components/theme-toggle";
 import { categories } from "@/lib/data";
+import { posts } from "@/lib/posts";
+import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
 
 /**
@@ -45,14 +48,43 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const searchEntries: SearchEntry[] = categories.flatMap((c) =>
-  c.tools.map((tool) => ({
-    ...tool,
-    categoryTitle: c.title,
-    categorySlug: c.slug,
-    categoryLayer: c.layer,
+const searchEntries: SearchEntry[] = [
+  // Tools
+  ...categories.flatMap((c) =>
+    c.tools.map((tool) => ({
+      kind: "tool" as const,
+      name: tool.name,
+      blurb: tool.blurb,
+      categoryTitle: c.title,
+      categoryLayer: c.layer,
+      href: `/${c.slug}/${tool.slug}`,
+      external: tool.url,
+      domain: tool.domain,
+      tag: tool.tag,
+    })),
+  ),
+  // Essays — the site's actual argument. Excluding these meant a query for
+  // "evals" returned only tools and hid the best answer on the site.
+  ...posts.map((p) => ({
+    kind: "essay" as const,
+    name: p.meta.title,
+    blurb: p.meta.dek,
+    categoryTitle: "Essays",
+    categoryLayer: p.meta.layers[0] ?? null,
+    href: `/blog/${p.meta.slug}`,
+    tag: "Essay",
   })),
-);
+  // Comparisons
+  ...resolvedComparisons.map((c) => ({
+    kind: "comparison" as const,
+    name: c.title,
+    blurb: c.description,
+    categoryTitle: "Comparisons",
+    categoryLayer: c.tools[0]?.layer ?? null,
+    href: `/compare/${c.slug}`,
+    tag: "Compared",
+  })),
+];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

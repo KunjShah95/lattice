@@ -10,10 +10,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
-import { buildIndex, searchTools, type SearchableTool } from "@/lib/search";
-
-export type SearchEntry = SearchableTool;
+import { buildIndex, searchTools, type SearchEntry } from "@/lib/search";
 
 type SearchContextValue = {
   open: boolean;
@@ -98,12 +97,17 @@ export function SearchProvider({
     node?.scrollIntoView({ block: "nearest" });
   }, [active, open]);
 
+  const router = useRouter();
+
   const go = useCallback(
-    (tool: SearchEntry) => {
-      window.open(tool.url, "_blank", "noopener,noreferrer");
+    (entry: SearchEntry) => {
       closePalette();
+      // Every hit has an internal route — tools, essays and comparisons are
+      // all on this site. The external site stays a secondary action on the
+      // row, so the palette never dumps the reader out to a third party.
+      router.push(entry.href);
     },
-    [closePalette],
+    [closePalette, router],
   );
 
   function onListKeyDown(event: React.KeyboardEvent) {
@@ -166,14 +170,14 @@ export function SearchProvider({
             <ul ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5">
               {results.length === 0 ? (
                 <li className="px-3 py-8 text-center text-sm text-fg-subtle">
-                  No tools match “{query}”.
+                  Nothing matches “{query}”.
                 </li>
               ) : (
-                results.map((tool, i) => (
-                  <li key={`${tool.categorySlug}-${tool.slug}`}>
+                results.map((entry, i) => (
+                  <li key={`${entry.kind}-${entry.href}`}>
                     <button
                       type="button"
-                      onClick={() => go(tool)}
+                      onClick={() => go(entry)}
                       onMouseMove={() => setActive(i)}
                       className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                         i === active ? "bg-bg-sunken" : ""
@@ -182,16 +186,45 @@ export function SearchProvider({
                       <span
                         aria-hidden="true"
                         className="mt-0.5 h-5 w-[3px] shrink-0 rounded-full"
-                        style={layerStyle(tool.categoryLayer)}
+                        style={layerStyle(entry.categoryLayer)}
                       />
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate text-sm font-medium">
-                          {tool.name}
+                          {entry.name}
                         </span>
                         <span className="truncate text-xs text-fg-subtle">
-                          {tool.categoryTitle}
+                          {entry.categoryTitle}
                         </span>
                       </span>
+
+                      {/* Secondary action: the tool's own site. Rendered
+                          inside the row rather than as the primary target so
+                          keyboard users stay on-site. */}
+                      {entry.external ? (
+                        <a
+                          href={entry.external}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          aria-label={`${entry.name} on the web (opens in a new tab)`}
+                          className="shrink-0 rounded p-0.5 text-fg-subtle hover:text-fg"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M7 17 17 7M9 7h8v8" />
+                          </svg>
+                        </a>
+                      ) : null}
+
                       <svg
                         width="13"
                         height="13"

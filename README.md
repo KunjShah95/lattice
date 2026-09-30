@@ -22,9 +22,33 @@ npm run dev        # http://localhost:3000
 npm run build      # production build
 npm start          # serve the production build
 npm run lint
+npm run test       # vitest, 122 unit tests
+npm run verify     # lint + test + build
 ```
 
 > If port `3000` is occupied, Next falls back to `3001`.
+
+## Testing
+
+Unit tests only — they cover the pure data and logic modules, not components.
+Six suites, 122 assertions.
+
+| Suite | Covers |
+| --- | --- |
+| `search.test.ts` | Tier ordering, AND semantics, the fuzzy floor, essays and comparisons in the index |
+| `data.test.ts` | Dataset invariants: unique slugs, valid URLs, one-line blurbs, tag vocabulary, lookups |
+| `comparisons.test.ts` | Row/tool counts, every reference resolves, no self-comparison |
+| `posts.test.ts` | Frontmatter, date sorting, backlink integrity, coverage per section |
+| `layer.test.ts` | Ramp mapping, clamping, and that the ramp is sized to the dataset |
+| `jsonld.test.ts` | Script-injection escaping |
+
+`posts.ts` imports the MDX essays, so `vitest.config.mts` runs them through
+`@mdx-js/rollup` — without that, Vite parses `.mdx` as plain JS and every suite
+touching posts fails to collect.
+
+CI (`.github/workflows/ci.yml`) runs `lint`, `test`, `build`, then starts the
+built server and requests a sample of routes — see the routing note below for
+why that last step exists.
 
 ## Project structure
 
@@ -67,11 +91,13 @@ src/
     data.ts                 The dataset — sections and tools
     comparisons.ts          Head-to-head comparisons, resolved against data
     posts.ts                Essay registry, cross-links, backlink guard
+    search.ts               Ranking: buildIndex + searchTools, shared by all kinds
     layer.ts                Stack-depth → colour mapping
     og.tsx                  Open Graph card (Satori-safe subset of CSS)
     jsonld.ts               Structured data helpers
     site.ts                 All placeholder branding and copy
     types.ts
+  *.test.ts                 Vitest suites, alongside the modules they cover
 ```
 
 ## Editing content
@@ -159,6 +185,27 @@ custom properties:
 
 - `src/app/globals.css` — the live site
 - `src/lib/og.tsx` — the generated cover images
+
+## Search
+
+`⌘K` / `Ctrl-K` opens a palette backed by `src/lib/search.ts`. The index covers
+**tools, essays and comparisons** — a query for "evals" returns the essay that
+argues the point alongside the tools that implement it, because excluding the
+essays hid the best answer on the site.
+
+Every hit has an internal `href`, so the palette never navigates the reader off
+site. A tool's own site is a secondary control on the row rather than the
+primary target.
+
+Ranking is tiered (`exactName` > `namePrefix` > `nameWordPrefix` > `blurbPhrase`
+> … > `fuzzy`), so a tool literally named "TensorRT-LLM" outranks one that
+merely mentions LLMs in its description. Multi-word queries are ANDed, and the
+fuzzy fallback sits an order of magnitude below every real match so it can
+never outrank intent.
+
+`ToolExplorer` on `/all` filters the same dataset client-side with facet
+counts — the whole index is a few kilobytes, so there is no round trip per
+keystroke. Past a few hundred entries that should move to a real search index.
 
 ## Design system
 
