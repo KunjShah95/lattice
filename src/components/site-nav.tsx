@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
  */
 const links = [
   { href: "/", label: "Index" },
+  { href: "/all", label: "All tools" },
   { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Essays" },
 ] as const;

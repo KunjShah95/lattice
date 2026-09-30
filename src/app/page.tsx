@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
 import { SearchTrigger } from "@/components/search-provider";
 import { StackDiagram } from "@/components/stack-diagram";
+import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
 
@@ -38,6 +40,12 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Decision path — the index answers "what exists", this answers
+          "given what I am building, which parts matter". */}
+      <section className="border-t border-border py-12">
+        <StartHere />
+      </section>
+
       {/* The index — the legend for the diagram above. */}
       <div id="all" className="scroll-mt-20">
         <div className="mb-8 flex items-baseline gap-3 border-t border-border pt-6">
@@ -72,6 +80,24 @@ export default function HomePage() {
             className="shrink-0 text-[13px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
           >
             Suggest a tool
+          </a>
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-6 font-mono text-[11px] text-fg-subtle">
+          <Link href="/all" className="transition-colors hover:text-fg-muted">
+            All {toolCount} tools, filterable →
+          </Link>
+          <a
+            href="/feed.xml"
+            className="transition-colors hover:text-fg-muted"
+          >
+            RSS
+          </a>
+          <a
+            href="/llms.txt"
+            className="transition-colors hover:text-fg-muted"
+          >
+            llms.txt
           </a>
         </div>
       </section>

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { categories } from "@/lib/data";
+import { allTools, categories } from "@/lib/data";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
@@ -13,6 +13,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 1,
+    },
+    {
+      url: `${site.url}/all`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
     },
     {
       url: `${site.url}/blog`,
@@ -43,6 +49,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(p.meta.date),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    // Every tool has a page. A directory's value is being findable, so all of
+    // them belong in the sitemap — not just the ones with inbound links yet.
+    ...allTools.map((entry) => ({
+      url: `${site.url}/${entry.category.slug}/${entry.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
   ];
 }

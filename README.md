@@ -1,12 +1,15 @@
 # Lattice
 
 A curated index of the infrastructure behind working AI systems — **113 tools
-across 10 sections**, **6 head-to-head comparisons**, and **11 essays** on the
-architectural decisions behind them.
+across 10 sections**, **113 per-tool pages**, **6 head-to-head comparisons**, and
+**11 essays** on the architectural decisions behind them.
 
 Sections are ordered as a production stack: layer 1 is the substrate everything
 else runs on, layer 9 is the surface you look at. Off-stack material (reading,
 courses) sits deliberately outside the stack.
+
+Routes: `/` index · `/all` filterable list · `/<section>` · `/<section>/<tool>` ·
+`/compare` · `/blog` · `/blog/<post>` · `/feed.xml` · `/llms.txt`
 
 Built with **Next.js 16** (App Router), **React 19**, **Tailwind CSS v4**,
 TypeScript and MDX. Every route is prerendered at build time.
@@ -36,12 +39,18 @@ src/
     blog/[slug]/            Essay page + per-essay cover image
     compare/page.tsx        Comparison index
     compare/[slug]/         Comparison table, recommendation, backlinks
+    all/page.tsx            Whole index in one filterable list
+    [slug]/page.tsx         Section page
+    [slug]/[tool]/page.tsx  One page per tool (113 of them)
     opengraph-image.tsx     Home cover image
-    sitemap.ts              Sections + comparisons + essays
+    feed.xml/route.ts       RSS of the essays
+    sitemap.ts              Sections + comparisons + essays + every tool
     robots.ts
     llms.txt/route.ts       Plain-text index, generated from the same data
   components/
     stack-diagram.tsx       Hero: nine bands sized by tool count
+    start-here.tsx          Two-question decision path through the index
+    tool-explorer.tsx       Client-side filter + section/tag facets
     category-section.tsx    Numbered section block
     tool-row.tsx            One tool: layer swatch, name, tag, host
     diagrams/
@@ -187,6 +196,18 @@ caught at build time by a throw during module load:
 | `data.ts` | `getToolByName` on an unknown tool |
 | `comparisons.ts` | Row value count ≠ tool count; unknown section slug |
 | `posts.ts` | A `related` slug that does not resolve to a post |
+
+## A note on route naming
+
+`app/[slug]/[tool]` reuses the `slug` param name from `app/[slug]`. Next.js
+requires one name per dynamic position at a given depth — naming the first
+segment of the tool route `category` **builds cleanly and then 500s at runtime**
+with `You cannot use different slug names for the same dynamic path`. Static
+routes (`/all`, `/blog`, `/compare`) take precedence over these dynamic
+segments, so they do not conflict.
+
+Because of that, `next build` passing is not sufficient verification here. Run
+`npm start` and hit a few routes, including a tool page.
 
 ## Design provenance
 

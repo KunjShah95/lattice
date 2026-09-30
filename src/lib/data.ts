@@ -329,3 +329,53 @@ export function getToolByName(name: string) {
   }
   return found;
 }
+
+/** All tools in one section, in dataset order. */
+export const getToolsForCategory = (categorySlug: string) =>
+  getCategory(categorySlug)?.tools ?? [];
+
+/** Resolve a tool by its section and its slug within that section. */
+export function getTool(categorySlug: string, toolSlug: string) {
+  const category = getCategory(categorySlug);
+  if (!category) return null;
+  const tool = category.tools.find((t) => t.slug === toolSlug);
+  return tool ? { tool, category } : null;
+}
+
+/**
+ * Siblings in the same section, excluding the tool itself. Used for the
+ * "other tools in this section" block on a tool page — internal links that
+ * would not exist without a per-tool URL.
+ */
+export const getSiblingTools = (categorySlug: string, toolSlug: string) =>
+  getToolsForCategory(categorySlug).filter((t) => t.slug !== toolSlug);
+
+/** Every distinct tag across the dataset, with counts, alphabetical. */
+export const allTags = (() => {
+  const counts = new Map<string, number>();
+  for (const entry of allTools) {
+    if (entry.tag) counts.set(entry.tag, (counts.get(entry.tag) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => a.tag.localeCompare(b.tag));
+})();
+
+/**
+ * Flat, section-annotated view of every tool, for the directory page.
+ * `allTools` entries already carry `.category`; this re-keys it into flat
+ * scalar fields so the whole dataset can cross the client boundary cheaply.
+ */
+export const allToolEntries = allTools.map((entry) => ({
+  name: entry.name,
+  slug: entry.slug,
+  domain: entry.domain,
+  url: entry.url,
+  blurb: entry.blurb,
+  tag: entry.tag,
+  categorySlug: entry.category.slug,
+  categoryTitle: entry.category.title,
+  categoryShort: entry.category.short,
+  layer: entry.category.layer,
+  role: entry.category.role,
+}));

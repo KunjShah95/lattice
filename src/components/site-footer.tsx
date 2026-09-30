@@ -55,11 +55,27 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
+                  href="/all"
+                  className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                >
+                  All tools
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/compare"
                   className="text-[13px] text-fg-muted transition-colors hover:text-fg"
                 >
                   Comparisons
                 </Link>
+              </li>
+              <li>
+                <a
+                  href="/feed.xml"
+                  className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                >
+                  RSS
+                </a>
               </li>
               {categories
                 .filter((c) => c.layer === null)

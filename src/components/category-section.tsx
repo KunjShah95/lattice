@@ -62,6 +62,8 @@ export function CategorySection({
                 key={tool.slug}
                 tool={tool}
                 layer={category.layer}
+                categorySlug={category.slug}
+                showDetails
               />
             ))}
           </ul>
