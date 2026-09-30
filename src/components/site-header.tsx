@@ -5,7 +5,7 @@ import { SearchTrigger } from "./search-provider";
 import { ThemeToggle } from "./theme-toggle";
 
 /**
- * Two links, not ten. The nine layer links that used to live here were the
+ * Three links, not ten. The nine layer links that used to live here were the
  * loudest generic-template signal on the page, and the stack diagram on the
  * index already navigates layers better than a header strip can — it shows
  * depth, colour and density that a flat list of links threw away.

@@ -1,8 +1,8 @@
 # Lattice
 
-A curated index of the infrastructure behind working AI systems — **112 tools
-across 10 sections**, plus **6 essays** on the architectural decisions behind
-them.
+A curated index of the infrastructure behind working AI systems — **113 tools
+across 10 sections**, **6 head-to-head comparisons**, and **11 essays** on the
+architectural decisions behind them.
 
 Sections are ordered as a production stack: layer 1 is the substrate everything
 else runs on, layer 9 is the surface you look at. Off-stack material (reading,
@@ -34,8 +34,10 @@ src/
     [slug]/opengraph-image  Cover image per section (generated PNG)
     blog/page.tsx           Essay index
     blog/[slug]/            Essay page + per-essay cover image
+    compare/page.tsx        Comparison index
+    compare/[slug]/         Comparison table, recommendation, backlinks
     opengraph-image.tsx     Home cover image
-    sitemap.ts              Sections + essays
+    sitemap.ts              Sections + comparisons + essays
     robots.ts
     llms.txt/route.ts       Plain-text index, generated from the same data
   components/
@@ -46,14 +48,16 @@ src/
       flow-diagram.tsx      Spec-driven SVG renderer (theme-aware)
       index.tsx             The named figures used in essays
     search-provider.tsx     Cmd/Ctrl-K palette with ranked matching
-    site-header.tsx         Sticky nav that doubles as a depth indicator
+    site-header.tsx         Sticky bar
+    site-nav.tsx            Desktop links + mobile drawer
     site-footer.tsx
     theme-toggle.tsx        Also exports the pre-paint theme script
     logo.tsx
   content/blog/*.mdx        Essay bodies + frontmatter
   lib/
     data.ts                 The dataset — sections and tools
-    posts.ts                Essay registry and cross-link helpers
+    comparisons.ts          Head-to-head comparisons, resolved against data
+    posts.ts                Essay registry, cross-links, backlink guard
     layer.ts                Stack-depth → colour mapping
     og.tsx                  Open Graph card (Satori-safe subset of CSS)
     jsonld.ts               Structured data helpers
@@ -109,6 +113,32 @@ Figures are available in MDX without importing: `<RequestPath />`,
 They are PascalCase deliberately — MDX will silently emit `<requestPath>` as an
 unknown HTML tag if it cannot resolve a lowercase name.
 
+## Adding a comparison
+
+Comparisons live in `src/lib/comparisons.ts` and are deliberately narrow: they
+cover tools that are genuine substitutes for one another, and each ends in a
+recommendation rather than a feature grid.
+
+```ts
+{
+  slug: "my-comparison",
+  title: "A vs B vs C",
+  description: "…",        // meta description
+  intro: "…",              // framing at the top of the page
+  tools: [{ name: "vLLM", angle: "The default." }, …],
+  rows: [{ dimension: "Best for", values: ["…", "…", "…"] }, …],
+  verdict: "…",            // the actual recommendation
+  rules: ["…"],            // rules of thumb
+  sections: ["inference-serving"],
+  related: ["choosing-a-inference-runtime"],
+}
+```
+
+Tools are referenced **by name** and resolved against `data.ts` at build time,
+so a comparison cannot drift from the index or link to something that moved.
+The module throws if a name is unknown, if a row's value count does not match
+the tool count, or if a section slug does not exist.
+
 ## Rebranding
 
 All placeholder branding is in **`src/lib/site.ts`**: wordmark, URL, title
@@ -139,12 +169,24 @@ holds no React state.
 
 ## Accessibility and robustness
 
-- Nav counts drop out below `xl` rather than clipping; the layer rule carries
-  identity without them.
+- The header carries three top-level links; the stack diagram on the index is
+  the layer navigator, and a mobile drawer covers small screens.
 - The search palette traps scroll, restores focus on open, and supports
   arrow/enter/escape.
 - `prefers-reduced-motion` disables smooth scrolling and transitions.
 - JSON-LD is escaped for `<`, `>` and `&` before injection.
+
+## Build-time guards
+
+Several mistakes are not type errors and would otherwise ship silently. Each is
+caught at build time by a throw during module load:
+
+| Guard | Catches |
+| --- | --- |
+| `data.ts` | Duplicate tool slugs in a section; duplicate section ordinals |
+| `data.ts` | `getToolByName` on an unknown tool |
+| `comparisons.ts` | Row value count ≠ tool count; unknown section slug |
+| `posts.ts` | A `related` slug that does not resolve to a post |
 
 ## Design provenance
 

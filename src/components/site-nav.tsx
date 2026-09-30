@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
- * The header is deliberately two items. The stack diagram on the index is a
+ * The header is deliberately three items. The stack diagram on the index is a
  * far better layer navigator than a strip of ten links ever was, so the
- * header only carries what the diagram cannot: the two top-level sections.
+ * header only carries what the diagram cannot: the top-level sections.
  */
 const links = [
   { href: "/", label: "Index" },
+  { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Essays" },
 ] as const;
 
