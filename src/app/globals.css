@@ -76,16 +76,6 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
 
-  --layer-1: var(--layer-1);
-  --layer-2: var(--layer-2);
-  --layer-3: var(--layer-3);
-  --layer-4: var(--layer-4);
-  --layer-5: var(--layer-5);
-  --layer-6: var(--layer-6);
-  --layer-7: var(--layer-7);
-  --layer-8: var(--layer-8);
-  --layer-9: var(--layer-9);
-
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
   --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
@@ -132,6 +122,17 @@
 }
 
 @layer utilities {
+  /* The header nav scrolls horizontally when space is tight. The scrollbar
+     itself is noise there — the cut-off item is the affordance. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Hairline that reads as a drawn rule rather than a box border. */
   .rule-x {
     background-image: linear-gradient(
@@ -148,6 +149,140 @@
 
   .text-pretty {
     text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Long-form essay body. Scoped rather than global so the index and hero
+     stay unaffected. */
+  .prose-lattice {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--fg-muted);
+  }
+
+  .prose-lattice > * + * {
+    margin-top: 1.15em;
+  }
+
+  .prose-lattice h2 {
+    margin-top: 2.4em;
+    margin-bottom: -0.35em;
+    font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+    font-size: 1.5em;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+  }
+
+  .prose-lattice h3 {
+    margin-top: 2em;
+    margin-bottom: -0.5em;
+    font-size: 1.12em;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .prose-lattice strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .prose-lattice a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 120ms ease;
+  }
+
+  .prose-lattice a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .prose-lattice ul,
+  .prose-lattice ol {
+    padding-left: 1.35em;
+  }
+
+  .prose-lattice ul {
+    list-style: disc;
+  }
+
+  .prose-lattice ol {
+    list-style: decimal;
+  }
+
+  .prose-lattice li + li {
+    margin-top: 0.4em;
+  }
+
+  .prose-lattice li::marker {
+    color: var(--fg-subtle);
+  }
+
+  .prose-lattice code {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 0.855em;
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    color: var(--fg);
+  }
+
+  .prose-lattice pre {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  /* Inline code inside a block would double up the frame. */
+  .prose-lattice pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .prose-lattice blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1.1em;
+    color: var(--fg);
+    font-style: italic;
+  }
+
+  .prose-lattice hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .prose-lattice table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+  }
+
+  .prose-lattice th,
+  .prose-lattice td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.6em 0.75em;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .prose-lattice th {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: 0.82em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-subtle);
   }
 }
 

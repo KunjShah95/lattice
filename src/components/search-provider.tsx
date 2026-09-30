@@ -11,14 +11,9 @@ import {
   type ReactNode,
 } from "react";
 import { layerStyle } from "@/lib/layer";
-import type { Tool } from "@/lib/types";
+import { buildIndex, searchTools, type SearchableTool } from "@/lib/search";
 
-export type SearchEntry = Tool & {
-  categoryTitle: string;
-  categorySlug: string;
-  /** Stack depth of the owning section, for the layer swatch. Null = off-stack. */
-  categoryLayer: number | null;
-};
+export type SearchEntry = SearchableTool;
 
 type SearchContextValue = {
   open: boolean;
@@ -34,35 +29,6 @@ export function useSearch() {
   return ctx;
 }
 
-/** Ranks a tool against a query. Higher is better; 0 means no match. */
-function score(tool: SearchEntry, query: string): number {
-  const q = query.toLowerCase().trim();
-  if (!q) return 1;
-
-  const name = tool.name.toLowerCase();
-  const domain = tool.domain.toLowerCase();
-  const blurb = tool.blurb.toLowerCase();
-  const category = tool.categoryTitle.toLowerCase();
-
-  if (name === q) return 1000;
-  if (name.startsWith(q)) return 500 - name.length;
-  if (domain.startsWith(q)) return 400 - name.length;
-  if (name.includes(q)) return 300 - name.length;
-  if (category.includes(q)) return 200;
-  if (domain.includes(q)) return 150;
-
-  // Subsequence match, e.g. "vgpu" -> "vllm gpu"-ish. Rewards contiguity.
-  let cursor = 0;
-  let gaps = 0;
-  for (const ch of q) {
-    const idx = blurb.indexOf(ch, cursor);
-    if (idx === -1) return 0;
-    gaps += idx - cursor;
-    cursor = idx + 1;
-  }
-  return Math.max(1, 100 - gaps);
-}
-
 export function SearchProvider({
   entries,
   children,
@@ -76,14 +42,13 @@ export function SearchProvider({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const results = useMemo(() => {
-    return entries
-      .map((tool) => ({ tool, s: score(tool, query) }))
-      .filter((r) => r.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .slice(0, 40)
-      .map((r) => r.tool);
-  }, [entries, query]);
+  // Lowercasing and pre-splitting happen once per dataset, not per keystroke.
+  const index = useMemo(() => buildIndex(entries), [entries]);
+
+  const results = useMemo(
+    () => searchTools(index, query, 40),
+    [index, query],
+  );
 
   // Reset the query as part of opening, not in an effect — this keeps the
   // palette's transient state owned by the event that causes it.
@@ -214,13 +179,10 @@ export function SearchProvider({
                         i === active ? "bg-bg-sunken" : ""
                       }`}
                     >
-                      <Image
-                        src={`https://www.google.com/s2/favicons?domain=${tool.domain}&sz=64`}
-                        alt=""
-                        width={20}
-                        height={20}
-                        className="h-5 w-5 shrink-0 rounded"
-                        unoptimized
+                      <span
+                        aria-hidden="true"
+                        className="mt-0.5 h-5 w-[3px] shrink-0 rounded-full"
+                        style={layerStyle(tool.categoryLayer)}
                       />
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate text-sm font-medium">

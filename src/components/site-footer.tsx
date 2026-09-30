@@ -1,61 +1,70 @@
 import Link from "next/link";
 import { Logo } from "./logo";
-import { categories, toolCount } from "@/lib/data";
+import { categories, stackLayers, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
 
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-border">
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">
+          <div>
             <Logo />
-            <p className="mt-3 max-w-[28ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
+            <p className="mt-3 max-w-[30ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
               {site.tagline}
+            </p>
+            <p className="mt-4 font-mono text-[11px] text-fg-subtle">
+              {toolCount} tools · {stackLayers.length} layers
             </p>
           </div>
 
-          <div>
+          {/* Layers only — off-stack material gets its own line below. */}
+          <nav aria-label="Stack layers">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-              Sections
+              Layers
             </h2>
             <ul className="mt-3 space-y-2">
-              {categories.map((c) => (
+              {stackLayers.map((c) => (
                 <li key={c.slug}>
                   <Link
                     href={`/${c.slug}`}
-                    className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                    className="flex items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
                   >
-                    {c.title}
+                    <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
+                      {c.index}
+                    </span>
+                    <span className="truncate">{c.title}</span>
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           <div>
             <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-              About
+              Elsewhere
             </h2>
             <ul className="mt-3 space-y-2">
               <li>
-                <span className="text-[13px] text-fg-muted">
-                  {toolCount} tools indexed
-                </span>
+                <Link
+                  href="/blog"
+                  className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                >
+                  Essays
+                </Link>
               </li>
-              <li>
-                <span className="text-[13px] text-fg-muted">
-                  {categories.length} categories
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-              Contact
-            </h2>
-            <ul className="mt-3 space-y-2">
+              {categories
+                .filter((c) => c.layer === null)
+                .map((c) => (
+                  <li key={c.slug}>
+                    <Link
+                      href={`/${c.slug}`}
+                      className="text-[13px] text-fg-muted transition-colors hover:text-fg"
+                    >
+                      {c.title}
+                    </Link>
+                  </li>
+                ))}
               <li>
                 <a
                   href={`mailto:${site.contact.email}`}

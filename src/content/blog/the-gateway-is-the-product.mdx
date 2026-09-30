@@ -1,0 +1,99 @@
+export const meta = {
+  slug: "the-gateway-is-the-product",
+  title: "The gateway is the product",
+  description:
+    "Every dependency you hide behind an internal interface is a dependency you have not really removed. On model routers, and why the indirection is where your users' reliability lives.",
+  dek: "The interesting engineering is not calling a model. It is deciding which model, failing over safely, and staying inside a budget while you do it.",
+  date: "2026-09-26",
+  readingTime: "8 min",
+  layers: [2, 9],
+  sections: ["routing-gateways"],
+  related: ["choosing-an-inference-runtime", "evals-are-the-asset"],
+};
+
+There is a particular kind of incident that only happens to teams who adopted a
+model abstraction too early. A provider deprecates a model ID, the error
+response changes shape, and the failure surfaces as a blank screen in an
+application that never mentioned that provider anywhere.
+
+The abstraction did not remove the dependency. It hid it in a place where
+nobody was looking.
+
+## The gateway is where the real decisions live
+
+A gateway is usually introduced as a convenience — "so we can swap providers
+easily". That undersells it. The gateway is where most of the genuinely
+interesting engineering in an LLM system happens, because it is the only layer
+that sees the whole request.
+
+<RequestPath />
+
+Four decisions, all of which someone has to make explicitly, whether or not
+there is a gateway to make them in:
+
+**Which model answers.** This is a routing problem, not a configuration
+problem. "Use GPT-4 for hard queries and a small model for easy ones" sounds
+until you try to define easy. The workable version is usually narrower: route
+on explicit task identity, on user tier, or on a cheap classifier whose
+thresholds you actually measure. Note what is *not* in that list — routing on
+whether the prompt "looks hard".
+
+**What happens when it fails.** Provider error rates are not constant and are
+not correlated across providers. A retry policy that assumes independence will
+turn a partial outage into a total one by stampeding the survivor. Retries need
+jitter and a circuit breaker, and the circuit breaker needs to be per-provider
+and per-model, not global.
+
+**What it costs.** A budget is only enforceable where spend is attributed. That
+means every request carries an identity through the gateway, and every
+downstream log records it. Without that, cost is a number someone produces in
+a spreadsheet a week later, which is not a control.
+
+**What was actually said.** A trace that does not capture the request, the
+response, the model version, and the latency of each hop is not a trace. It is
+a log line. This is the input to [evaluation](/blog/evals-are-the-asset), and
+without it you have no way to know whether a routing change helped.
+
+## What a gateway should not do
+
+A gateway is a bad home for business logic, and the temptation to put it there
+is strong because it is convenient and centrally visible.
+
+Keep these out of it:
+
+- **Prompt construction.** Prompts belong with the code that owns the task. A
+  gateway that assembles prompts is a gateway that will eventually assemble
+  them slightly differently for two callers, and you will not notice.
+- **Retry semantics tied to business outcomes.** A gateway cannot know that a
+  "failure" was actually a correct refusal. It can only see status codes.
+- **Anything that needs to read your database.** The moment the gateway has
+  application data access it is no longer infrastructure; it is a service with
+  a deployment problem.
+
+## The parts that look like overkill
+
+**A semantic cache.** Underrated, and the fastest cost reduction available.
+The risk is that a cached answer becomes stale in a way nobody notices, so
+scope it: cache by embedding similarity *and* a version of everything that
+affected the answer, and never cache tool calls with side effects.
+
+**Per-tenant rate limiting.** A single noisy tenant should not be able to
+exhaust your provider quota. This requires identity to propagate from the
+gateway inward, which is worth building early because retrofitting it means
+touching every call site.
+
+**Shadow traffic.** Replay a sample of production requests against a candidate
+model and compare. This is the only way to get a real answer to "is the new
+model better" before you switch, and it is far cheaper than the alternative of
+finding out from users.
+
+## Where to start
+
+Put a gateway in front of your provider calls this week, even if it is a thin
+wrapper that does auth and logging. The value is not in the routing — it is in
+that every subsequent call now passes through a single place where you can add
+routing, caching, budgets and tracing without touching application code.
+
+Then read about [choosing a runtime](/blog/choosing-an-inference-runtime) for
+the layer underneath, or look at the
+[Routing & Gateways](/routing-gateways) section for the tools that do this.

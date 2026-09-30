@@ -1,11 +1,21 @@
-import Image from "next/image";
 import type { Tool } from "@/lib/types";
+import { layerStyle } from "@/lib/layer";
 
 /**
  * One tool in a list. Hairline-separated rather than boxed — the reference
  * pattern that keeps a long index scannable instead of card-heavy.
+ *
+ * No favicon: a third-party icon service on every row is both a privacy
+ * leak and a visual lie (nine of these projects have no site of their own).
+ * The layer swatch carries the identity instead.
  */
-export function ToolRow({ tool }: { tool: Tool }) {
+export function ToolRow({
+  tool,
+  layer = null,
+}: {
+  tool: Tool;
+  layer?: number | null;
+}) {
   return (
     <li>
       <a
@@ -14,13 +24,10 @@ export function ToolRow({ tool }: { tool: Tool }) {
         rel="noopener noreferrer"
         className="group -mx-2 flex items-start gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-bg-sunken"
       >
-        <Image
-          src={`https://www.google.com/s2/favicons?domain=${tool.domain}&sz=64`}
-          alt=""
-          width={20}
-          height={20}
-          unoptimized
-          className="mt-0.5 h-5 w-5 shrink-0 rounded"
+        <span
+          aria-hidden="true"
+          className="mt-1 h-8 w-[3px] shrink-0 rounded-full"
+          style={layerStyle(layer)}
         />
 
         <span className="min-w-0 flex-1">
@@ -35,6 +42,12 @@ export function ToolRow({ tool }: { tool: Tool }) {
           <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
             {tool.blurb}
           </span>
+        </span>
+
+        {/* Host is de-emphasised: it tells you what kind of thing this is
+            (own site vs. a repo) without competing with the name. */}
+        <span className="mt-0.5 hidden shrink-0 font-mono text-[11px] text-fg-subtle sm:block">
+          {tool.domain.replace(/^www\./, "")}
         </span>
 
         <svg

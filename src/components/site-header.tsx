@@ -2,15 +2,17 @@ import Link from "next/link";
 import { Logo } from "./logo";
 import { SearchTrigger } from "./search-provider";
 import { ThemeToggle } from "./theme-toggle";
-import { categories } from "@/lib/data";
-import { site } from "@/lib/site";
+import { layerStyle } from "@/lib/layer";
+import { stackLayers } from "@/lib/data";
 
-const countFor = (key: string) =>
-  categories.find((c) => c.slug === key)?.tools.length ?? 0;
+// Nav follows the stack, so the header doubles as a depth indicator.
+const navCategories = [...stackLayers].sort(
+  (a, b) => (b.layer ?? 0) - (a.layer ?? 0),
+);
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-5 sm:px-6">
         <Link
           href="/"
@@ -20,20 +22,27 @@ export function SiteHeader() {
         </Link>
 
         {/* Horizontally scrollable on narrow screens rather than a hamburger:
-            the nav is short enough that a drawer would cost more than it saves. */}
+            the nav is short enough that a drawer would cost more than it saves.
+            Counts are the first thing to go as space tightens — the colour rule
+            still carries layer identity without them. */}
         <nav
-          aria-label="Categories"
-          className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
+          aria-label="Stack layers"
+          className="no-scrollbar hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex"
         >
-          {site.navItems.map((item) => (
+          {navCategories.map((c) => (
             <Link
-              key={item.href}
-              href={item.href}
-              className="group flex shrink-0 items-baseline gap-1.5 rounded-md px-2 py-1 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+              key={c.slug}
+              href={`/${c.slug}`}
+              className="group flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
             >
-              {item.label}
-              <span className="font-mono text-[11px] text-fg-subtle">
-                {countFor(item.countKey)}
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-[2px] rounded-full opacity-60 transition-opacity group-hover:opacity-100"
+                style={layerStyle(c.layer)}
+              />
+              {c.short}
+              <span className="hidden font-mono text-[11px] text-fg-subtle xl:inline">
+                {c.tools.length}
               </span>
             </Link>
           ))}
@@ -41,12 +50,6 @@ export function SiteHeader() {
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <SearchTrigger className="hidden sm:inline-flex" />
-          <Link
-            href="/#all"
-            className="hidden text-[13px] text-fg-muted transition-colors hover:text-fg lg:block"
-          >
-            All {categories.length} sections
-          </Link>
           <ThemeToggle />
         </div>
       </div>

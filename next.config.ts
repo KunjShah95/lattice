@@ -1,17 +1,18 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [],
+  },
+});
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        // Favicon proxy: normalises third-party favicons to a consistent size
-        // so a missing or oddly-shaped icon can't break the row rhythm.
-        protocol: "https",
-        hostname: "www.google.com",
-        pathname: "/s2/favicons",
-      },
-    ],
-  },
+  // Favicons were deliberately dropped from tool rows (see tool-row.tsx), so
+  // there are no remote image patterns to allow here.
+  pageExtensions: ["ts", "tsx", "md", "mdx"],
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

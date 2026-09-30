@@ -1,0 +1,121 @@
+export const meta = {
+  slug: "choosing-an-inference-runtime",
+  title: "Choosing an inference runtime",
+  description:
+    "vLLM, SGLang, TGI, llama.cpp and Triton solve different problems. How to pick the one that matches your traffic shape, without benchmarking yourself into a corner.",
+  dek: "The wrong runtime costs you throughput you never knew you were leaving on the table. The right one is usually decided by traffic shape, not model size.",
+  date: "2026-09-28",
+  readingTime: "7 min",
+  layers: [1],
+  sections: ["inference-serving"],
+  related: ["the-gateway-is-the-product", "prompt-or-finetune"],
+};
+
+Every team that self-hosts a model eventually discovers that the model is not
+the bottleneck. The bottleneck is the engine around it — how requests are
+batched, how the KV cache is managed, and what happens when two requests with
+a long shared prefix arrive at the same moment.
+
+That is what an inference runtime is. It is a scheduler pretending to be a
+library.
+
+<RequestPath />
+
+## The four questions that decide it
+
+Almost every runtime choice collapses to four questions. Answer them honestly
+and the shortlist usually drops to one or two.
+
+**1. Is your traffic bursty or steady?** Continuous batching exists to fill a
+batch with whatever is in flight right now. Under steady, low-concurrency
+traffic — an internal tool, a batch job — there is never enough in flight to
+fill a batch, and a fancy scheduler buys you nothing. Under bursty traffic it
+is the entire game. This is the single biggest fork in the road.
+
+**2. How much of your traffic shares a prefix?** If a large fraction of
+requests begin with the same few hundred tokens — a long system prompt, a
+cached document, a shared tool schema — then prefix caching is worth more than
+every other optimisation combined. SGLang's RadixAttention and vLLM's
+automatic prefix caching both exist to capture exactly this. If your prompts are
+short and unrelated, neither will do much for you.
+
+**3. Do you need more than one GPU?** Once you cross a single device you are
+choosing a parallelism strategy: tensor parallel, pipeline parallel, or
+data parallel replicas behind a router. Tensor parallelism is the default and
+the easiest to get wrong, because it adds a collective operation to every
+forward pass. If your model fits on one GPU with room for KV cache, do not go
+there. Two A100s running two replicas behind a load balancer will usually beat
+one A100 running a sharded 70B.
+
+**4. Do you actually need the throughput?** Most self-hosted deployments do
+not. A support-deflection feature serving a few hundred requests a minute is
+better served by a managed endpoint at a predictable price than by a cluster
+you now operate.
+
+## What each runtime is actually for
+
+**[vLLM](https://vllm.ai)** is the default answer, and usually correctly so. Its
+paged-attention KV cache management was the unlock that made GPU serving
+practical at all, and the OpenAI-compatible server means your existing client
+code works unchanged. Reach for it when you have no strong reason not to.
+
+**[SGLang](https://sgl-project.github.io/sglang)** wins on shared-prefix
+workloads and on structured output, where its RadixAttention reuse and
+constrained-decoding paths are meaningfully better. If your prompts share a
+long prefix, benchmark it against vLLM before deciding.
+
+**[llama.cpp](https://github.com/ggml-org/llama.cpp)** is a different tool
+entirely. It is a CPU-first, GGUF-native runtime that will run quantised models
+on a laptop. Reach for it for local development, edge deployment, or when your
+constraint is "no GPU at all" rather than "maximum throughput".
+
+**[Text Generation Inference](https://github.com/huggingface/text-generation-inference)**
+is Hugging Face's answer, and its tensor parallelism is well trodden. It is a
+reasonable choice inside an existing Hugging Face shop; it is not usually the
+one to pick cold.
+
+**[Triton](https://github.com/triton-inference-server/server)** is the
+general-purpose answer for heterogeneous serving — when some requests want
+ONNX, some want TensorRT, and some want a Python model. It trades peak
+LLM-specific throughput for flexibility you probably do not need.
+
+## A benchmark you should actually run
+
+Do not benchmark on single-stream latency. It will tell you the runtime with
+the lowest per-token time in isolation, which is almost never the one with the
+best throughput at your concurrency, which is the number you are paying for.
+
+Run a concurrency sweep and plot throughput against latency:
+
+```bash
+# Sweep concurrency, keep the prompt shape you actually see in production.
+for c in 1 4 8 16 32 64 128; do
+  echo "=== concurrency $c ==="
+  vllm bench serve \
+    --backend vllm \
+    --model meta-llama/Llama-3.1-8B-Instruct \
+    --num-prompts $((c * 20)) \
+    --max-concurrency "$c" \
+    --request-rate inf \
+    --dataset-name sharegpt
+done
+```
+
+Plot tokens/second on one axis and p99 latency on the other. The right runtime
+is the one whose curve is furthest right before latency becomes unacceptable
+*for your users* — not before it exceeds some number you read in a blog post.
+
+## The decision, compressed
+
+Start with vLLM. Move to SGLang if you have heavy prefix sharing or strict
+structured output. Use llama.cpp if you have no GPU budget. Only reach for
+tensor parallelism when the model genuinely does not fit, and consider whether
+[distilling it down to something that does](/blog/prompt-or-finetune) is the
+better answer.
+
+Whatever you choose, put a [gateway](/blog/the-gateway-is-the-product) in front
+of it from day one. The runtime is the component you are most likely to
+replace, and you do not want that replacement to touch application code.
+
+See the [Inference & Serving](/inference-serving) section for the full list of
+runtimes and adjacent tooling.

@@ -1,0 +1,110 @@
+export const meta = {
+  slug: "fix-the-ranking-not-the-prompt",
+  title: "Fix the ranking, not the prompt",
+  description:
+    "Most RAG failures are retrieval failures wearing a hat. How to diagnose whether your system is retrieving badly or generating badly, and the three changes with the best ratio of impact to effort.",
+  dek: "When a RAG system gives a bad answer, the instinct is to rewrite the prompt. Nine times out of ten the prompt is fine and the context was never there.",
+  date: "2026-09-24",
+  readingTime: "9 min",
+  layers: [3, 9],
+  sections: ["retrieval-vector-stores", "evaluation-observability"],
+  related: ["evals-are-the-asset", "prompt-or-finetune"],
+};
+
+There is a predictable sequence to every RAG project. Retrieval works on the
+demo queries, the demo works end to end, and then real traffic arrives and the
+answers are wrong. The instinct at that point is almost always to start
+rewriting the prompt — adding "answer only from the context", "if the context
+is insufficient, say so", and a paragraph of increasingly baroque instructions.
+
+This almost never works, because the prompt is downstream of the problem. If the
+right passage was not in the context window, no instruction can recover it.
+
+<RagPipeline />
+
+## Diagnose before you rewrite
+
+The first thing to establish is *where* the failure happened. Retrieval and
+generation fail differently and are fixed differently.
+
+**Check whether the answer is present in the retrieved context at all.** This
+is a mechanical check and it splits the problem cleanly. If the passage
+containing the answer is not in the top-k, you have a retrieval problem and no
+amount of prompt work will help. If it *is* there and the model still answered
+badly, you have a generation problem, and that is much rarer than people
+assume.
+
+Do this on a set of twenty real queries before you change anything. It takes an
+hour and it determines everything that follows.
+
+## The three changes, in order of payoff
+
+### 1. Rerank, if you have not already
+
+This is the single highest-leverage change available to an existing RAG
+system, and the cheapest to try.
+
+Bi-encoders — which is what your vector store runs — embed the query and the
+document independently. That is what makes them fast enough to search millions
+of vectors, and it is also why they are mediocre at judging relevance: the
+query and the document never see each other.
+
+A cross-encoder sees both at once and is far more accurate. It is also far too
+slow to run over a whole corpus, which is why the pattern is two-stage: cheap
+bi-encoder retrieval to pull fifty candidates, expensive cross-encoder to pick
+the best five. You are paying cross-encoder prices for five documents instead
+of fifty thousand.
+
+In practice this is often the difference between a system that works and one
+that does not, and it is a couple of days of work.
+
+### 2. Go hybrid, because pure vector search fails on the things users type
+
+Vector search is bad at exact tokens: part numbers, error codes, people's names,
+product SKUs, anything with a specific spelling. It embeds `ERR-4421` and
+`ERR-4412` into nearly the same place, because semantically they *are* nearly
+the same thing.
+
+Users type exact tokens constantly. A hybrid index — BM25 for lexical match,
+vector for semantic, union the candidates, then rerank — gets both. Most
+vector databases support this as a single query, and most managed ones enable it
+with a flag. If yours does not, this alone justifies a migration.
+
+### 3. Fix your chunking, which nobody wants to do
+
+Chunking is where RAG quality is won and lost, and the default — fixed token
+count with overlap — is close to the worst reasonable option. It cuts through
+sentences, through tables, through the middle of an argument.
+
+Chunk on structure instead: headings, paragraphs, table rows. Keep each chunk
+large enough to contain a complete thought, and put the document title and
+heading path in the chunk metadata so the retrieved text carries its own
+context. A chunk that begins mid-argument is hard for a model to use even when
+it is the right chunk.
+
+Then check the one number that correlates most with answer quality: **how many
+chunks you actually feed the model**. Fifty is almost always worse than five.
+More context is not more information; past a point it is noise, and models
+attend worse to the middle of a long context.
+
+## What not to bother with yet
+
+- **Query rewriting / HyDE-style expansion.** Sometimes helps, adds a model
+  call per query, and is impossible to evaluate without a good eval set. Get
+  the eval set first — see [evals are the asset](/blog/evals-are-the-asset).
+- **Graph retrieval.** A large engineering investment for a narrow class of
+  genuinely multi-hop questions. Know whether you have those before you build.
+- **Fine-tuning the generator to use context better.** This is a real technique
+  and almost always premature. It is a way to make a model better at a task you
+  have not yet made possible.
+
+## The one thing to do first
+
+Build the diagnostic. Twenty queries, real ones, with a note on whether the
+answer was present in the retrieved context. It is the highest-information
+hour you will spend on the project, and it is the thing teams skip.
+
+Once you have it, the [Evaluation & Observability](/evaluation-observability)
+section covers the tooling to keep that check running continuously, and
+[Retrieval & Vector Stores](/retrieval-vector-stores) has the stores that
+support hybrid search natively.

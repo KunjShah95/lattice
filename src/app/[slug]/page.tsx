@@ -82,7 +82,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
         <ul className="mt-4 grid gap-x-6 gap-y-1 sm:grid-cols-2">
           {siblings.map((c) => (
             <li key={c.slug}>
-              <a
+              <Link
                 href={`/${c.slug}`}
                 className="flex items-baseline gap-2 rounded-md px-2 py-1.5 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
               >
@@ -93,7 +93,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                 <span className="font-mono text-[11px] text-fg-subtle">
                   {c.tools.length}
                 </span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

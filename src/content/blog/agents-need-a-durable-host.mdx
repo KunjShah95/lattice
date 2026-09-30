@@ -1,0 +1,134 @@
+export const meta = {
+  slug: "agents-need-a-durable-host",
+  title: "Agents need a durable host",
+  description:
+    "An agent loop is easy. Surviving a deploy mid-loop, a provider timeout, or a runaway token spend is the engineering — and it belongs in the host, not the prompt.",
+  dek: "The loop is a weekend project. The part where it keeps working at three in the morning is the actual product, and almost nobody budgets for it.",
+  date: "2026-09-20",
+  readingTime: "8 min",
+  layers: [6, 5],
+  sections: ["workflow-orchestration", "agent-frameworks"],
+  related: ["the-gateway-is-the-product", "evals-are-the-asset"],
+};
+
+The agent loop is the least interesting part of an agent system:
+
+```
+while not done:
+    response = model(context)
+    if response is a tool call:
+        result = run_tool(response)
+        context = append(context, result)
+```
+
+Twenty lines. Every framework implements it. It is also where most of the
+demo-to-production gap lives, and the reason is that the loop is a *control
+structure* and someone has to be responsible for it when the process hosting it
+does something inconvenient.
+
+<AgentLoop />
+
+## What actually breaks
+
+**A deploy.** The loop is mid-flight, holding a tool call in progress, when
+someone ships. The process dies. The work is gone, and because the side effects
+of the earlier steps already happened, a naive retry will repeat them. This is
+the single most common way an agent causes real damage: not by being wrong, but
+by being interrupted.
+
+**A provider timeout.** A tool call takes ninety seconds. The HTTP client times
+out at thirty. The model is told the tool failed and helpfully tries something
+else, or reports failure, or worse — retries a non-idempotent call.
+
+**Runaway spend.** A loop that is not converging has no natural end. Without an
+external ceiling it will spend until the credit card objects, and the model's
+own judgement that it is "still working" is not a budget.
+
+**A context that outgrows itself.** Long loops accumulate. Eventually the
+context is mostly stale tool output from step three, and the model's attention
+to the actual task degrades badly. Nothing signals this — it just gets worse
+quietly.
+
+## Put the limits in the host
+
+The instinct is to put these constraints in the system prompt: "you have at
+most ten turns", "stop if you are not making progress". This does not work, and
+it is worth being blunt about why. A prompt is a suggestion to a system that is
+good at generating plausible text and has no privileged access to its own
+budget. It will sometimes follow the instruction. It is not a control.
+
+The host is a control. It can count turns, count tokens, and count wall-clock
+time, and it can stop the loop regardless of what the model would prefer to do
+next.
+
+```python
+# The ceiling lives here, not in the prompt.
+@dataclass
+class AgentBudget:
+    max_turns: int = 12
+    max_tokens: int = 200_000
+    deadline_s: float = 120.0
+
+    def check(self, turn: int, tokens: int, elapsed: float) -> None:
+        if turn >= self.max_turns:
+            raise BudgetExceeded(f"turn ceiling: {turn}")
+        if tokens >= self.max_tokens:
+            raise BudgetExceeded(f"token ceiling: {tokens}")
+        if elapsed >= self.deadline_s:
+            raise BudgetExceeded(f"deadline: {elapsed:.0f}s")
+```
+
+The prompt can suggest a budget. Only the host can enforce one. Every hard
+guarantee you give a user about your agent is a promise the host is keeping.
+
+## Make the side effects idempotent, or make them recoverable
+
+Interruption is unavoidable, so the question is what happens when it happens
+between two side effects. There are two workable answers and one non-answer.
+
+**Idempotent operations.** A tool that sets state to a value is safe to repeat.
+`set_status(order, "shipped")` called twice is one operation, not two. Design
+your tools with this property wherever you can, and pass an idempotency key
+where you cannot.
+
+**Durable execution.** Run the loop inside an engine that checkpoints after
+each step — [Temporal](https://temporal.io), [Inngest](https://inngest.com),
+[Trigger.dev](https://trigger.dev), [Restate](https://restate.dev). The
+execution log becomes the source of truth, and a crash becomes a resume rather
+than a loss. This is what a workflow engine was built for, and agent loops are
+exactly its use case: long, multi-step, partially completed, and full of slow
+external calls.
+
+**Non-answer:** catching the exception and continuing. You have no way to know
+which side effects committed.
+
+## Manage the context deliberately
+
+Two techniques do most of the work here, and both are boring.
+
+**Summarise the middle, keep the ends.** Early turns contain the task and the
+decisions. Late turns contain the current state. The middle is mostly tool
+output that has already been used. Compressing the middle while preserving the
+first and last few turns keeps a long loop coherent.
+
+**Take tool results out of band.** Large tool outputs do not need to be
+re-read by the model on every subsequent turn. Store the full result, put a
+summary plus a handle in the context, and let the model fetch detail if it
+needs it. This is the same insight as the retrieval lesson in
+[fixing ranking](/blog/fix-the-ranking-not-the-prompt) — more context is not
+more information.
+
+## Where to start
+
+You do not need a workflow engine on day one. You do need these four things,
+in this order:
+
+1. A turn and token ceiling enforced in code, not in the prompt.
+2. Structured logging of every step, so you can see what the loop was thinking.
+3. Idempotency keys on every side-effecting tool.
+4. A real answer to "what happens if the process dies here?" — which, if you
+   cannot answer it today, is the actual work.
+
+Then look at the [Workflow Orchestration](/workflow-orchestration) section for
+durable execution engines, and [Agent Frameworks](/agent-frameworks) for the
+orchestration layers above them.

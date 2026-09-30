@@ -1,0 +1,121 @@
+export const meta = {
+  slug: "evals-are-the-asset",
+  title: "Evals are the asset, not the logging",
+  description:
+    "Why a twenty-example golden set beats a month of tracing, how to build one from production failures, and the mistake of holding out a set you never change.",
+  dek: "Traces tell you what happened. Evals tell you whether it got better. Most teams build the first and mistake it for the second.",
+  date: "2026-09-22",
+  readingTime: "8 min",
+  layers: [9],
+  sections: ["evaluation-observability"],
+  related: ["fix-the-ranking-not-the-prompt", "prompt-or-finetune"],
+};
+
+Every team ships an observability tool in their first month and an evaluation
+harness in their third, if they are lucky. The two are routinely conflated
+because they feel like the same activity: both involve looking at what the
+system produced.
+
+They are not the same, and the difference is the difference between a debugging
+tool and a decision-making tool.
+
+- **Tracing** answers "what happened on this request". It is forensic, and it is
+  genuinely useful.
+- **Evaluation** answers "is this version better than the last one". It is
+  comparative, and it is the only thing that lets you make a change with any
+  confidence at all.
+
+You cannot iterate on a prompt without the second one. You can certainly
+debug with only the first, and that is exactly how teams end up confident,
+fluently, and wrong.
+
+<EvalFlywheel />
+
+## Start smaller than you think
+
+The instinct is to assemble a thousand-example benchmark. This does not work,
+for a reason worth stating plainly: a thousand hand-written examples encodes
+your assumptions about the problem, and then you spend the next month
+discovering the assumptions were wrong.
+
+Twenty examples, taken from real production traffic, beats a thousand synthetic
+ones. Not slightly better — categorically better, because twenty real failures
+contain more information about your actual distribution than a thousand
+invented ones do.
+
+## Build the set from failures, not from imagination
+
+The highest-signal source of eval cases is the production trace log, filtered
+to the requests where something went wrong. Someone complained. A downstream
+validator rejected the output. The response was empty. A tool call failed and
+the model confidently continued as if it had succeeded.
+
+The mechanics of building the set:
+
+1. **Export traces** with request, response, latency, cost and any validation
+   outcome. You need all of it, because a failure is usually a disagreement
+   between fields, not a property of one.
+2. **Filter to disagreements** — where a validator failed, or a human marked it
+   bad, or the output was degenerate.
+3. **Write the expected behaviour** for each, in a sentence. Not the expected
+   output; the expected *behaviour*. A golden answer bakes in today's
+   phrasing and punishes you for improving the wording.
+4. **Add them to the set permanently.** This is the part that matters.
+
+## Scorers are where most harnesses get stuck
+
+The question "is this answer good?" is the hard one. Three approaches, in
+increasing order of cost and trustworthiness.
+
+**Exact and programmatic checks.** Schema validity, whether required fields are
+present, whether a citation actually exists in the retrieved context, whether
+the response contains a refusal when it should. These are cheap, deterministic
+and catch a surprising proportion of real regressions. Start here.
+
+**Model-graded rubrics.** A judge model scores output against a written rubric.
+This works, with two caveats that are frequently ignored. First, position bias:
+the same rubric graded with the answer and the reference in swapped order
+produces different scores, so randomise it. Second, the judge needs to be
+stronger than the thing it is judging — a weak judge grading a strong model
+measures the judge.
+
+**Human review.** Slow and expensive and still necessary for the questions that
+matter most. Use it to calibrate the automated scorers, not to replace them.
+
+The pragmatic combination is programmatic checks in CI on every commit, model
+graders on a larger set before a release, and humans on a sample continuously
+so you know whether your automated scorers still agree with people.
+
+## The trap: a hold-out set you never change
+
+A benchmark that is not updated is a benchmark you have overfitted to. You will
+improve your score and ship a regression, and the score will tell you the
+change was good.
+
+Two habits prevent this. Add to the set every time production surprises you —
+that is the whole flywheel, and skipping it is what turns evals into theatre.
+And hold back a genuinely small slice that you look at rarely, because a set
+you consult while iterating is a set you have trained on, whether or not you
+meant to.
+
+## What to do this week
+
+You do not need a platform. You need a file of twenty cases and a script that
+runs them.
+
+```bash
+# The whole harness. No framework required.
+npx promptfoo eval \
+  --config eval/retrieval.yaml \
+  --var query="how do I rotate an API key" \
+  --output results.json
+```
+
+Put it in CI, gate merges on it, and let it fail. A failing eval is the
+system telling you something true, which is more than most dashboards ever do.
+
+Once it exists, every other decision in this index becomes cheaper — prompt
+changes, [routing changes](/blog/the-gateway-is-the-product), chunk sizes, and
+the question of [whether to fine-tune at all](/blog/prompt-or-finetune).
+Tooling for this lives in
+[Evaluation & Observability](/evaluation-observability).

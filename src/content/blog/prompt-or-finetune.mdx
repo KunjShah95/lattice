@@ -1,0 +1,100 @@
+export const meta = {
+  slug: "prompt-or-finetune",
+  title: "Prompt, or fine-tune?",
+  description:
+    "Fine-tuning is a manufacturing step, not a debugging step. A decision framework for when prompting has genuinely plateaued — and when the real problem is retrieval.",
+  dek: "Almost every 'the model does not know this' problem is a retrieval problem wearing a hat. Here is how to tell the difference before you spend a week on a training run.",
+  date: "2026-09-18",
+  readingTime: "7 min",
+  layers: [4, 8],
+  sections: ["fine-tuning", "prompt-engineering"],
+  related: ["fix-the-ranking-not-the-prompt", "evals-are-the-asset"],
+};
+
+The question arrives in a predictable form. The prompt is long, it has been
+iterated on, the model still gets the task wrong a fifth of the time, and
+somebody suggests fine-tuning. Sometimes that is correct. More often the
+underlying problem is one of three other things, and a training run will make
+it worse while teaching you nothing.
+
+The useful way to frame this is not "prompt or fine-tune" but *what are you
+trying to change*.
+
+<PromptVsTune />
+
+## Change the behaviour → prompt it
+
+Tone, output format, when to refuse, which tool to prefer, how to structure a
+JSON response. All of this is squarely in the pretraining and instruction-tuning
+distribution, and all of it responds to prompting.
+
+Two things make a prompt work here: give the model a worked example rather than
+a description of what you want, and tell it what to do in the ambiguous case
+rather than only what to do in the clear case. Most "the model won't follow the
+format" problems are one missing example.
+
+If you have done both of those and it still fails, move on — you have probably
+hit the edge of what prompting gets you, and the next lever is
+[retrieval](/blog/fix-the-ranking-not-the-prompt) or a tool, not training.
+
+## Teach it something → check retrieval first
+
+If the model does not know a fact, no amount of training will reliably fix it
+in a way you can maintain. You will be encoding a fact into weights, where it
+cannot be updated, audited or removed.
+
+The correct instrument for supplying knowledge is supplying knowledge. If the
+fact is in your corpus, the problem is retrieval — wrong chunk, wrong embed,
+wrong query. If it is not in your corpus, no fine-tune will help either.
+
+There is a narrow case where fine-tuning genuinely beats retrieval: the model
+needs a *format* or *schema* that is stable and unusual, and you have thousands
+of examples of that format. Even then, start with constrained decoding or
+[Instructor](https://python.useinstructor.com)-style schema enforcement, which
+gives you a guarantee rather than a tendency.
+
+## Make it cheaper → distil, don't fine-tune
+
+If the behaviour is already correct and you want the same behaviour for less,
+that is a distillation problem: generate a large set of examples from the
+expensive model, train the small one against them.
+
+This is the best-understood reason to fine-tune, because you have a reference
+and the training signal is mechanical. It is also where the tooling in
+[Fine-tuning & Training](/fine-tuning) is genuinely good —
+[Unsloth](https://unsloth.ai) in particular has moved the memory and time
+cost of LoRA down far enough to make this practical on a single GPU.
+
+The result is a model that is slightly worse at the edges and dramatically
+cheaper, which for high-volume, well-defined tasks is usually the right trade.
+
+## What fine-tuning is actually for
+
+There is one more category, and it is the one people mean when they say
+"fine-tuning" in a serious engineering context: **latency and cost at
+production scale, for a behaviour you have already locked down**. Distillation,
+at that point, is the mechanism.
+
+Full-parameter fine-tuning — continued pretraining, DPO on preference pairs,
+RLHF — is for organisations that have the data, the cluster, and a reason no
+API vendor will build their custom model. It is a genuine capability and it is
+genuinely out of reach for almost everyone reading this.
+
+## A decision you can defend
+
+Work down this list and stop at the first yes:
+
+1. **Can supplying the information at inference time fix it?** If yes, build
+   retrieval. This is right far more often than not.
+2. **Can an example in the prompt fix it?** If yes, add the example.
+3. **Can constrained decoding fix it?** If yes, use a schema.
+4. **Have you measured, with an eval set, that all three failed?** If no, you
+   are not ready to make this decision.
+5. **Is the goal now cost or latency at volume?** If yes, distil.
+6. Only after all of the above: fine-tune something.
+
+Steps four matters more than people give it credit for. Without an eval set,
+steps one through three have no stopping condition, and "the prompt isn't
+working" becomes an assertion you cannot check. Build the harness first — see
+[evals are the asset](/blog/evals-are-the-asset) — and this decision takes
+about twenty minutes instead of a quarter.

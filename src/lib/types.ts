@@ -24,6 +24,8 @@ export type Category = {
   index: string;
   slug: string;
   title: string;
+  /** Compact label for the header nav, where horizontal space is scarce. */
+  short: string;
   /** One-line framing of what belongs in this section. */
   description: string;
   /** Stack depth, 1 = substrate. Null for sections that are not a layer. */
