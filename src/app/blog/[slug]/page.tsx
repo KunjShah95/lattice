@@ -105,9 +105,61 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         </div>
       </article>
 
+      {/*
+        The next step, in the reader's terms.
+
+        An essay here is an argument, and the strongest moment to act is the
+        moment it finishes — which is exactly when the page previously offered
+        nothing but more essays. `meta.sections` was already resolved above and
+        used only in the header breadcrumb, so the reader had to scroll back up
+        to act on what they had just been convinced of.
+
+        Placed above "Read next" deliberately: the tools are the point, the
+        further reading is the consolation prize.
+      */}
+      {sections.length ? (
+        <section className="mt-16 border-t border-border pt-8">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Where to look next
+          </h2>
+          <p className="mt-3 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+            {sections.length === 1
+              ? "This essay is mostly about one layer, so that is where the options are:"
+              : "This essay spans several layers. The options live in each:"}
+          </p>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {sections.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={`/${c.slug}`}
+                  className="group flex h-full items-start gap-3 rounded-lg border border-border bg-bg-elevated p-3.5 transition-colors hover:border-border-strong"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 h-8 w-[3px] shrink-0 rounded-full"
+                    style={layerStyle(c.layer)}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[14px] font-medium group-hover:text-accent">
+                      {c.title}
+                    </span>
+                    <span className="mt-0.5 block text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+                      {c.responsibility}
+                    </span>
+                    <span className="mt-1.5 block font-mono text-[11px] text-fg-subtle">
+                      {c.tools.length} tools →
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {/* Related essays — the internal backlink graph. */}
       {related.length ? (
-        <nav aria-label="Related essays" className="mt-16 border-t border-border pt-8">
+        <nav aria-label="Related essays" className="mt-12 border-t border-border pt-8">
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Read next
           </h2>

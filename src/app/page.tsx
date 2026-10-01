@@ -30,6 +30,33 @@ export default function HomePage() {
               them.
             </p>
 
+            {/*
+              One decision per viewport. The hero sets context, the diagram
+              shows the shape, and this says what to actually do — in that
+              order. It was previously absent, so a first-time reader landed on
+              a beautiful diagram and had to infer that scrolling further was
+              the intended action.
+
+              The label names the action rather than the destination. "Start here"
+              would compete with the section below it that is also called Start
+              Here; this says what happens when you click.
+            */}
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <a
+                href="#start-here"
+                className="inline-flex items-center gap-2 rounded-md bg-fg px-4 py-2.5 text-[14px] font-medium text-bg transition-opacity hover:opacity-90"
+              >
+                Find my starting layers
+                <span aria-hidden="true">↓</span>
+              </a>
+              <Link
+                href="/all"
+                className="text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                or browse all {toolCount}
+              </Link>
+            </div>
+
             {/* No search field here. The sticky header already carries one and
                 is visible in the first viewport at every breakpoint, so a
                 second copy below the fold-adjacent hero was a duplicated
@@ -43,7 +70,7 @@ export default function HomePage() {
 
       {/* Decision path — the index answers "what exists", this answers
           "given what I am building, which parts matter". */}
-      <section className="border-t border-border py-12">
+      <section id="start-here" className="scroll-mt-20 border-t border-border py-12">
         <StartHere />
       </section>
 
