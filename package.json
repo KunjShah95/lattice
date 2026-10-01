@@ -4,16 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build.mjs",
+    "next:build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "npm run lint && npm run test && npm run build",
-    "cf:build": "opennextjs-cloudflare build",
+    "verify": "npm run lint && npm run test && npm run next:build",
     "cf:deploy": "opennextjs-cloudflare deploy",
-    "deploy": "npm run build && npm run cf:build && npm run cf:deploy",
-    "preview": "npm run build && npm run cf:build && wrangler dev"
+    "deploy": "npm run build && npm run cf:deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
