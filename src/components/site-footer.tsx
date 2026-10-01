@@ -60,8 +60,6 @@ export function SiteFooter() {
             <FooterLink href="/all">All tools</FooterLink>
             <FooterLink href="/compare">Comparisons</FooterLink>
             <FooterLink href="/blog">Essays</FooterLink>
-            <FooterLink href="/feed.xml">RSS</FooterLink>
-            <FooterLink href="/sitemap.xml">Sitemap</FooterLink>
           </FooterColumn>
         </div>
 
