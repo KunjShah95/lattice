@@ -30,6 +30,97 @@ npm run verify     # lint + test + build
 > If port `3000` is occupied, Next falls back to `3001`. Pass an explicit port
 > if a *second* project is also running locally: `npm run dev -- -p 4177`.
 
+## Deploying to Cloudflare Workers
+
+This deploys as a **Worker via OpenNext**, not a static export. Most of the site
+is prerendered, but `opengraph-image` routes, `/feed.xml` and `/llms.txt` are
+server-rendered on demand, so there has to be something serving them.
+
+```bash
+npm run deploy     # next build -> opennextjs-cloudflare build -> deploy
+npm run preview    # build + adapt, then serve locally under workerd
+```
+
+| Script | Does |
+| --- | --- |
+| `npm run build` | Plain Next build (`.next`) |
+| `npm run cf:build` | Adapts `.next` to `.open-next/` and emits `worker.js` |
+| `npm run cf:deploy` | Uploads the Worker and its assets |
+| `npm run deploy` | All three, in order |
+| `npm run preview` | Build + adapt, then `wrangler dev` on workerd |
+
+### Do not deploy with `npx wrangler deploy`
+
+That command makes wrangler auto-detect Next.js and then try to bootstrap the
+OpenNext adapter **interactively** — installing packages, rewriting
+`package.json` scripts, generating `wrangler.jsonc`, and running a migrate step.
+In CI that fails, because the migrate step shells out to an `npm install` using
+an `--allow-scripts` flag npm no longer accepts for project-scoped installs:
+
+```
+npm error code EALLOWSCRIPTS
+npm error --allow-scripts is not allowed in project-scoped installs.
+```
+
+Committing `wrangler.jsonc` and `open-next.config.ts` is what prevents that
+bootstrap from ever running. Set the deploy command in the Cloudflare dashboard
+to `npm run deploy` and leave the build command as `npm run build`.
+
+### Config, and why it is minimal
+
+`wrangler.jsonc` deliberately omits three things the stock `@opennextjs/cloudflare`
+template wires up:
+
+- **an R2 bucket** for the incremental cache — there is no `revalidate` or ISR
+  anywhere, so there is nothing to cache, and requiring a bucket to exist first
+  is the most common cause of a failed first deploy;
+- **a `WORKER_SELF_REFERENCE` service binding** — only needed once revalidation
+  runs through a separate worker;
+- **an `IMAGES` binding** — nothing uses `next/image`, so Next's image optimizer
+  never runs.
+
+`open-next.config.ts` uses `static-assets-incremental-cache`, which is
+documented for apps that do not revalidate and only serve prerendered output.
+If ISR is ever introduced, switch to `r2-incremental-cache` and add the
+`r2_buckets` binding in the same change.
+
+### esbuild must be a direct dependency
+
+`@opennextjs/cloudflare` imports `esbuild` from its bundler but does not declare
+it — it only appears transitively under `@opennextjs/aws` and `wrangler`, from
+where it is not resolvable. Without an explicit `esbuild` devDependency the
+build fails with:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild'
+  imported from .../@opennextjs/cloudflare/dist/cli/build/bundle-server.js
+```
+
+### Install scripts
+
+npm honours the `allowScripts` field in `package.json` and **ignores**
+`allow-scripts` in `.npmrc` when both are present. `allowScripts` is therefore
+the authoritative allowlist; it covers the native binaries (`sharp`, Tailwind
+oxide, the platform SWC packages) plus `esbuild` and `workerd`, which the
+OpenNext toolchain needs.
+
+### Branding must be set before a public deploy
+
+`src/lib/site.ts` reads four values from the environment and falls back to
+`.invalid` placeholders. `src/lib/brand.test.ts` fails while any is still a
+placeholder, so `npm run verify` fails locally until they are set, and CI gates
+the check on the `SITE_URL` repository variable:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_CONTACT_EMAIL=you@your-domain.com
+NEXT_PUBLIC_CONTACT_X=https://x.com/yourhandle
+NEXT_PUBLIC_COPYRIGHT_HOLDER=Your Name
+```
+
+`url` is also `metadataBase`, so a placeholder here puts a non-resolving
+`og:url` on every one of the site's share images.
+
 ## Testing
 
 Unit tests only — they cover the pure data and logic modules, not components.

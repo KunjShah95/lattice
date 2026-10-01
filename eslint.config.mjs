@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cloudflare build output. `npm run cf:build` vendors a bundled server
+    // function here, which is tens of thousands of lines of generated JS and
+    // must not be linted. ESLint's flat config does not read .gitignore, so
+    // this has to be listed explicitly.
+    ".open-next/**",
+    ".wrangler/**",
     // Dev utilities run under plain Node and are CommonJS by choice. They are
     // one-off maintenance scripts, not app code, so the app lint rules do not
     // apply to them.

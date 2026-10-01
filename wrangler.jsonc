@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "lattice",
+  "compatibility_date": "2026-09-30",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+
+  // Deliberately minimal. The stock @opennextjs/cloudflare template also
+  // declares a WORKER_SELF_REFERENCE service binding, an R2 incremental-cache
+  // bucket and an IMAGES binding. None of them apply here:
+  //
+  //   - no ISR or `revalidate` anywhere, so there is nothing to revalidate and
+  //     no reason to require an R2 bucket to exist before the first deploy;
+  //   - no `next/image`, so Next's image optimizer never runs;
+  //   - only /[slug|blog/[slug]|compare/[slug]]/opengraph-image, /feed.xml and
+  //     /llms.txt are dynamic — everything else is prerendered, which is why
+  //     this deploys as a Worker rather than a static export.
+  //
+  // Add the bindings back deliberately if ISR or image optimization arrives.
+}
