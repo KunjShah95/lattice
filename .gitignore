@@ -40,6 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Cloudflare Workers / OpenNext build output
+/.open-next/
+/.wrangler/
+/worker-configuration.d.ts
+
 # local verification screenshots
 /shots
 

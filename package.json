@@ -9,7 +9,11 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "npm run lint && npm run test && npm run build"
+    "verify": "npm run lint && npm run test && npm run build",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:deploy": "opennextjs-cloudflare deploy",
+    "deploy": "npm run build && npm run cf:build && npm run cf:deploy",
+    "preview": "npm run build && npm run cf:build && wrangler dev"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -22,17 +26,30 @@
   },
   "devDependencies": {
     "@mdx-js/rollup": "^3.1.1",
+    "@opennextjs/cloudflare": "^1.20.7",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22.20.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.7",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "wrangler": "^4.145.0"
   },
   "allowScripts": {
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver": true,
+    "@tailwindcss/oxide": true,
+    "sharp": true,
+    "@next/swc-win32-x64-msvc": true,
+    "@next/swc-win32-gnu-msvc": true,
+    "@next/swc-linux-x64-gnu": true,
+    "@next/swc-linux-x64-musl": true,
+    "@next/swc-darwin-x64": true,
+    "@next/swc-darwin-arm64": true,
+    "esbuild": true,
+    "workerd": true
   }
 }
