@@ -84,22 +84,14 @@ export default function HomePage() {
           </a>
         </div>
 
+        {/* Reader-facing links only. /feed.xml and /llms.txt are deliberately not
+            linked from anywhere visible: they are for crawlers and agents, which
+            find them via robots.txt and the sitemap, and a human clicking "RSS"
+            gets a raw XML document with no explanation of what it is. */}
         <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-6 font-mono text-[11px] text-fg-subtle">
           <Link href="/all" className="transition-colors hover:text-fg-muted">
             All {toolCount} tools, filterable →
           </Link>
-          <a
-            href="/feed.xml"
-            className="transition-colors hover:text-fg-muted"
-          >
-            RSS
-          </a>
-          <a
-            href="/llms.txt"
-            className="transition-colors hover:text-fg-muted"
-          >
-            llms.txt
-          </a>
         </div>
       </section>
     </div>
