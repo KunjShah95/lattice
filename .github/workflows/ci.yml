@@ -25,6 +25,28 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Branding must be configured for a deployable build. These four values
+      # are what every canonical URL, every og:url and every generated share
+      # image resolves against, so shipping them as placeholders publishes 143
+      # pages pointing at a domain nobody owns — and makes every social share of
+      # a tool link render from a URL that 404s.
+      #
+      # Gated on the SITE_URL repo variable so the gate is skipped until someone
+      # sets it, rather than blocking every commit with a placeholder warning.
+      - name: Branding
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NEXT_PUBLIC_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+          NEXT_PUBLIC_CONTACT_X: ${{ vars.CONTACT_X }}
+          NEXT_PUBLIC_COPYRIGHT_HOLDER: ${{ vars.COPYRIGHT_HOLDER }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "::notice::SITE_URL repo variable is unset - skipping the branding gate."
+            echo "Set it (and the other three) before the first public deploy."
+            exit 0
+          fi
+          npx vitest run src/lib/brand.test.ts
+
       - name: Lint
         run: npm run lint
 

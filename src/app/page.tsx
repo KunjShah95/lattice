@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
-import { SearchTrigger } from "@/components/search-provider";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
@@ -31,9 +30,11 @@ export default function HomePage() {
               them.
             </p>
 
-            <div className="mt-7">
-              <SearchTrigger />
-            </div>
+            {/* No search field here. The sticky header already carries one and
+                is visible in the first viewport at every breakpoint, so a
+                second copy below the fold-adjacent hero was a duplicated
+                affordance competing with the diagram — which is the actual
+                pitch on this page, per the note above. */}
           </div>
 
           <StackDiagram />
