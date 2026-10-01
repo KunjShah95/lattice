@@ -31,6 +31,9 @@
 
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
+import nextEnv from "@next/env";
+
+const { loadEnvConfig } = nextEnv;
 
 const isWindows = process.platform === "win32";
 const npm = isWindows ? "npm.cmd" : "npm";
@@ -50,7 +53,33 @@ if (process.env[CHILD]) {
   process.exit(0);
 }
 
-// Top level. Clear stale output first: OpenNext reads whatever is already in
+// Top level, i.e. the deploy build. Refuse to bundle a Worker whose every
+// canonical, sitemap entry and og:url points at a placeholder domain.
+// NEXT_PUBLIC_* values are inlined at build time, so an unset SITE_URL in the
+// Cloudflare build environment silently ships `https://lattice.invalid` — which
+// is exactly what happened on the first deploy. Env is loaded the same way
+// Next loads it, so `.env.local` counts locally.
+loadEnvConfig(process.cwd(), false);
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+if (
+  !/^https:\/\//.test(siteUrl) ||
+  /\.(example|invalid|test|localhost)\b|\bexample\.(com|org|net)\b|your-domain/i.test(siteUrl)
+) {
+  console.error(
+    [
+      "",
+      `NEXT_PUBLIC_SITE_URL is ${siteUrl ? `"${siteUrl}"` : "unset"}.`,
+      "",
+      "Set it to the https:// origin the site is served from — in .env.local",
+      "locally, or as a build variable in the Cloudflare dashboard",
+      "(Workers & Pages → lattice → Settings → Build → Variables).",
+      "Without it every canonical and sitemap URL points at a dead domain.",
+    ].join("\n"),
+  );
+  process.exit(1);
+}
+
+// Clear stale output first: OpenNext reads whatever is already in
 // .open-next, and a leftover worker.js from an interrupted build can otherwise
 // survive a build that failed before reaching the bundler.
 rmSync(".open-next", { recursive: true, force: true });
