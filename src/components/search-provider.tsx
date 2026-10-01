@@ -253,23 +253,47 @@ export function SearchProvider({
   );
 }
 
-/** Button that opens the palette. Used in the header and the hero. */
-export function SearchTrigger({ className = "" }: { className?: string }) {
+/**
+ * Button that opens the palette. Used in the header and the hero.
+ *
+ * The `⌘K` hint is `hidden sm:inline` because it is a lie on a phone: there
+ * is no keyboard shortcut to advertise, and the width it costs is the width
+ * that makes the control too small to tap. The label collapses for the same
+ * reason — at 375px the header already holds the wordmark, a theme toggle and
+ * a menu button, and a text button between them does not fit.
+ */
+export function SearchTrigger({
+  className = "",
+  compact = false,
+}: {
+  className?: string;
+  /** Icon-only below `sm`. Used in the header, where width is scarce. */
+  compact?: boolean;
+}) {
   const { openPalette } = useSearch();
   return (
     <button
       type="button"
       onClick={openPalette}
-      className={`group inline-flex items-center gap-2 rounded-lg border border-border bg-bg-elevated px-3 py-1.5 text-sm text-fg-subtle transition-colors hover:border-border-strong hover:text-fg-muted ${className}`}
+      aria-label="Search"
+      className={`group inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-bg-elevated px-2.5 text-sm text-fg-subtle transition-colors hover:border-border-strong hover:text-fg-muted ${
+        compact ? "sm:h-auto sm:px-3 sm:py-1.5" : ""
+      } ${className}`}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.5-3.5" />
       </svg>
-      <span>Search</span>
-      <kbd className="ml-1 rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
-        ⌘K
-      </kbd>
+      {compact ? (
+        <span className="hidden sm:inline">Search</span>
+      ) : (
+        <>
+          <span>Search</span>
+          <kbd className="ml-1 hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">
+            ⌘K
+          </kbd>
+        </>
+      )}
     </button>
   );
 }

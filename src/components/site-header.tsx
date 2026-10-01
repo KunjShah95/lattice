@@ -26,7 +26,11 @@ export function SiteHeader() {
         <DesktopNav />
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          <SearchTrigger className="hidden sm:inline-flex" />
+          {/* `compact` collapses to an icon below `sm`. This used to be
+              `hidden sm:inline-flex`, which left the palette — the fastest way
+              to find anything on a 113-tool index — completely unreachable on
+              a phone. */}
+          <SearchTrigger compact />
           <ThemeToggle />
           <MobileNav />
         </div>

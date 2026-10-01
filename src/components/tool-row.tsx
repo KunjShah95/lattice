@@ -70,7 +70,13 @@ export function ToolRow({
           <Link
             href={detailsHref}
             title={`More about ${tool.name} in this index`}
-            className="mt-0.5 shrink-0 rounded p-0.5 text-fg-subtle opacity-0 transition-opacity hover:text-fg focus-visible:opacity-100 group-hover:opacity-100"
+            // `opacity-0 group-hover:opacity-100` alone is a desktop-only
+            // affordance: on touch there is no hover, so this rendered as an
+            // invisible link that still swallowed taps aimed past it. Always
+            // visible below `sm`, revealed on hover above it. `p-1.5` rather
+            // than `p-0.5` because a 13px glyph with 2px of padding is a ~18px
+            // target, well under the 44px minimum.
+            className="mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle transition-opacity hover:text-fg focus-visible:opacity-100 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <span className="sr-only">More about {tool.name} in this index</span>
             <svg
@@ -95,7 +101,7 @@ export function ToolRow({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${tool.name} (opens in a new tab)`}
-          className="mt-1 shrink-0 text-fg-subtle transition-transform"
+          className="mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle transition-transform sm:mt-1 sm:p-0.5"
         >
           <svg
             width="13"
@@ -107,7 +113,7 @@ export function ToolRow({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            className="-translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+            className="transition-all sm:-translate-x-1 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100"
           >
             <path d="M7 17 17 7M9 7h8v8" />
           </svg>
