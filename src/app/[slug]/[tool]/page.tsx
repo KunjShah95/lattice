@@ -136,9 +136,14 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </div>
         </div>
 
+        {/* What it is, in the reader's own terms. */}
+        <p className="mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
+          {tool.blurb}
+        </p>
+
         {/* The facts a decision turns on. Licence and deployment are the two
             that most often rule a tool in or out before anything else. */}
-        <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
+        <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
           {tool.license ? (
             <div className="flex gap-1.5">
               <dt className="text-fg-subtle">licence</dt>
@@ -180,10 +185,6 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             </p>
           </div>
         </div>
-
-        <p className="mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
-          {tool.blurb}
-        </p>
 
         <p className="mt-6 max-w-[60ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
           <span className="text-fg">{category.responsibility}</span>{" "}
