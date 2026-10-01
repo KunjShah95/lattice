@@ -53,8 +53,11 @@ jobs:
       - name: Test
         run: npm run test
 
+      # Plain `next build`, deliberately not the OpenNext bundle. This step
+      # exists to type-check and prerender; bundling the Worker is the deploy
+      # pipeline's job, and doing it here doubles the slowest step in CI.
       - name: Build
-        run: npm run build
+        run: npm run next:build
 
       # `next build` passing is not sufficient for this route shape. A dynamic
       # segment named inconsistently builds cleanly and then 500s at runtime,
@@ -67,7 +70,8 @@ jobs:
             sleep 1
           done
           fail=0
-          for path in / /all /blog /compare /inference-serving \
+          for path in / /all /blog /compare /glossary \
+                      /glossary/kv-cache /inference-serving \
                       /inference-serving/vllm /blog/evals-are-the-asset \
                       /compare/vector-databases /feed.xml /llms.txt /sitemap.xml; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
