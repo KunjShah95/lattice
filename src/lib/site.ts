@@ -19,6 +19,6 @@ export const site = {
   copyrightYear: new Date().getFullYear(),
   contact: {
     email: "hello@example.com",
-    x: "https://x.com/yourhandle",
+    x: "https://x.com/kunjshah_dev",
   },
 } as const;
