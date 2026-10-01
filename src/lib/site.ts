@@ -33,7 +33,13 @@ export const site = {
   titleTemplate: "%s · Lattice",
   defaultTitle: "Lattice — the layers behind working AI systems",
   description:
-    "A curated, opinionated index of the tools that make AI systems actually work, ordered by where they sit in a production stack: inference, routing, retrieval, fine-tuning, agents, orchestration, guardrails, prompts and evaluation.",
+    // 126 characters. Search engines truncate around 155-160 on desktop and
+    // nearer 120 on mobile, so the old 229-character version lost its second
+    // half. The differentiator is front-loaded and the layer list is dropped:
+    // "not by popularity" is the clause that separates this from every other
+    // directory, and it is the part worth surviving the cut.
+    // `brand.test.ts` fails the build if this grows past the budget.
+    "A curated, opinionated index of the tools that make AI systems work in production — ordered by stack layer, not by popularity.",
   /** Shown in the footer. */
   tagline:
     "A curated index of the infrastructure behind working AI systems, ordered by depth.",

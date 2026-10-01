@@ -33,4 +33,14 @@ describe("branding", () => {
     expect(site.contact.email).not.toMatch(/^hello@example\./i);
     expect(site.contact.x).not.toMatch(/yourhandle/i);
   });
+
+  it("keeps the meta description inside the search-result budget", () => {
+    // Search engines truncate around 155-160 characters on desktop and nearer
+    // 120 on mobile. Anything past that is written and never seen, so the
+    // budget is enforced rather than remembered — the description was 229
+    // characters at one point and lost its entire second half.
+    const len = [...site.description].length;
+    expect(len).toBeLessThanOrEqual(158);
+    expect(len).toBeGreaterThan(70); // too short is not a description
+  });
 });
