@@ -127,7 +127,14 @@ export default async function ComparisonPage({
         ))}
       </ul>
 
-      {/* The table. Transposed: one row per dimension, one column per tool. */}
+      {/* The table. Transposed: one row per dimension, one column per tool.
+
+          `min-w-[640px]` means a phone always scrolls this, so the wrapper
+          carries the affordance (`sm:hidden`) rather than leaving the reader
+          to discover a hidden column. The first column sticks, so a row's
+          dimension label stays visible while it is read across — without that,
+          the sticky-header problem is that you cannot tell which row you are
+          on after scrolling right. */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-left">
           <caption className="sr-only">
@@ -135,7 +142,7 @@ export default async function ComparisonPage({
           </caption>
           <thead>
             <tr>
-              <th scope="col" className="w-[9rem] border-b border-border pb-3 pr-4 align-bottom">
+              <th scope="col" className="sticky left-0 z-10 w-[9rem] border-b border-border bg-bg pb-3 pr-4 align-bottom">
                 <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-fg-subtle">
                   Dimension
                 </span>
@@ -163,7 +170,7 @@ export default async function ComparisonPage({
               <tr key={row.dimension} className="align-top">
                 <th
                   scope="row"
-                  className="border-b border-border py-3 pr-4 font-mono text-[11px] font-normal uppercase tracking-[0.08em] text-fg-subtle"
+                  className="sticky left-0 z-10 border-b border-border bg-bg py-3 pr-4 font-mono text-[11px] font-normal uppercase tracking-[0.08em] text-fg-subtle"
                 >
                   {row.dimension}
                 </th>
@@ -180,6 +187,13 @@ export default async function ComparisonPage({
           </tbody>
         </table>
       </div>
+
+      {/* Scroll affordance. The table is always wider than a phone, so without
+          this the reader sees one and a half tools and has no reason to think
+          there are three. */}
+      <p className="mt-2 font-mono text-[11px] text-fg-subtle sm:hidden">
+        Scroll the table sideways to see every tool.
+      </p>
 
       {/* The recommendation */}
       <section className="mt-12 border-t border-border pt-8">

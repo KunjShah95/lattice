@@ -97,12 +97,26 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
           ) : null}
         </div>
 
-        <svg
-          viewBox={`0 0 ${VB_W} ${height}`}
-          className="block w-full"
-          role="img"
-          aria-label={`${spec.title}. ${spec.subtitle ?? ""}`}
-        >
+        {/*
+          Horizontal scroll below `sm`, not a scaled-down diagram.
+
+          The viewBox is a fixed 960 units wide, so `w-full` alone means a
+          375px phone renders the whole figure at 39% scale — 13px labels land
+          at roughly 5px, and 10.5px sub-labels at 4px. That is not a diagram
+          any more, it is a grey rectangle. Pinning a `min-w` keeps the type at
+          its authored size and lets the reader pan, which is the behaviour they
+          already expect from a wide figure.
+
+          `overscroll-x-contain` stops a horizontal drag inside the figure from
+          hijacking the page scroll once the figure is panned to its end.
+        */}
+        <div className="overflow-x-auto overscroll-x-contain">
+          <svg
+            viewBox={`0 0 ${VB_W} ${height}`}
+            className="block w-full min-w-[680px]"
+            role="img"
+            aria-label={`${spec.title}. ${spec.subtitle ?? ""}`}
+          >
           <defs>
             <marker
               id="fd-arrow"
@@ -241,6 +255,7 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
             );
           })}
         </svg>
+        </div>
       </div>
 
       {spec.notes?.length ? (

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
 import "./globals.css";
 
@@ -52,6 +52,29 @@ export const metadata: Metadata = {
     siteName: site.name,
   },
   robots: { index: true, follow: true },
+};
+
+/**
+ * Explicit viewport.
+ *
+ * Next.js already emits `width=device-width, initial-scale=1`, so this is not
+ * about the width. `viewportFit: "cover"` lets the sticky header and the
+ * glossary's sticky filter bar extend into the notch and rounded corners on
+ * hardware that has them — without it iOS letterboxes the page into the safe
+ * area and the header sits visibly inset from the screen edge.
+ *
+ * `themeColor` is what a mobile browser paints behind the page when scrolling
+ * past the content, or in the overscroll area. Without it that region is
+ * white in dark mode, which reads as a rendering fault.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf9f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0d0f" },
+  ],
 };
 
 const searchEntries: SearchEntry[] = [
