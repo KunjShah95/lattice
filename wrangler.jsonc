@@ -6,7 +6,13 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Serve public/*.html at the exact path requested. The default
+    // ("auto-trailing-slash") 307s /foo.html to /foo, which breaks search
+    // engine verification files — Google requires the file at its own URL,
+    // with no redirect. Pages are rendered by the Worker, not served from
+    // this directory, so nothing else is affected.
+    "html_handling": "none"
   },
   "observability": {
     "enabled": true
