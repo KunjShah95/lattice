@@ -38,6 +38,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: site.defaultTitle, template: site.titleTemplate },
   description: site.description,
+  // Set here so the root layout is the single place canonicals are declared.
+  // Every section, tool, essay and comparison sets its own, but the home page
+  // had none — and the home page is the URL most likely to be indexed under a
+  // variant (tracking params, trailing slash, apex vs www). `alternates` merges
+  // rather than replaces, so child routes still override this.
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: site.url,
