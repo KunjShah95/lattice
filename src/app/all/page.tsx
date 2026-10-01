@@ -1,22 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ToolExplorer } from "@/components/tool-explorer";
-import { allTags, allToolEntries, toolCount } from "@/lib/data";
+import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "All tools",
   description:
-    `Every tool in the ${site.name} index in one filterable list — ${toolCount} tools, ${allTags.length} tags, filterable by section and by kind.`,
+    `Every tool in the ${site.name} index in one filterable list — ${toolCount} tools ` +
+    `across ${kinds.length} kinds, filterable by section, deployment model, kind and cost.`,
   alternates: { canonical: "/all" },
 };
+
+const permissive = licenses.filter((l) =>
+  /MIT|Apache|BSD|PostgreSQL|CDLA|^ISC$/i.test(l.value),
+).reduce((n, l) => n + l.count, 0);
 
 export default function AllToolsPage() {
   return (
     <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
       <header className="mb-8">
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-          {toolCount} tools · {allTags.length} tags
+          {toolCount} tools · {selfHostedCount} self-hosted · {permissive} permissively
+          licensed
         </p>
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Everything, filterable.

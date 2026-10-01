@@ -49,9 +49,9 @@ export function ToolRow({
             >
               {tool.name}
             </a>
-            {tool.tag ? (
+            {tool.kind ? (
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
-                {tool.tag}
+                {tool.kind}
               </span>
             ) : null}
           </span>

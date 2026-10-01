@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
-import { allTools, getSiblingTools, getTool } from "@/lib/data";
+import { allTools, getAlternatives, getAlternativeTo, getSiblingTools, getTool } from "@/lib/data";
 import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
@@ -36,10 +36,9 @@ export async function generateMetadata({
   if (!found) return { title: "Not found" };
 
   const { tool, category } = found;
-  const tagSuffix = tool.tag ? ` (${tool.tag})` : "";
 
   return {
-    title: `${tool.name}${tagSuffix}`,
+    title: `${tool.name} (${tool.kind})`,
     description: `${tool.blurb} Part of ${category.title} in the ${site.name} index.`,
     alternates: { canonical: `/${category.slug}/${tool.slug}` },
     openGraph: {
@@ -64,6 +63,8 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   const { tool, category } = found;
   const siblings = getSiblingTools(categorySlug, toolSlug);
   const sectionPosts = postsForSection(categorySlug);
+  const alternatives = getAlternatives(categorySlug, toolSlug);
+  const alternativeTo = getAlternativeTo(categorySlug, toolSlug);
 
   // Comparisons that include this tool — the most valuable links on the page,
   // because they are the only place a tool appears in a decision context.
@@ -83,7 +84,9 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             description: tool.blurb,
             url: tool.url,
             applicationCategory: category.title,
-            ...(tool.tag ? { keywords: tool.tag } : {}),
+            keywords: [tool.kind, tool.license, tool.language, tool.cost]
+              .filter(Boolean)
+              .join(", "),
           }),
         }}
       />
@@ -121,12 +124,59 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             </h1>
             <p className="mt-2 font-mono text-[12px] text-fg-subtle">
               {tool.domain}
-              {tool.tag ? (
+              <span aria-hidden="true"> · </span>
+              {tool.kind}
+              {tool.deployment ? (
                 <>
                   <span aria-hidden="true"> · </span>
-                  {tool.tag}
+                  {tool.deployment}
                 </>
               ) : null}
+            </p>
+          </div>
+        </div>
+
+        {/* The facts a decision turns on. Licence and deployment are the two
+            that most often rule a tool in or out before anything else. */}
+        <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
+          {tool.license ? (
+            <div className="flex gap-1.5">
+              <dt className="text-fg-subtle">licence</dt>
+              <dd className="text-fg-muted">{tool.license}</dd>
+            </div>
+          ) : null}
+          {tool.language ? (
+            <div className="flex gap-1.5">
+              <dt className="text-fg-subtle">language</dt>
+              <dd className="text-fg-muted">{tool.language}</dd>
+            </div>
+          ) : null}
+          <div className="flex gap-1.5">
+            <dt className="text-fg-subtle">cost</dt>
+            <dd className="text-fg-muted">{tool.cost}</dd>
+          </div>
+          <div className="flex gap-1.5">
+            <dt className="text-fg-subtle">verified</dt>
+            <dd className="text-fg-muted">{tool.asOf}</dd>
+          </div>
+        </dl>
+
+        {/* The decision pair — the site's whole thesis, per tool. */}
+        <div className="mt-7 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+              Reach for it when
+            </h2>
+            <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg">
+              {tool.useWhen}
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+              Skip it when
+            </h2>
+            <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
+              {tool.skipWhen}
             </p>
           </div>
         </div>
@@ -233,6 +283,66 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                       {p.meta.dek}
                     </span>
                   </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* Alternatives — the peer graph, which is what a reader comparing
+          options actually wants next. */}
+      {alternatives.length ? (
+        <section className="mt-12">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Alternatives to {tool.name}
+          </h2>
+          <ul className="mt-4 space-y-px">
+            {alternatives.map(({ tool: alt, category: altCat }) => (
+              <li key={`${altCat.slug}-${alt.slug}`}>
+                <Link
+                  href={`/${altCat.slug}/${alt.slug}`}
+                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
+                    style={layerStyle(altCat.layer)}
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-[15px] font-medium group-hover:text-accent">
+                      {alt.name}
+                    </span>
+                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                      {alt.blurb}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* Reverse edge: who else points here as a substitute. */}
+      {alternativeTo.length ? (
+        <section className="mt-10">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Listed as an alternative to
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {alternativeTo.map(({ tool: other, category: c }) => (
+              <li key={`${c.slug}-${other.slug}`}>
+                <Link
+                  href={`/${c.slug}/${other.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-3 w-[2px] rounded-full"
+                    style={layerStyle(c.layer)}
+                  />
+                  {other.name}
                 </Link>
               </li>
             ))}

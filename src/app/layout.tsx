@@ -60,7 +60,7 @@ const searchEntries: SearchEntry[] = [
       href: `/${c.slug}/${tool.slug}`,
       external: tool.url,
       domain: tool.domain,
-      tag: tool.tag,
+      tag: tool.kind,
     })),
   ),
   // Essays — the site's actual argument. Excluding these meant a query for

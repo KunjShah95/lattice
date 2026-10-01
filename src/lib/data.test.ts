@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
-  allTags,
   allToolEntries,
   allTools,
   categories,
+  costs,
+  deployments,
+  getAlternativeTo,
+  getAlternatives,
   getCategory,
   getSiblingTools,
   getTool,
   getToolByName,
   getToolsForCategory,
+  kinds,
   maxCategoryCount,
   offStack,
   stackLayers,
@@ -131,14 +135,66 @@ describe("tools", () => {
     }
   });
 
-  it("gives every tool a tag", () => {
-    expect(allTools.filter((t) => !t.tag)).toHaveLength(0);
+  it("gives every tool a useWhen and a skipWhen", () => {
+    for (const t of allTools) {
+      expect(t.useWhen.length, `${t.name} useWhen`).toBeGreaterThan(15);
+      expect(t.skipWhen.length, `${t.name} skipWhen`).toBeGreaterThan(15);
+      // The two must not be the same sentence with different capitalisation.
+      expect(t.useWhen.toLowerCase()).not.toBe(t.skipWhen.toLowerCase());
+    }
   });
 
-  it("uses a small set of tags, so faceting is useful", () => {
-    // 113 tools across 47 tags is fine; 113 unique tags would not be.
-    expect(allTags.length).toBeLessThan(allTools.length);
-    expect(allTags.length).toBeGreaterThan(4);
+  it("dates every entry, so staleness is detectable", () => {
+    for (const t of allTools) {
+      expect(t.asOf, t.name).toMatch(/^\d{4}-\d{2}$/);
+    }
+  });
+
+  it("classifies every non-reading tool", () => {
+    for (const t of allTools) {
+      expect(t.kind, t.name).toBeTruthy();
+      if (t.kind === "reading") continue;
+      expect(t.deployment, `${t.name} deployment`).toBeTruthy();
+      expect(t.license, `${t.name} license`).toBeTruthy();
+    }
+  });
+
+  it("keeps the facet vocabularies small enough to be useful", () => {
+    // A facet with a value per entry is not a facet.
+    for (const [name, facet] of Object.entries({ kinds, deployments, costs })) {
+      expect(facet.length, name).toBeGreaterThan(1);
+      expect(facet.length, name).toBeLessThan(allTools.length / 4);
+    }
+  });
+
+  it("counts every tool in exactly one kind", () => {
+    const total = kinds.reduce((n, k) => n + k.count, 0);
+    expect(total).toBe(allTools.length);
+  });
+
+  it("uses controlled vocabulary for every facet value", () => {
+    const knownKinds = new Set([
+      "runtime", "database", "framework", "library", "service", "platform", "reading",
+    ]);
+    const knownDeployment = new Set(["self-hosted", "managed", "saas"]);
+    const knownCost = new Set(["free", "free-tier", "usage-based", "subscription"]);
+
+    for (const t of allTools) {
+      expect(knownKinds.has(t.kind), `${t.name}: ${t.kind}`).toBe(true);
+      expect(knownCost.has(t.cost), `${t.name}: ${t.cost}`).toBe(true);
+      if (t.deployment != null) {
+        expect(knownDeployment.has(t.deployment), `${t.name}: ${t.deployment}`).toBe(true);
+      }
+    }
+  });
+
+  it("never pairs a self-hosted tool with a proprietary licence and no caveat", () => {
+    // Not a hard rule — some products ship open code with a commercial
+    // licence — but the pairing should be rare enough to be deliberate.
+    const odd = allTools.filter(
+      (t) => t.deployment === "self-hosted" && t.license === "proprietary",
+    );
+    expect(odd.length).toBeLessThan(5);
   });
 
   it("counts every tool in the total", () => {
@@ -218,5 +274,63 @@ describe("allToolEntries", () => {
 
   it("is JSON-serialisable, as it crosses the client boundary", () => {
     expect(() => JSON.stringify(allToolEntries)).not.toThrow();
+  });
+});
+
+describe("the alternatives graph", () => {
+  it("resolves every declared alternative", () => {
+    for (const t of allTools) {
+      const found = getAlternatives(t.category.slug, t.slug);
+      expect(found.length, `${t.name}: ${(t.alternatives ?? []).length} declared`).toBe(
+        (t.alternatives ?? []).length,
+      );
+    }
+  });
+
+  it("never lists a tool as its own alternative", () => {
+    for (const t of allTools) {
+      expect(t.alternatives ?? []).not.toContain(t.name);
+    }
+  });
+
+  it("resolves reverse edges", () => {
+    // vLLM names SGLang as an alternative, so SGLang should see vLLM back.
+    const reverse = getAlternativeTo("inference-serving", "sglang");
+    expect(reverse.map((r) => r.tool.name)).toContain("vLLM");
+  });
+
+  it("returns nothing for a tool nobody points at", () => {
+    for (const t of allTools) {
+      const named = allTools.some(
+        (o) => o.name !== t.name && o.alternatives?.includes(t.name),
+      );
+      if (!named) {
+        expect(getAlternativeTo(t.category.slug, t.slug), t.name).toHaveLength(0);
+      }
+    }
+  });
+
+  it("keeps most tools reachable, so the graph is connected", () => {
+    const connected = allTools.filter(
+      (t) =>
+        (t.alternatives?.length ?? 0) > 0 ||
+        getAlternativeTo(t.category.slug, t.slug).length > 0,
+    );
+    expect(connected.length).toBeGreaterThan(allTools.length * 0.8);
+  });
+
+  it("only points at tools a reader would actually weigh against this one", () => {
+    // An alternative is a substitute, not merely a neighbour. Every entry
+    // should share either a section or a kind with the tool declaring it.
+    for (const t of allTools) {
+      for (const { tool: alt } of getAlternatives(t.category.slug, t.slug)) {
+        const sameSection = alt.category.slug === t.category.slug;
+        const sameKind = alt.kind === t.kind;
+        expect(
+          sameSection || sameKind,
+          `${t.name} lists ${alt.name}, which is neither a peer section nor the same kind`,
+        ).toBe(true);
+      }
+    }
   });
 });

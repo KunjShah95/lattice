@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Dev utilities run under plain Node and are CommonJS by choice. They are
+    // one-off maintenance scripts, not app code, so the app lint rules do not
+    // apply to them.
+    "scripts/**",
   ]),
 ]);
 

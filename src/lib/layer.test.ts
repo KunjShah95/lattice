@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { layerColor, layerStyle } from "./layer";
 import { layerHex } from "./og";
-import { allTags, categories, stackLayers } from "./data";
+import { categories, licenses, stackLayers } from "./data";
 
 /**
  * The layer ramp is the site's main identity device, and it is defined in two
@@ -80,26 +80,37 @@ describe("the ramp is sized to the data", () => {
   });
 });
 
-describe("the tag vocabulary", () => {
-  it("keeps tag names short enough to be a chip", () => {
-    for (const { tag, count } of allTags) {
-      expect(tag.length, tag).toBeLessThanOrEqual(12);
-      expect(count, tag).toBeGreaterThan(0);
+describe("the licence vocabulary", () => {
+  it("keeps licence values short enough to display inline", () => {
+    for (const { value, count } of licenses) {
+      expect(value.length, value).toBeLessThanOrEqual(24);
+      expect(count, value).toBeGreaterThan(0);
     }
   });
 
-  it("uses sentence case, not SCREAMING or kebab", () => {
-    for (const { tag } of allTags) {
-      expect(tag, tag).toMatch(/^[A-Za-z][A-Za-z .]*[A-Za-z]$/);
+  it("uses SPDX ids, or the explicit word 'proprietary'", () => {
+    for (const { value } of licenses) {
+      const ok =
+        value === "proprietary" ||
+        /^[A-Za-z0-9.+-]+(-\d+(\.\d+)?)?$/.test(value);
+      expect(ok, `${value} is neither SPDX-shaped nor "proprietary"`).toBe(true);
     }
   });
 
-  it("counts every tagged tool exactly once", () => {
-    const total = allTags.reduce((n, t) => n + t.count, 0);
-    const tagged = categories.reduce(
-      (n, c) => n + c.tools.filter((t) => t.tag).length,
+  it("counts every licensed tool exactly once", () => {
+    const total = licenses.reduce((n, l) => n + l.count, 0);
+    const licensed = categories.reduce(
+      (n, c) => n + c.tools.filter((t) => t.license).length,
       0,
     );
-    expect(total).toBe(tagged);
+    expect(total).toBe(licensed);
+  });
+
+  it("records a date for every tool, licensed or not", () => {
+    for (const c of categories) {
+      for (const t of c.tools) {
+        expect(t.asOf, t.name).toMatch(/^\d{4}-\d{2}$/);
+      }
+    }
   });
 });

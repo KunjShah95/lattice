@@ -45,7 +45,8 @@ export type Tool = {
   // facets on them are meaningful rather than a list of vendor names.
 
   kind: ToolKind;
-  deployment: Deployment;
+  /** Null for reading material, where deployment does not apply. */
+  deployment: Deployment | null;
   /**
    * SPDX identifier, "proprietary" for a closed service, or null where the
    * licence could not be confirmed. Null is a real answer: guessing here would
