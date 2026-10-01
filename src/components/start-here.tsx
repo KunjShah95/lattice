@@ -11,6 +11,13 @@ import { layerStyle } from "@/lib/layer";
  * answers "what exists"; this answers "given what I am building, which parts
  * matter". The answers below are deliberately few and coarse: the point is to
  * route a reader to three or four sections, not to prescribe an architecture.
+ *
+ * The heading counts the questions instead of repeating the CTA above it. It
+ * used to read "Start here", directly under a button reading "Find my starting
+ * layers" — the same instruction twice, which made the button look like a
+ * section label rather than an action. "Two questions" also states the cost up
+ * front, which is the cheapest friction reduction available: a reader can tell
+ * before committing whether this is worth their scroll.
  */
 
 type Step = {
@@ -174,7 +181,7 @@ export function StartHere() {
       <div>
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            Start here
+            Two questions, answered
           </h2>
           <button
             type="button"
@@ -228,7 +235,7 @@ export function StartHere() {
     <div>
       <div className="flex items-baseline gap-3">
         <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-          Start here
+          Two questions
         </h2>
         <span aria-hidden="true" className="h-px flex-1 bg-border" />
         <span className="font-mono text-[11px] text-fg-subtle">

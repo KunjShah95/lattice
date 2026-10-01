@@ -8,17 +8,21 @@ import { site } from "@/lib/site";
 export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-5 sm:px-6">
-      {/* Hero — the diagram *is* the pitch. No button row, no metric
-          eyebrow: a reader should be able to see the shape of the stack
-          before scrolling. */}
+      {/*
+        Hero. The headline does the work; nothing competes with it.
+
+        The `112 tools · hand-picked` eyebrow that used to sit above the h1 is
+        gone. It made three claims that are all already made elsewhere and
+        better: the count is in the diagram header and the footer, and
+        "hand-picked" is exactly what the paragraph below the headline argues
+        ("Most AI tooling directories list products"). An eyebrow directly above
+        a headline is the second-loudest element on the page, and this one was
+        spending that on a number.
+      */}
       <section className="pb-12 pt-14 sm:pt-20">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-              {toolCount} tools · hand-picked
-            </p>
-
-            <h1 className="mt-5 text-balance font-serif text-[36px] font-medium leading-[1.08] tracking-[-0.02em] sm:text-[46px]">
+            <h1 className="text-balance font-serif text-[36px] font-medium leading-[1.08] tracking-[-0.02em] sm:text-[46px]">
               The infrastructure behind{" "}
               <span className="text-accent">working</span> AI systems.
             </h1>
