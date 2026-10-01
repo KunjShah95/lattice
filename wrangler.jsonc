@@ -19,9 +19,10 @@
   //   - no ISR or `revalidate` anywhere, so there is nothing to revalidate and
   //     no reason to require an R2 bucket to exist before the first deploy;
   //   - no `next/image`, so Next's image optimizer never runs;
-  //   - only /[slug|blog/[slug]|compare/[slug]]/opengraph-image, /feed.xml and
-  //     /llms.txt are dynamic — everything else is prerendered, which is why
-  //     this deploys as a Worker rather than a static export.
+  //   - only /[slug|blog/[slug]|compare/[slug]]/opengraph-image, /feed.xml,
+  //     /llms.txt and /llms-full.txt are dynamic — everything else is
+  //     prerendered, which is why this deploys as a Worker rather than a
+  //     static export.
   //
   // Add the bindings back deliberately if ISR or image optimization arrives.
 }

@@ -3,11 +3,19 @@ import { CategorySection } from "@/components/category-section";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
+import { toJsonLd } from "@/lib/jsonld";
+import { graph, siteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-5 sm:px-6">
+      {/* Site-level identity. Every other page references these nodes by @id
+          rather than restating them. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd())) }}
+      />
       {/*
         Hero. The headline does the work; nothing competes with it.
 

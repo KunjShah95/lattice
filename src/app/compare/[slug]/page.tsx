@@ -6,6 +6,15 @@ import { getComparison, resolvedComparisons } from "@/lib/comparisons";
 import { getPost } from "@/lib/posts";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
+import { getToolByName } from "@/lib/data";
+import {
+  breadcrumbNode,
+  datasetModified,
+  faqPageJsonLd,
+  graph,
+  ids,
+  listNames,
+} from "@/lib/seo";
 
 export function generateStaticParams() {
   return resolvedComparisons.map((c) => ({ slug: c.slug }));
@@ -19,7 +28,7 @@ export async function generateMetadata({
   if (!c) return { title: "Not found" };
 
   return {
-    title: `${c.title} — compared`,
+    title: `${c.title}: which to choose`,
     description: c.description,
     alternates: { canonical: `/compare/${c.slug}` },
     openGraph: {
@@ -45,24 +54,56 @@ export default async function ComparisonPage({
 
   const head = comparison.tools[0];
 
+  const pageUrl = `${site.url}/compare/${comparison.slug}`;
+  const toolNames = comparison.tools.map((t) => t.name);
+  // The question this page exists to answer, in the words it is asked in.
+  const decision = {
+    question: `Which should you choose: ${listNames(toolNames).replace(/ and ([^,]+)$/, " or $1")}?`,
+    answer: comparison.verdict,
+  };
+
   return (
     <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: toJsonLd({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: comparison.title,
-            description: comparison.description,
-            datePublished: site.copyrightYear.toString(),
-            author: { "@type": "Person", name: site.copyrightHolder },
-            publisher: { "@type": "Organization", name: site.name },
-            mainEntityOfPage: {
-              "@type": "WebPage",
-              "@id": `${site.url}/compare/${comparison.slug}`,
-            },
-          }),
+          __html: toJsonLd(
+            graph(
+              {
+                "@type": "Article",
+                "@id": `${pageUrl}#article`,
+                headline: comparison.title,
+                description: comparison.description,
+                dateModified: datasetModified,
+                author: { "@id": ids.organization },
+                publisher: { "@id": ids.organization },
+                isPartOf: { "@id": ids.website },
+                mainEntityOfPage: { "@id": pageUrl },
+                about: comparison.tools.map((t) => {
+                  const entry = getToolByName(t.name);
+                  return {
+                    "@type": "SoftwareApplication",
+                    name: t.name,
+                    url: `${site.url}/${entry.category.slug}/${entry.slug}`,
+                    sameAs: [t.url],
+                  };
+                }),
+              },
+              {
+                "@type": "WebPage",
+                "@id": pageUrl,
+                url: pageUrl,
+                name: comparison.title,
+                breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+              },
+              breadcrumbNode(pageUrl, [
+                { name: site.name, path: "" },
+                { name: "Comparisons", path: "/compare" },
+                { name: comparison.title, path: `/compare/${comparison.slug}` },
+              ]),
+              faqPageJsonLd([decision], pageUrl),
+            ),
+          ),
         }}
       />
 
@@ -195,10 +236,14 @@ export default async function ComparisonPage({
         Scroll the table sideways to see every tool.
       </p>
 
-      {/* The recommendation */}
+      {/* The recommendation. The heading is the question itself, so the
+          verdict below it reads as a direct answer when lifted on its own. */}
       <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
           The recommendation
+        </p>
+        <h2 className="mt-2 text-balance text-[17px] font-medium leading-snug">
+          {decision.question}
         </h2>
         <p className="mt-3 max-w-[68ch] text-pretty text-[15.5px] leading-relaxed text-fg">
           {comparison.verdict}

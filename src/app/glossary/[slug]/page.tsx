@@ -6,6 +6,7 @@ import { getGlossaryTerm, glossary } from "@/lib/glossary";
 import { getToolByName, stackLayers } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
+import { breadcrumbNode, graph, ids, lowerFirst } from "@/lib/seo";
 
 export function generateStaticParams() {
   return glossary.map((t) => ({ slug: t.slug }));
@@ -19,8 +20,9 @@ export async function generateMetadata({
   if (!term) return { title: "Not found" };
 
   return {
-    title: term.term,
-    description: term.definition,
+    // Glossary pages answer exactly one query shape: "what is <term>".
+    title: `What is ${lowerFirst(term.term)}? Definition`,
+    description: `${term.term}: ${lowerFirst(term.definition)}`,
     alternates: { canonical: `/glossary/${term.slug}` },
     openGraph: {
       type: "article",
@@ -61,17 +63,38 @@ export default async function GlossaryTermPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: toJsonLd({
-            "@context": "https://schema.org",
-            "@type": "DefinedTerm",
-            name: term.term,
-            description: term.definition,
-            inDefinedTermSet: {
-              "@type": "DefinedTermSet",
-              name: `${site.name} glossary`,
-              url: `${site.url}/glossary`,
-            },
-          }),
+          __html: toJsonLd(
+            graph(
+              {
+                "@type": "DefinedTerm",
+                "@id": `${site.url}/glossary/${term.slug}#term`,
+                name: term.term,
+                description: term.definition,
+                url: `${site.url}/glossary/${term.slug}`,
+                ...(term.aliases?.length ? { alternateName: term.aliases } : {}),
+                inDefinedTermSet: {
+                  "@type": "DefinedTermSet",
+                  "@id": `${site.url}/glossary#set`,
+                  name: `${site.name} glossary`,
+                  url: `${site.url}/glossary`,
+                },
+              },
+              {
+                "@type": "WebPage",
+                "@id": `${site.url}/glossary/${term.slug}`,
+                url: `${site.url}/glossary/${term.slug}`,
+                name: `What is ${lowerFirst(term.term)}?`,
+                isPartOf: { "@id": ids.website },
+                mainEntity: { "@id": `${site.url}/glossary/${term.slug}#term` },
+                breadcrumb: { "@id": `${site.url}/glossary/${term.slug}#breadcrumb` },
+              },
+              breadcrumbNode(`${site.url}/glossary/${term.slug}`, [
+                { name: site.name, path: "" },
+                { name: "Glossary", path: "/glossary" },
+                { name: term.term, path: `/glossary/${term.slug}` },
+              ]),
+            ),
+          ),
         }}
       />
 

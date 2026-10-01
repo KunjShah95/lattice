@@ -4,9 +4,13 @@ import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
+import { datasetModified } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+  // The build time is not a modification time: stamping every URL with it on
+  // each deploy tells crawlers 190 pages changed when none did, and they learn
+  // to ignore the field. Dataset pages change when the dataset is re-verified.
+  const lastModified = new Date(datasetModified);
 
   return [
     {

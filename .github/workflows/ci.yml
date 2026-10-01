@@ -73,7 +73,7 @@ jobs:
           for path in / /all /blog /compare /glossary \
                       /glossary/kv-cache /inference-serving \
                       /inference-serving/vllm /blog/evals-are-the-asset \
-                      /compare/vector-databases /feed.xml /llms.txt /sitemap.xml; do
+                      /compare/vector-databases /feed.xml /llms.txt /llms-full.txt /sitemap.xml; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
             echo "$code $path"
             [ "$code" = "200" ] || fail=1

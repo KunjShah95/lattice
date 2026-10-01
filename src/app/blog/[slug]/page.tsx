@@ -6,6 +6,7 @@ import { getPost, posts, relatedPosts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
+import { breadcrumbNode, graph, ids } from "@/lib/seo";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.meta.slug }));
@@ -194,22 +195,35 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
 }
 
 function postJsonLd(meta: import("@/lib/posts").PostMeta) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: meta.title,
-    description: meta.description,
-    datePublished: meta.date,
-    dateModified: meta.date,
-    author: { "@type": "Person", name: site.copyrightHolder },
-    publisher: { "@type": "Organization", name: site.name },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${site.url}/blog/${meta.slug}`,
+  const pageUrl = `${site.url}/blog/${meta.slug}`;
+  return graph(
+    {
+      "@type": "Article",
+      "@id": `${pageUrl}#article`,
+      headline: meta.title,
+      description: meta.description,
+      datePublished: meta.date,
+      dateModified: meta.date,
+      author: { "@type": "Person", name: site.copyrightHolder },
+      publisher: { "@id": ids.organization },
+      isPartOf: { "@id": ids.website },
+      mainEntityOfPage: { "@id": pageUrl },
+      keywords: meta.sections
+        .map((s) => getCategory(s)?.title)
+        .filter(Boolean)
+        .join(", "),
     },
-    keywords: meta.sections
-      .map((s) => getCategory(s)?.title)
-      .filter(Boolean)
-      .join(", "),
-  };
+    {
+      "@type": "WebPage",
+      "@id": pageUrl,
+      url: pageUrl,
+      name: meta.title,
+      breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    },
+    breadcrumbNode(pageUrl, [
+      { name: site.name, path: "" },
+      { name: "Essays", path: "/blog" },
+      { name: meta.title, path: `/blog/${meta.slug}` },
+    ]),
+  );
 }

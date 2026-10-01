@@ -17,6 +17,8 @@ export function GET() {
     `${toolCount} tools across ${categories.length} sections, ${resolvedComparisons.length} comparisons, and ${posts.length} essays.`,
     "Listed tools belong to their respective authors.",
     "",
+    `Every tool page states what the tool is, when to use it, when to skip it, its licence, cost model and alternatives. The full dataset as plain text: ${site.url}/llms-full.txt`,
+    "",
     "## Essays",
     "",
   ];
@@ -43,9 +45,19 @@ export function GET() {
   lines.push("");
 
   for (const category of categories) {
-    lines.push(`## ${category.title}`, "", category.responsibility, "");
+    lines.push(
+      `## [${category.title}](${site.url}/${category.slug})`,
+      "",
+      category.responsibility,
+      "",
+    );
+    // Link to the Lattice page, not the vendor: that is where the use/skip
+    // guidance lives, and it is the page worth citing. The vendor URL is one
+    // click from it.
     for (const tool of category.tools) {
-      lines.push(`- [${tool.name}](${tool.url}) — ${tool.blurb}`);
+      lines.push(
+        `- [${tool.name}](${site.url}/${category.slug}/${tool.slug}) — ${tool.blurb}`,
+      );
     }
     lines.push("");
   }

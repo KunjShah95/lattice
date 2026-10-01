@@ -7,6 +7,17 @@ import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
+import {
+  breadcrumbNode,
+  datasetModified,
+  describeKind,
+  faqPageJsonLd,
+  graph,
+  ids,
+  toolDefinition,
+  toolEntityJsonLd,
+  toolQuestions,
+} from "@/lib/seo";
 
 /**
  * One page per tool, nested under its section: /<section>/<tool>.
@@ -37,9 +48,11 @@ export async function generateMetadata({
 
   const { tool, category } = found;
 
+  // Title carries the three things people search a tool name with: what it
+  // is, when to use it, and what else to look at.
   return {
-    title: `${tool.name} (${tool.kind})`,
-    description: `${tool.blurb} Part of ${category.title} in the ${site.name} index.`,
+    title: `${tool.name}: when to use it, and alternatives`,
+    description: `${tool.name} is ${describeKind(tool)} for ${category.title.toLowerCase()}. ${tool.blurb} When to use it, when to skip it, licence and alternatives.`,
     alternates: { canonical: `/${category.slug}/${tool.slug}` },
     openGraph: {
       type: "article",
@@ -72,22 +85,48 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
     c.tools.some((t) => t.name === tool.name),
   );
 
+  const pageUrl = `${site.url}/${category.slug}/${tool.slug}`;
+  const questions = toolQuestions(
+    tool,
+    category,
+    alternatives.map((a) => a.tool.name),
+    siblings.map((s) => s.name),
+  );
+  // The definition and the use/skip pair already render above as the lead
+  // paragraph and the decision boxes; the rest get their own answer blocks.
+  const answerBlocks = questions.filter(
+    (qa) => !/^(What is|When should)/.test(qa.question),
+  );
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: toJsonLd({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: tool.name,
-            description: tool.blurb,
-            url: tool.url,
-            applicationCategory: category.title,
-            keywords: [tool.kind, tool.license, tool.language, tool.cost]
-              .filter(Boolean)
-              .join(", "),
-          }),
+          __html: toJsonLd(
+            graph(
+              {
+                "@type": "WebPage",
+                "@id": pageUrl,
+                url: pageUrl,
+                name: `${tool.name}: when to use it, and alternatives`,
+                description: toolDefinition(tool, category),
+                dateModified: datasetModified,
+                isPartOf: { "@id": ids.website },
+                publisher: { "@id": ids.organization },
+                about: { "@id": `${pageUrl}#subject` },
+                mainEntity: { "@id": `${pageUrl}#subject` },
+                breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+              },
+              toolEntityJsonLd(tool, category, pageUrl),
+              breadcrumbNode(pageUrl, [
+                { name: site.name, path: "" },
+                { name: category.title, path: `/${category.slug}` },
+                { name: tool.name, path: `/${category.slug}/${tool.slug}` },
+              ]),
+              faqPageJsonLd(questions, pageUrl),
+            ),
+          ),
         }}
       />
 
@@ -136,9 +175,11 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </div>
         </div>
 
-        {/* What it is, in the reader's own terms. */}
+        {/* What it is, as a sentence that names its subject. Answer engines
+            lift passages, not layouts — "Paged-attention inference engine…"
+            on its own does not say what it is describing. */}
         <p className="mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
-          {tool.blurb}
+          {toolDefinition(tool, category)}
         </p>
 
         {/* The facts a decision turns on. Licence and deployment are the two
@@ -170,7 +211,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         <div className="mt-7 grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
             <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
-              Reach for it when
+              Use {tool.name} when
             </h2>
             <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg">
               {tool.useWhen}
@@ -178,7 +219,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </div>
           <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
             <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
-              Skip it when
+              Skip {tool.name} when
             </h2>
             <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
               {tool.skipWhen}
@@ -223,6 +264,26 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </svg>
         </a>
       </header>
+
+      {/* Quick answers: the remaining questions people ask about a tool,
+          each a self-contained passage. Mirrored in the FAQPage JSON-LD. */}
+      {answerBlocks.length ? (
+        <section className="mt-14 border-t border-border pt-8">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Quick answers
+          </h2>
+          <dl className="mt-4 space-y-5">
+            {answerBlocks.map((qa) => (
+              <div key={qa.question}>
+                <dt className="text-[15px] font-medium">{qa.question}</dt>
+                <dd className="mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+                  {qa.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
 
       {/* Appears-in: the decision contexts, which is what makes this page
           more than a link with a sentence on it. */}
