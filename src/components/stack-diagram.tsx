@@ -75,15 +75,30 @@ export function StackDiagram() {
                 <span className="block truncate text-[14px] font-medium">
                   {category.title}
                 </span>
-                <span className="mt-0.5 block text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+                {/*
+                  The responsibility line is the reason to click, so it stays —
+                  but two lines on a 390px screen pushed the tool count out of
+                  view entirely. Truncating to one line below `sm` keeps the
+                  row scannable and the count legible; the full sentence is on
+                  the section page either way.
+                */}
+                <span className="mt-0.5 hidden text-pretty text-[12.5px] leading-relaxed text-fg-muted sm:block">
                   {category.responsibility}
                 </span>
               </span>
 
-              {/* Density meter — width is the tool count, so the shape of
-                  the ecosystem is legible before you read a single word. */}
-              <span className="relative hidden shrink-0 items-center gap-2 sm:flex">
-                <span className="h-[3px] w-16 overflow-hidden rounded-full bg-border sm:w-24">
+              {/*
+                Density meter — width is the tool count, so the shape of the
+                ecosystem is legible before you read a single word.
+
+                Previously `hidden sm:flex`, which meant a phone got the same
+                layout with the data stripped out: nine rows of title and prose
+                with no way to tell a 15-tool layer from an 8-tool one. The count
+                is now always shown, and only the meter bar itself is dropped
+                below `sm` — where it would be too thin to read anyway.
+              */}
+              <span className="relative flex shrink-0 items-center gap-2">
+                <span className="hidden h-[3px] w-24 overflow-hidden rounded-full bg-border sm:block">
                   <span
                     className="block h-full rounded-full"
                     style={{ width: `${width}%`, ...layerStyle(layer) }}
@@ -125,7 +140,7 @@ export function StackDiagram() {
               {category.responsibility}
             </span>
           </span>
-          <span className="hidden shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle sm:block">
+          <span className="shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle">
             {category.tools.length}
           </span>
         </Link>
