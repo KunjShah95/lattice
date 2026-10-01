@@ -1,6 +1,7 @@
 import { categories, toolCount } from "@/lib/data";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
+import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
 
 /**
@@ -32,6 +33,12 @@ export function GET() {
     lines.push(
       `- [${c.title}](${site.url}/compare/${c.slug}) — ${c.verdict}`,
     );
+  }
+  lines.push("");
+
+  lines.push("## Glossary", "");
+  for (const t of glossary) {
+    lines.push(`- [${t.term}](${site.url}/glossary/${t.slug}) — ${t.definition}`);
   }
   lines.push("");
 

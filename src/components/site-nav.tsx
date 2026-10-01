@@ -14,6 +14,7 @@ const links = [
   { href: "/all", label: "All tools" },
   { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Essays" },
+  { href: "/glossary", label: "Glossary" },
 ] as const;
 
 function useIsActive() {

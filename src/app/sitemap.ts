@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { allTools, categories } from "@/lib/data";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
+import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -32,6 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    {
+      url: `${site.url}/glossary`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...categories.map((c) => ({
       url: `${site.url}/${c.slug}`,
       lastModified,
@@ -49,6 +56,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(p.meta.date),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    ...glossary.map((t) => ({
+      url: `${site.url}/glossary/${t.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
     // Every tool has a page. A directory's value is being findable, so all of
     // them belong in the sitemap — not just the ones with inbound links yet.
