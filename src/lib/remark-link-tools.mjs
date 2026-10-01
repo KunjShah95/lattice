@@ -1,22 +1,27 @@
 /**
- * Remark plugin: link tool names in essay prose to their page in this index.
+ * Remark plugin: auto-link references in essay prose to their page here.
  *
- * The essays already discuss specific tools by name. Leaving those as plain
- * text (or as links to the vendor's site) means the index has no inbound links
- * from the pages that argue for them, and a reader who reads a paragraph
- * about vLLM has no path to the rest of the vLLM section.
+ * Essays discuss specific tools and use specific terms by name. Left as plain
+ * text, the index gets no inbound links from the pages that argue for it, and
+ * a reader who reads a paragraph about prefix caching has no path to the rest
+ * of the retrieval section.
  *
- * This walks text nodes and wraps the first mention of each tool in a link to
- * /<section>/<tool>. It is deliberately conservative:
+ * Deliberately conservative:
  *
- *   - only the FIRST mention per document, so prose does not become a tag soup
- *   - whole-word only, matched case-sensitively, so "the" never matches "TRL"
- *   - skips code, inline code, existing links, headings, and HTML
- *   - a skip-list of names that are ordinary English words in this context
+ *   - only the FIRST mention of each name per document, so prose does not
+ *     become a tag soup
+ *   - whole-word, case-sensitive matching
+ *   - skips code, inline code, existing links, headings and HTML
+ *   - an explicit skip list of names that collide with ordinary prose
+ *
+ * One plugin, two vocabularies. The two are kept in separate `used` sets and
+ * each links at most once, but they share the same conservative behaviour,
+ * and having one visitor instead of two keeps the skip rules in one place.
  */
 
 const SKIP_NAMES = new Set([
-  // Real tools whose names collide with ordinary prose.
+  // Real tools and terms whose names collide with ordinary prose. Each of these
+  // appears in the index, but linking it would link words, not references.
   "Rerankers",
   "Outlines",
   "Tracing",
@@ -40,59 +45,64 @@ const SKIP_NAMES = new Set([
   "Writing",
   "Research",
   "Postgres",
+  // Glossary terms that are ordinary English, or too generic to auto-link.
+  "Hallucination",
+  "Distillation",
+  "Retrieval",
+  "Context",
+  "Memory",
+  "Tool calling",
 ]);
 
-/** Field name the caller must supply on each tool. */
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export default function remarkLinkTools(options = {}) {
-  const tools = (options.tools ?? [])
-    .filter((t) => t.name && t.href)
-    .filter((t) => !SKIP_NAMES.has(t.name))
-    // Longest first, so "Text Generation Inference" wins over a shorter
-    // overlapping name inside the same paragraph.
-    .sort((a, b) => b.name.length - a.name.length);
-
-  if (!tools.length) return () => {};
-
-  // One regex over all names, alternation-ordered longest-first.
-  const pattern = new RegExp(
-    `\\b(${tools.map((t) => escapeRegExp(t.name)).join("|")})\\b`,
-    "g",
+export default function remarkAutoLink(options = {}) {
+  const tools = (options.tools ?? []).filter(
+    (t) => t.name && t.href && !SKIP_NAMES.has(t.name),
   );
-  const hrefFor = new Map(tools.map((t) => [t.name, t.href]));
+  const terms = Object.entries(options.terms ?? {}).filter(
+    ([name]) => name && !SKIP_NAMES.has(name),
+  );
+
+  if (!tools.length && !terms.length) return () => {};
+
+  /** name -> href, longest name first so overlaps resolve to the longer one. */
+  const hrefFor = new Map();
+  for (const t of tools) hrefFor.set(t.name, t.href);
+  for (const [name, href] of terms) hrefFor.set(name, href);
+
+  const names = [...hrefFor.keys()].sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(`\\b(${names.map(escapeRegExp).join("|")})\\b`, "g");
 
   return (tree) => {
-    /** Names already linked in this document. */
-    const used = new Set();
+    // Separate budgets: a document may mention a tool and a term once each.
+    const usedTools = new Set();
+    const usedTerms = new Set();
 
     visit(tree, "text", (node, parent) => {
-      if (used.size === tools.length) return;
+      if (usedTools.size >= tools.length && usedTerms.size >= terms.length) return;
       const value = node.value;
-      if (!value || value.length < 3) return;
+      if (!value || value.length < 4) return;
 
-      let matched = false;
-      const next = value.replace(pattern, (whole) => {
-        if (matched) return whole;
-        if (used.has(whole)) return whole;
-        // Only link when the name stands alone, not glued to punctuation like
-        // an em dash or a period inside a sentence.
-        matched = true;
-        used.add(whole);
-        return whole;
-      });
+      const isTerm = (name) => Object.prototype.hasOwnProperty.call(options.terms ?? {}, name);
+      const seen = (name) => (isTerm(name) ? usedTerms : usedTools);
 
-      if (!matched) return;
-
-      // Rebuild the text node into a sequence of text + link nodes.
       const nodes = [];
       let last = 0;
-      const linkRe = new RegExp(pattern.source, "g");
-      for (let m; (m = linkRe.exec(next)); ) {
+      let matched = false;
+      const re = new RegExp(pattern.source, "g");
+
+      for (let m; (m = re.exec(value)); ) {
         const name = m[1];
         const href = hrefFor.get(name);
-        if (!href) continue;
-        if (m.index > last) nodes.push({ type: "text", value: next.slice(last, m.index) });
+        if (!href || seen(name).has(name)) continue;
+
+        matched = true;
+        seen(name).add(name);
+
+        if (m.index > last) {
+          nodes.push({ type: "text", value: value.slice(last, m.index) });
+        }
         nodes.push({
           type: "link",
           url: href,
@@ -101,7 +111,11 @@ export default function remarkLinkTools(options = {}) {
         });
         last = m.index + name.length;
       }
-      if (last < next.length) nodes.push({ type: "text", value: next.slice(last) });
+
+      if (!matched) return;
+      if (last < value.length) {
+        nodes.push({ type: "text", value: value.slice(last) });
+      }
 
       const at = parent.children.indexOf(node);
       parent.children.splice(at, 1, ...nodes);
@@ -110,13 +124,12 @@ export default function remarkLinkTools(options = {}) {
 }
 
 /**
- * Depth-first walk, calling `fn` for nodes of the given type and skipping the
- * subtrees where a match would be wrong.
+ * Depth-first walk, calling `fn` for text nodes and skipping the subtrees
+ * where a match would be wrong: a tool name inside a heading, a code sample
+ * or an existing link is either noise or already handled.
  */
 function visit(node, type, fn) {
   if (!node || !Array.isArray(node.children)) return;
-  // Never look inside these: a tool name in a heading, a code sample or an
-  // existing link is either noise or already handled.
   if (["code", "inlineCode", "link", "heading", "html"].includes(node.type)) {
     return;
   }
