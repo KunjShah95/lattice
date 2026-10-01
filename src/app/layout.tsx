@@ -132,6 +132,34 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </SearchProvider>
+
+        {/*
+          Cloudflare Web Analytics.
+
+          A plain server-rendered <script> rather than `next/script` on purpose.
+          Every page here is prerendered and served from the edge with a
+          one-year `s-maxage`, so a runtime-injected tag never reaches the
+          cached HTML — `afterInteractive` would fire only on client-side
+          navigation and miss every cold cache hit, which is most real
+          traffic. Baking the tag into the build puts it in the cached
+          document on the very first request.
+
+          Keep `type="module"`. Without it IE11 throws on the beacon's modern
+          syntax; the error is invisible but the beacons are lost. `async`
+          satisfies `no-sync-scripts` and is safe here — module scripts are
+          deferred by spec anyway, and the beacon has no ordering dependency
+          on anything else on the page.
+
+          The token in `data-cf-beacon` also scopes collection to this exact
+          hostname — Cloudflare validates it and silently discards beacons
+          arriving from any other host.
+        */}
+        <script
+          async
+          type="module"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "d637537d35244c2b8570042b04f61365"}'
+        />
       </body>
     </html>
   );
