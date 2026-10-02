@@ -3,19 +3,30 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
 import "./globals.css";
 
 import { SearchProvider } from "@/components/search-provider";
-import type { SearchEntry } from "@/lib/search";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { themeInitScript } from "@/components/theme-toggle";
-import { categories } from "@/lib/data";
-import { posts } from "@/lib/posts";
-import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
 
 /**
  * IBM Plex — a typeface family designed for engineering and technical
  * documentation. Chosen over the Next.js default specifically because the
  * default is the single loudest "unbranded template" signal available.
+ *
+ * Weights and preloads are deliberately narrow. Every weight declared here is
+ * a separate woff2 the reader downloads, and every family preloaded is
+ * bandwidth taken from the HTML and CSS that gate first paint.
+ *
+ *   - Sans 400/500/600 — 400 is body copy, 500 is labels, and 600 is used by
+ *     `.prose-lattice h3` and `strong`. Next serves all three from one
+ *     variable file, so this is a single 40 KB request.
+ *   - Serif 500 only — serif is display type and appears exactly once per
+ *     page, on an `h1` or `h2`, always at `font-medium`. 400 and 600 were
+ *     never rendered by anything and cost two extra files (~30 KB).
+ *   - Mono 400/500 — 400 is inline `code` and the small caps labels, 500 is
+ *     `.prose-lattice th`. Not preloaded: mono only ever sets 10–12px labels
+ *     and code, where the `swap` fallback is invisible, and preloading it
+ *     competed with the two faces that actually render the headline.
  */
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -26,12 +37,13 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
+  preload: false,
 });
 /** Serif is reserved for display type — it carries the editorial voice. */
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["500"],
 });
 
 export const metadata: Metadata = {
@@ -77,44 +89,6 @@ export const viewport: Viewport = {
   ],
 };
 
-const searchEntries: SearchEntry[] = [
-  // Tools
-  ...categories.flatMap((c) =>
-    c.tools.map((tool) => ({
-      kind: "tool" as const,
-      name: tool.name,
-      blurb: tool.blurb,
-      categoryTitle: c.title,
-      categoryLayer: c.layer,
-      href: `/${c.slug}/${tool.slug}`,
-      external: tool.url,
-      domain: tool.domain,
-      tag: tool.kind,
-    })),
-  ),
-  // Essays — the site's actual argument. Excluding these meant a query for
-  // "evals" returned only tools and hid the best answer on the site.
-  ...posts.map((p) => ({
-    kind: "essay" as const,
-    name: p.meta.title,
-    blurb: p.meta.dek,
-    categoryTitle: "Essays",
-    categoryLayer: p.meta.layers[0] ?? null,
-    href: `/blog/${p.meta.slug}`,
-    tag: "Essay",
-  })),
-  // Comparisons
-  ...resolvedComparisons.map((c) => ({
-    kind: "comparison" as const,
-    name: c.title,
-    blurb: c.description,
-    categoryTitle: "Comparisons",
-    categoryLayer: c.tools[0]?.layer ?? null,
-    href: `/compare/${c.slug}`,
-    tag: "Compared",
-  })),
-];
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -127,7 +101,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <SearchProvider entries={searchEntries}>
+        {/*
+          No `entries` prop. The palette fetches /search-index.json on first
+          open, so the corpus is no longer serialised into the RSC payload of
+          every route on the site.
+        */}
+        <SearchProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />

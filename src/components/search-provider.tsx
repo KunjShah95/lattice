@@ -28,26 +28,52 @@ export function useSearch() {
   return ctx;
 }
 
-export function SearchProvider({
-  entries,
-  children,
-}: {
-  entries: SearchEntry[];
-  children: ReactNode;
-}) {
+/** Where the palette fetches its corpus. Served prerendered and edge-cached. */
+const INDEX_URL = "/search-index.json";
+
+export function SearchProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
+  /**
+   * The corpus is fetched on first open, not passed in as a prop.
+   *
+   * Serialising 129 entries into the RSC payload cost ~42 KB on every route,
+   * including pages whose entire HTML is smaller than that. The palette is
+   * opened by a fraction of readers, so almost all of that was weight shipped
+   * to people who never searched.
+   *
+   * `null` is the "not loaded yet" state and is distinct from `[]`; a fetch
+   * that fails leaves it `null` and reports the failure rather than looking
+   * like a search that found nothing.
+   */
+  const [entries, setEntries] = useState<SearchEntry[] | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const loading = entries === null && !loadFailed;
+
   // Lowercasing and pre-splitting happen once per dataset, not per keystroke.
-  const index = useMemo(() => buildIndex(entries), [entries]);
+  const index = useMemo(() => buildIndex(entries ?? []), [entries]);
 
   const results = useMemo(
     () => searchTools(index, query, 40),
     [index, query],
   );
+
+  // Kick the fetch off as a side effect of the first open. Guarded on `entries`
+  // so repeat opens reuse the loaded corpus rather than refetching.
+  const load = useCallback(() => {
+    if (entries !== null || loadFailed) return;
+    fetch(INDEX_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<SearchEntry[]>;
+      })
+      .then(setEntries)
+      .catch(() => setLoadFailed(true));
+  }, [entries, loadFailed]);
 
   // Reset the query as part of opening, not in an effect — this keeps the
   // palette's transient state owned by the event that causes it.
@@ -55,7 +81,8 @@ export function SearchProvider({
     setQuery("");
     setActive(0);
     setOpen(true);
-  }, []);
+    load();
+  }, [load]);
 
   const closePalette = useCallback(() => setOpen(false), []);
 
@@ -81,14 +108,18 @@ export function SearchProvider({
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen((v) => !v);
+        // Toggle through the same two entry points the buttons use, rather
+        // than setOpen directly. The shortcut has to trigger the corpus fetch
+        // too — going straight to setOpen opened an empty palette.
+        if (open) closePalette();
+        else openPalette();
         return;
       }
       if (event.key === "Escape") closePalette();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [closePalette]);
+  }, [closePalette, open, openPalette]);
 
   // Keep the active row scrolled into view during keyboard navigation.
   useEffect(() => {
@@ -168,7 +199,18 @@ export function SearchProvider({
             </div>
 
             <ul ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5">
-              {results.length === 0 ? (
+              {loading ? (
+                /* The corpus is in flight. Almost always a few hundred
+                   milliseconds on a warm connection, and the input is already
+                   focused, so the reader can start typing while it lands. */
+                <li className="px-3 py-8 text-center text-sm text-fg-subtle">
+                  Loading index…
+                </li>
+              ) : loadFailed ? (
+                <li className="px-3 py-8 text-center text-sm text-fg-subtle">
+                  Search is unavailable right now.
+                </li>
+              ) : results.length === 0 ? (
                 <li className="px-3 py-8 text-center text-sm text-fg-subtle">
                   Nothing matches “{query}”.
                 </li>

@@ -1,0 +1,22 @@
+# Response headers for the prerendered asset tree.
+#
+# Cloudflare Workers assets were serving everything under /_next/static/ as
+# `public, max-age=0, must-revalidate`, which is Next.js's default for HTML but
+# wrong for these: every file in this tree has a content hash in its filename
+# (chunks, media, and the build-id directory that holds the manifests), so the
+# bytes at a given URL can never change. max-age=0 made every one of the 16
+# assets revalidate on every visit instead of being served from the browser's
+# own cache, which costs a conditional round trip per file for no benefit.
+#
+# `immutable` is the correct signal and lets the browser skip revalidation
+# entirely. The build-id directory changes name on each deploy, so a new build
+# produces new URLs rather than new bytes behind old ones.
+#
+# Scoped to /_next/static/ on purpose. The HTML and the JSON/XML routes are
+# served by the Worker rather than from this directory, and their caching is
+# already correct — pages are `s-maxage=31536000` against a CDN that is
+# expected to revalidate them. Widening this to /* would make the un-hashed
+# files here (favicon.ico, the verification .html) immutable too, which is not
+# true of them.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
