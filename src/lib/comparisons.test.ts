@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { comparisons, getComparison, resolvedComparisons } from "./comparisons";
+import {
+  comparisons,
+  comparisonMetaTitle,
+  comparisonQuestions,
+  decisionQuestion,
+  getComparison,
+  resolvedComparisons,
+  shortAnswer,
+} from "./comparisons";
+import { bandOf } from "./layer";
+import { AS_OF } from "./attributes";
 import { getCategory, getToolByName } from "./data";
 import { posts } from "./posts";
 
@@ -139,6 +149,109 @@ describe("resolvedComparisons", () => {
     for (const c of resolvedComparisons) {
       const names = c.tools.map((t) => t.name);
       expect(new Set(names).size, c.slug).toBe(names.length);
+    }
+  });
+});
+
+/**
+ * Cross-layer comparisons are the surface no vendor will publish: "here is how
+ * your gateway compares to your eval suite." Their value is that each column
+ * is a different place in the stack, so the invariants are about layers, not
+ * substitutability.
+ */
+describe("cross-layer comparisons", () => {
+  const crossLayer = resolvedComparisons.filter((c) => c.kind === "cross-layer");
+
+  it("classifies every comparison", () => {
+    for (const c of comparisons) {
+      expect(["substitutes", "cross-layer"], c.slug).toContain(c.kind);
+    }
+  });
+
+  it("ships at least three", () => {
+    expect(crossLayer.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("puts every column in a different layer", () => {
+    for (const c of crossLayer) {
+      const layers = c.tools.map((t) => t.layer);
+      expect(new Set(layers).size, c.slug).toBe(layers.length);
+    }
+  });
+
+  it("spans at least two bands — otherwise it is a substitutes page", () => {
+    for (const c of crossLayer) {
+      const bands = new Set(c.tools.map((t) => bandOf(t.layer)));
+      expect(bands.size, c.slug).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("lists columns in stack order, substrate first", () => {
+    for (const c of crossLayer) {
+      const layers = c.tools.map((t) => t.layer ?? 0);
+      expect(layers, c.slug).toEqual([...layers].sort((a, b) => a - b));
+    }
+  });
+
+  it("names every layer it spans as a section", () => {
+    for (const c of crossLayer) {
+      const sectionLayers = new Set(c.sections.map((s) => s.layer));
+      for (const t of c.tools) {
+        expect(sectionLayers.has(t.layer), `${c.slug}: ${t.name}`).toBe(true);
+      }
+    }
+  });
+
+  it("asks the adoption question, not the substitution one", () => {
+    for (const c of resolvedComparisons) {
+      const q = decisionQuestion(c);
+      if (c.kind === "cross-layer") expect(q, c.slug).toMatch(/^Which should you adopt first/);
+      else expect(q, c.slug).toMatch(/^Which should you choose/);
+    }
+  });
+});
+
+/**
+ * Citation surface. The pages engines quoted in the category audit shared a
+ * shape: the answer first, a question-form FAQ, the year in the title, and a
+ * stated caveat. These pin that shape so a new comparison cannot ship without it.
+ */
+describe("citation surface", () => {
+  const words = (s: string) => s.trim().split(/\s+/).length;
+
+  it("lifts a short, self-contained answer from every verdict", () => {
+    for (const c of resolvedComparisons) {
+      const a = shortAnswer(c.verdict);
+      expect(c.verdict.startsWith(a), c.slug).toBe(true);
+      expect(a.endsWith("."), c.slug).toBe(true);
+      expect(words(a), `${c.slug}: "${a}"`).toBeGreaterThanOrEqual(8);
+      expect(words(a), `${c.slug}: "${a}"`).toBeLessThanOrEqual(75);
+    }
+  });
+
+  it("asks the decision first, then one use/skip question per tool", () => {
+    for (const c of resolvedComparisons) {
+      const qs = comparisonQuestions(c);
+      expect(qs[0].question, c.slug).toBe(decisionQuestion(c));
+      expect(qs[0].answer, c.slug).toBe(c.verdict);
+      expect(qs).toHaveLength(c.tools.length + 1);
+      for (const [i, t] of c.tools.entries()) {
+        const qa = qs[i + 1];
+        expect(qa.question).toBe(`When should you use ${t.name}, and when should you skip it?`);
+        const entry = getToolByName(t.name);
+        expect(qa.answer).toContain(`Use ${t.name} when`);
+        expect(qa.answer).toContain(`Skip it when`);
+        expect(qa.answer.toLowerCase()).toContain(entry.skipWhen.slice(1, 20).toLowerCase());
+      }
+    }
+  });
+
+  it("puts the verification year in the meta title", () => {
+    const year = AS_OF.slice(0, 4);
+    for (const c of resolvedComparisons) {
+      const title = comparisonMetaTitle(c);
+      expect(title, c.slug).toContain(year);
+      expect(title.startsWith(c.title), c.slug).toBe(true);
     }
   });
 });

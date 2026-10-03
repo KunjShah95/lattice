@@ -1,4 +1,6 @@
 import { getCategory, getToolByName } from "./data";
+import { AS_OF } from "./attributes";
+import { listNames, lowerFirst, type QA } from "./seo";
 import type { Category } from "./types";
 
 /**
@@ -26,8 +28,17 @@ export type ComparisonRow = {
   values: string[];
 };
 
+/**
+ * - `substitutes`  tools that do the same job; the reader picks one.
+ * - `cross-layer`  tools that sit in different layers and compete for the same
+ *   week of engineering time; the reader picks an order. Vendors never publish
+ *   these, because no vendor sells every column.
+ */
+export type ComparisonKind = "substitutes" | "cross-layer";
+
 export type Comparison = {
   slug: string;
+  kind: ComparisonKind;
   title: string;
   /** Meta description. */
   description: string;
@@ -48,6 +59,7 @@ export type Comparison = {
 export const comparisons: Comparison[] = [
   {
     slug: "inference-runtimes",
+    kind: "substitutes",
     title: "vLLM vs SGLang vs TGI vs llama.cpp",
     description:
       "The four open inference runtimes compared on prefix reuse, hardware floor, structured output and operational complexity — with a recommendation for each traffic shape.",
@@ -109,6 +121,7 @@ export const comparisons: Comparison[] = [
   },
   {
     slug: "llm-observability",
+    kind: "substitutes",
     title: "Langfuse vs LangSmith vs Braintrust vs Phoenix",
     description:
       "Four LLM observability and evaluation platforms compared on self-hosting, eval primitives, open standards and how much they lock you in.",
@@ -165,6 +178,7 @@ export const comparisons: Comparison[] = [
   },
   {
     slug: "vector-databases",
+    kind: "substitutes",
     title: "pgvector vs Qdrant vs Pinecone vs Chroma",
     description:
       "Vector stores compared on hybrid search, filtering, operational burden and when the honest answer is that you should not add one at all.",
@@ -220,6 +234,7 @@ export const comparisons: Comparison[] = [
   },
   {
     slug: "durable-workflows",
+    kind: "substitutes",
     title: "Temporal vs Inngest vs Trigger.dev vs Restate",
     description:
       "Durable execution engines compared on language, replay model and whether they fit inside your existing deployment — the layer that decides whether an agent survives a deploy.",
@@ -275,6 +290,7 @@ export const comparisons: Comparison[] = [
   },
   {
     slug: "llm-gateways",
+    kind: "substitutes",
     title: "LiteLLM vs Portkey vs Cloudflare AI Gateway",
     description:
       "LLM gateways compared on provider coverage, caching, where the data goes and whether the routing logic is yours or theirs.",
@@ -330,6 +346,7 @@ export const comparisons: Comparison[] = [
   },
   {
     slug: "structured-output",
+    kind: "substitutes",
     title: "Instructor vs JSON mode vs constrained decoding",
     description:
       "Three ways to get a schema-valid response from a model, compared on reliability, portability and whether the guarantee is real.",
@@ -382,6 +399,176 @@ export const comparisons: Comparison[] = [
     sections: ["prompt-engineering", "inference-serving"],
     related: ["prompt-or-finetune", "choosing-an-inference-runtime"],
   },
+
+  // ---- Cross-layer ------------------------------------------------------
+  // Each column is a different place in the stack, listed substrate first.
+  // The question is not "which one" but "which first", so the verdict is an
+  // order of adoption rather than a winner.
+  {
+    slug: "gateway-guardrails-evals",
+    kind: "cross-layer",
+    title: "Gateway vs guardrails vs evals: what to build first",
+    description:
+      "A gateway, a guardrail layer and an eval suite compete for the same first week of work. What each catches, what each misses, and the order to adopt them in.",
+    intro:
+      "These three never appear on the same vendor comparison page, because no vendor sells all three. They do appear on the same backlog. Each catches a different failure, sits in a different place in the request, and costs something different to adopt — so the real question is order, not choice.",
+    tools: [
+      { name: "LiteLLM", angle: "Decides which model serves a request." },
+      { name: "Guardrails AI", angle: "Decides whether a response may leave." },
+      { name: "promptfoo", angle: "Decides whether a change made things better." },
+    ],
+    rows: [
+      { dimension: "Question it answers", values: [
+        "Which model, provider and budget serves this request?",
+        "Is this response allowed to leave the system?",
+        "Did the last change make answers better or worse?",
+      ] },
+      { dimension: "Failure it catches", values: [
+        "Provider outages, rate limits, runaway spend",
+        "Schema violations and policy breaches, per request",
+        "Quality regressions, before they ship",
+      ] },
+      { dimension: "Failure it misses", values: [
+        "Whether any answer was correct",
+        "Answers that are well-formed and wrong",
+        "Anything happening in production right now",
+      ] },
+      { dimension: "Where it runs", values: [
+        "In the request path, on every call",
+        "In the request path, after generation",
+        "Offline, in CI or on a schedule",
+      ] },
+      { dimension: "Cost to adopt", values: [
+        "A proxy and a config file; one more network hop",
+        "A validator per rule; added latency on every response",
+        "A labelled dataset — the examples are the expensive part, not the tool",
+      ] },
+      { dimension: "Adopt first when", values: [
+        "You call more than one provider, or spend is already a line item",
+        "A malformed or unsafe output has a real cost on day one",
+        "You are about to change prompts, models or retrieval",
+      ] },
+    ],
+    verdict:
+      "For most teams, evals first. A gateway makes calls cheaper and more reliable, and guardrails make individual responses safer, but neither tells you whether the system is getting better — and every later change to routing, prompts or retrieval needs that answer to be judged at all. Put the gateway in early if you already run more than one provider, because retrofitting a proxy into every call site is tedious. Add guardrails for the specific failures your evals surface, not the ones you imagine.",
+    rules: [
+      "A guardrail without an eval is a guess about which failures matter. Write the eval that found the failure, then the guardrail that blocks it.",
+      "Route on measured quality, not on price alone. A cheaper model that fails your eval set is not cheaper.",
+      "Anything in the request path adds latency to every call; anything offline adds none. Stay offline until production forces otherwise.",
+    ],
+    sections: ["routing-gateways", "guardrails-safety", "evaluation-observability"],
+    related: ["evals-are-the-asset", "the-gateway-is-the-product", "where-guardrails-belong"],
+  },
+  {
+    slug: "retrieval-finetuning-prompting",
+    kind: "cross-layer",
+    title: "Retrieval vs fine-tuning vs prompt optimisation: fixing wrong answers",
+    description:
+      "Three layers that each claim to fix wrong answers, compared on what they actually change, what they need from you, and which failure each one is for.",
+    intro:
+      "A model giving wrong answers can be fixed at three different depths of the stack, and they are not interchangeable. Retrieval changes what the model can see, fine-tuning changes how it behaves, and prompt optimisation changes what it is asked. Picking the wrong depth is the most expensive mistake in this index.",
+    tools: [
+      { name: "pgvector", angle: "Changes what the model can see." },
+      { name: "Unsloth", angle: "Changes how the model behaves." },
+      { name: "DSPy", angle: "Changes what the model is asked." },
+    ],
+    rows: [
+      { dimension: "What it changes", values: [
+        "The context available at question time",
+        "The weights — the model's default behaviour",
+        "The instructions and examples it is given",
+      ] },
+      { dimension: "Fixes", values: [
+        "Missing, private or recent facts",
+        "Format, tone and narrow-task behaviour a prompt cannot hold",
+        "Underspecified instructions and weak examples",
+      ] },
+      { dimension: "Does not fix", values: [
+        "A model that ignores the context it is given",
+        "Missing knowledge — weights are a poor database",
+        "Facts the model has never seen",
+      ] },
+      { dimension: "Needs from you", values: [
+        "A corpus, a chunking strategy and a ranking you can inspect",
+        "Curated training examples and a GPU",
+        "Labelled examples and a metric that scores them",
+      ] },
+      { dimension: "Cost of being wrong", values: [
+        "Low — re-index and retry",
+        "High — a training run, and a model you now have to serve",
+        "Low — prompts are text and revert cleanly",
+      ] },
+      { dimension: "Adopt first when", values: [
+        "The right facts are absent or out of date",
+        "Prompting has plateaued on a narrow, stable task",
+        "The facts are present but the model uses them badly",
+      ] },
+    ],
+    verdict:
+      "Diagnose before choosing. If the right fact was never in the context, that is a retrieval problem and no amount of prompting or training fixes it. If the fact was there and the model ignored or misused it, optimise the prompt first, because it is cheap to try and cheap to undo. Fine-tune last, for narrow and stable tasks where prompting has measurably plateaued — it is the only one of the three that leaves you with a new artefact to serve and retrain.",
+    rules: [
+      "Read the retrieved context before touching the prompt. Most “the model is wrong” bugs are “the ranking is wrong” bugs.",
+      "Fine-tuning teaches behaviour, not facts. If the answer changes monthly, it belongs in retrieval.",
+      "All three need a scored example set to know whether they worked. Build it first; it is shared.",
+    ],
+    sections: ["retrieval-vector-stores", "fine-tuning", "prompt-engineering"],
+    related: ["fix-the-ranking-not-the-prompt", "prompt-or-finetune", "context-is-a-budget"],
+  },
+  {
+    slug: "cutting-inference-cost",
+    kind: "cross-layer",
+    title: "Self-hosting vs routing vs measuring: cutting inference cost",
+    description:
+      "Three ways to lower an inference bill — run the model yourself, send easy queries to a smaller model, or measure where spend goes — compared on savings and risk.",
+    intro:
+      "Inference cost can be attacked at the substrate, in the router, or by first finding out where it goes. Teams usually start with the most expensive of the three — standing up their own GPUs — when the cheapest would have told them it was unnecessary.",
+    tools: [
+      { name: "vLLM", angle: "Pay for GPU-hours instead of tokens." },
+      { name: "RouteLLM", angle: "Send easy queries to a cheaper model." },
+      { name: "Helicone", angle: "Find out which requests cost the most." },
+    ],
+    rows: [
+      { dimension: "Lever", values: [
+        "Own the serving, pay for hardware",
+        "Match query difficulty to model size",
+        "Attribute spend per request, user and feature",
+      ] },
+      { dimension: "Saves money when", values: [
+        "Traffic is high and steady enough to keep GPUs busy",
+        "A meaningful share of queries are easy",
+        "Spend is concentrated somewhere you have not looked",
+      ] },
+      { dimension: "Loses money when", values: [
+        "Utilisation is low — idle GPUs still bill by the hour",
+        "The router misjudges hard queries and answers degrade",
+        "Never on its own — it saves nothing until you act on it",
+      ] },
+      { dimension: "Quality risk", values: [
+        "None if you serve the same model; real if you downsize to fit",
+        "Direct — this is a quality-for-cost trade by design",
+        "None",
+      ] },
+      { dimension: "Operational cost", values: [
+        "A serving fleet, on-call and capacity planning",
+        "A router to calibrate, plus an eval to trust it",
+        "A proxy hop or an SDK wrapper",
+      ] },
+      { dimension: "Adopt first when", values: [
+        "You know your utilisation and it is high",
+        "You can measure the quality you are trading away",
+        "You cannot yet say which feature costs the most",
+      ] },
+    ],
+    verdict:
+      "Measure first. Per-request cost attribution is the cheapest of the three and the only one with no quality risk, and it often shows a few features or prompts dominating spend — which a shorter prompt can fix without new infrastructure. Route next, but only once an eval can tell you what the cheaper model loses. Self-host last, when measured and sustained utilisation makes GPU-hours cheaper than tokens; below that line it raises the bill.",
+    rules: [
+      "Cost per token is not cost per answer. A cheaper model that needs two retries is the expensive one.",
+      "Compare self-hosting against the price you actually pay, at the utilisation you actually have — not at peak.",
+      "A router without an eval is a cost cut with an unknown quality bill attached.",
+    ],
+    sections: ["inference-serving", "routing-gateways", "evaluation-observability"],
+    related: ["the-cost-model", "choosing-an-inference-runtime", "observability-is-not-logging"],
+  },
 ];
 
 export const getComparison = (slug: string) =>
@@ -405,6 +592,20 @@ export const resolvedComparisons = comparisons.map((comparison) => {
     }
   }
 
+  if (comparison.kind === "cross-layer") {
+    const layers = tools.map((t) => t.layer);
+    if (layers.some((l) => l == null) || new Set(layers).size !== layers.length) {
+      throw new Error(
+        `Cross-layer comparison "${comparison.slug}" needs every tool in a different stack layer.`,
+      );
+    }
+    if (layers.some((l, i) => i > 0 && (l as number) < (layers[i - 1] as number))) {
+      throw new Error(
+        `Cross-layer comparison "${comparison.slug}" must list its tools substrate first.`,
+      );
+    }
+  }
+
   const sections = comparison.sections
     .map((s) => getCategory(s))
     .filter((c): c is Category => Boolean(c));
@@ -418,3 +619,66 @@ export const resolvedComparisons = comparisons.map((comparison) => {
   return { ...comparison, tools, sections };
 });
 export type ResolvedComparison = (typeof resolvedComparisons)[number];
+
+/**
+ * The question a comparison page exists to answer, in the words it is asked
+ * in. Substitutes are a choice; cross-layer entries are an order, and phrasing
+ * them as "which should you choose" would imply you only need one of them.
+ */
+export function decisionQuestion(c: Pick<Comparison, "kind" | "tools">): string {
+  const names = listNames(c.tools.map((t) => t.name)).replace(/ and ([^,]+)$/, " or $1");
+  return c.kind === "cross-layer"
+    ? `Which should you adopt first: ${names}?`
+    : `Which should you choose: ${names}?`;
+}
+
+/**
+ * The verdict's opening, long enough to stand alone as a quoted answer.
+ *
+ * Answer engines lift a passage, not a page, and the passages they lifted in
+ * the category audit were 20–60 words that answered without their context.
+ * Verdicts are written lead-first, so the opening sentences are the answer;
+ * this takes whole sentences until the passage can stand on its own.
+ */
+export function shortAnswer(verdict: string): string {
+  // A sentence ends at a full stop followed by a capital or the end, so dotted
+  // names ("Trigger.dev") do not split one.
+  const sentences = verdict.match(/[\s\S]*?\.(?=\s+[A-Z]|\s*$)/g)?.map((s) => s.trim()) ?? [verdict];
+  const count = (s: string) => s.split(/\s+/).length;
+  let out = "";
+  for (const s of sentences) {
+    const next = out ? `${out} ${s}` : s;
+    if (out && count(next) > 75) break;
+    out = next;
+    if (count(out) >= 20) break;
+  }
+  return out;
+}
+
+/**
+ * Visible FAQ for a comparison page, mirrored in its FAQPage JSON-LD: the
+ * decision itself, then the use/skip pair for each tool. The skip half is the
+ * sentence no vendor-authored comparison will write about its own product.
+ */
+export function comparisonQuestions(c: Pick<Comparison, "kind" | "tools" | "verdict">): QA[] {
+  return [
+    { question: decisionQuestion(c), answer: c.verdict },
+    ...c.tools.map((t) => {
+      const entry = getToolByName(t.name);
+      return {
+        question: `When should you use ${t.name}, and when should you skip it?`,
+        answer: `Use ${t.name} when: ${lowerFirst(entry.useWhen)} Skip it when: ${lowerFirst(entry.skipWhen)}`,
+      };
+    }),
+  ];
+}
+
+/**
+ * Meta title with the year the comparison's facts were verified. Every page
+ * engines cited in the category audit carried a year in its title; using the
+ * dataset's verification year rather than the build year keeps it true.
+ */
+export function comparisonMetaTitle(c: Pick<Comparison, "kind" | "title">): string {
+  const year = AS_OF.slice(0, 4);
+  return c.kind === "cross-layer" ? `${c.title} (${year})` : `${c.title}: which to choose in ${year}`;
+}

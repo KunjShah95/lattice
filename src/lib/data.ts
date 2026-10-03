@@ -351,15 +351,25 @@ for (const tool of allTools) {
   }
 }
 
+/** How long a licence/cost check stays valid before the build refuses it. */
+export const STALE_AFTER_MONTHS = 6;
+
+/**
+ * The oldest `asOf` a build on `now` will accept: the first of the month,
+ * `STALE_AFTER_MONTHS` back. Shared with the published verification report so
+ * the receipt can never state a different rule from the one enforced.
+ */
+export function staleCutoff(now: Date): Date {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - STALE_AFTER_MONTHS, 1),
+  );
+}
+
 // Staleness. Licence and cost rot, so every entry is dated. Failing the build
 // is deliberate: a confident stale figure is worse than a broken build, because
 // a broken build cannot ship.
 {
-  const STALE_AFTER_MONTHS = 6;
-  const now = new Date();
-  const cutoff = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - STALE_AFTER_MONTHS, 1),
-  );
+  const cutoff = staleCutoff(new Date());
   const stale = allTools.filter((t) => new Date(t.asOf) < cutoff);
   if (stale.length) {
     throw new Error(
