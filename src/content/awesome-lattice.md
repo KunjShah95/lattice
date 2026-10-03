@@ -5,7 +5,7 @@
 
 112 tools across 10 sections, ordered as a production stack -- layer 1 is the substrate everything else runs on. Not ordered by popularity, and not a list of AI apps.
 
-Every entry on [https://lattice.sh](https://lattice.sh) carries two sentences: **when to use it** and **when to skip it**. The second one is the half almost nobody publishes, and it is the reason the first is worth reading.
+Every entry on [https://lattice.kkshah2005.workers.dev](https://lattice.kkshah2005.workers.dev) carries two sentences: **when to use it** and **when to skip it**. The second one is the half almost nobody publishes, and it is the reason the first is worth reading.
 
 ## Why this list is different
 
@@ -15,7 +15,9 @@ Every entry on [https://lattice.sh](https://lattice.sh) carries two sentences: *
 - **No sponsored placement.** Nothing here is ranked by who paid.
 - **No star counts.** They can be inflated and they say nothing about whether a tool fits your constraint.
 
-[Full index](https://lattice.sh/all) | [Comparisons](https://lattice.sh/compare) | [Methodology, including where this list is wrong](https://lattice.sh/methodology) | [Essays](https://lattice.sh/blog) | [Glossary](https://lattice.sh/glossary)
+**Something broken?** [Start from the symptom](https://lattice.kkshah2005.workers.dev/fix) -- slow, expensive, wrong answers, an agent that keeps failing -- for an ordered checklist through the stack.
+
+[Full index](https://lattice.kkshah2005.workers.dev/all) | [Comparisons](https://lattice.kkshah2005.workers.dev/compare) | [Methodology, including where this list is wrong](https://lattice.kkshah2005.workers.dev/methodology) | [Essays](https://lattice.kkshah2005.workers.dev/blog) | [Glossary](https://lattice.kkshah2005.workers.dev/glossary)
 
 ## Contents
 
@@ -36,20 +38,20 @@ Every entry on [https://lattice.sh](https://lattice.sh) carries two sentences: *
 
 _layer 1 | band compute_ -- 12 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [vLLM](https://vllm.ai) | Paged-attention inference engine with an OpenAI-compatible server. | runtime | self-hosted | Apache-2.0 | free |
-| [SGLang](https://github.com/sgl-project/sglang) | Structured generation runtime built on RadixAttention prefix reuse. | runtime | self-hosted | Apache-2.0 | free |
-| [llama.cpp](https://github.com/ggml-org/llama.cpp) | Portable CPU/GPU inference for quantized GGUF models. | runtime | self-hosted | MIT | free |
-| [Ollama](https://ollama.com) | Local model runner with a single-binary distribution and HTTP API. | runtime | self-hosted | MIT | free |
-| [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) | NVIDIA-optimized inference with inflight batching and FP8. | runtime | self-hosted | Apache-2.0 | free |
-| [Text Generation Inference](https://github.com/huggingface/text-generation-inference) | Hugging Face production server for LLMs with tensor parallelism. | runtime | self-hosted | Apache-2.0 | free |
-| [LM Studio](https://lmstudio.ai) | Desktop app for running and serving local models with an OpenAI API. | service | self-hosted | proprietary | free |
-| [Triton Inference Server](https://github.com/triton-inference-server/server) | Multi-framework inference server for ONNX, TensorRT and Python. | runtime | self-hosted | BSD-3-Clause | free |
-| [llamafile](https://github.com/Mozilla-Ocho/llamafile) | Packages a model and its runtime into a single executable. | runtime | self-hosted | Apache-2.0 | free |
-| [KoboldCpp](https://github.com/LostRuins/koboldcpp) | GGUF inference with a focused text-adventure UI and API. | runtime | self-hosted | MIT | free |
-| [PowerInfer](https://github.com/AmateurChina/PowerInfer) | CPU-first runtime that offloads hot paths to the GPU. | runtime | self-hosted | Apache-2.0 | free |
-| [Marlin](https://github.com/vllm-project/marlin) | Quantised GEMM kernels for near-GPU speed at 4-bit. | library | self-hosted | Apache-2.0 | free |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [vLLM](https://vllm.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/vllm) | Paged-attention inference engine with an OpenAI-compatible server. | Traffic is steady and low-concurrency, so batches never fill. | Apache-2.0 | free |
+| [SGLang](https://github.com/sgl-project/sglang)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/sglang) | Structured generation runtime built on RadixAttention prefix reuse. | You want the fewest moving parts and vLLM already clears your bar. | Apache-2.0 | free |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/llama-cpp) | Portable CPU/GPU inference for quantized GGUF models. | You need maximum concurrent throughput on datacentre GPUs. | MIT | free |
+| [Ollama](https://ollama.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/ollama) | Local model runner with a single-binary distribution and HTTP API. | You need production throughput or a stable server API. | MIT | free |
+| [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/tensorrt-llm) | NVIDIA-optimized inference with inflight batching and FP8. | Hardware portability matters, or you have no GPUs to tune against. | Apache-2.0 | free |
+| [Text Generation Inference](https://github.com/huggingface/text-generation-inference)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/text-generation-inference) | Hugging Face production server for LLMs with tensor parallelism. | The model fits on one GPU, where this is overkill. | Apache-2.0 | free |
+| [LM Studio](https://lmstudio.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/lm-studio) | Desktop app for running and serving local models with an OpenAI API. | You need headless, multi-tenant deployment. | proprietary | free |
+| [Triton Inference Server](https://github.com/triton-inference-server/server)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/triton-inference-server) | Multi-framework inference server for ONNX, TensorRT and Python. | You serve one model family and want peak LLM throughput. | BSD-3-Clause | free |
+| [llamafile](https://github.com/Mozilla-Ocho/llamafile)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/llamafile) | Packages a model and its runtime into a single executable. | You need batching, multi-GPU serving or a production HTTP server. | Apache-2.0 | free |
+| [KoboldCpp](https://github.com/LostRuins/koboldcpp)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/koboldcpp) | GGUF inference with a focused text-adventure UI and API. | You need headless serving at scale. | MIT | free |
+| [PowerInfer](https://github.com/AmateurChina/PowerInfer)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/powerinfer) | CPU-first runtime that offloads hot paths to the GPU. | You have GPUs to spare -- it trades peak throughput for reach. | Apache-2.0 | free |
+| [Marlin](https://github.com/vllm-project/marlin)<br>[use / skip](https://lattice.kkshah2005.workers.dev/inference-serving/marlin) | Quantised GEMM kernels for near-GPU speed at 4-bit. | You need a scheduler and a server as well as a kernel. | Apache-2.0 | free |
 
 ---
 
@@ -57,18 +59,18 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 2 | band compute_ -- 10 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [LiteLLM](https://litellm.ai) | OpenAI-format proxy translating across 100+ model providers. | library | self-hosted | MIT | free |
-| [Portkey](https://portkey.ai) | AI gateway with routing, caching and guardrails in one layer. | platform | saas | proprietary | usage-based |
-| [Cloudflare AI Gateway](https://developers.cloudflare.com) | Edge gateway adding caching, retries and rate limiting. | service | saas | proprietary | free-tier |
-| [OpenRouter](https://openrouter.ai) | Single API key and billing across many hosted models. | service | saas | proprietary | usage-based |
-| [Martian](https://withmartian.com) | Model router that optimizes for quality, cost and latency. | platform | saas | proprietary | usage-based |
-| [Envoy AI Gateway](https://aigateway.envoyproxy.io) | CNCF-track gateway for LLM traffic on an Envoy data plane. | runtime | self-hosted | Apache-2.0 | free |
-| [Bifrost](https://getmaxim.ai) | High-throughput LLM gateway with drop-in OpenAI compatibility. | library | self-hosted | proprietary | free |
-| [RouteLLM](https://github.com/lm-sys/RouteLLM) | Learned router that cuts cost by matching difficulty to model size. | library | self-hosted | Apache-2.0 | free |
-| [Not Diamond](https://notdiamond.ai) | Routing and prompt optimisation tuned on your own traffic. | platform | saas | proprietary | usage-based |
-| [TrueFoundry](https://truefoundry.com) | Gateway plus observability and guardrails as one deployment. | platform | managed | proprietary | subscription |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [LiteLLM](https://litellm.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/litellm) | OpenAI-format proxy translating across 100+ model providers. | You want routing policy to live in a SaaS console. | MIT | free |
+| [Portkey](https://portkey.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/portkey) | AI gateway with routing, caching and guardrails in one layer. | Prompts cannot leave your infrastructure. | proprietary | usage-based |
+| [Cloudflare AI Gateway](https://developers.cloudflare.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/cloudflare-ai-gateway) | Edge gateway adding caching, retries and rate limiting. | Requests must not transit a third party's network. | proprietary | free-tier |
+| [OpenRouter](https://openrouter.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/openrouter) | Single API key and billing across many hosted models. | You need self-hosting or per-provider SLAs. | proprietary | usage-based |
+| [Martian](https://withmartian.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/martian) | Model router that optimizes for quality, cost and latency. | You want the routing rule to be plain config you can read. | proprietary | usage-based |
+| [Envoy AI Gateway](https://aigateway.envoyproxy.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/envoy-ai-gateway) | CNCF-track gateway for LLM traffic on an Envoy data plane. | You want a gateway configurable without a data plane. | Apache-2.0 | free |
+| [Bifrost](https://getmaxim.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/bifrost) | High-throughput LLM gateway with drop-in OpenAI compatibility. | You need the breadth of a full routing stack. | proprietary | free |
+| [RouteLLM](https://github.com/lm-sys/RouteLLM)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/routellm) | Learned router that cuts cost by matching difficulty to model size. | You cannot evaluate the quality you would be trading away. | Apache-2.0 | free |
+| [Not Diamond](https://notdiamond.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/not-diamond) | Routing and prompt optimisation tuned on your own traffic. | Self-hosting or auditability is a requirement. | proprietary | usage-based |
+| [TrueFoundry](https://truefoundry.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/routing-gateways/truefoundry) | Gateway plus observability and guardrails as one deployment. | You want to adopt the pieces independently. | proprietary | subscription |
 
 ---
 
@@ -76,23 +78,23 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 3 | band state_ -- 15 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [pgvector](https://github.com/pgvector/pgvector) | Vector similarity search as a Postgres extension. | database | self-hosted | PostgreSQL | free |
-| [Qdrant](https://qdrant.tech) | Rust vector database with rich filtering payloads. | database | self-hosted | Apache-2.0 | free |
-| [Weaviate](https://weaviate.io) | Graph-aware vector database with hybrid and multi-vector search. | database | self-hosted | BSD-3-Clause | free |
-| [Chroma](https://trychroma.com) | Embeddings database designed for fast prototyping. | database | self-hosted | Apache-2.0 | free |
-| [Pinecone](https://pinecone.io) | Fully managed vector database with serverless scaling. | database | saas | proprietary | usage-based |
-| [Milvus](https://milvus.io) | Cloud-native vector database supporting billion-scale indexes. | database | self-hosted | Apache-2.0 | free |
-| [Turbopuffer](https://turbopuffer.com) | Vector search engine tuned for high-recall retrieval workloads. | database | saas | proprietary | usage-based |
-| [Unstructured](https://unstructured.io) | Preprocessing library that partitions raw documents for indexing. | library | self-hosted | Apache-2.0 | free |
-| [Elasticsearch](https://elastic.co) | BM25 plus dense vectors in one index, with hybrid ranking. | database | self-hosted | Elastic-License-2.0 | usage-based |
-| [Vespa](https://vespa.ai) | Search engine built for ranking-heavy retrieval at scale. | platform | self-hosted | Apache-2.0 | free |
-| [Rerankers](https://cohere.com) | Purpose-built cross-encoders for the second retrieval stage. | service | saas | proprietary | usage-based |
-| [Jina AI](https://jina.ai) | Multimodal embeddings and a reranker behind one endpoint. | service | saas | proprietary | usage-based |
-| [LangChain Text Splitters](https://python.langchain.com) | Document loaders and splitters for the ingest stage. | library | self-hosted | MIT | free |
-| [Docling](https://github.com/DS4SD/docling) | Layout-aware parsing that preserves table and heading structure. | library | self-hosted | MIT | free |
-| [LlamaParse](https://llamaindex.ai) | Managed parsing for PDFs, especially the ugly ones. | service | managed | proprietary | usage-based |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [pgvector](https://github.com/pgvector/pgvector)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/pgvector) | Vector similarity search as a Postgres extension. | Vector search has become the workload rather than a side feature. | PostgreSQL | free |
+| [Qdrant](https://qdrant.tech)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/qdrant) | Rust vector database with rich filtering payloads. | You want no new datastore to operate. | Apache-2.0 | free |
+| [Weaviate](https://weaviate.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/weaviate) | Graph-aware vector database with hybrid and multi-vector search. | Your data is genuinely relational and joins matter more than vectors. | BSD-3-Clause | free |
+| [Chroma](https://trychroma.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/chroma) | Embeddings database designed for fast prototyping. | You need durability, scaling or concurrent writes. | Apache-2.0 | free |
+| [Pinecone](https://pinecone.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/pinecone) | Fully managed vector database with serverless scaling. | Residency, cost predictability or a query language you control. | proprietary | usage-based |
+| [Milvus](https://milvus.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/milvus) | Cloud-native vector database supporting billion-scale indexes. | You need a small, comprehensible system. | Apache-2.0 | free |
+| [Turbopuffer](https://turbopuffer.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/turbopuffer) | Vector search engine tuned for high-recall retrieval workloads. | You need to tune the index directly. | proprietary | usage-based |
+| [Unstructured](https://unstructured.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/unstructured) | Preprocessing library that partitions raw documents for indexing. | Your input is already structured. | Apache-2.0 | free |
+| [Elasticsearch](https://elastic.co)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/elasticsearch) | BM25 plus dense vectors in one index, with hybrid ranking. | You need a permissive licence -- the Elastic licence is not OSI-approved. | Elastic-License-2.0 | usage-based |
+| [Vespa](https://vespa.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/vespa) | Search engine built for ranking-heavy retrieval at scale. | You want a small, low-operations component. | Apache-2.0 | free |
+| [Rerankers](https://cohere.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/rerankers) | Purpose-built cross-encoders for the second retrieval stage. | You have no way to measure whether recall actually improved. | proprietary | usage-based |
+| [Jina AI](https://jina.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/jina-ai) | Multimodal embeddings and a reranker behind one endpoint. | Embeddings must stay in-house. | proprietary | usage-based |
+| [LangChain Text Splitters](https://python.langchain.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/langchain-text-splitters) | Document loaders and splitters for the ingest stage. | Structure matters -- fixed-size splitting is rarely the right boundary. | MIT | free |
+| [Docling](https://github.com/DS4SD/docling)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/docling) | Layout-aware parsing that preserves table and heading structure. | Your documents are plain text. | MIT | free |
+| [LlamaParse](https://llamaindex.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/retrieval-vector-stores/llamaparse) | Managed parsing for PDFs, especially the ugly ones. | Document contents cannot leave your infrastructure. | proprietary | usage-based |
 
 ---
 
@@ -100,20 +102,20 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 4 | band state_ -- 12 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [Unsloth](https://unsloth.ai) | Hand-written kernels that cut LoRA memory and time sharply. | library | self-hosted | Apache-2.0 | free |
-| [Axolotl](https://axolotl.ai) | Configuration-driven fine-tuning across common architectures. | library | self-hosted | Apache-2.0 | free |
-| [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) | Unified interface for SFT, DPO and RLHF on open models. | platform | self-hosted | Apache-2.0 | free |
-| [PEFT](https://github.com/huggingface/peft) | Parameter-efficient fine-tuning methods such as LoRA and QLoRA. | library | self-hosted | BSD-3-Clause | free |
-| [TRL](https://github.com/huggingface/trl) | Hugging Face library of post-training trainers for SFT, DPO and GRPO. | library | self-hosted | Apache-2.0 | free |
-| [DeepSpeed](https://deepspeed.ai) | ZeRO sharding and pipeline parallelism for large-scale training. | library | self-hosted | MIT | free |
-| [Megatron-LM](https://github.com/NVIDIA/Megatron-LM) | Tensor and pipeline parallel training for multi-GPU clusters. | library | self-hosted | Apache-2.0 | free |
-| [torchtune](https://github.com/pytorch/torchtune) | PyTorch-native recipes for fine-tuning and aligning open models. | library | self-hosted | BSD-3-Clause | free |
-| [Hugging Face TRL](https://huggingface.co) | Preference and reward optimisation on top of any PEFT setup. | platform | saas | proprietary | usage-based |
-| [Colab](https://colab.research.google.com) | Hosted GPUs for small runs and quick experiments. | platform | saas | proprietary | free-tier |
-| [Replicate](https://replicate.com) | Hosted fine-tuning and deployment for open models. | platform | saas | proprietary | usage-based |
-| [Weights & Biases Launch](https://wandb.ai) | Managed training runs with sweeps and artifact tracking. | platform | saas | proprietary | subscription |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [Unsloth](https://unsloth.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/unsloth) | Hand-written kernels that cut LoRA memory and time sharply. | You need a training stack you can audit line by line. | Apache-2.0 | free |
+| [Axolotl](https://axolotl.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/axolotl) | Configuration-driven fine-tuning across common architectures. | You need to hand-tune the training loop itself. | Apache-2.0 | free |
+| [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/llama-factory) | Unified interface for SFT, DPO and RLHF on open models. | You want a minimal, readable training script. | Apache-2.0 | free |
+| [PEFT](https://github.com/huggingface/peft)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/peft) | Parameter-efficient fine-tuning methods such as LoRA and QLoRA. | You need to change the model's capabilities, not bolt on an adapter. | BSD-3-Clause | free |
+| [TRL](https://github.com/huggingface/trl)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/trl) | Hugging Face library of post-training trainers for SFT, DPO and GRPO. | You are training from scratch rather than aligning an existing model. | Apache-2.0 | free |
+| [DeepSpeed](https://deepspeed.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/deepspeed) | ZeRO sharding and pipeline parallelism for large-scale training. | The model fits on one device -- the complexity buys nothing. | MIT | free |
+| [Megatron-LM](https://github.com/NVIDIA/Megatron-LM)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/megatron-lm) | Tensor and pipeline parallel training for multi-GPU clusters. | You are fine-tuning rather than pretraining. | Apache-2.0 | free |
+| [torchtune](https://github.com/pytorch/torchtune)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/torchtune) | PyTorch-native recipes for fine-tuning and aligning open models. | You want the breadth of a config-driven stack. | BSD-3-Clause | free |
+| [Hugging Face TRL](https://huggingface.co)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/hugging-face-trl) | Preference and reward optimisation on top of any PEFT setup. | Training data cannot be uploaded to a third party. | proprietary | usage-based |
+| [Colab](https://colab.research.google.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/colab) | Hosted GPUs for small runs and quick experiments. | Anything reproducible -- a notebook is not a training pipeline. | proprietary | free-tier |
+| [Replicate](https://replicate.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/replicate) | Hosted fine-tuning and deployment for open models. | You need custom training code or strict residency. | proprietary | usage-based |
+| [Weights & Biases Launch](https://wandb.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/fine-tuning/weights-biases-launch) | Managed training runs with sweeps and artifact tracking. | You want training infrastructure you run yourself. | proprietary | subscription |
 
 ---
 
@@ -121,21 +123,21 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 5 | band control_ -- 13 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [LangChain](https://langchain.com) | Composable abstractions for model calls, tools and state. | framework | self-hosted | MIT | free |
-| [LlamaIndex](https://llamaindex.ai) | Data-centric framework for retrieval and agent workflows. | framework | self-hosted | MIT | free |
-| [Pydantic AI](https://ai.pydantic.dev) | Type-safe agent framework that leans on Pydantic models. | framework | self-hosted | MIT | free |
-| [AutoGen](https://microsoft.github.io/autogen) | Microsoft research project for conversable multi-agent systems. | framework | self-hosted | MIT | free |
-| [CrewAI](https://crewai.com) | Role-based orchestration where agents collaborate as a crew. | framework | self-hosted | MIT | free |
-| [Semantic Kernel](https://learn.microsoft.com) | Microsoft SDK for embedding AI steps into .NET and Python apps. | framework | self-hosted | MIT | free |
-| [Mastra](https://mastra.ai) | TypeScript agent framework with typed workflows and evals. | framework | self-hosted | Apache-2.0 | free |
-| [OpenAI Agents SDK](https://openai.github.io/openai-agents-python) | Lightweight primitives for handoffs, guardrails and tracing. | framework | self-hosted | Apache-2.0 | free |
-| [Agno](https://agno.com) | Minimal agent runtime centered on model-agnostic tool interfaces. | framework | self-hosted | MPL-2.0 | free |
-| [Claude Agent SDK](https://docs.anthropic.com) | Anthropic's toolkit for building agents with tool use and hooks. | framework | self-hosted | proprietary | free |
-| [Letta](https://letta.com) | Agent runtime with persistent, editable memory as a first-class primitive. | platform | self-hosted | Apache-2.0 | free |
-| [smolagents](https://huggingface.co) | Minimal code-first agent loop from the Hugging Face team. | framework | self-hosted | Apache-2.0 | free |
-| [Vercel AI SDK](https://ai-sdk.dev) | Provider-agnostic building blocks for streaming apps and agents. | library | self-hosted | Apache-2.0 | free |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [LangChain](https://langchain.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/langchain) | Composable abstractions for model calls, tools and state. | You want a thin, legible core -- this is a large surface. | MIT | free |
+| [LlamaIndex](https://llamaindex.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/llamaindex) | Data-centric framework for retrieval and agent workflows. | You need agent orchestration more than data access. | MIT | free |
+| [Pydantic AI](https://ai.pydantic.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/pydantic-ai) | Type-safe agent framework that leans on Pydantic models. | You want a batteries-included ecosystem. | MIT | free |
+| [AutoGen](https://microsoft.github.io/autogen)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/autogen) | Microsoft research project for conversable multi-agent systems. | You need something stable and documented for production. | MIT | free |
+| [CrewAI](https://crewai.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/crewai) | Role-based orchestration where agents collaborate as a crew. | You want direct control over the loop itself. | MIT | free |
+| [Semantic Kernel](https://learn.microsoft.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/semantic-kernel) | Microsoft SDK for embedding AI steps into .NET and Python apps. | Your stack is not .NET. | MIT | free |
+| [Mastra](https://mastra.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/mastra) | TypeScript agent framework with typed workflows and evals. | You are working in Python. | Apache-2.0 | free |
+| [OpenAI Agents SDK](https://openai.github.io/openai-agents-python)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/openai-agents-sdk) | Lightweight primitives for handoffs, guardrails and tracing. | You need multi-provider abstraction at every layer. | Apache-2.0 | free |
+| [Agno](https://agno.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/agno) | Minimal agent runtime centered on model-agnostic tool interfaces. | You need the wider ecosystem around it. | MPL-2.0 | free |
+| [Claude Agent SDK](https://docs.anthropic.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/claude-agent-sdk) | Anthropic's toolkit for building agents with tool use and hooks. | You need provider independence at the framework layer. | proprietary | free |
+| [Letta](https://letta.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/letta) | Agent runtime with persistent, editable memory as a first-class primitive. | You want memory to be a detail the framework handles for you. | Apache-2.0 | free |
+| [smolagents](https://huggingface.co)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/smolagents) | Minimal code-first agent loop from the Hugging Face team. | You need a rich tool ecosystem around it. | Apache-2.0 | free |
+| [Vercel AI SDK](https://ai-sdk.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/agent-frameworks/vercel-ai-sdk) | Provider-agnostic building blocks for streaming apps and agents. | You need agent orchestration rather than model calls. | Apache-2.0 | free |
 
 ---
 
@@ -143,18 +145,18 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 6 | band control_ -- 10 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [Temporal](https://temporal.io) | Durable execution engine that survives crashes and long waits. | platform | self-hosted | MIT | free |
-| [Inngest](https://inngest.com) | Event-driven step functions with durable replay for TypeScript. | platform | saas | Apache-2.0 | free-tier |
-| [Trigger.dev](https://trigger.dev) | Background jobs and AI workflows with long-running task support. | platform | saas | Apache-2.0 | free-tier |
-| [Dagster](https://dagster.io) | Asset-oriented orchestration for data and ML pipelines. | platform | self-hosted | Apache-2.0 | free |
-| [Prefect](https://prefect.io) | Python-native workflow orchestration with a managed cloud option. | platform | self-hosted | Apache-2.0 | free-tier |
-| [Apache Airflow](https://apache.org) | Scheduler and DAG engine long used for batch data engineering. | platform | self-hosted | Apache-2.0 | free |
-| [Restate](https://restate.dev) | Durable execution with a low-latency stateful API surface. | platform | self-hosted | BSL-1.1 | free |
-| [DBOS](https://dbos.dev) | Durable workflows as ordinary Python functions and decorators. | library | self-hosted | Apache-2.0 | free |
-| [Fly Machines](https://fly.io) | Hosting for stateful containers that fits durable agent workers. | platform | managed | proprietary | usage-based |
-| [Modal](https://modal.com) | Serverless GPU and container platform popular for batch inference. | platform | saas | proprietary | usage-based |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [Temporal](https://temporal.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/temporal) | Durable execution engine that survives crashes and long waits. | You need it live in a day -- the adoption cost is real. | MIT | free |
+| [Inngest](https://inngest.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/inngest) | Event-driven step functions with durable replay for TypeScript. | You are not working in TypeScript. | Apache-2.0 | free-tier |
+| [Trigger.dev](https://trigger.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/trigger-dev) | Background jobs and AI workflows with long-running task support. | You need more than TypeScript. | Apache-2.0 | free-tier |
+| [Dagster](https://dagster.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/dagster) | Asset-oriented orchestration for data and ML pipelines. | You want a task queue rather than a lineage-aware orchestrator. | Apache-2.0 | free |
+| [Prefect](https://prefect.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/prefect) | Python-native workflow orchestration with a managed cloud option. | You need deep lineage modelling. | Apache-2.0 | free-tier |
+| [Apache Airflow](https://apache.org)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/apache-airflow) | Scheduler and DAG engine long used for batch data engineering. | You are building a latency-sensitive product -- it was not designed for one. | Apache-2.0 | free |
+| [Restate](https://restate.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/restate) | Durable execution with a low-latency stateful API surface. | You need the largest ecosystem around the engine. | BSL-1.1 | free |
+| [DBOS](https://dbos.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/dbos) | Durable workflows as ordinary Python functions and decorators. | You want a separate service to operate. | Apache-2.0 | free |
+| [Fly Machines](https://fly.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/fly-machines) | Hosting for stateful containers that fits durable agent workers. | You want to own the infrastructure layer. | proprietary | usage-based |
+| [Modal](https://modal.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/workflow-orchestration/modal) | Serverless GPU and container platform popular for batch inference. | Data locality rules forbid ephemeral compute. | proprietary | usage-based |
 
 ---
 
@@ -162,16 +164,16 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 7 | band control_ -- 8 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) | Programmable rails that constrain conversational flow. | library | self-hosted | Apache-2.0 | free |
-| [Guardrails AI](https://guardrailsai.com) | Validators that check model output against a defined schema. | library | self-hosted | Apache-2.0 | free |
-| [Llama Guard](https://ai.meta.com/llama) | Safety classifier for prompt and response moderation. | library | self-hosted | Llama-3.1-Community | free |
-| [Microsoft Presidio](https://microsoft.github.io/presidio) | PII detection and anonymization for text and images. | library | self-hosted | MIT | free |
-| [Lakera Guard](https://lakera.ai) | Prompt injection and jailbreak detection at the gateway. | service | saas | proprietary | usage-based |
-| [garak](https://github.com/NVIDIA/garak) | Scanner that probes models for known vulnerability classes. | library | self-hosted | Apache-2.0 | free |
-| [PyRIT](https://github.com/Azure/PyRIT) | Microsoft's red-team tool for generating and scoring attack prompts. | library | self-hosted | MIT | free |
-| [Invariant Guardrails](https://invariantlabs.ai) | Guardrails as code, enforced inline in the call path. | platform | managed | proprietary | usage-based |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/nemo-guardrails) | Programmable rails that constrain conversational flow. | You need deep semantic moderation -- it is not a classifier. | Apache-2.0 | free |
+| [Guardrails AI](https://guardrailsai.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/guardrails-ai) | Validators that check model output against a defined schema. | You need free-form moderation rather than structural checks. | Apache-2.0 | free |
+| [Llama Guard](https://ai.meta.com/llama)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/llama-guard) | Safety classifier for prompt and response moderation. | You need domain-specific policy enforcement. | Llama-3.1-Community | free |
+| [Microsoft Presidio](https://microsoft.github.io/presidio)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/microsoft-presidio) | PII detection and anonymization for text and images. | Your data is already pseudonymised at source. | MIT | free |
+| [Lakera Guard](https://lakera.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/lakera-guard) | Prompt injection and jailbreak detection at the gateway. | Requests cannot leave your network. | proprietary | usage-based |
+| [garak](https://github.com/NVIDIA/garak)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/garak) | Scanner that probes models for known vulnerability classes. | You have no remediation path for whatever it finds. | Apache-2.0 | free |
+| [PyRIT](https://github.com/Azure/PyRIT)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/pyrit) | Microsoft's red-team tool for generating and scoring attack prompts. | You are not authorised to test the target. | MIT | free |
+| [Invariant Guardrails](https://invariantlabs.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/guardrails-safety/invariant-guardrails) | Guardrails as code, enforced inline in the call path. | Self-hosting is a hard requirement. | proprietary | usage-based |
 
 ---
 
@@ -179,17 +181,17 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 8 | band control_ -- 9 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [DSPy](https://dspy.ai) | Declarative prompting that compiles to optimized programs from examples. | library | self-hosted | MIT | free |
-| [Instructor](https://python.useinstructor.com) | Schema-constrained extraction with automatic validation and retry. | library | self-hosted | MIT | free |
-| [Humanloop](https://humanloop.com) | Prompt versioning and evaluation for production teams. | platform | saas | proprietary | usage-based |
-| [Guidance](https://guidance.mit.edu) | Constrained generation by interleaving control flow and model output. | library | self-hosted | MIT | free |
-| [PromptLayer](https://promptlayer.com) | Prompt registry with request logging and regression testing. | platform | saas | proprietary | usage-based |
-| [Agenta](https://agenta.ai) | Open-source prompt management with a playground and versioning. | platform | self-hosted | Apache-2.0 | free-tier |
-| [Promptwatch](https://promptwatch.com) | Prompt regression tests and side-by-side comparison. | platform | saas | proprietary | usage-based |
-| [TextGrad](https://github.com/zou-group/textgrad) | Automatic prompt optimisation via textual feedback loops. | library | self-hosted | MIT | free |
-| [Outlines](https://dottxt-ai.github.io/outlines) | Constrained generation that masks the token space to valid output. | library | self-hosted | Apache-2.0 | free |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [DSPy](https://dspy.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/dspy) | Declarative prompting that compiles to optimized programs from examples. | You have no examples and no way to score them. | MIT | free |
+| [Instructor](https://python.useinstructor.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/instructor) | Schema-constrained extraction with automatic validation and retry. | You need a hard token-level guarantee rather than validation. | MIT | free |
+| [Humanloop](https://humanloop.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/humanloop) | Prompt versioning and evaluation for production teams. | Prompts or data cannot be sent to a vendor. | proprietary | usage-based |
+| [Guidance](https://guidance.mit.edu)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/guidance) | Constrained generation by interleaving control flow and model output. | You need better ergonomics for plain extraction. | MIT | free |
+| [PromptLayer](https://promptlayer.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/promptlayer) | Prompt registry with request logging and regression testing. | You need self-hosting. | proprietary | usage-based |
+| [Agenta](https://agenta.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/agenta) | Open-source prompt management with a playground and versioning. | You need eval depth rather than prompt ergonomics. | Apache-2.0 | free-tier |
+| [Promptwatch](https://promptwatch.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/promptwatch) | Prompt regression tests and side-by-side comparison. | You need self-hosting. | proprietary | usage-based |
+| [TextGrad](https://github.com/zou-group/textgrad)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/textgrad) | Automatic prompt optimisation via textual feedback loops. | Optimising without an eval set is guessing. | MIT | free |
+| [Outlines](https://dottxt-ai.github.io/outlines)<br>[use / skip](https://lattice.kkshah2005.workers.dev/prompt-engineering/outlines) | Constrained generation that masks the token space to valid output. | Post-hoc validation is enough for your use case. | Apache-2.0 | free |
 
 ---
 
@@ -197,21 +199,21 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _layer 9 | band control_ -- 13 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [LangSmith](https://smith.langchain.com) | Tracing, evaluation and dataset tooling across LangChain runs. | platform | saas | proprietary | usage-based |
-| [Braintrust](https://braintrust.dev) | Evaluation platform with built-in scorers and a data flywheel. | platform | saas | proprietary | usage-based |
-| [Arize Phoenix](https://phoenix.arize.com) | Open-source tracing and evaluation built on OpenTelemetry. | library | self-hosted | Apache-2.0 | free |
-| [Langfuse](https://langfuse.com) | Self-hostable LLM tracing, prompt management and cost analytics. | platform | self-hosted | MIT | free-tier |
-| [promptfoo](https://promptfoo.dev) | Declarative red-teaming and regression tests for prompts and agents. | library | self-hosted | MIT | free |
-| [DeepEval](https://deepeval.com) | Open-source pytest-style evaluation suite for LLM outputs. | library | self-hosted | Apache-2.0 | free |
-| [Helicone](https://helicone.ai) | Gateway-level observability with per-request cost and latency. | platform | saas | proprietary | free-tier |
-| [Weights & Biases](https://wandb.ai) | Experiment tracking and model registry with LLM eval surfaces. | platform | saas | proprietary | usage-based |
-| [OpenTelemetry](https://opentelemetry.io) | Vendor-neutral standard for emitting traces and metrics. | library | self-hosted | Apache-2.0 | free |
-| [Vellum](https://vellum.ai) | Prompt and eval platform with a visual debugger for chains. | platform | saas | proprietary | usage-based |
-| [Gentrace](https://gentrace.ai) | Open-source tracing and dashboards for LLM applications. | platform | self-hosted | Apache-2.0 | free-tier |
-| [Opik](https://comet.com) | Open-source LLM observability and evaluation from Comet. | platform | self-hosted | Apache-2.0 | free |
-| [Evidently AI](https://evidentlyai.com) | Evaluation and monitoring for both classical and LLM systems. | library | self-hosted | Apache-2.0 | free |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [LangSmith](https://smith.langchain.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/langsmith) | Tracing, evaluation and dataset tooling across LangChain runs. | Traces cannot leave your infrastructure. | proprietary | usage-based |
+| [Braintrust](https://braintrust.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/braintrust) | Evaluation platform with built-in scorers and a data flywheel. | You need open formats and self-hosting. | proprietary | usage-based |
+| [Arize Phoenix](https://phoenix.arize.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/arize-phoenix) | Open-source tracing and evaluation built on OpenTelemetry. | You want a vendor support contract behind it. | Apache-2.0 | free |
+| [Langfuse](https://langfuse.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/langfuse) | Self-hostable LLM tracing, prompt management and cost analytics. | You want a fully managed product with a support contract. | MIT | free-tier |
+| [promptfoo](https://promptfoo.dev)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/promptfoo) | Declarative red-teaming and regression tests for prompts and agents. | You need a managed UI rather than a test runner. | MIT | free |
+| [DeepEval](https://deepeval.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/deepeval) | Open-source pytest-style evaluation suite for LLM outputs. | You need a platform rather than a library. | Apache-2.0 | free |
+| [Helicone](https://helicone.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/helicone) | Gateway-level observability with per-request cost and latency. | You need eval primitives more than traffic logs. | proprietary | free-tier |
+| [Weights & Biases](https://wandb.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/weights-biases) | Experiment tracking and model registry with LLM eval surfaces. | You need an open, exportable format. | proprietary | usage-based |
+| [OpenTelemetry](https://opentelemetry.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/opentelemetry) | Vendor-neutral standard for emitting traces and metrics. | You want a product with a user interface. | Apache-2.0 | free |
+| [Vellum](https://vellum.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/vellum) | Prompt and eval platform with a visual debugger for chains. | Self-hosting or reproducibility is a requirement. | proprietary | usage-based |
+| [Gentrace](https://gentrace.ai)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/gentrace) | Open-source tracing and dashboards for LLM applications. | You want eval depth more than traffic visibility. | Apache-2.0 | free-tier |
+| [Opik](https://comet.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/opik) | Open-source LLM observability and evaluation from Comet. | You need enterprise support behind it. | Apache-2.0 | free |
+| [Evidently AI](https://evidentlyai.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/evaluation-observability/evidently-ai) | Evaluation and monitoring for both classical and LLM systems. | You only need LLM-specific tracing. | Apache-2.0 | free |
 
 ---
 
@@ -219,18 +221,18 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 _off-stack_ -- 10 entries.
 
-Tool | What it is | Kind | Deployment | Licence | Cost
-| --- | --- | --- | --- | --- | --- |
-| [Hugging Face](https://huggingface.co) | Model hub, datasets and open-source library ecosystem. | platform | saas | proprietary | free-tier |
-| [Full Stack Deep Learning](https://fullstackdeeplearning.com) | Course covering the practical side of shipping LLM systems. | reading | -- | unknown | free |
-| [Sebastian Raschka](https://magazine.sebastianraschka.com) | Essays and books distilling research into working knowledge. | reading | -- | unknown | free |
-| [arXiv](https://arxiv.org) | Primary preprint archive for machine learning research. | reading | -- | unknown | free |
-| [Papers with Code](https://paperswithcode.com) | Links papers to their reference implementations and benchmarks. | reading | -- | unknown | free |
-| [Jay Alammar](https://jalammar.github.io) | Visual explanations of transformers, RAG and LLM internals. | reading | -- | unknown | free |
-| [AI Engineer](https://ai.engineer) | Conference and community focused on shipping LLM products. | reading | -- | unknown | free |
-| [Hugging Face Cookbook](https://huggingface.co) | Task-oriented notebooks for fine-tuning, serving and RAG. | reading | -- | unknown | free |
-| [Made With ML](https://madewithml.com) | Course on designing, building and deploying ML systems. | reading | -- | unknown | free |
-| [Distill](https://distill.pub) | Archive of carefully explained model and method explainers. | reading | -- | unknown | free |
+| Tool | What it is | Skip it when | Licence | Cost |
+| --- | --- | --- | --- | --- |
+| [Hugging Face](https://huggingface.co)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/hugging-face) | Model hub, datasets and open-source library ecosystem. | You need a self-hosted artefact registry. | proprietary | free-tier |
+| [Full Stack Deep Learning](https://fullstackdeeplearning.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/full-stack-deep-learning) | Course covering the practical side of shipping LLM systems. | You want an API reference. | unknown | free |
+| [Sebastian Raschka](https://magazine.sebastianraschka.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/sebastian-raschka) | Essays and books distilling research into working knowledge. | You need primary sources. | unknown | free |
+| [arXiv](https://arxiv.org)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/arxiv) | Primary preprint archive for machine learning research. | You need a curated and explained version. | unknown | free |
+| [Papers with Code](https://paperswithcode.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/papers-with-code) | Links papers to their reference implementations and benchmarks. | You are offline -- it is a live index. | unknown | free |
+| [Jay Alammar](https://jalammar.github.io)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/jay-alammar) | Visual explanations of transformers, RAG and LLM internals. | You want depth beyond the intuition. | unknown | free |
+| [AI Engineer](https://ai.engineer)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/ai-engineer) | Conference and community focused on shipping LLM products. | You need technical reference rather than practice. | unknown | free |
+| [Hugging Face Cookbook](https://huggingface.co)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/hugging-face-cookbook) | Task-oriented notebooks for fine-tuning, serving and RAG. | You need maintained library documentation. | unknown | free |
+| [Made With ML](https://madewithml.com)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/made-with-ml) | Course on designing, building and deploying ML systems. | You only need LLM-specific material. | unknown | free |
+| [Distill](https://distill.pub)<br>[use / skip](https://lattice.kkshah2005.workers.dev/learning-reference/distill) | Archive of carefully explained model and method explainers. | You need recent work; the archive stopped years ago. | unknown | free |
 
 ---
 
@@ -238,11 +240,12 @@ Tool | What it is | Kind | Deployment | Licence | Cost
 
 This list is generated from the site's dataset. If you want the whole thing as structured data rather than markdown:
 
-- `https://lattice.sh/search-index.json` -- every entry with its attributes
-- `https://lattice.sh/llms.txt` -- task-keyed index for AI agents
-- `https://lattice.sh/llms-full.txt` -- the full dataset as plain text
-- `https://lattice.sh/feed.xml` -- essays
+- `https://lattice.kkshah2005.workers.dev/tools.json` -- every entry with use/skip, layer, licence and cost as fields
+- `https://lattice.kkshah2005.workers.dev/verification.json` -- the freshness rule, and each entry's check and expiry
+- `https://lattice.kkshah2005.workers.dev/llms.txt` -- task-keyed index for AI agents
+- `https://lattice.kkshah2005.workers.dev/llms-full.txt` -- the full dataset as plain text
+- `https://lattice.kkshah2005.workers.dev/feed.xml` -- essays
 
-Corrections and suggestions: [https://lattice.sh/methodology](https://lattice.sh/methodology#corrections). A submission only becomes an entry if it clears the same bar as everything already listed.
+Corrections and suggestions: [https://lattice.kkshah2005.workers.dev/methodology](https://lattice.kkshah2005.workers.dev/methodology#corrections). A submission only becomes an entry if it clears the same bar as everything already listed.
 
 <!-- Dataset as of 2026-09. Generated from the site build, so it cannot claim a different freshness than the pages it links to. -->

@@ -37,10 +37,16 @@
 import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import nextEnv from "@next/env";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://lattice.sh";
+// Same env resolution as the build, so the list links to the origin the site
+// is actually served from. Plain `node` does not read .env.local on its own,
+// which is how this once shipped links to a domain the site had left.
+nextEnv.loadEnvConfig(root);
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lattice.kkshah2005.workers.dev"
+).replace(/\/$/, "");
 
 /**
  * The dataset, extracted from the TypeScript source.
@@ -72,9 +78,11 @@ const CATEGORY_RE =
  * reading section silently loses its rows — which is exactly the drift the
  * count guard below exists to catch.
  *
- * Only the fields the table prints, and deliberately no `useWhen`/`skipWhen`
- * prose — a markdown table cell of 90 characters is unreadable, and the site
- * link exists for that. The trade-off sentences live where they can be read.
+ * `skipWhen` is read separately below. It used to be left out on the grounds
+ * that long table cells are hard to read — but this README's headline claim
+ * is that every entry says when to skip it, and a list that makes the claim
+ * without showing one instance asks to be taken on trust. The skip sentence
+ * replaces the Kind and Deployment columns, which the tool's page carries.
  */
 const ATTR_RE =
   /"([^"]+)":\s*\{\s*\n\s*kind:\s*"([^"]+)",\s*deployment:\s*("[^"]+"|null),\s*license:\s*("[^"]+"|null),\s*language:\s*("[^"]+"|null),\s*cost:\s*"([^"]+)"/g;
@@ -107,6 +115,15 @@ for (const m of attrSrc.matchAll(READ_RE)) {
       `"${m[1]}" matched both the inline and the ...READ pattern — attributes.ts has two shapes for one tool`,
     );
   attrs.set(m[1], { ...READ_ATTRS });
+}
+
+/** `skipWhen: "..."` for each named entry, read from its own block. */
+const skipWhen = new Map();
+for (const name of attrs.keys()) {
+  const start = attrSrc.indexOf(`"${name}": {`);
+  const end = attrSrc.indexOf("\n  },", start);
+  const m = attrSrc.slice(start, end).match(/skipWhen:\s*"((?:[^"\\]|\\.)*)"/);
+  if (m) skipWhen.set(name, m[1].replace(/\\"/g, '"'));
 }
 
 /** Tool tuples in source order, then zipped to the category that owns them. */
@@ -210,14 +227,17 @@ const ascii = (s) =>
     .replace(/\u2192/g, "->")
     .replace(/\u2261/g, "=");
 
-const rowsFor = (list) =>
+/** Mirrors the slug rule in data.ts, so links land on the tool's page. */
+const toolSlug = (name) =>
+  name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+const rowsFor = (list, sectionSlug) =>
   list
     .map((t) => {
       const a = t.attrs ?? {};
-      const path = t.host.includes("/")
-        ? `https://${t.host}`
-        : `https://${t.host}`;
-      return `| [${esc(t.name)}](${path}) | ${esc(t.blurb)} | ${esc(a.kind ?? "—")} | ${esc(a.deployment ?? "—")} | ${esc(a.license ?? "unknown")} | ${esc(a.cost ?? "—")} |`;
+      const page = `${siteUrl}/${sectionSlug}/${toolSlug(t.name)}`;
+      const skip = skipWhen.get(t.name) ?? "--";
+      return `| [${esc(t.name)}](https://${t.host})<br>[use / skip](${page}) | ${esc(t.blurb)} | ${esc(skip)} | ${esc(a.license ?? "unknown")} | ${esc(a.cost ?? "--")} |`;
     })
     .join("\n");
 
@@ -246,6 +266,10 @@ out.push(`- **No sponsored placement.** Nothing here is ranked by who paid.`);
 out.push(`- **No star counts.** They can be inflated and they say nothing about whether a tool fits your constraint.`);
 out.push(``);
 out.push(
+  `**Something broken?** [Start from the symptom](${siteUrl}/fix) — slow, expensive, wrong answers, an agent that keeps failing — for an ordered checklist through the stack.`,
+);
+out.push(``);
+out.push(
   `[Full index](${siteUrl}/all) · [Comparisons](${siteUrl}/compare) · [Methodology, including where this list is wrong](${siteUrl}/methodology) · [Essays](${siteUrl}/blog) · [Glossary](${siteUrl}/glossary)`,
 );
 out.push(``);
@@ -262,7 +286,7 @@ for (const s of sections) {
 out.push(``);
 
 const HEADERS = {
-  6: "Tool | What it is | Kind | Deployment | Licence | Cost",
+  5: "| Tool | What it is | Skip it when | Licence | Cost |",
 };
 
 for (const s of sections) {
@@ -279,9 +303,9 @@ for (const s of sections) {
     `_${tag}_ — ${s.tools.length} ${s.tools.length === 1 ? "entry" : "entries"}.`,
   );
   out.push(``);
-  out.push(HEADERS[6]);
-  out.push(`| --- | --- | --- | --- | --- | --- |`);
-  out.push(rowsFor(s.tools));
+  out.push(HEADERS[5]);
+  out.push(`| --- | --- | --- | --- | --- |`);
+  out.push(rowsFor(s.tools, s.slug));
   out.push(``);
 }
 
@@ -293,7 +317,8 @@ out.push(
   `This list is generated from the site's dataset. If you want the whole thing as structured data rather than markdown:`,
 );
 out.push(``);
-out.push(`- \`${siteUrl}/search-index.json\` — every entry with its attributes`);
+out.push(`- \`${siteUrl}/tools.json\` — every entry with use/skip, layer, licence and cost as fields`);
+out.push(`- \`${siteUrl}/verification.json\` — the freshness rule, and each entry's check and expiry`);
 out.push(`- \`${siteUrl}/llms.txt\` — task-keyed index for AI agents`);
 out.push(`- \`${siteUrl}/llms-full.txt\` — the full dataset as plain text`);
 out.push(`- \`${siteUrl}/feed.xml\` — essays`);
