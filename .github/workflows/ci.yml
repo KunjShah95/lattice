@@ -50,8 +50,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # brand.test.ts is the Branding gate above, which is skipped while the
+      # SITE_URL repo variable is unset. Running it again here, without that
+      # env, failed every push on placeholder values the deploy never uses
+      # (Cloudflare's build has its own). So it runs in exactly one place.
       - name: Test
-        run: npm run test
+        run: npm run test -- --exclude src/lib/brand.test.ts
 
       # Plain `next build`, deliberately not the OpenNext bundle. This step
       # exists to type-check and prerender; bundling the Worker is the deploy
