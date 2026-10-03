@@ -332,12 +332,17 @@ out.push(
 );
 out.push(``);
 
+/**
+ * GitHub's heading anchor rule: lowercase, drop punctuation, each space
+ * becomes a hyphen. So "Inference & Serving" is `#inference--serving` — the
+ * ampersand disappears and both spaces stay. Anything else breaks every
+ * Contents link on the page that matters most.
+ */
 function slugify(s) {
   return s
     .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/ /g, "-");
 }
 
 const markdown = ascii(out.join("\n"));

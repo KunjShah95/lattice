@@ -21,16 +21,16 @@ Every entry on [https://lattice.kkshah2005.workers.dev](https://lattice.kkshah20
 
 ## Contents
 
-- [01 -- Inference & Serving](#inference-and-serving) -- 12 entries
-- [02 -- Routing & Gateways](#routing-and-gateways) -- 10 entries
-- [03 -- Retrieval & Vector Stores](#retrieval-and-vector-stores) -- 15 entries
-- [04 -- Fine-tuning & Training](#fine-tuning-and-training) -- 12 entries
+- [01 -- Inference & Serving](#inference--serving) -- 12 entries
+- [02 -- Routing & Gateways](#routing--gateways) -- 10 entries
+- [03 -- Retrieval & Vector Stores](#retrieval--vector-stores) -- 15 entries
+- [04 -- Fine-tuning & Training](#fine-tuning--training) -- 12 entries
 - [05 -- Agent Frameworks](#agent-frameworks) -- 13 entries
 - [06 -- Workflow Orchestration](#workflow-orchestration) -- 10 entries
-- [07 -- Guardrails & Safety](#guardrails-and-safety) -- 8 entries
+- [07 -- Guardrails & Safety](#guardrails--safety) -- 8 entries
 - [08 -- Prompt Engineering](#prompt-engineering) -- 9 entries
-- [09 -- Evaluation & Observability](#evaluation-and-observability) -- 13 entries
-- [Learning & Reference](#learning-and-reference) -- 10 entries
+- [09 -- Evaluation & Observability](#evaluation--observability) -- 13 entries
+- [Learning & Reference](#learning--reference) -- 10 entries
 
 ---
 
