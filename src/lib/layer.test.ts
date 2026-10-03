@@ -1,69 +1,55 @@
 import { describe, expect, it } from "vitest";
-import { layerColor, layerStyle } from "./layer";
-import { layerHex } from "./og";
+import { bandHex, bandOf as ogBandOf } from "./og";
+import { bandOf, BANDS } from "./layer";
 import { categories, licenses, stackLayers } from "./data";
 
 /**
- * The layer ramp is the site's main identity device, and it is defined in two
- * places that cannot see each other: CSS custom properties for the live site,
- * and hex literals for the Satori-rendered cover images. Nothing enforces that
- * they stay in step except this file, plus the fact that a layer beyond nine
- * silently clamps to the last stop.
+ * The OG card palette and the live-site palette are defined in two places that
+ * cannot see each other: CSS custom properties for the site, and hex literals
+ * for the Satori-rendered share images, which never execute CSS. Nothing
+ * enforces they stay in step except this file.
+ *
+ * The card now carries the three bands rather than nine layer stops, so the
+ * thing to assert is that both implementations classify the same layer the
+ * same way — not that there are nine distinct colours, which was the old
+ * contract and is now actively wrong.
  */
 
-describe("layerColor", () => {
-  it("maps every layer in the dataset to a CSS variable", () => {
+describe("the OG card palette", () => {
+  it("resolves every layer in the dataset to a hex colour", () => {
     for (const c of stackLayers) {
-      expect(layerColor(c.layer), c.slug).toBe(`var(--layer-${c.layer})`);
-    }
-  });
-
-  it("uses the muted token for off-stack and null", () => {
-    expect(layerColor(null)).toBe("var(--fg-subtle)");
-    expect(layerColor(0)).toBe("var(--fg-subtle)");
-  });
-
-  it("clamps rather than emitting a variable that does not exist", () => {
-    // No section may be layer 10 today; if one is added, the CSS needs nine
-    // more stops. Clamping keeps the render correct while the ramp catches up.
-    expect(layerColor(99)).toBe("var(--layer-9)");
-  });
-
-  it("rounds a fractional depth", () => {
-    expect(layerColor(3.4)).toBe("var(--layer-3)");
-    expect(layerColor(3.6)).toBe("var(--layer-4)");
-  });
-});
-
-describe("layerStyle", () => {
-  it("produces a backgroundColor the DOM can use", () => {
-    expect(layerStyle(4)).toEqual({ backgroundColor: "var(--layer-4)" });
-  });
-
-  it("is falsy-safe for missing layers", () => {
-    expect(layerStyle(null)).toEqual({ backgroundColor: "var(--fg-subtle)" });
-    expect(layerStyle(undefined)).toEqual({ backgroundColor: "var(--fg-subtle)" });
-  });
-});
-
-describe("layerHex", () => {
-  it("covers every layer in the dataset", () => {
-    for (const c of stackLayers) {
-      expect(layerHex(c.layer), c.slug).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(bandHex(ogBandOf(c.layer)), c.slug).toMatch(/^#[0-9a-f]{6}$/i);
     }
   });
 
   it("uses the muted token for off-stack", () => {
-    expect(layerHex(null)).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(bandHex(null)).toMatch(/^#[0-9a-f]{6}$/i);
   });
 
-  it("clamps beyond the ramp instead of returning undefined", () => {
-    expect(layerHex(99)).toMatch(/^#[0-9a-f]{6}$/i);
+  it("has exactly three distinct colours, not one per layer", () => {
+    // The old contract asserted nine distinct colours. Nine hues is a
+    // rainbow, and the card inherits that reasoning or it does not.
+    const hexes = new Set(
+      BANDS.map((b) => bandHex(b.id).toLowerCase()),
+    );
+    expect(hexes.size).toBe(3);
   });
 
-  it("gives a distinct colour to every layer", () => {
-    const hexes = stackLayers.map((c) => layerHex(c.layer).toLowerCase());
-    expect(new Set(hexes).size).toBe(hexes.length);
+  it("classifies every layer the same way the live site does", () => {
+    // The two implementations are independent by necessity — Satori cannot
+    // read a CSS custom property — so nothing but this test stops them
+    // drifting. If they disagree, an OG card says one band and the page it
+    // links to says another, which is worse than either being wrong alone.
+    for (const c of stackLayers) {
+      expect(ogBandOf(c.layer), `${c.slug} (layer ${c.layer})`).toBe(
+        bandOf(c.layer),
+      );
+    }
+  });
+
+  it("agrees with the live site on off-stack material too", () => {
+    expect(ogBandOf(null)).toBeNull();
+    expect(bandOf(null)).toBeNull();
   });
 });
 

@@ -21,18 +21,29 @@
   --accent-fg: #ffffff;
   --selection: #f7ddd2;
 
-  /* Layer ramp. Gold at the substrate, indigo at the surface, so the
-     stack reads as a continuous gradient from raw compute to
-     observation. Each stop is one section of the index. */
-  --layer-1: oklch(0.6 0.12 72);
-  --layer-2: oklch(0.62 0.11 98);
-  --layer-3: oklch(0.62 0.1 128);
-  --layer-4: oklch(0.62 0.09 152);
-  --layer-5: oklch(0.63 0.1 176);
-  --layer-6: oklch(0.62 0.11 196);
-  --layer-7: oklch(0.61 0.12 216);
-  --layer-8: oklch(0.58 0.14 240);
-  --layer-9: oklch(0.55 0.16 268);
+  /* Three bands, not nine colours.
+     The nine layers collapse into three families: where compute happens,
+     where state lives, where behaviour is decided. A nine-step hue ramp is a
+     rainbow, and a rainbow is decoration — nobody holds nine colours in
+     working memory, so the ramp stops encoding order and becomes ornament.
+     Three families are information, and the band a reader is in is the
+     question they arrived with.
+
+     Depth still varies inside a band (the substrate stop is the deepest),
+     so order is never lost entirely — it just stops being the main signal. */
+  --band-compute: oklch(0.62 0.13 72);
+  --band-state:    oklch(0.58 0.10 143);
+  --band-control:  oklch(0.53 0.11 248);
+
+  --layer-1: oklch(0.55 0.12 66);   /* Band I  · compute */
+  --layer-2: oklch(0.64 0.13 78);
+  --layer-3: oklch(0.53 0.09 138);  /* Band II · state */
+  --layer-4: oklch(0.63 0.10 148);
+  --layer-5: oklch(0.54 0.09 236);  /* Band III · control */
+  --layer-6: oklch(0.60 0.10 228);
+  --layer-7: oklch(0.56 0.10 212);
+  --layer-8: oklch(0.52 0.11 254);
+  --layer-9: oklch(0.48 0.13 270);
 
   /* Engineering-paper grid. Reads as a drafting surface, not a glow. */
   --grid: oklch(0.16 0 0 / 0.045);
@@ -51,15 +62,19 @@
   --accent-fg: #0b0b0c;
   --selection: #4a2418;
 
-  --layer-1: oklch(0.78 0.12 72);
-  --layer-2: oklch(0.8 0.11 98);
-  --layer-3: oklch(0.8 0.1 128);
-  --layer-4: oklch(0.8 0.09 152);
-  --layer-5: oklch(0.81 0.1 176);
-  --layer-6: oklch(0.81 0.11 196);
-  --layer-7: oklch(0.8 0.12 216);
-  --layer-8: oklch(0.78 0.13 240);
-  --layer-9: oklch(0.75 0.15 268);
+  --band-compute: oklch(0.75 0.13 72);
+  --band-state:    oklch(0.75 0.10 143);
+  --band-control:  oklch(0.72 0.11 248);
+
+  --layer-1: oklch(0.70 0.12 66);
+  --layer-2: oklch(0.80 0.13 78);
+  --layer-3: oklch(0.70 0.09 138);
+  --layer-4: oklch(0.80 0.10 148);
+  --layer-5: oklch(0.70 0.09 236);
+  --layer-6: oklch(0.77 0.10 228);
+  --layer-7: oklch(0.72 0.10 212);
+  --layer-8: oklch(0.69 0.11 254);
+  --layer-9: oklch(0.76 0.13 270);
 
   --grid: oklch(1 0 0 / 0.04);
 }
@@ -75,6 +90,9 @@
   --color-border-strong: var(--border-strong);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-band-compute: var(--band-compute);
+  --color-band-state: var(--band-state);
+  --color-band-control: var(--band-control);
 
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
@@ -149,6 +167,49 @@
 
   .text-pretty {
     text-wrap: pretty;
+  }
+
+  /* --- Section-drawing hatch ------------------------------------------
+     A real drafting convention rather than a texture for its own sake.
+     Solid means the layer sits in the stack; dashed means it spans the
+     stack rather than occupying a position in it; off-stack material
+     gets no hatch at all and is drawn detached.
+
+     Applied to an element that also carries `currentColor` set to the
+     layer's own colour. Requires `position: relative` and, because the
+     hatch is a pseudo-element, an element that can hold it. */
+  .hatch {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .hatch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Sits in the stack. */
+  .hatch-stack::after {
+    background-image: repeating-linear-gradient(
+      to right,
+      currentColor 0 1px,
+      transparent 1px 7px
+    );
+    opacity: 0.1;
+  }
+
+  /* Spans the stack — dashed, the way a section line is dashed when it
+     indicates something that is not part of the material. */
+  .hatch-span::after {
+    background-image: repeating-linear-gradient(
+      to right,
+      currentColor 0 3px,
+      transparent 3px 7px
+    );
+    opacity: 0.14;
   }
 }
 

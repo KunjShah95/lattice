@@ -23,8 +23,10 @@ npm run dev        # http://localhost:3000
 npm run build      # production build
 npm start          # serve the production build
 npm run lint
-npm run test       # vitest, 134 unit tests
+npm run test       # vitest, 291 unit tests
 npm run verify     # lint + test + build
+npm run og:render  # save every Open Graph card to og-out/ for review
+npm run og:check   # assert no card clips or overflows its padding
 ```
 
 > If port `3000` is occupied, Next falls back to `3001`. Pass an explicit port
@@ -33,8 +35,15 @@ npm run verify     # lint + test + build
 ## Deploying to Cloudflare Workers
 
 This deploys as a **Worker via OpenNext**, not a static export. Most of the site
-is prerendered, but `opengraph-image` routes, `/feed.xml` and `/llms.txt` are
-server-rendered on demand, so there has to be something serving them.
+is prerendered, but `/feed.xml`, `/llms.txt` and four of the seven
+`opengraph-image` routes — the section, essay, comparison and glossary ones —
+are server-rendered on demand, so there has to be something serving them. The
+tool and alternatives cards *are* prerendered because those two routes declare
+`generateStaticParams`; the other four declare none and render per request.
+That is a deliberate asymmetry for now, not a constraint: categories, posts,
+comparisons and glossary terms are all enumerable at build time, so adding
+`generateStaticParams` to those four would move ~180 cards onto the static
+path if cold-start latency on a share ever justifies it.
 
 ```bash
 npm run deploy     # next build -> opennextjs-cloudflare build -> deploy
@@ -154,6 +163,7 @@ src/
     [slug]/page.tsx         Section page, prerendered via generateStaticParams
     [slug]/opengraph-image  Cover image per section (generated PNG)
     [slug]/[tool]/page.tsx  One page per tool (112 of them)
+    [slug]/[tool]/alternatives/  Alternatives page + per-page cover image
     all/page.tsx            Whole index in one filterable list
     blog/page.tsx           Essay index
     blog/[slug]/            Essay page + per-essay cover image
@@ -318,6 +328,78 @@ custom properties:
 
 - `src/app/globals.css` — the live site
 - `src/lib/og.tsx` — the generated cover images
+
+The card is **dark-only** and inlines the `.dark` values as hex literals, so a
+change to the light theme does not touch it and a change to the dark one does.
+The `oklch()` layer tokens are converted by hand; re-derive them rather than
+eyeballing, or the badge dot stops matching the section it is badging.
+
+## Open Graph cards
+
+Every indexable route declares a share image, and `scripts/render-og.mjs`
+collects them all to `og-out/` by reading the `og:image` each page actually
+declares — so a card that renders but is never referenced, or a page that
+references a card it does not have, both show up in the summary.
+
+| Route | Card |
+| --- | --- |
+| `/` | Home |
+| `/<section>` | Section |
+| `/<section>/<tool>` | Tool |
+| `/<section>/<tool>/alternatives` | Alternatives |
+| `/compare`, `/compare/<slug>` | Comparison index, head-to-head |
+| `/blog/<post>` | Essay |
+| `/glossary/<term>` | Glossary term |
+
+```bash
+npm run build && npx next start -p 3200
+npm run og:render -- --base http://localhost:3200
+npm run og:check
+```
+
+Point it at a production server, not dev: in dev every card pays a Turbopack
+compile first, and a stale dev bundle will hand back a card the production
+build would not.
+
+### Fonts
+
+The card embeds **three** Latin-subset faces from `assets/og/` — Plex Serif 500
+for the title, Plex Sans 600 for the subtitle and the use/skip valve, Plex Mono
+500 for every label — read once at module scope. Satori enforces a **500 KB
+per-route bundle ceiling that counts embedded fonts**, and the full static TTFs
+come to ~600 KB between them, so subsetting is the only reason they fit at all:
+they land at 71 KB, 65 KB and 51 KB, ~187 KB total. A fourth face is a budget
+decision, not a free choice.
+
+Regenerate after an upstream Plex release:
+
+```bash
+# from the IBM/plex release zips, then:
+python scripts/subset-og-fonts.py <dir containing the source TTFs>
+```
+
+### Satori's rules, and the three that bite
+
+1. **Any `<div>` whose children are not a plain string must declare
+   `display: flex`.** Not "more than one child" — a `<div>` wrapping a single
+   component is just as fatal, and it throws without saying which node. This is
+   why every wrapper on the card is a flex row. `npm run og:probe` walks the
+   element tree and reports offenders before Satori does, because otherwise each
+   attempt costs a dev-server reload.
+2. **No `lineClamp`, no `text-overflow`.** A long title grows the card past
+   630px and is clipped by the frame rather than throwing, so every string is
+   truncated in JS by `clamp` in `og.tsx`.
+3. **Satori does not reliably wrap text in a flex item.** A sentence in a flex
+   row is measured at max-content and runs past the card instead of wrapping,
+   and giving the element `maxWidth` or even an explicit `width` does not always
+   force the reflow. That is why the use/skip valve pre-wraps in JS
+   (`wrapLines` / `VALVE_CHARS_PER_LINE`) rather than trusting the layout engine.
+   `VALVE_CHARS_PER_LINE` is measured against the real font, not guessed.
+
+`npm run og:check` measures the ink bounding box of every rendered card
+against the padding box, which is how a clipped subtitle or an overflowing
+sentence gets caught without opening 235 images. It is the only check in the
+repo that catches this class of bug, because none of these failures throw.
 
 ## Search
 

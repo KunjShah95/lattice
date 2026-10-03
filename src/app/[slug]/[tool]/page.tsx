@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
+import { StackSpine } from "@/components/stack-spine";
 import { allTools, getAlternatives, getAlternativeTo, getSiblingTools, getTool } from "@/lib/data";
 import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
+import { hasAlternativesPage } from "@/lib/alternatives";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import {
@@ -183,8 +185,15 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </p>
 
         {/* The facts a decision turns on. Licence and deployment are the two
-            that most often rule a tool in or out before anything else. */}
-        <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
+            that most often rule a tool in or out before anything else.
+
+            `asOf` is promoted out of this list into a stamp of its own below.
+            It is not metadata: the build throws if any entry is more than six
+            months old, so the date on this page is the receipt for a check
+            that actually happened. No competitor in this category can show
+            you one — the nearest, ToolDirectory, re-checks every 90 days by
+            hand. Saying so is the cheapest trust the site can buy. */}
+        <dl className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
           {tool.license ? (
             <div className="flex gap-1.5">
               <dt className="text-fg-subtle">licence</dt>
@@ -201,24 +210,52 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             <dt className="text-fg-subtle">cost</dt>
             <dd className="text-fg-muted">{tool.cost}</dd>
           </div>
-          <div className="flex gap-1.5">
-            <dt className="text-fg-subtle">verified</dt>
-            <dd className="text-fg-muted">{tool.asOf}</dd>
-          </div>
         </dl>
 
-        {/* The decision pair — the site's whole thesis, per tool. */}
-        <div className="mt-7 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+        {/* Calibration stamp + stack position. */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: "var(--band-control)" }}
+            />
+            Verified {tool.asOf}
+          </span>
+          <div className="min-w-[15rem] flex-1">
+            <StackSpine layer={category.layer} />
+          </div>
+        </div>
+
+        {/* The decision pair — the site's whole thesis, per tool.
+
+            Rendered as one object with two states rather than two equal
+            cards. Two equal rounded cards read as two features; the reader
+            is meant to feel a valve. `use` is the active state and sits in
+            full ink; `skip` is the constraint and recedes. Equal weight would
+            imply the two are equally worth knowing, which is false — almost
+            every competitor in this category publishes a "best for" line and
+            not one of them publishes the "skip when" half. That second
+            sentence is the reason to trust the first. */}
+        <div className="mt-7 grid gap-px border border-border bg-border sm:grid-cols-2">
+          <div className="bg-bg-elevated p-3.5">
+            <h2 className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2 w-2 shrink-0 rounded-[1px] border border-accent bg-accent"
+              />
               Use {tool.name} when
             </h2>
             <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg">
               {tool.useWhen}
             </p>
           </div>
-          <div className="rounded-lg border border-border bg-bg-elevated p-3.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+          <div className="bg-bg-elevated p-3.5">
+            <h2 className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2 w-2 shrink-0 rounded-full border border-fg-subtle"
+              />
               Skip {tool.name} when
             </h2>
             <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
@@ -356,9 +393,22 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           options actually wants next. */}
       {alternatives.length ? (
         <section className="mt-12">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Alternatives to {tool.name}
-          </h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+              Alternatives to {tool.name}
+            </h2>
+            {/* A dedicated page carries the reverse edges and marks which
+                entries are adjacent rather than real substitutes, neither of
+                which fits in a list on this page. */}
+            {hasAlternativesPage(categorySlug, toolSlug) ? (
+              <Link
+                href={`/${categorySlug}/${toolSlug}/alternatives`}
+                className="shrink-0 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                compare {alternatives.length} →
+              </Link>
+            ) : null}
+          </div>
           <ul className="mt-4 space-y-px">
             {alternatives.map(({ tool: alt, category: altCat }) => (
               <li key={`${altCat.slug}-${alt.slug}`}>
