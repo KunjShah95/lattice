@@ -57,9 +57,11 @@ export function SiteFooter() {
 
           <FooterColumn title="Index">
             <FooterLink href="/">Home</FooterLink>
+            <FooterLink href="/fix">Fix a symptom</FooterLink>
             <FooterLink href="/all">All tools</FooterLink>
             <FooterLink href="/compare">Comparisons</FooterLink>
             <FooterLink href="/blog">Essays</FooterLink>
+            <FooterLink href="/methodology">Methodology</FooterLink>
           </FooterColumn>
         </div>
 

@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { allTools, categories } from "@/lib/data";
+import { allAlternativesPages } from "@/lib/alternatives";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
+import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
 import { datasetModified } from "@/lib/seo";
@@ -43,11 +45,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    // The methodology page is the one a sceptical reader and an answer engine
+    // both want, and it is the only route whose content is about the index
+    // rather than an entry in it. High priority for that reason.
+    {
+      url: `${site.url}/methodology`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     ...categories.map((c) => ({
       url: `${site.url}/${c.slug}`,
       lastModified,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    {
+      url: `${site.url}/fix`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    // Symptom pages answer the queries readers actually type ("why is my LLM
+    // app slow"), which no category page can.
+    ...resolvedSymptoms.map((s) => ({
+      url: `${site.url}/fix/${s.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.85,
     })),
     ...resolvedComparisons.map((c) => ({
       url: `${site.url}/compare/${c.slug}`,
@@ -74,6 +99,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    // Alternatives pages, for the tools with enough of a graph to justify one.
+    // "Alternatives to X" is the query a reader types once they have already
+    // decided to leave something, and it is the one shape a vendor cannot
+    // publish honestly about a competitor — so these are the pages most worth
+    // being found for.
+    ...allAlternativesPages().map((p) => ({
+      url: `${site.url}/${p.slug}/${p.tool}/alternatives`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
   ];
 }

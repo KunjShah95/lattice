@@ -6,6 +6,8 @@ import { categories, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
 import { graph, siteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { bandColor } from "@/lib/layer";
+import { resolvedSymptoms } from "@/lib/symptoms";
 
 export default function HomePage() {
   return (
@@ -36,10 +38,9 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-5 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-              Most AI tooling directories list products. This one indexes the
-              layers that decide whether a system holds up in production —
-              serving, retrieval, routing, and the unglamorous plumbing between
-              them.
+              Every entry here carries two sentences: when to use it, and when to skip it.
+              Most directories publish the first. Almost none publish the second — it is the
+              one that tells you whether anything on this page is worth your time.
             </p>
 
             {/*
@@ -69,6 +70,41 @@ export default function HomePage() {
               </Link>
             </div>
 
+            {/*
+              The proof point, placed at first contact rather than in a
+              footer nobody opens.
+
+              "112 hand-picked tools" is the category's opening move and it is
+              why 112 reads as small against directories claiming 50,000. This
+              block is the better number: it is the one claim nobody else in
+              the category can make, because making it means doing it rather
+              than writing it. The six-month gate in `lib/data.ts` throws and
+              stops the deploy, so the date on a page is a receipt, not a
+              promise.
+
+              It also fills what was a large dead zone under the CTA. The
+              alternative was another navigation widget, and this page already
+              has enough of those.
+            */}
+            <div className="mt-9 max-w-[40ch] border-t border-border pt-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+                Why you can trust the figures
+              </p>
+              <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
+                Licence, cost and deployment facts go stale, so every entry is dated
+                and the build{" "}
+                <span className="text-fg">fails</span> if any is more than six months
+                old. A stale entry cannot reach production, which is more than
+                &ldquo;updated daily&rdquo; can tell you.
+              </p>
+              <Link
+                href="/methodology"
+                className="mt-2.5 inline-block font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                Read the method, including where it is wrong →
+              </Link>
+            </div>
+
             {/* No search field here. The sticky header already carries one and
                 is visible in the first viewport at every breakpoint, so a
                 second copy below the fold-adjacent hero was a duplicated
@@ -78,6 +114,41 @@ export default function HomePage() {
 
           <StackDiagram />
         </div>
+      </section>
+
+      {/* Symptom entry. Most readers arrive with a problem, not a category —
+          and no other index in the category routes by symptom. Each card is
+          one click from an ordered checklist through the stack. */}
+      <section aria-labelledby="fix-heading" className="border-t border-border py-12">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 id="fix-heading" className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+            Something wrong? Start from the symptom
+          </h2>
+          <Link href="/fix" className="shrink-0 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 hover:text-fg">
+            All symptoms →
+          </Link>
+        </div>
+        <ul className="mt-6 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+          {resolvedSymptoms.map((s) => (
+            <li key={s.slug} className="bg-bg">
+              <Link href={`/fix/${s.slug}`} className="group flex h-full flex-col gap-1.5 p-4 transition-colors hover:bg-bg-sunken">
+                <span className="inline-flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: bandColor(s.band) }} />
+                  {s.label}
+                </span>
+                <span className="text-pretty text-[15px] font-medium leading-snug group-hover:text-accent">{s.title}</span>
+              </Link>
+            </li>
+          ))}
+          <li className="bg-bg">
+            <Link href="/compare" className="group flex h-full flex-col gap-1.5 p-4 transition-colors hover:bg-bg-sunken">
+              <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Choosing, not fixing</span>
+              <span className="text-pretty text-[15px] font-medium leading-snug group-hover:text-accent">
+                Compare tools — including across layers →
+              </span>
+            </Link>
+          </li>
+        </ul>
       </section>
 
       {/* Decision path — the index answers "what exists", this answers
@@ -103,16 +174,30 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Colophon */}
+      {/* Colophon.
+
+          The build in `src/lib/data.ts` throws if any entry's licence or cost
+          has not been re-checked within six months, so this site cannot ship
+          with a confident stale figure in it. That is the hardest claim in
+          this category to copy — it means doing the work, not writing the
+          sentence — and it is worth stating plainly rather than leaving in a
+          changelog nobody reads. */}
       <section className="border-t border-border py-12">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-[46ch]">
             <h2 className="text-[15px] font-medium">How this list is kept</h2>
             <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
               Entries are hand-picked rather than submitted, and ordered by where
-              they sit in a real system rather than by how popular they are.
-              Anything listed here is something worth understanding even if you
-              never install it. Corrections and suggestions are welcome.
+              they sit in a real system rather than by how popular they are. Any
+              licence or cost figure older than six months fails the build, so a
+              stale entry cannot reach production.{" "}
+              <Link
+                href="/methodology"
+                className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+              >
+                The full method, including what this list gets wrong
+              </Link>
+              .
             </p>
           </div>
           <a

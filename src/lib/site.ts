@@ -44,6 +44,15 @@ export const site = {
   tagline:
     "A curated index of the infrastructure behind working AI systems, ordered by depth.",
   copyrightHolder: env.NEXT_PUBLIC_COPYRIGHT_HOLDER ?? "TODO holder",
+  /**
+   * The named human who writes and verifies the index. Optional: unset, pages
+   * are attributed to the organisation. A named author with a visible update
+   * date was common to every page answer engines cited in the category audit,
+   * so set this — but never to a name that is not a real, accountable editor.
+   */
+  author: env.NEXT_PUBLIC_AUTHOR_NAME
+    ? { name: env.NEXT_PUBLIC_AUTHOR_NAME, url: env.NEXT_PUBLIC_AUTHOR_URL ?? null }
+    : null,
   copyrightYear: new Date().getFullYear(),
   contact: {
     email: env.NEXT_PUBLIC_CONTACT_EMAIL ?? "todo@example.invalid",

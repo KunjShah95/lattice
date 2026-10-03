@@ -251,6 +251,20 @@ export function siteJsonLd() {
 /** The dataset's verification month as a full ISO date (first of the month). */
 export const datasetModified = `${AS_OF}-01`;
 
+/**
+ * JSON-LD author: the named editor when one is configured, otherwise the
+ * organisation. Never a Person named after the organisation — that is a
+ * false claim in the field engines read for authorship.
+ */
+export function authorNode(): object {
+  const a = site.author;
+  if (!a) return { "@id": ids.organization };
+  return { "@type": "Person", name: a.name, ...(a.url ? { url: a.url } : {}) };
+}
+
+/** Visible byline text: "Jane Doe" or "Lattice editorial". */
+export const bylineName = site.author?.name ?? `${site.name} editorial`;
+
 /** A BreadcrumbList node for a @graph. Paths are site-relative ("" is home). */
 export function breadcrumbNode(
   pageUrl: string,

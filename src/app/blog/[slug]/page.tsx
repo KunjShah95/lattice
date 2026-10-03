@@ -6,7 +6,7 @@ import { getPost, posts, relatedPosts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
-import { breadcrumbNode, graph, ids } from "@/lib/seo";
+import { authorNode, breadcrumbNode, bylineName, graph, ids } from "@/lib/seo";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.meta.slug }));
@@ -29,7 +29,7 @@ export async function generateMetadata({
       description: post.meta.description,
       url: `${site.url}/blog/${post.meta.slug}`,
       publishedTime: post.meta.date,
-      authors: [site.copyrightHolder],
+      authors: [bylineName],
     },
     twitter: {
       card: "summary_large_image",
@@ -84,6 +84,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-5 font-mono text-[11px] text-fg-subtle">
+            <span>By {bylineName}</span>
+            <span aria-hidden="true">·</span>
             <time dateTime={meta.date}>{formatDate(meta.date)}</time>
             <span aria-hidden="true">·</span>
             <span>{meta.readingTime}</span>
@@ -204,7 +206,7 @@ function postJsonLd(meta: import("@/lib/posts").PostMeta) {
       description: meta.description,
       datePublished: meta.date,
       dateModified: meta.date,
-      author: { "@type": "Person", name: site.copyrightHolder },
+      author: authorNode(),
       publisher: { "@id": ids.organization },
       isPartOf: { "@id": ids.website },
       mainEntityOfPage: { "@id": pageUrl },

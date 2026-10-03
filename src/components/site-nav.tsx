@@ -5,16 +5,23 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
- * The header is deliberately three items. The stack diagram on the index is a
- * far better layer navigator than a strip of ten links ever was, so the
- * header only carries what the diagram cannot: the top-level sections.
+ * The header is deliberately short. The stack diagram on the index is a far
+ * better layer navigator than a strip of ten links ever was, so the header only
+ * carries what the diagram cannot: the top-level sections.
+ *
+ * `/methodology` earns a slot rather than living in the footer, because it is
+ * the page a sceptical reader opens to decide whether to believe anything else
+ * here — and it is the only route whose subject is the index itself rather than
+ * an entry in it. Burying it would be self-defeating.
  */
 const links = [
   { href: "/", label: "Index" },
+  { href: "/fix", label: "Fix" },
   { href: "/all", label: "All tools" },
   { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Essays" },
   { href: "/glossary", label: "Glossary" },
+  { href: "/methodology", label: "Method" },
 ] as const;
 
 function useIsActive() {
