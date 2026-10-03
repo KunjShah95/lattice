@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { getGlossaryTerm } from "@/lib/glossary";
+import { glossary, getGlossaryTerm } from "@/lib/glossary";
 import { site } from "@/lib/site";
-import { OG_SIZE, OgCard } from "@/lib/og";
+import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt = "Glossary term";
@@ -23,12 +23,12 @@ export default async function Image({
         eyebrow="Glossary"
         title={term.term}
         subtitle={term.definition}
-        meta="Glossary"
+        meta={`${glossary.length} terms defined`}
         layer={term.layer}
         siteName={site.name}
         siteHost={site.url.replace(/^https?:\/\//, "")}
       />
     ),
-    OG_SIZE,
+    { ...OG_SIZE, fonts: OG_FONTS },
   );
 }

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPost } from "@/lib/posts";
 import { site } from "@/lib/site";
-import { OG_SIZE, OgCard, formatDate } from "@/lib/og";
+import { OG_FONTS, OG_SIZE, OgCard, formatDate } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt = "Essay cover";
@@ -33,6 +33,6 @@ export default async function Image({
         siteHost={site.url.replace(/^https?:\/\//, "")}
       />
     ),
-    OG_SIZE,
+    { ...OG_SIZE, fonts: OG_FONTS },
   );
 }

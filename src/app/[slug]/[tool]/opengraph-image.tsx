@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { allTools, getTool } from "@/lib/data";
 import { site } from "@/lib/site";
-import { OG_SIZE, OgCard } from "@/lib/og";
+import { OG_FONTS, OG_SIZE, OgCard, bandLabel } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const size = OG_SIZE;
@@ -59,18 +59,35 @@ export default async function Image({ params }: ToolRouteParams) {
     t.license,
   ].filter((f): f is string => Boolean(f));
 
+  /**
+   * The card is built around the site's thesis rather than around the tool.
+   *
+   * A tool page is the most shareable unit here, and every vendor that sells
+   * one puts their own card on it. What a neutral index can put on it instead
+   * is the decision pair — when to use it, and when to walk away — which is the
+   * half nobody else publishes and the reason a reader who sees the card in a
+   * channel has been given something a vendor's card cannot give them.
+   *
+   * The subtitle is therefore the definition (`blurb`) rather than `useWhen`,
+   * because the valve below already carries `useWhen`; repeating it would spend
+   * the most prominent line on the same sentence twice.
+   */
   return new ImageResponse(
     (
       <OgCard
-        eyebrow={category.layer == null ? "Off-stack" : `Layer ${category.layer}`}
+        variant="tool"
+        eyebrow={bandLabel(category.layer)}
         title={t.name}
-        subtitle={t.useWhen}
+        domain={t.domain}
+        subtitle={t.blurb}
+        useWhen={t.useWhen}
+        skipWhen={t.skipWhen}
         meta={facts.join(" · ")}
         layer={category.layer}
         siteName={site.name}
         siteHost={site.url.replace(/^https?:\/\//, "")}
       />
     ),
-    OG_SIZE,
+    { ...OG_SIZE, fonts: OG_FONTS },
   );
 }

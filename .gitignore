@@ -46,6 +46,9 @@ next-env.d.ts
 # local verification screenshots
 /shots
 
+# rendered Open Graph cards (scripts/render-og.mjs output)
+/og-out
+
 # local server logs
 /server.log
 /server.err

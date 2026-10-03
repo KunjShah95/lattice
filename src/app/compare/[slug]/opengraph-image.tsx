@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { site } from "@/lib/site";
-import { OG_SIZE, OgCard } from "@/lib/og";
+import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt = "Comparison cover";
@@ -32,18 +32,24 @@ export default async function Image({
   const comparison = resolvedComparisons.find((c) => c.slug === slug);
   if (!comparison) return new Response("Not found", { status: 404 });
 
+  // The tool names, which is the query. "pgvector vs Qdrant vs Pinecone" is
+  // what somebody pastes into a channel; the count is not.
+  const field = comparison.tools.map((t) => t.name).join(" · ");
+
   return new ImageResponse(
     (
       <OgCard
-        eyebrow="Comparison"
+        variant="plain"
+        eyebrow={`Comparison · ${comparison.tools.length} tools`}
         title={comparison.title}
         subtitle={shortVerdict(comparison.verdict)}
-        meta={`${comparison.tools.length} tools compared`}
+        meta={field}
+        footNote="Recommendation, not a scoreboard"
         layer={comparison.tools[0]?.layer ?? null}
         siteName={site.name}
         siteHost={site.url.replace(/^https?:\/\//, "")}
       />
     ),
-    OG_SIZE,
+    { ...OG_SIZE, fonts: OG_FONTS },
   );
 }
