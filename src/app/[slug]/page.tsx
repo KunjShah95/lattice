@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { CategorySection } from "@/components/category-section";
 import { categories, getCategory } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
-import { breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -24,6 +24,9 @@ export async function generateMetadata({
     title: `${category.title} tools for production AI (${category.tools.length})`,
     description: `${category.description} ${category.tools.length} curated ${category.title.toLowerCase()} tools, each with when to use it, when to skip it, licence and alternatives.`,
     alternates: { canonical: `/${category.slug}` },
+    // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+    // canonical, and an inherited one points at the home page.
+    openGraph: { url: absolute(`/${category.slug}`) },
   };
 }
 

@@ -1,11 +1,53 @@
 import { describe, expect, it } from "vitest";
 import { allTools, getAlternatives, getSiblingTools } from "./data";
-import { describeKind, listNames, lowerFirst, openness, toolDefinition, toolQuestions } from "./seo";
+import { absolute, describeKind, listNames, lowerFirst, openness, toolDefinition, toolQuestions } from "./seo";
+import { site } from "./site";
 
 /**
  * The answer copy is generated for every tool, so a grammar slip is a slip on
  * 112 pages at once. These check the sentences, not just the shapes.
  */
+describe("absolute", () => {
+  /**
+   * `og:url` is not derived by Next from `alternates.canonical` — set it once in
+   * the root layout and every page inherits the home page's URL, and set nothing
+   * and the tag disappears. Either way the two tags for the same resource
+   * disagree. So it is computed by hand per page, which makes this function the
+   * only thing standing between the site and 250 wrong `og:url` tags, and these
+   * are the cases that actually broke.
+   */
+  it("gives the origin for the root, with no trailing slash", () => {
+    // A trailing slash here would make the home page's og:url differ from its
+    // canonical by one character — the kind of mismatch that is invisible until
+    // it is the reason a scrap treats the two as separate pages.
+    expect(absolute()).toBe(site.url);
+    expect(absolute("/")).toBe(site.url);
+    expect(absolute("/")?.endsWith("/")).toBe(false);
+  });
+
+  it("joins a path to the origin exactly once", () => {
+    expect(absolute("/roles")).toBe(`${site.url}/roles`);
+    expect(absolute("/roles/data")).toBe(`${site.url}/roles/data`);
+    expect(absolute("/retrieval-vector-stores/pinecone")).toBe(
+      `${site.url}/retrieval-vector-stores/pinecone`,
+    );
+  });
+
+  it("always produces an absolute https URL", () => {
+    for (const p of ["/", "/roles", "/roles/data", "/glossary"]) {
+      expect(absolute(p), p).toMatch(/^https:\/\/[^/]+/);
+    }
+  });
+
+  it("is the same string a canonical would be, so the two cannot drift", () => {
+    // What every page actually passes: `alternates.canonical` is a path, and
+    // Next resolves it against metadataBase. `absolute()` has to agree.
+    const path = "/roles/data";
+    const fromCanonical = new URL(path, site.url).href;
+    expect(absolute(path)).toBe(fromCanonical);
+  });
+});
+
 describe("answer copy", () => {
   it("classifies licences", () => {
     expect(openness("Apache-2.0")).toBe("open-source");

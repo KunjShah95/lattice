@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
+import { roleTitle, rolesInOrder } from "@/lib/roles";
 import { StackSpine } from "@/components/stack-spine";
 import { allTools, getAlternatives, getAlternativeTo, getSiblingTools, getTool } from "@/lib/data";
 import { postsForSection } from "@/lib/posts";
@@ -124,6 +125,13 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
               breadcrumbNode(pageUrl, [
                 { name: site.name, path: "" },
                 { name: category.title, path: `/${category.slug}` },
+                // One role in the trail when the tool has a single owner, all of
+                // them when it does not — a breadcrumb that named one role for a
+                // two-role tool would be a small false claim in structured data.
+                ...rolesInOrder(tool.roles).map((r) => ({
+                  name: roleTitle(r),
+                  path: `/roles/${r}`,
+                })),
                 { name: tool.name, path: `/${category.slug}/${tool.slug}` },
               ]),
               faqPageJsonLd(questions, pageUrl),
@@ -209,6 +217,23 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           <div className="flex gap-1.5">
             <dt className="text-fg-subtle">cost</dt>
             <dd className="text-fg-muted">{tool.cost}</dd>
+          </div>
+          {/* Who owns this, which is the question a reader who has found a tool
+              by search cannot yet answer. Links back into the role view so the
+              axis is reachable from the page people actually land on. */}
+          <div className="flex gap-1.5">
+            <dt className="text-fg-subtle">owned by</dt>
+            <dd className="flex flex-wrap gap-1">
+              {rolesInOrder(tool.roles).map((r) => (
+                <Link
+                  key={r}
+                  href={`/roles/${r}`}
+                  className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                >
+                  {roleTitle(r)}
+                </Link>
+              ))}
+            </dd>
           </div>
         </dl>
 

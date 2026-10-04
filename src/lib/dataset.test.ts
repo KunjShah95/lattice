@@ -28,4 +28,24 @@ describe("buildDataset", () => {
     expect(d.verified).toMatch(/^\d{4}-\d{2}$/);
     expect(d.verification).toBe("https://example.com/verification.json");
   });
+
+  it("resolves the role vocabulary inline, so one document is enough", () => {
+    // Shipped rather than linked on purpose: an agent that has to fetch a
+    // second document to learn what "applied" means will not fetch it. So every
+    // id a tool carries must be defined in the same file.
+    const defined = new Set(d.roles.map((r) => r.id));
+    for (const t of d.tools) {
+      for (const r of t.roles) {
+        expect(defined.has(r), `${t.name} carries undefined role "${r}"`).toBe(true);
+      }
+    }
+  });
+
+  it("gives every role a resolvable URL and real prose", () => {
+    for (const r of d.roles) {
+      expect(r.url, r.id).toBe(`https://example.com/roles/${r.id}`);
+      expect(r.title.length, r.id).toBeGreaterThan(0);
+      expect(r.owns.length, r.id).toBeGreaterThan(10);
+    }
+  });
 });

@@ -1,5 +1,6 @@
-import type { Category, Tool } from "./types";
+import type { Category, Role, Tool } from "./types";
 import { AS_OF, attributes } from "./attributes";
+import { ROLE_IDS, roleTitle } from "./roles";
 
 /**
  * Build a tool entry from a compact tuple so the dataset stays readable.
@@ -351,6 +352,62 @@ for (const tool of allTools) {
   }
 }
 
+// Roles. Every tool needs at least one, or the axis silently omits it and a
+// reader filtering by role sees a smaller index with nothing saying so.
+//
+// The vocabulary is read from ROLES rather than restated here. A hardcoded copy
+// of the five ids looked harmless and was not: adding a sixth role to roles.ts
+// would have left `VALID` at five, so every tool tagged with the new role failed
+// the build as "unknown", and the "no role is empty" check below would have
+// silently stopped covering it. Deriving both directions from one list is what
+// makes adding a role a one-file change.
+{
+  const VALID = new Set<string>(ROLE_IDS);
+
+  for (const entry of allTools) {
+    const { roles } = entry;
+    if (!roles.length) {
+      throw new Error(
+        `Tool "${entry.name}" has no roles. Add them in src/lib/attributes.ts — ` +
+          `a tool with no role is invisible on /roles.`,
+      );
+    }
+    // Two is the cap. A tool in three roles is one nobody is accountable for,
+    // and an uncapped axis decays into a synonym for "popular".
+    if (roles.length > 2) {
+      throw new Error(
+        `Tool "${entry.name}" has ${roles.length} roles (${roles.join(", ")}). ` +
+          `Two is the cap — drop one or split the tool out.`,
+      );
+    }
+    for (const r of roles) {
+      if (!VALID.has(r)) {
+        throw new Error(
+          `Tool "${entry.name}" has unknown role "${r}". Valid roles are: ` +
+            `${[...VALID].join(", ")}. Define it in src/lib/roles.ts first.`,
+        );
+      }
+    }
+    if (new Set(roles).size !== roles.length) {
+      throw new Error(`Tool "${entry.name}" repeats a role: ${roles.join(", ")}.`);
+    }
+  }
+}
+
+// A role nothing carries is worse than no role at all: /roles would render a
+// section that looks like a content gap rather than a bug.
+{
+  const covered = new Set<string>(allTools.flatMap((entry) => entry.roles));
+  for (const r of ROLE_IDS) {
+    if (!covered.has(r)) {
+      throw new Error(
+        `Role "${r}" exists in roles.ts but no tool carries it. Tag a tool with ` +
+          `it or delete the role — an empty section reads as an oversight.`,
+      );
+    }
+  }
+}
+
 /** How long a licence/cost check stays valid before the build refuses it. */
 export const STALE_AFTER_MONTHS = 6;
 
@@ -449,6 +506,18 @@ export const selfHostedCount = allTools.filter(
 ).length;
 
 /**
+ * Tools per role, with counts.
+ *
+ * Membership-based, not primary-based: a tool tagged for two roles is counted
+ * under both, so these numbers do not sum to `toolCount`. That is intended — the
+ * count beside a role is "how many tools you would look at", and a platform
+ * engineer genuinely does look at the eval tools.
+ */
+export function toolsByRole(role: Role) {
+  return allTools.filter((entry) => entry.roles.includes(role));
+}
+
+/**
  * Resolve a tool's declared alternatives, searched in its own section first
  * and then index-wide, so a chip always links somewhere real. Returns
  * tool/category pairs because a cross-section alternative needs its own
@@ -486,6 +555,10 @@ export const allToolEntries = allTools.map((entry) => ({
   url: entry.url,
   blurb: entry.blurb,
   kind: entry.kind,
+  // Display names rather than ids: the explorer and the search palette both
+  // match against what a reader types ("platform", "infra"), so the string that
+  // reaches the client has to be the one on screen.
+  roles: entry.roles.map(roleTitle),
   deployment: entry.deployment,
   license: entry.license,
   language: entry.language,

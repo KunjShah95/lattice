@@ -3,33 +3,36 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { layerStyle } from "@/lib/layer";
+import { ROLES } from "@/lib/roles";
+import {
+  activeFilterCount,
+  facetOptions,
+  poolFor,
+  textAndSectionMatches,
+  FACET_GROUPS,
+  type FacetKey,
+  type FacetRow,
+  type FacetSelection,
+} from "@/lib/facets";
 
-export type ToolEntry = {
+/**
+ * Role display names in vocabulary order.
+ *
+ * Derived from ROLES on the client rather than shipped in the payload: it is
+ * five strings, the module is already in the client bundle for the facet row,
+ * and a second copy in the RSC payload is a second thing to keep in step.
+ */
+const ROLE_ORDER = ROLES.map((r) => r.title);
+
+/** The client row shape. Aliases the tested type rather than restating it. */
+export type ToolEntry = FacetRow & {
   name: string;
-  slug: string;
-  domain: string;
-  blurb: string;
-  kind: string;
-  deployment: string | null;
-  license: string | null;
-  language: string | null;
-  cost: string;
   useWhen: string;
   skipWhen: string;
-  categorySlug: string;
   categoryTitle: string;
-  categoryShort: string;
-  layer: number | null;
 };
 
-/** Facet dimensions. OR within a group, AND across groups. */
-const GROUPS = [
-  { key: "deployment", label: "Deployment" },
-  { key: "kind", label: "Kind" },
-  { key: "cost", label: "Cost" },
-] as const;
-
-type GroupKey = (typeof GROUPS)[number]["key"];
+type GroupKey = FacetKey;
 
 /**
  * Filterable view of the whole index.
@@ -45,66 +48,52 @@ type GroupKey = (typeof GROUPS)[number]["key"];
 export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
   const [query, setQuery] = useState("");
   const [section, setSection] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Partial<Record<GroupKey, Set<string>>>>(
-    {},
-  );
+  const [selected, setSelected] = useState<FacetSelection>({});
   const [expanded, setExpanded] = useState<Partial<Record<GroupKey, boolean>>>({});
 
-  const textMatch = useMemo(
-    () => tools.filter((t) => matches(t, query)),
-    [tools, query],
-  );
+  const textMatch = useMemo(() => textAndSectionMatches(tools, query, null), [tools, query]);
 
-  // Which rows survive every *other* group, used to count each group's options.
-  // useCallback so the memos below can depend on it without re-running on
-  // every render — it closes over the filters, not over itself.
-  const poolFor = useCallback(
+  /**
+   * Which rows survive every *other* group, used to count each group's options.
+   *
+   * The `{ section, ...selected }` object is rebuilt on each render rather than
+   * memoised, because the memos downstream are what make it worth not
+   * recomputing, and an identity-stable selection object would need its own
+   * dependency list to be correct. It is a shallow copy of a handful of keys.
+   */
+  const poolForGroup = useCallback(
     (skip: GroupKey | "section") =>
-      textMatch.filter((t) => {
-        if (skip !== "section" && section && t.categorySlug !== section) return false;
-        for (const g of GROUPS) {
-          if (g.key === skip) continue;
-          const sel = selected[g.key];
-          if (sel?.size && !sel.has(valueOf(t, g.key))) return false;
-        }
-        return true;
-      }),
+      poolFor(textMatch, { section, ...selected }, skip),
     [textMatch, section, selected],
   );
 
-  const sections = useMemo(
-    () =>
-      count(poolFor("section"), (t) => t.categorySlug)
-        .map(([value, n]) => {
-          const first = tools.find((t) => t.categorySlug === value)!;
-          return {
-            label: first.categoryShort,
-            value,
-            count: n,
-            layer: first.layer,
-          };
-        })
-        .sort((a, b) => (a.layer ?? 99) - (b.layer ?? 99)),
-    [tools, poolFor],
-  );
-
-  const facets = useMemo(
-    () =>
-      GROUPS.flatMap((g) =>
-        count(poolFor(g.key), (t) => valueOf(t, g.key)).map(([value, n]) => ({
-          group: g.key,
-          label: value,
+  const sections = useMemo(() => {
+    const pool = poolForGroup("section");
+    const counts = new Map<string, number>();
+    for (const row of pool) {
+      counts.set(row.categorySlug, (counts.get(row.categorySlug) ?? 0) + 1);
+    }
+    return [...counts]
+      .map(([value, n]) => {
+        const first = tools.find((t) => t.categorySlug === value)!;
+        return {
+          label: first.categoryShort,
           value,
           count: n,
-        })),
-      ),
-    [poolFor],
+          layer: first.layer,
+        };
+      })
+      .sort((a, b) => (a.layer ?? 99) - (b.layer ?? 99));
+  }, [tools, poolForGroup]);
+
+  const facets = useMemo(
+    () => facetOptions(textMatch, { section, ...selected }, ROLE_ORDER),
+    [textMatch, section, selected],
   );
 
-  const results = useMemo(() => poolFor("section"), [poolFor]);
+  const results = useMemo(() => poolForGroup("section"), [poolForGroup]);
 
-  const activeCount =
-    GROUPS.reduce((n, g) => n + (selected[g.key]?.size ?? 0), 0) + (section ? 1 : 0);
+  const activeCount = activeFilterCount({ section, ...selected });
 
   function toggle(group: GroupKey, value: string) {
     setSelected((prev) => {
@@ -165,7 +154,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
               active={section === null}
               onClick={() => setSection(null)}
               label="All"
-              count={poolFor("section").length}
+              count={poolForGroup("section").length}
             />
             {sections.map((s) => (
               <FacetChip
@@ -180,7 +169,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
           </FacetRow>
         ) : null}
 
-        {GROUPS.map((g) => {
+        {FACET_GROUPS.map((g) => {
           const items = facets.filter((f) => f.group === g.key);
           if (items.length < 2) return null;
           const open = expanded[g.key] ?? items.length <= 8;
@@ -271,33 +260,9 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
   );
 }
 
-function valueOf(t: ToolEntry, key: GroupKey): string {
-  const v = t[key];
-  return v ?? "unknown";
-}
-
-function matches(t: ToolEntry, query: string) {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  return (
-    t.name.toLowerCase().includes(q) ||
-    t.blurb.toLowerCase().includes(q) ||
-    t.domain.toLowerCase().includes(q) ||
-    t.useWhen.toLowerCase().includes(q) ||
-    t.skipWhen.toLowerCase().includes(q) ||
-    (t.license?.toLowerCase().includes(q) ?? false) ||
-    (t.language?.toLowerCase().includes(q) ?? false)
-  );
-}
-
-function count<T>(rows: ToolEntry[], pick: (t: ToolEntry) => T) {
-  const m = new Map<T, number>();
-  for (const r of rows) {
-    const k = pick(r);
-    m.set(k, (m.get(k) ?? 0) + 1);
-  }
-  return [...m.entries()];
-}
+// The filtering logic — `valueOf`, `inGroup`, `matchesQuery`, the pool and the
+// facet counts — now lives in `@/lib/facets`, where it can be tested without a
+// DOM. This component keeps only the wiring and the markup.
 
 function FacetRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (

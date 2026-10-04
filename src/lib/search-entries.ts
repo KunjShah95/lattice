@@ -17,6 +17,7 @@ import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { BANDS } from "@/lib/layer";
+import { roleTitle } from "@/lib/roles";
 import type { SearchEntry } from "@/lib/search";
 
 export function buildSearchEntries(): SearchEntry[] {
@@ -33,6 +34,9 @@ export function buildSearchEntries(): SearchEntry[] {
         external: tool.url,
         domain: tool.domain,
         tag: tool.kind,
+        // Display strings, not ids: the fuzzy haystack matches what a reader
+        // types ("infra", "platform"), not the internal slug.
+        roles: tool.roles.map((r) => roleTitle(r)),
       })),
     ),
     // Essays — the site's actual argument. Excluding these meant a query for

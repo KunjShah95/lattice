@@ -1,7 +1,8 @@
-import { categories, getAlternatives, toolCount } from "@/lib/data";
+import { categories, getAlternatives, toolCount, toolsByRole } from "@/lib/data";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { glossary } from "@/lib/glossary";
+import { ROLES, roleTitle } from "@/lib/roles";
 import { AS_OF } from "@/lib/attributes";
 import { site } from "@/lib/site";
 import { openness, toolDefinition } from "@/lib/seo";
@@ -59,9 +60,36 @@ export function GET() {
       if (tool.kind !== "reading") {
         lines.push(`- Use it when: ${tool.useWhen}`, `- Skip it when: ${tool.skipWhen}`);
       }
+      // The specialisation an agent holding a task would filter by. "I am the
+      // platform engineer, what is on my list" is a question this document can
+      // now answer without the reader paging through 112 entries.
+      lines.push(`- Owned by: ${tool.roles.map((r) => roleTitle(r)).join(", ")}`);
       if (alternatives.length) lines.push(`- Alternatives: ${alternatives.join(", ")}`);
       lines.push("");
     }
+  }
+
+  // A role-keyed view of the same entries. The per-tool lines above mean the
+  // data is already here; this section exists so an agent can read one role's
+  // list in one pass instead of filtering 400 lines by eye.
+  lines.push("## By role", "");
+  for (const role of ROLES) {
+    const owned = toolsByRole(role.id);
+    lines.push(
+      `### ${role.title} (${owned.length})`,
+      "",
+      role.owns,
+      "",
+      `Question it arrives with: ${role.question}`,
+      "",
+      `${site.url}/roles/${role.id}`,
+      "",
+      ...owned.map(
+        (t) =>
+          `- ${t.name} — ${site.url}/${t.category.slug}/${t.slug} (${t.category.title})`,
+      ),
+      "",
+    );
   }
 
   lines.push("## Comparisons", "");

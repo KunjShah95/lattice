@@ -23,7 +23,7 @@ import nextEnv from "@next/env";
 
 nextEnv.loadEnvConfig(process.cwd());
 
-const dry = process.argv.includes("--dry");
+const dry = process.argv.includes("--dry") || process.argv.includes("--dry-run");
 const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
 if (!/^https:\/\/[^/]+$/.test(site) || /invalid|your-domain/.test(site)) {
   console.error(`indexnow: NEXT_PUBLIC_SITE_URL is not a real origin (${site || "unset"}).`);

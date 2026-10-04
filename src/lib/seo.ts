@@ -252,6 +252,20 @@ export function siteJsonLd() {
 export const datasetModified = `${AS_OF}-01`;
 
 /**
+ * The absolute URL of a page, for `openGraph.url`.
+ *
+ * Next does not derive `og:url` from `alternates.canonical`. Left unset, the tag
+ * is omitted entirely; set once in the root layout, it is inherited by every page
+ * and points all of them at the home page — which puts `og:url` and `canonical`
+ * in direct contradiction on every route that has its own path. Both failure
+ * modes are worse than just spelling the URL out per page, and this keeps that
+ * spelling in one place so it cannot drift from `site.url`.
+ */
+export function absolute(path = "/"): string {
+  return `${site.url}${path === "/" ? "" : path}`;
+}
+
+/**
  * JSON-LD author: the named editor when one is configured, otherwise the
  * organisation. Never a Person named after the organisation — that is a
  * false claim in the field engines read for authorship.

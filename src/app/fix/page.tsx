@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BANDS, bandColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
+import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Fix a symptom",
   description:
     "Start from what is wrong, not from a tool category: slow, expensive, wrong answers, unreliable agents. Each symptom gets an ordered, layer-by-layer checklist.",
   alternates: { canonical: "/fix" },
+  // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+  // canonical, and an inherited one points at the home page.
+  openGraph: { url: absolute("/fix") },
 };
 
 /** Symptoms grouped under the band whose failure they sound like. */

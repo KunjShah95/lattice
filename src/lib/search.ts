@@ -31,6 +31,14 @@ export type SearchEntry = {
   /** Host for tools, tag for everything. */
   domain?: string;
   tag?: string;
+  /**
+   * Tools only: the specialisations this tool belongs to, as display strings.
+   *
+   * Flattened into `haystack` so "platform" and "infra" both find the right
+   * tools, which is the whole reason for the axis — a reader arrives knowing
+   * their job, not the name of the thing they need.
+   */
+  roles?: string[];
 };
 
 /** @deprecated Retained so existing imports keep working during the rename. */
@@ -45,6 +53,8 @@ type IndexedTool = {
   blurb: string;
   category: string;
   tag: string;
+  /** Lowercased role display names, or empty for non-tool entries. */
+  roles: string[];
   /** All fields joined once, for the single-pass fuzzy scan. */
   haystack: string;
 };
@@ -67,6 +77,15 @@ const TIER = {
   blurbPhrase: 40_000,
   categoryPhrase: 30_000,
   tagPhrase: 25_000,
+  /**
+   * A word of a role display name ("platform", "infra", "data"). Above the fuzzy
+   * tier because a role is a declared field rather than incidental prose, and
+   * because a fuzzy scan cannot find it: the span gate rejects "platform" against
+   * a blurb where the letters happen to appear scattered, which is most of them.
+   * Still below every phrase match — typing "data" should not outrank a tool
+   * whose description says it.
+   */
+  roleWord: 22_000,
   domainPhrase: 20_000,
   /** Fuzzy fallback sits an order of magnitude below every real match so it
    *  can never outrank an actual hit. */
@@ -89,6 +108,7 @@ export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
     const blurb = entry.blurb.toLowerCase();
     const category = entry.categoryTitle.toLowerCase();
     const tag = (entry.tag ?? "").toLowerCase();
+    const roles = (entry.roles ?? []).map((r) => r.toLowerCase());
 
     return {
       entry,
@@ -98,7 +118,10 @@ export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
       blurb,
       category,
       tag,
-      haystack: `${name} ${tag} ${domain} ${category} ${blurb}`,
+      roles,
+      // Roles also ride along in the fuzzy haystack, so "infra engineer" and
+      // other multi-word queries still reach them through the fallback.
+      haystack: `${name} ${tag} ${domain} ${category} ${blurb} ${roles.join(" ")}`,
     };
   });
 }
@@ -146,6 +169,11 @@ function scoreTerm(it: IndexedTool, q: string): number {
   if (it.blurb.includes(q)) return TIER.blurbPhrase - brevity;
   if (it.category.includes(q)) return TIER.categoryPhrase;
   if (it.tag && it.tag.includes(q)) return TIER.tagPhrase;
+  // Word-prefix, so "infra" finds "AI Infrastructure" and "prod" does not
+  // silently match "Production & Governance" — that would make a typo look like
+  // a confident result.
+  if (it.roles.some((r) => r.split(/\s+/).some((w) => w.startsWith(q))))
+    return TIER.roleWord - brevity;
   if (it.domain.includes(q)) return TIER.domainPhrase;
 
   if (q.length >= MIN_FUZZY_QUERY) {

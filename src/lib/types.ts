@@ -30,6 +30,12 @@ export type CostModel =
   | "usage-based"
   | "subscription";
 
+/**
+ * Engineering specialisation — the thing you are accountable for, not the
+ * level you are at. Vocabulary and rationale live in `roles.ts`.
+ */
+export type Role = "platform" | "serving" | "data" | "applied" | "production";
+
 export type Tool = {
   /** URL-safe identifier, unique within a section. */
   slug: string;
@@ -45,6 +51,15 @@ export type Tool = {
   // facets on them are meaningful rather than a list of vendor names.
 
   kind: ToolKind;
+  /**
+   * Specialisations this tool is part of. One or two; three is allowed only
+   * where a tool genuinely spans roles, and the count is guarded at build time.
+   *
+   * Multi-valued on purpose: an eval framework really is part of what a
+   * platform engineer owns and part of what an applied engineer owns, and
+   * forcing a single value hides it from one of them.
+   */
+  roles: Role[];
   /** Null for reading material, where deployment does not apply. */
   deployment: Deployment | null;
   /**

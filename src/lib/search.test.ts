@@ -129,6 +129,45 @@ describe("searchTools", () => {
     expect(names("observability")).toContain("Braintrust");
   });
 
+  it("matches a role, so a reader can search by their job", () => {
+    // The whole reason roles are in the index: someone who knows they are the
+    // platform engineer types "platform", not a tool name.
+    const roles: SearchEntry[] = [
+      tool("Envoy AI Gateway", "Gateway in front of many model providers.", {
+        roles: ["ML Platform", "AI Infrastructure"],
+      }),
+      tool("Ollama", "Run models locally with no setup.", {
+        roles: ["AI Infrastructure", "Applied Engineering"],
+      }),
+    ];
+    const byRole = searchTools(buildIndex(roles), "platform").map((t) => t.name);
+    expect(byRole).toContain("Envoy AI Gateway");
+    // AND semantics still holds across the fields — the second term must match
+    // somewhere, so this stays empty rather than matching every role-tagged row.
+    expect(searchTools(buildIndex(roles), "platform zzzznotathing")).toHaveLength(0);
+  });
+
+  it("keeps a role match below a name match", () => {
+    // Roles sit in the fuzzy haystack, the lowest tier on purpose. "Chroma"
+    // matches by name; if "data" also tagged it, the name must still win.
+    const rows: SearchEntry[] = [
+      tool("Data", "A tool whose name is the word.", { roles: ["ML Platform"] }),
+      tool("Acme Vector Store", "Retrieval for teams.", { roles: ["Data & Retrieval"] }),
+    ];
+    expect(searchTools(buildIndex(rows), "data")[0].name).toBe("Data");
+  });
+
+  it("does not crash on an entry with no roles", () => {
+    // Essays and comparisons carry no roles. The field is optional for exactly
+    // that reason, and the join must tolerate its absence.
+    const rows: SearchEntry[] = [
+      tool("vLLM", "Inference runtime."),
+      essay("Evals are the asset", "Traces tell you what happened."),
+    ];
+    expect(() => searchTools(buildIndex(rows), "evals")).not.toThrow();
+    expect(searchTools(buildIndex(rows), "evals")).toHaveLength(1);
+  });
+
   it("is case-insensitive", () => {
     expect(names("VLLM")[0]).toBe("vLLM");
     expect(names("vllm")[0]).toBe("vLLM");

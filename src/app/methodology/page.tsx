@@ -7,6 +7,7 @@ import { resolvedComparisons } from "@/lib/comparisons";
 import { posts } from "@/lib/posts";
 import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
+import { absolute } from "@/lib/seo";
 
 /**
  * /methodology — what this index claims, how it is checked, and what it
@@ -35,6 +36,9 @@ export const metadata: Metadata = {
   description:
     "How the Lattice index is compiled and checked — the inclusion rules, the six-month build gate on licence and cost data, and an explicit list of what this index gets wrong or leaves out.",
   alternates: { canonical: "/methodology" },
+  // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+  // canonical, and an inherited one points at the home page.
+  openGraph: { url: absolute("/methodology") },
 };
 
 /** Count of entries whose licence could not be confirmed rather than guessed. */
@@ -112,6 +116,22 @@ export default function MethodologyPage() {
           The nine layers also collapse into three bands. This is a convenience
           for the palette, but it is a claim too: most production problems live
           in exactly one band.
+        </p>
+        <p>
+          A second axis cuts across all of it: <Link
+            href="/roles"
+            className="underline decoration-border-strong underline-offset-4 hover:decoration-accent"
+          >
+            specialisation
+          </Link>
+          . Layers describe where a tool sits; a role describes what a person is
+          accountable for, and those are not the same partition — a platform
+          engineer owns routing <em>and</em> orchestration <em>and</em> the evals that
+          prove the whole thing works, which crosses all three bands. So roles are
+          assigned separately, deliberately overlap, and no tool carries more than
+          two. A seniority axis (senior, staff, principal) would not work: those
+          people need the same tools, so it would filter to nothing while looking
+          like it worked.
         </p>
         <ul className="mt-5 space-y-px border-y border-border">
           {BANDS.map((band) => (
@@ -242,6 +262,19 @@ export default function MethodologyPage() {
             ordering is a useful default, not a constraint on reality.
           </Limitation>
 
+          <Limitation title="Role assignments are judgement calls, and the overlap is the point.">
+            Nobody can derive which job owns a tool from the tool itself. An eval
+            framework genuinely belongs to a platform engineer and an applied
+            engineer, which is why roles overlap and the counts on{" "}
+            <Link href="/roles" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
+              /roles
+            </Link>{" "}
+            do not sum to {toolCount}. The cap of two per tool is enforced at
+            build time precisely because an axis without a cap decays into a
+            synonym for &ldquo;popular&rdquo;. Treat the assignment as an opening
+            argument and tell us where it is wrong.
+          </Limitation>
+
           <Limitation title="Coverage is uneven by construction.">
             Layers with more public writing about them get better entries. The
             retrieval and agent layers are the best covered; workflow
@@ -302,6 +335,10 @@ export default function MethodologyPage() {
         . {glossary.length} terms are defined in the{" "}
         <Link href="/glossary" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
           glossary
+        </Link>
+        , the same {toolCount} tools can be cut by{" "}
+        <Link href="/roles" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
+          role
         </Link>
         , and each tool page states its licence, cost, deployment and the
         date those facts were last confirmed.

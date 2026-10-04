@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GlossaryList } from "@/components/glossary-list";
 import { glossary } from "@/lib/glossary";
+import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Glossary",
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
     `the KV cache, prefix caching, reranking, hybrid search, LoRA, DPO, durable ` +
     `execution, prompt injection, evals and more, each with what it implies for a decision.`,
   alternates: { canonical: "/glossary" },
+  // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+  // canonical, and an inherited one points at the home page.
+  openGraph: { url: absolute("/glossary") },
 };
 
 export default function GlossaryIndexPage() {

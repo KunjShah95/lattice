@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { layerStyle } from "@/lib/layer";
 import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons";
+import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Comparisons",
   description:
     "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes — gateway vs evals, retrieval vs fine-tuning — each ending in a recommendation.",
   alternates: { canonical: "/compare" },
+  // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+  // canonical, and an inherited one points at the home page.
+  openGraph: { url: absolute("/compare") },
 };
 
 const substitutes = resolvedComparisons.filter((c) => c.kind === "substitutes");

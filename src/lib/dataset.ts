@@ -1,6 +1,7 @@
 import { AS_OF } from "./attributes";
 import { allTools, categories, STALE_AFTER_MONTHS } from "./data";
 import { bandOf } from "./layer";
+import { ROLES } from "./roles";
 import { site } from "./site";
 
 /**
@@ -21,6 +22,17 @@ export function buildDataset(origin: string = site.url) {
     staleAfterMonths: STALE_AFTER_MONTHS,
     verification: `${origin}/verification.json`,
     citation: `Cite as "${site.name}" and link the tool's canonical url field.`,
+    /**
+     * The specialisation vocabulary, resolved from the ids on each tool. Shipped
+     * inline rather than linked because an agent that has to fetch a second
+     * document to learn what "applied" means will not do it.
+     */
+    roles: ROLES.map((r) => ({
+      id: r.id,
+      title: r.title,
+      owns: r.owns,
+      url: `${origin}/roles/${r.id}`,
+    })),
     sections: categories.map((c) => ({
       slug: c.slug,
       title: c.title,
@@ -38,6 +50,10 @@ export function buildDataset(origin: string = site.url) {
       layer: t.category.layer,
       band: bandOf(t.category.layer),
       kind: t.kind,
+      // Ids, not display names: this document is for machines, and an agent
+      // asking "what is an applied engineer's stack" wants the stable token.
+      // `rolesByRole` at the top of the document resolves one to a title.
+      roles: t.roles,
       deployment: t.deployment,
       license: t.license,
       language: t.language,

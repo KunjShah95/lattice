@@ -4,6 +4,7 @@ import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
 import { getSubstitutes } from "@/lib/alternatives";
+import { ROLES } from "@/lib/roles";
 import { site } from "@/lib/site";
 
 /**
@@ -31,11 +32,15 @@ export function GET() {
     `- [${site.url}/]#start-here — Two questions that narrow 9 layers to the 3 worth reading first.`,
     `- [${site.url}/fix] — Start from a symptom (slow, expensive, wrong answers, unreliable agent): an ordered checklist through the stack.`,
     `- [${site.url}/compare] — Head-to-head comparisons with a recommendation and the conditions it depends on.`,
+    `- [${site.url}/roles] — The index cut by engineering specialisation rather than stack layer: what each role is accountable for.`,
     "",
     "## Common tasks",
     "",
     ...resolvedSymptoms.map((s) => `- ${s.title} → ${site.url}/fix/${s.slug}`),
     `- Choosing an inference engine → ${site.url}/compare/inference-runtimes`,
+    ...ROLES.map(
+      (r) => `- What a ${r.title.toLowerCase()} role owns → ${site.url}/roles/${r.id}`,
+    ),
     `- Tracing and eval in one tool → ${site.url}/compare/llm-observability`,
     `- One gateway across many providers → ${site.url}/routing-gateways`,
     "",

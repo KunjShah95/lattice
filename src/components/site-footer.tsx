@@ -61,6 +61,7 @@ export function SiteFooter() {
             <FooterLink href="/all">All tools</FooterLink>
             <FooterLink href="/compare">Comparisons</FooterLink>
             <FooterLink href="/blog">Essays</FooterLink>
+            <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>
           </FooterColumn>

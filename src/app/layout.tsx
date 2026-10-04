@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { themeInitScript } from "@/components/theme-toggle";
 import { site } from "@/lib/site";
+import { absolute } from "@/lib/seo";
 
 /**
  * IBM Plex — a typeface family designed for engineering and technical
@@ -56,11 +57,36 @@ export const metadata: Metadata = {
   // variant (tracking params, trailing slash, apex vs www). `alternates` merges
   // rather than replaces, so child routes still override this.
   alternates: { canonical: "/" },
+  /**
+   * `title` and `description` are deliberately absent here.
+   *
+   * `openGraph` is inherited wholesale by any page that does not declare its
+   * own, and an inherited `og:title` does not track the page's own `<title>`.
+   * Setting it to the site default here meant every top-level page — /compare,
+   * /fix, /all, /glossary, /blog, /roles — shipped an og:title and og:description
+   * identical to the home page's, which is the single most-duplicated string
+   * pair a site can emit and actively hides a page from the results it is
+   * competing for.
+   *
+   * Omitting them lets Next fall back to each page's resolved `title` and
+   * `description`, so the two stay in step by construction. The home page still
+   * gets exactly these strings, because `title.default` and `description` above
+   * are what it resolves to.
+   *
+   * Only leaf pages that carry a genuinely different shape (an essay, a tool)
+   * need to declare `openGraph` explicitly, and they do.
+   *
+   * `url` is the exception, and it is why `absolute()` exists in lib/seo.ts.
+   * It used to be pinned to `site.url`, which meant six of eight top-level pages
+   * shipped a canonical of their own alongside an `og:url` pointing at `/` — two
+   * tags for the same resource contradicting each other, which is exactly the
+   * inconsistency that makes a scrap or an answer engine discount the rest of the
+   * metadata. Next does not derive `og:url` from `alternates.canonical`, and
+   * omitting it drops the tag entirely, so each page has to pass its own path.
+   */
   openGraph: {
     type: "website",
-    url: site.url,
-    title: site.defaultTitle,
-    description: site.description,
+    url: absolute("/"),
     siteName: site.name,
   },
   robots: { index: true, follow: true },

@@ -3,12 +3,16 @@ import Link from "next/link";
 import { layerStyle } from "@/lib/layer";
 import { posts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
+import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Essays",
   description:
     "Long-form notes on the architectural decisions behind production AI systems: runtimes, gateways, retrieval, evaluation, durability and fine-tuning.",
   alternates: { canonical: "/blog" },
+  // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
+  // canonical, and an inherited one points at the home page.
+  openGraph: { url: absolute("/blog") },
 };
 
 function formatDate(iso: string) {

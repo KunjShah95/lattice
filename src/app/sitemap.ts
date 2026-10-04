@@ -5,6 +5,7 @@ import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
+import { ROLES } from "@/lib/roles";
 import { site } from "@/lib/site";
 import { datasetModified } from "@/lib/seo";
 
@@ -54,6 +55,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    // Roles are the one view that answers "what does my job own", and no
+    // competitor has that axis at all — so it is the cheapest new set of URLs
+    // to be found for.
+    {
+      url: `${site.url}/roles`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    ...ROLES.map((r) => ({
+      url: `${site.url}/roles/${r.id}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
     ...categories.map((c) => ({
       url: `${site.url}/${c.slug}`,
       lastModified,

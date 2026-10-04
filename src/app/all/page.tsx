@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ToolExplorer } from "@/components/tool-explorer";
 import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
+import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "All tools",
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
     `Every tool in the ${site.name} index in one filterable list — ${toolCount} tools ` +
     `across ${kinds.length} kinds, filterable by section, deployment model, kind and cost.`,
   alternates: { canonical: "/all" },
+  // Next does not derive `og:url` from the canonical, and an inherited one
+  // points at the home page. See `absolute()` in lib/seo.ts.
+  openGraph: { url: absolute("/all") },
 };
 
 const permissive = licenses.filter((l) =>
