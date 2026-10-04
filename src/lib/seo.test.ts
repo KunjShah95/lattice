@@ -34,6 +34,17 @@ describe("absolute", () => {
   });
 
   it("always produces an absolute https URL", () => {
+    // This is the regression test for the empty-origin bug, and it lives here
+    // rather than in `brand.test.ts` on purpose: CI excludes `brand.test.ts` from
+    // its main test step, so a guard proven there would not run on the one
+    // configuration that broke. Locally `.env.local` supplies a real domain and
+    // this passes; in CI the env var is defined but empty, so it passes only
+    // because `site.ts` treats empty as unset and falls back to an https
+    // placeholder. Revert that guard from `||` to `??` and this fails on every
+    // push while passing on every machine — which is exactly what it did.
+    //
+    // The origin being a placeholder is a separate invariant, asserted once in
+    // `brand.test.ts`.
     for (const p of ["/", "/roles", "/roles/data", "/glossary"]) {
       expect(absolute(p), p).toMatch(/^https:\/\/[^/]+/);
     }
@@ -42,6 +53,11 @@ describe("absolute", () => {
   it("is the same string a canonical would be, so the two cannot drift", () => {
     // What every page actually passes: `alternates.canonical` is a path, and
     // Next resolves it against metadataBase. `absolute()` has to agree.
+    //
+    // This resolves against `site.url`, which is safe now that `site.ts` treats an
+    // empty `NEXT_PUBLIC_SITE_URL` as unset rather than as a domain: there is
+    // always an origin to resolve against. It used to throw
+    // `TypeError: Invalid URL` in CI, where the env var is defined but empty.
     const path = "/roles/data";
     const fromCanonical = new URL(path, site.url).href;
     expect(absolute(path)).toBe(fromCanonical);

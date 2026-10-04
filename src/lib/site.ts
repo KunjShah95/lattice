@@ -27,8 +27,19 @@ export const site = {
   /**
    * Domain used for canonical URLs, og: tags and as `metadataBase`.
    * No trailing slash — joined paths would otherwise double up.
+   *
+   * `||` rather than `??`, deliberately. An empty string is not a usable origin:
+   * it makes every canonical a bare path and every `new URL(path, site.url)` throw
+   * `TypeError: Invalid URL`. `??` does not catch it, and the empty string is easy
+   * to produce — `vitest.config.mts` defines `NEXT_PUBLIC_SITE_URL` unconditionally
+   * so the branding tests can see it, defaulting to `""` when there is no
+   * `.env.local` (which is every CI run, the file being gitignored). Under `??`
+   * that made `site.url` empty in CI and only in CI, and four URL tests failed on
+   * every push while passing on every machine. `||` also catches the whitespace
+   * case. `brand.test.ts` still fails on the placeholder fallback, so this widens
+   * what counts as *unconfigured* without widening what ships.
    */
-  url: (env.NEXT_PUBLIC_SITE_URL ?? "https://lattice.invalid").replace(/\/$/, ""),
+  url: (env.NEXT_PUBLIC_SITE_URL || "https://lattice.invalid").replace(/\/$/, ""),
   /** <title> template. %s is replaced per-route. */
   titleTemplate: "%s · Lattice",
   defaultTitle: "Lattice — the layers behind working AI systems",
