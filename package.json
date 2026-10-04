@@ -1,7 +1,13 @@
 {
-  "name": "site",
+  "name": "lattice",
   "version": "0.1.0",
   "private": true,
+  "description": "A curated index of the infrastructure behind working AI systems, ordered by stack layer and by engineering role.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KunjShah95/lattice.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/build.mjs",

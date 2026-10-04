@@ -51,6 +51,7 @@ on-demand responses (see the deploy note below).
 - [Agents and answer engines](#agents-and-answer-engines)
 - [A note on route naming](#a-note-on-route-naming)
 - [What this index claims, and does not](#what-this-index-claims-and-does-not)
+- [Licence](#licence)
 - [Design provenance](#design-provenance)
 - [Related documents](#related-documents)
 
@@ -58,7 +59,7 @@ on-demand responses (see the deploy note below).
 
 ## Getting started
 
-Requires **Node 22** (what CI pins).
+Requires **Node 22** (what CI pins). MIT licensed — see [Licence](#licence).
 
 ```bash
 npm install
@@ -833,13 +834,33 @@ rest of the page worth believing.
 
 ---
 
+## Licence
+
+**MIT** — see [`LICENSE`](./LICENSE).
+
+The licence covers this repository: the source, the copy, the essays, the
+diagrams, the branding and the logo, and the dataset as compiled — the layer
+assignments, the use/skip sentences, the role tags and the section copy.
+
+It does **not** relicense anything the index points at. Each tool's own licence
+is recorded in `src/lib/attributes.ts` and shown on its page, because that fact
+is the point: 41 Apache-2.0, 31 proprietary, 22 MIT, plus BSD-3-Clause, MPL-2.0,
+PostgreSQL, BSL-1.1, Elastic-2.0 and Llama-3.1-Community. Those are facts *about*
+third-party software, not grants *from* this project, and the MIT licence here
+grants nothing over any of them. Third-party names and logos remain the property
+of their owners, used to identify the software being described.
+
+`public/awesome-lattice.md` is generated from that dataset and carries the same
+MIT terms.
+
 ## Design provenance
 
 The layout language — a stack-ordered index, hairline-separated rows, counts in
 the density meter, a Cmd-K palette, a minimal footer — follows conventions common
 to curated directories in this space. All copy, the dataset, the essays, the
-diagrams, the branding and the logo are original to this project. No content,
-assets or text were taken from any existing site.
+diagrams, the branding and the logo are original to this project and covered by
+the [MIT licence](#licence). No content, assets or text were taken from any
+existing site.
 
 ---
 
