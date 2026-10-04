@@ -27,10 +27,38 @@ Routes: `/` · `/all` · `/roles` · `/roles/<role>` · `/<section>` · `/<secti
 `/verification.json` · `/search-index.json` · `/sitemap.xml`
 
 Built with **Next.js 16** (App Router), **React 19**, **Tailwind CSS v4**,
-TypeScript and MDX. 250 of the routes are prerendered at build time; the rest are
-a handful of on-demand responses (see the deploy note below).
+TypeScript and MDX. Deployed to Cloudflare Workers via OpenNext — a Worker, not
+a static export. 250 routes are prerendered; the remainder are a handful of
+on-demand responses (see the deploy note below).
+
+---
+
+## Contents
+
+- [Getting started](#getting-started)
+- [Deploying to Cloudflare Workers](#deploying-to-cloudflare-workers)
+- [Testing](#testing)
+- [Project structure](#project-structure)
+- [Editing content](#editing-content)
+  - [Adding a tool](#adding-a-tool) · [Staleness](#staleness) · [Sections](#sections) · [Roles](#roles)
+  - [Writing an essay](#writing-an-essay) · [Adding a comparison](#adding-a-comparison)
+- [Rebranding](#rebranding)
+- [Open Graph cards](#open-graph-cards)
+- [Search](#search)
+- [Design system](#design-system)
+- [Accessibility](#accessibility)
+- [Build-time guards](#build-time-guards)
+- [Agents and answer engines](#agents-and-answer-engines)
+- [A note on route naming](#a-note-on-route-naming)
+- [What this index claims, and does not](#what-this-index-claims-and-does-not)
+- [Design provenance](#design-provenance)
+- [Related documents](#related-documents)
+
+---
 
 ## Getting started
+
+Requires **Node 22** (what CI pins).
 
 ```bash
 npm install
@@ -39,13 +67,14 @@ npm run build          # next build + the OpenNext adapter
 npm start              # serve the production build
 npm run next:build     # plain Next build only, no adapter
 npm run lint
-npm run test           # vitest, 365 unit tests
+npm run test           # vitest, 392 unit tests
 npm run verify         # generate + lint + test + next build
 npm run generate       # rebuild the GitHub awesome-list from the dataset
 npm run generate:check # assert public/awesome-lattice.md is in step with the data
 npm run indexnow       # push all sitemap URLs to Bing/Yandex/Seznam/Naver after a deploy
 npm run og:render      # save every Open Graph card to og-out/ for review
 npm run og:check       # assert no card clips or overflows its padding
+npm run og:probe       # render one card standalone and report Satori flex-rule offenders
 ```
 
 > **`npm run build` and `npm start` cannot share a `.next` directory with a running
@@ -62,9 +91,9 @@ npm run og:check       # assert no card clips or overflows its padding
 This deploys as a **Worker via OpenNext**, not a static export. 250 routes are
 prerendered, but `/feed.xml`, `/llms.txt`, `/llms-full.txt` and the section, essay,
 comparison and glossary `opengraph-image` routes are server-rendered on demand, so
-there has to be something serving them. The tool and alternatives cards *are*
-prerendered because those routes declare `generateStaticParams`; the others declare
-none and render per request. That is a deliberate asymmetry for now, not a
+there has to be something serving them. The tool, alternatives and role cards
+*are* prerendered because those routes declare `generateStaticParams`; the others
+declare none and render per request. That is a deliberate asymmetry for now, not a
 constraint: sections, posts, comparisons and glossary terms are all enumerable at
 build time, so adding `generateStaticParams` to those routes would move most of the
 remaining cards onto the static path if cold-start latency on a share ever justifies
@@ -175,17 +204,19 @@ NEXT_PUBLIC_COPYRIGHT_HOLDER=Your Name
 `url` is also `metadataBase`, so a placeholder here puts a non-resolving
 `og:url` on every one of the site's share images. It is the root of every
 `rel=canonical` and every `og:url`, which is why those two are asserted equal
-across all 242 routes in `route-metadata.test.ts`.
+across all 250 routes in `route-metadata.test.ts`.
 
 A **named author** is optional but worth setting: `NEXT_PUBLIC_AUTHOR_NAME` (and
 optionally `NEXT_PUBLIC_AUTHOR_URL`) puts a real byline on every essay and
 comparison instead of "Lattice editorial". Every page engines cited in the
 positioning audit had a named human on it.
 
+---
+
 ## Testing
 
-Unit tests only — they cover the pure data and logic modules, not components. 365
-tests across 17 suites; `src/lib/seo.test.ts` is the largest because it asserts a
+Unit tests only — they cover the pure data and logic modules, not components. **392
+tests across 18 suites**; `src/lib/seo.test.ts` is the largest because it asserts a
 generated sentence for every one of the 112 tools rather than sampling.
 
 | Suite | Tests | Covers |
@@ -193,23 +224,23 @@ generated sentence for every one of the 112 tools rather than sampling.
 | `src/lib/seo.test.ts` | 120 | Every generated answer sentence for all 112 tools, plus `absolute()` |
 | `src/lib/data.test.ts` | 42 | Section and tool invariants, layer ordering, controlled facet vocabularies, date staleness, lookups, the alternatives graph |
 | `src/lib/search.test.ts` | 29 | Tier ordering, AND semantics, the fuzzy floor, roles in the index, essays and comparisons |
+| `src/lib/facets.test.ts` | 27 | Facet semantics — OR within a group, AND across groups, counts from the pool that excludes the group being counted |
 | `src/lib/comparisons.test.ts` | 27 | Row/tool counts, every reference resolves, no self-comparison |
 | `src/lib/posts.test.ts` | 22 | Frontmatter, date sorting, backlink integrity, coverage per section |
 | `src/lib/glossary.test.ts` | 19 | Term metadata, uniqueness, cross-links |
 | `src/lib/alternatives.test.ts` | 16 | Substitutes graph, adjacency split, derived verdicts |
 | `src/lib/roles.test.ts` | 13 | Role coverage, the two-role cap, distribution, and that no role is a superset of another |
-| `src/lib/facets.test.ts` | 27 | Facet semantics — OR within a group, AND across groups, counts from the pool that excludes the group being counted |
+| `src/lib/symptoms.test.ts` | 11 | Symptom checklist integrity |
 | `src/lib/jsonld.test.ts` | 11 | Script-injection escaping |
 | `src/lib/layer.test.ts` | 11 | Band mapping, clamping, and that the OG card and the site agree on every layer |
-| `src/lib/symptoms.test.ts` | 11 | Symptom checklist integrity |
 | `src/lib/verification.test.ts` | 10 | The staleness receipt matches what the guard enforces |
-| `src/lib/route-metadata.test.ts` | 9 | Every one of the 242 routes: canonical present, `og:url` present, and the two equal |
+| `src/lib/route-metadata.test.ts` | 9 | Every one of the 250 routes: canonical present, `og:url` present, the two equal, and share-card coverage |
 | `src/lib/llms.test.ts` | 8 | `/llms.txt` and `/llms-full.txt` carry the decision pair and the role section |
 | `src/lib/dataset.test.ts` | 6 | The agent-facing JSON document, including that every role id resolves inline |
 | `src/lib/search-entries.test.ts` | 6 | Index shape survives a JSON round trip and still ranks |
 | `src/lib/brand.test.ts` | 5 | No placeholder domain, contact or over-long description |
 
-Two of these deserve their own note, because they guard the class of bug that this
+Three of these deserve their own note, because they guard the class of bug this
 repo actually produced rather than the one it was designed against.
 
 **`route-metadata.test.ts` exists because `og:url` and `rel=canonical` disagreed.**
@@ -219,8 +250,19 @@ vanishes. Four pages (`/all`, `/blog`, `/glossary`, `/roles`) shipped a canonica
 their own next to an `og:url` of the site root: two tags for the same resource making
 contradictory claims. Nothing caught it, because nothing compared them. Now every
 route passes its own path to `absolute()` in `lib/seo.ts`, and this suite asserts the
-two agree across all 242. Verified against the build output: 252 prerendered pages
-carry an `og:url`, 0 mismatches.
+two agree across all 250.
+
+It also asserts **share-card coverage, both ways**: every segment listed below has
+an `opengraph-image.tsx`, and no card file exists outside that list. That check
+exists because five segments had no card and were silently inheriting the root one,
+which rendered *the wrong image* rather than none. See
+[Open Graph cards](#open-graph-cards).
+
+**`facets.test.ts` exists because the facet logic was untestable in place.**
+`tool-explorer.tsx` is `"use client"` and vitest runs in a node environment, so
+logic inside it could not be exercised without a DOM. The filtering was extracted to
+`src/lib/facets.ts` as pure functions and covered by 27 tests, several against the
+real 112-row dataset. See [Search](#search).
 
 **`llms.test.ts` exists because the agent-facing documents drift silently.** They are
 generated from the same dataset as the UI, so a field added to a tool that only
@@ -234,6 +276,8 @@ touching posts fails to collect.
 CI (`.github/workflows/ci.yml`, Node 22) runs `npm ci`, `lint`, `test`, `build`,
 then starts the built server and requests a sample of routes — see the routing
 note below for why that last step exists.
+
+---
 
 ## Project structure
 
@@ -272,7 +316,7 @@ src/
     stack-diagram.tsx       Hero: nine bands sized by tool count
     stack-spine.tsx         Nine-band rail showing where a page sits in the stack
     start-here.tsx          Two-question decision path through the index
-    tool-explorer.tsx       Client-side filter + section/role/kind/deployment/cost facets
+    tool-explorer.tsx       Client-side filter; wires lib/facets.ts to the UI
     category-section.tsx    Numbered section block
     tool-row.tsx            One tool: layer swatch, name, host
     glossary-list.tsx       Term list with definition and implication
@@ -303,7 +347,11 @@ src/
     *.test.ts               Vitest suites, alongside the modules they cover
 ```
 
+---
+
 ## Editing content
+
+### Adding a tool
 
 Adding a tool is a **two-file** edit. `data.ts` holds what a link *is*;
 `attributes.ts` holds what it *is*. They are kept apart on purpose and asserted
@@ -394,6 +442,12 @@ enforced at build time and in `roles.test.ts`:
 - every id must exist in `ROLES`;
 - no role may be empty, or a strict superset of another.
 
+Both build-time guards read the vocabulary from `ROLES` rather than restating it.
+A hardcoded copy of the five ids was harmless-looking and not: adding a sixth role
+would have left the validator at five, so every tool tagged with the new role failed
+the build as "unknown", and the emptiness check would have silently stopped
+covering it. Adding a role is a one-file change.
+
 **Why five, and why not seniority.** Job titles were the obvious framing and they do
 not work: a Principal and a Staff engineer need the *same* tools, so every entry
 would carry the same value on that axis and the facet would filter to nothing while
@@ -415,7 +469,7 @@ Roles feed `/roles`, `/roles/<id>`, the `/all` facet row, the search palette's
 `roleWord` tier, `tools.json`, `llms-full.txt` and `llms.txt` — all derived, so a new
 role needs no second edit.
 
-## Writing an essay
+### Writing an essay
 
 1. Add `src/content/blog/<slug>.mdx` exporting a `meta` object:
 
@@ -443,7 +497,7 @@ Figures are available in MDX without importing: `<RequestPath />`,
 They are PascalCase deliberately — MDX will silently emit `<requestPath>` as an
 unknown HTML tag if it cannot resolve a lowercase name.
 
-## Adding a comparison
+### Adding a comparison
 
 Comparisons live in `src/lib/comparisons.ts` and are deliberately narrow: they
 cover tools that are genuine substitutes for one another, and each ends in a
@@ -467,6 +521,8 @@ recommendation rather than a feature grid.
 Tools are referenced **by name** and resolved against `data.ts` at build time,
 so a comparison cannot drift from the index or link to something that moved.
 
+---
+
 ## Rebranding
 
 All placeholder branding is in **`src/lib/site.ts`**: wordmark, URL, title
@@ -484,12 +540,14 @@ change to the light theme does not touch it and a change to the dark one does.
 The `oklch()` layer tokens are converted by hand; re-derive them rather than
 eyeballing, or the badge dot stops matching the section it is badging.
 
+---
+
 ## Open Graph cards
 
-Every indexable route declares a share image, and `scripts/render-og.mjs`
-collects them all to `og-out/` by reading the `og:image` each page actually
-declares — so a card that renders but is never referenced, or a page that
-references a card it does not have, both show up in the summary.
+Every indexable route declares a share image. `scripts/render-og.mjs` collects
+them all to `og-out/` by reading the `og:image` each page actually declares — so a
+card that renders but is never referenced, or a page that references a card it does
+not have, both show up in the summary. Current state: **250/250**, mean 70 KB.
 
 | Route | Card |
 | --- | --- |
@@ -501,31 +559,27 @@ references a card it does not have, both show up in the summary.
 | `/blog`, `/blog/<post>` | Essay index, essay |
 | `/fix`, `/fix/<symptom>` | Symptom index, symptom checklist |
 | `/glossary`, `/glossary/<term>` | Glossary index, term |
+| `/roles`, `/roles/<role>` | Role index, one specialisation |
 | `/all` | Whole index |
 | `/methodology` | Method |
-| `/roles` | Role index |
 
-`/roles/<role>` has **no** card of its own, and that is deliberate rather than an
-oversight: the table above is the complete set, and `route-metadata.test.ts`
-enforces both directions — every listed route has a card file, and no card exists
-outside the table. Adding one for `/roles/<role>` means adding a row, not a file.
+That table is the complete set, and `route-metadata.test.ts` enforces it in both
+directions: every listed route has a card file, and no card exists off-list. Adding
+a card means adding a row.
+
+**Why that guard exists.** Five segments originally had no `opengraph-image.tsx` and
+relied on inheriting the root one, which is why `/all`, `/blog`, `/glossary`,
+`/methodology` and `/roles` all shared the home page's og:image. Removing
+`openGraph.title` from the layout — to stop every top-level page shipping the home
+page's og:title — also dropped that inheritance, and those five went from *a wrong
+card* to *no card at all*, rendering as a bare `twitter:summary` text link.
+
+Worse, none of the usual checks noticed: a missing card is not a type error, not a
+metadata field, and does not fail a build.
 
 Two cards use `variant="plain"` on purpose: `/all` and `/roles` are the two views
 that refuse to sort by depth, so drawing a strata rail on them would contradict the
 page's own premise.
-
-**Every listed route has its own card, and `route-metadata.test.ts` enforces
-that.** This is not incidental. `/all`, `/blog`, `/glossary`, `/methodology` and
-`/roles` originally had no `opengraph-image.tsx` and relied on inheriting the root
-one — which is why they all shared the home page's og:image. Removing
-`openGraph.title` from the layout (to stop `og:title` duplicating the home page
-everywhere) also dropped that inheritance, and those five went from *a wrong card*
-to *no card at all*, rendering as a bare `twitter:summary` text link.
-
-Worse, none of the usual checks noticed: a missing card is not a type error, not a
-metadata field, and does not fail a build. So the coverage is asserted two ways in
-that suite — every segment in the table has a card file, and no card exists outside
-the table — which is why the table is worth keeping in step.
 
 ```bash
 npm run build && npx next start -p 3200
@@ -547,10 +601,10 @@ come to ~600 KB between them, so subsetting is the only reason they fit at all:
 they land at 71 KB, 65 KB and 51 KB, ~187 KB total. A fourth face is a budget
 decision, not a free choice.
 
-Regenerate after an upstream Plex release:
+Regenerate after an upstream Plex release (`scripts/fetch-og-fonts.ps1` downloads
+the release zips; `scripts/subset-og-fonts.py` does the subsetting):
 
 ```bash
-# from the IBM/plex release zips, then:
 python scripts/subset-og-fonts.py <dir containing the source TTFs>
 ```
 
@@ -574,8 +628,10 @@ python scripts/subset-og-fonts.py <dir containing the source TTFs>
 
 `npm run og:check` measures the ink bounding box of every rendered card
 against the padding box, which is how a clipped subtitle or an overflowing
-sentence gets caught without opening 235 images. It is the only check in the
+sentence gets caught without opening 250 images. It is the only check in the
 repo that catches this class of bug, because none of these failures throw.
+
+---
 
 ## Search
 
@@ -613,9 +669,11 @@ makes "infra" find AI Infrastructure while "prod" does not silently match Produc
 & Governance. It still sits below every phrase match, so typing "data" does not
 drown real name and blurb hits in role matches.
 
-`ToolExplorer` on `/all` filters the same dataset client-side with facet
-counts — the whole index is a few kilobytes, so there is no round trip per
-keystroke. Past a few hundred entries that should move to a real search index.
+### Facets on `/all`
+
+`ToolExplorer` filters the same dataset client-side with facet counts — the whole
+index is a few kilobytes, so there is no round trip per keystroke. Past a few
+hundred entries that should move to a server-side search index.
 
 **Role** is the first facet row, ahead of deployment, kind and cost, because it
 is the only axis that describes the reader rather than the tool. It is also the
@@ -645,6 +703,8 @@ up client-side, so the string the reader types against is the string on screen.
 role (`layer` / `crosscutting` / `offstack`) and predates this axis. They are
 unrelated and both names are live in the codebase.
 
+---
+
 ## Design system
 
 Tokens are CSS custom properties in `src/app/globals.css`, exposed to Tailwind
@@ -661,7 +721,9 @@ The active theme is a class on `<html>`, applied before first paint by an inline
 script so there is no flash and no hydration mismatch. The toggle deliberately
 holds no React state.
 
-## Accessibility and robustness
+---
+
+## Accessibility
 
 - The header carries the top-level sections; the stack diagram on the index is the
   layer navigator, and a mobile drawer covers small screens.
@@ -669,6 +731,8 @@ holds no React state.
   arrow/enter/escape.
 - `prefers-reduced-motion` disables smooth scrolling and transitions.
 - JSON-LD is escaped for `<`, `>` and `&` before injection.
+
+---
 
 ## Build-time guards
 
@@ -695,8 +759,11 @@ copy-shaped rather than dataset-shaped, and would otherwise ship silently:
 | --- | --- |
 | `route-metadata.test.ts` | A route with no canonical, no `og:url`, or two that disagree |
 | `route-metadata.test.ts` | An indexable route family that stopped being generated |
+| `route-metadata.test.ts` | A route with no share card, or a card on a route with none |
 | `llms.test.ts` | An agent-facing document that lost the use/skip pair or the role section |
 | `dataset.test.ts` | `tools.json` carrying a role id its own vocabulary does not define |
+
+---
 
 ## Agents and answer engines
 
@@ -721,6 +788,8 @@ Bytespider, meta-externalagent, Amazonbot, Diffbot) are not. Google-Extended is
 allowed as a trade — it controls Gemini grounding *and* Gemini training, and blocking
 it was costing Gemini citations.
 
+---
+
 ## A note on route naming
 
 `app/[slug]/[tool]` reuses the `slug` param name from `app/[slug]`. Next.js
@@ -741,6 +810,8 @@ claims every other single segment — same precedence rule as `/all`, `/blog`,
 `/compare`, `/fix`, `/glossary` and `/methodology`, and the same reason it is worth
 checking rather than assuming.
 
+---
+
 ## What this index claims, and does not
 
 Two claims are load-bearing enough to state plainly, because they are enforced by
@@ -760,6 +831,8 @@ not accuracy, and role assignments are judgement calls whose counts deliberately
 not sum to 112. Stating the weaknesses is not hedging; it is the thing that makes the
 rest of the page worth believing.
 
+---
+
 ## Design provenance
 
 The layout language — a stack-ordered index, hairline-separated rows, counts in
@@ -767,6 +840,8 @@ the density meter, a Cmd-K palette, a minimal footer — follows conventions com
 to curated directories in this space. All copy, the dataset, the essays, the
 diagrams, the branding and the logo are original to this project. No content,
 assets or text were taken from any existing site.
+
+---
 
 ## Related documents
 

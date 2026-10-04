@@ -49,6 +49,9 @@ next-env.d.ts
 # rendered Open Graph cards (scripts/render-og.mjs output)
 /og-out
 
+# vitest cache dir, written by `--reporter=json --outputFile=...`
+/.vitest
+
 # local server logs
 /server.log
 /server.err
