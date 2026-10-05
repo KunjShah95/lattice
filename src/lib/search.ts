@@ -39,6 +39,14 @@ export type SearchEntry = {
    * their job, not the name of the thing they need.
    */
   roles?: string[];
+  /**
+   * Tools only: display titles of the sections this tool also serves.
+   *
+   * Matched the same way roles are — declared fields rather than incidental
+   * prose — so typing a layer name finds the tools that reach it even when that
+   * layer is not where they are indexed.
+   */
+  alsoIn?: string[];
 };
 
 /** @deprecated Retained so existing imports keep working during the rename. */
@@ -55,6 +63,8 @@ type IndexedTool = {
   tag: string;
   /** Lowercased role display names, or empty for non-tool entries. */
   roles: string[];
+  /** Lowercased second-home section titles, or empty for non-tool entries. */
+  alsoIn: string[];
   /** All fields joined once, for the single-pass fuzzy scan. */
   haystack: string;
 };
@@ -109,6 +119,7 @@ export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
     const category = entry.categoryTitle.toLowerCase();
     const tag = (entry.tag ?? "").toLowerCase();
     const roles = (entry.roles ?? []).map((r) => r.toLowerCase());
+    const alsoIn = (entry.alsoIn ?? []).map((s) => s.toLowerCase());
 
     return {
       entry,
@@ -119,9 +130,11 @@ export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
       category,
       tag,
       roles,
-      // Roles also ride along in the fuzzy haystack, so "infra engineer" and
-      // other multi-word queries still reach them through the fallback.
-      haystack: `${name} ${tag} ${domain} ${category} ${blurb} ${roles.join(" ")}`,
+      alsoIn,
+      // Roles and second homes also ride along in the fuzzy haystack, so
+      // "infra engineer" and "guardrails layer" still reach them through the
+      // fallback.
+      haystack: `${name} ${tag} ${domain} ${category} ${blurb} ${roles.join(" ")} ${alsoIn.join(" ")}`,
     };
   });
 }
@@ -173,6 +186,11 @@ function scoreTerm(it: IndexedTool, q: string): number {
   // silently match "Production & Governance" — that would make a typo look like
   // a confident result.
   if (it.roles.some((r) => r.split(/\s+/).some((w) => w.startsWith(q))))
+    return TIER.roleWord - brevity;
+  // Same tier as roles, for the same reason: a second home is a declared
+  // placement rather than prose, and "guardrails" should find a gateway that
+  // does guardrails without beating a tool whose description says it.
+  if (it.alsoIn.some((s) => s.split(/\s+/).some((w) => w.startsWith(q))))
     return TIER.roleWord - brevity;
   if (it.domain.includes(q)) return TIER.domainPhrase;
 

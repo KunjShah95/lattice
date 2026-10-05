@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { categories } from "./data";
 import { buildSearchEntries } from "./search-entries";
 import { buildIndex, searchTools } from "./search";
 
@@ -64,6 +65,36 @@ describe("buildSearchEntries", () => {
     const firstWord = essay!.name.split(/\s+/)[0];
     const essayHits = searchTools(index, firstWord);
     expect(essayHits.some((h) => h.href === essay!.href)).toBe(true);
+  });
+
+  it("finds a tool by a layer it only reaches as a second home", () => {
+    // "Guardrails" is a section name, not a tool name or a role. A reader
+    // typing it is asking about a layer, and the tools that reach that layer
+    // from another one are part of the answer.
+    const index = buildIndex(entries);
+    const hits = searchTools(index, "guardrails");
+    expect(hits.length).toBeGreaterThan(0);
+    // Portkey is indexed under Routing & Gateways; its guardrails are a second
+    // home, so it should be findable by the layer's name.
+    expect(hits.some((h) => h.name === "Portkey")).toBe(true);
+  });
+
+  it("gives second-home titles, not slugs, so they read in the palette", () => {
+    // The palette renders these next to the tool. A slug reads as a filename,
+    // so assert against the real vocabulary rather than by shape — section
+    // titles legitimately contain hyphens ("Fine-tuning & Training").
+    const titles = new Set(categories.map((c) => c.title));
+    const slugs = new Set(categories.map((c) => c.slug));
+    for (const e of entries) {
+      if (e.kind !== "tool") continue;
+      expect(e.alsoIn, `alsoIn on ${e.name}`).toBeDefined();
+      for (const title of e.alsoIn ?? []) {
+        expect(titles.has(title), `${e.name}: "${title}" is not a section title`).toBe(
+          true,
+        );
+        expect(slugs.has(title), `${e.name}: "${title}" is a slug`).toBe(false);
+      }
+    }
   });
 
   it("browses the whole corpus on an empty query", () => {

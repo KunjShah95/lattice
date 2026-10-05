@@ -13,6 +13,7 @@ import { metadata as fixMetadata } from "@/app/fix/page";
 import { metadata as glossaryMetadata } from "@/app/glossary/page";
 import { metadata as methodologyMetadata } from "@/app/methodology/page";
 import { metadata as rolesMetadata } from "@/app/roles/page";
+import { metadata as stackBuilderMetadata } from "@/app/stack-builder/page";
 import { generateMetadata as categoryMetadata } from "@/app/[slug]/page";
 import { generateMetadata as toolMetadata } from "@/app/[slug]/[tool]/page";
 import { generateMetadata as alternativesMetadata } from "@/app/[slug]/[tool]/alternatives/page";
@@ -89,6 +90,7 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
     ["/glossary", glossaryMetadata as Metadata],
     ["/methodology", methodologyMetadata as Metadata],
     ["/roles", rolesMetadata as Metadata],
+    ["/stack-builder", stackBuilderMetadata as Metadata],
   ];
 
   const generated: Array<[string, Promise<Metadata>]> = [
@@ -162,10 +164,10 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 7, not 8: the home page carries no metadata of its own and is covered by
+    // 8, not 9: the home page carries no metadata of its own and is covered by
     // `absolute("/")` in seo.test.ts instead.
     const expected =
-      7 +
+      8 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
@@ -245,6 +247,8 @@ const SEGMENTS_WITH_CARDS = [
   "methodology",
   "roles",
   "roles/[role]",
+  "stack-builder",
+  "submit",
   "[slug]",
   "[slug]/[tool]",
   "[slug]/[tool]/alternatives",

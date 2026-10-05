@@ -1,5 +1,5 @@
 import { AS_OF } from "./attributes";
-import { allTools, categories, STALE_AFTER_MONTHS } from "./data";
+import { allTools, categories, getCategory, STALE_AFTER_MONTHS } from "./data";
 import { bandOf } from "./layer";
 import { ROLES } from "./roles";
 import { site } from "./site";
@@ -61,6 +61,18 @@ export function buildDataset(origin: string = site.url) {
       useWhen: t.useWhen,
       skipWhen: t.skipWhen,
       alternatives: t.alternatives ?? [],
+      /**
+       * Other layers this tool does, with the reason. Included because the
+       * single-valued `layer` field is the one an agent will filter on, and it
+       * is not the whole answer for the tools that span two — an agent asked
+       * "where do agent memory tools live" gets a better one from this than
+       * from filtering `layer === 5`.
+       */
+      alsoIn: (t.secondHomes ?? []).map((h) => ({
+        section: h.section,
+        layer: getCategory(h.section)?.layer ?? null,
+        because: h.because,
+      })),
       verified: t.asOf,
     })),
   };

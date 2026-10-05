@@ -63,6 +63,11 @@ export function SiteFooter() {
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
+            {/* Beside methodology rather than under "Corrections" because it is
+                how you challenge a selection, not how you report a broken
+                link — and methodology is what defines the bar it is judged
+                against. */}
+            <FooterLink href="/submit">Submit a tool</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>
           </FooterColumn>
         </div>

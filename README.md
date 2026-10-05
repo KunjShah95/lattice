@@ -304,7 +304,9 @@ src/
     compare/page.tsx        Comparison index, split across-layers vs substitutes
     compare/[slug]/         Comparison table, recommendation, backlinks
     methodology/page.tsx    How entries are chosen and checked, and where this is wrong
-    opengraph-image.jpg     Home cover image (designed, static)
+    opengraph-image.tsx     Home cover image: the stack drawn as a section elevation
+    favicon.ico, icon.svg,  The mark, pixel-snapped per size
+    apple-icon.png          (regenerate with `npm run icons:render`)
     feed.xml/route.ts       RSS of the essays
     sitemap.ts              Every indexable route, 250 URLs
     robots.ts               Allow answer engines, block training crawlers
@@ -329,7 +331,7 @@ src/
     site-nav.tsx            Top-level links + mobile drawer
     site-footer.tsx
     theme-toggle.tsx        Also exports the pre-paint theme script
-    logo.tsx
+    logo.tsx                The mark (L on a 3x3 lattice) + wordmark
   content/blog/*.mdx        11 essay bodies + frontmatter
   lib/
     data.ts                 Link-bearing dataset: sections, tools, URLs, blurbs
@@ -527,8 +529,16 @@ so a comparison cannot drift from the index or link to something that moved.
 ## Rebranding
 
 All placeholder branding is in **`src/lib/site.ts`**: wordmark, URL, title
-template, description, tagline, copyright holder and contact. The logo glyph is
-in `src/components/logo.tsx`.
+template, description, tagline, copyright holder and contact.
+
+The mark is defined once, as `MARK_CELLS` in `src/components/logo.tsx`: five
+inked cells spelling an L on a 3x3 lattice, the corner joint in the accent, the
+four unused cells left as registration dots. Every rendering derives from it —
+the header and footer wordmark, the masthead glyph on every share card
+(`src/lib/og.tsx`, where the joint takes the band tint), and the favicon, SVG
+icon and Apple touch icon (`scripts/render-icons.mjs`, which redraws it
+pixel-snapped per size; run `npm run icons:render` after changing the mark).
+Do not reintroduce a separate logo file.
 
 Two palettes must be kept in step by hand, because Satori does not read CSS
 custom properties:
@@ -552,7 +562,7 @@ not have, both show up in the summary. Current state: **250/250**, mean 70 KB.
 
 | Route | Card |
 | --- | --- |
-| `/` | Home — a static designed image, `src/app/opengraph-image.jpg` (source: `assets/image.png`) |
+| `/` | Home — `OgHomeCard`: the nine layers as a section elevation with band brackets, drawn from `stackLayers` |
 | `/<section>` | Section |
 | `/<section>/<tool>` | Tool |
 | `/<section>/<tool>/alternatives` | Alternatives |

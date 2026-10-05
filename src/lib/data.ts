@@ -338,6 +338,91 @@ for (const tool of allTools) {
   }
 }
 
+/**
+ * Second homes. Same reasoning as the alternatives guard above, applied to
+ * sections: a typo renders as a link to a 404 on a page the site asserts is a
+ * curated taxonomy, which is worse than a missing feature.
+ *
+ * The cap matters more than it did for roles. Three second homes is the same
+ * failure in a new place — the cross-reference stops distinguishing anything and
+ * the axis becomes decoration. Two is already generous: it covers the genuine
+ * cases (a tool that both trains and grades, or that is both an agent runtime
+ * and a memory store) without letting "spans everything" become the default
+ * excuse for not choosing a home.
+ */
+{
+  const MAX_SECOND_HOMES = 2;
+  const validSections = new Set(categories.map((c) => c.slug));
+
+  for (const entry of allTools) {
+    const homes = entry.secondHomes ?? [];
+    if (homes.length === 0) continue;
+
+    if (homes.length > MAX_SECOND_HOMES) {
+      throw new Error(
+        `Tool "${entry.name}" has ${homes.length} second homes ` +
+          `(${homes.map((h) => h.section).join(", ")}). ${MAX_SECOND_HOMES} is the cap — ` +
+          `a tool that belongs in three sections has no home, which is a taxonomy problem.`,
+      );
+    }
+
+    const seen = new Set<string>();
+    for (const home of homes) {
+      if (!validSections.has(home.section)) {
+        throw new Error(
+          `Tool "${entry.name}" claims a second home in "${home.section}", which is not a section. ` +
+            `Valid sections: ${[...validSections].join(", ")}.`,
+        );
+      }
+      // A tool cannot have a second home in the section it already lives in.
+      // That would render as "also in Agents" on the Agents page, which reads
+      // as a bug and trains readers to distrust the cross-references.
+      if (home.section === entry.category.slug) {
+        throw new Error(
+          `Tool "${entry.name}" lists its own section "${home.section}" as a second home. ` +
+            `Drop it — that is its home, not a second one.`,
+        );
+      }
+      // Off-stack is reading material. A tool with a second home there is
+      // claiming to be a course, which is not what this field means.
+      // `categories.find` rather than `getCategory` because this guard runs at
+      // module load, before that const is initialised.
+      if (categories.find((c) => c.slug === home.section)?.role === "offstack") {
+        throw new Error(
+          `Tool "${entry.name}" claims a second home in "${home.section}", which is off-stack. ` +
+            `Second homes are for in-stack sections only.`,
+        );
+      }
+      if (seen.has(home.section)) {
+        throw new Error(
+          `Tool "${entry.name}" repeats the second home "${home.section}".`,
+        );
+      }
+      seen.add(home.section);
+      // The reason is the payload. Without it the cross-reference is a claim
+      // the reader cannot check, and an unargued claim is the thing this index
+      // is supposed to be better at than the directories it criticises.
+      const because = home.because.trim();
+      if (because.length < 15) {
+        throw new Error(
+          `Tool "${entry.name}" gives no usable reason for its second home in ` +
+            `"${home.section}". Write one clause explaining why it belongs there.`,
+        );
+      }
+      // A full stop, because the field is rendered as a sentence in its own
+      // right — matching `blurb`, which carries its own punctuation for the
+      // same reason. Enforced here as well as in the test so a new entry fails
+      // at build rather than reading as a typo.
+      if (!because.endsWith(".")) {
+        throw new Error(
+          `Tool "${entry.name}" writes its reason for the second home in ` +
+            `"${home.section}" without a trailing full stop.`,
+        );
+      }
+    }
+  }
+}
+
 // Reading material has no deployment; everything else must be classified.
 for (const tool of allTools) {
   if (tool.kind === "reading") continue;
@@ -533,6 +618,51 @@ export function getAlternatives(categorySlug: string, toolSlug: string) {
     .map((entry) => ({ tool: entry, category: entry.category }));
 }
 
+/**
+ * Other sections this tool declares a home in, resolved.
+ *
+ * Returned as tool/section pairs rather than bare slugs because a second home
+ * has to be rendered with that section's title *and* its layer colour, and
+ * because the reverse lookup below needs to know which section a declaration
+ * points at. Sections that no longer exist are dropped rather than thrown —
+ * the build guard above already refuses to ship one, so anything filtered here
+ * is a tool edited without rebuilding the guard.
+ */
+export function getSecondHomes(categorySlug: string, toolSlug: string) {
+  const tool = getTool(categorySlug, toolSlug)?.tool;
+  if (!tool?.secondHomes?.length) return [];
+
+  return tool.secondHomes
+    .map((home) => {
+      const section = getCategory(home.section);
+      return section ? { section, because: home.because } : null;
+    })
+    .filter((x): x is { section: Category; because: string } => x !== null);
+}
+
+/**
+ * Every tool that names `sectionSlug` as one of its second homes.
+ *
+ * This is the direction that matters for the taxonomy. Without it, a second
+ * home is a footnote on the tool's own page — visible only to someone who
+ * already found the tool in its home section. With it, the layer the tool
+ * *also* serves can show it, which is what turns "Letta is in Agents" into
+ * "agent memory shows up in both Agents and Retrieval", which is the actual
+ * answer to where memory tools land.
+ *
+ * Excludes tools already native to the section: a reader on that page does not
+ * need to be told twice.
+ */
+export function getSecondHomeTools(sectionSlug: string) {
+  return allTools
+    .filter((e) => e.category.slug !== sectionSlug)
+    .flatMap((e) =>
+      (e.secondHomes ?? [])
+        .filter((h) => h.section === sectionSlug)
+        .map((h) => ({ tool: e, because: h.because })),
+    );
+}
+
 /** Reverse edges: tools that name this one as an alternative. */
 export function getAlternativeTo(categorySlug: string, toolSlug: string) {
   const me = getTool(categorySlug, toolSlug)?.tool;
@@ -570,4 +700,8 @@ export const allToolEntries = allTools.map((entry) => ({
   categoryShort: entry.category.short,
   layer: entry.category.layer,
   role: entry.category.role,
+  // Section slugs only, not the reasons: the explorer shows a compact
+  // "also in X" marker and has nowhere to put a clause. The prose lives on the
+  // tool page, which is the surface that can actually carry it.
+  secondHomes: (entry.secondHomes ?? []).map((h) => h.section),
 }));

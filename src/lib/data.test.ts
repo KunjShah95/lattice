@@ -8,6 +8,8 @@ import {
   getAlternativeTo,
   getAlternatives,
   getCategory,
+  getSecondHomes,
+  getSecondHomeTools,
   getSiblingTools,
   getTool,
   getToolByName,
@@ -269,6 +271,10 @@ describe("allToolEntries", () => {
       // The nested section object is deliberately not carried across the
       // boundary — only the scalars the explorer actually reads.
       expect(Object.keys(entry)).not.toContain("category");
+      // Second homes cross as bare slugs: the explorer has room for a compact
+      // "also in X" marker and nowhere to put a clause. The prose stays on the
+      // tool page, which is the surface that can carry it.
+      expect(Array.isArray(entry.secondHomes)).toBe(true);
     }
   });
 
@@ -317,6 +323,122 @@ describe("the alternatives graph", () => {
         getAlternativeTo(t.category.slug, t.slug).length > 0,
     );
     expect(connected.length).toBeGreaterThan(allTools.length * 0.8);
+  });
+
+  /**
+   * Second homes. This is the mechanism that answers "which layer does agent
+   * memory live in", so the tests are about the claims being checkable rather
+   * than about the field being present: every one resolves to a real section,
+   * the cap holds, and the reasons are prose.
+   */
+  it("resolves every declared second home to a real in-stack section", () => {
+    for (const t of allTools) {
+      const homes = getSecondHomes(t.category.slug, t.slug);
+      expect(homes.length, `${t.name}: ${(t.secondHomes ?? []).length} declared`).toBe(
+        (t.secondHomes ?? []).length,
+      );
+      for (const { section } of homes) {
+        expect(section.layer, `${t.name} → ${section.slug} has no layer`).not.toBeNull();
+        expect(section.role, `${t.name} → ${section.slug} is off-stack`).not.toBe(
+          "offstack",
+        );
+      }
+    }
+  });
+
+  it("never claims a tool's own section as a second home", () => {
+    for (const t of allTools) {
+      for (const home of t.secondHomes ?? []) {
+        expect(home.section, `${t.name} lists its own section`).not.toBe(
+          t.category.slug,
+        );
+      }
+    }
+  });
+
+  it("caps second homes at two", () => {
+    // Three is the same failure in a new place: the cross-reference stops
+    // distinguishing anything, and the field becomes an excuse for not picking
+    // a home. Enforced in the build guard too, but a test names the offenders.
+    const spread = allTools
+      .filter((t) => (t.secondHomes?.length ?? 0) > 2)
+      .map((t) => `${t.name} (${t.secondHomes!.length})`);
+    expect(spread).toEqual([]);
+  });
+
+  it("gives every second home a reason worth reading", () => {
+    for (const t of allTools) {
+      for (const home of t.secondHomes ?? []) {
+        // The reason is the payload. A bare cross-reference reads as a
+        // mistake, and the whole point of the field is to be checkable.
+        expect(
+          home.because.trim().length,
+          `${t.name} → ${home.section} has no usable reason`,
+        ).toBeGreaterThanOrEqual(15);
+        // A full stop, like every other sentence of prose in the dataset. The
+        // renderers append punctuation of their own where a clause is embedded
+        // in a sentence, so the field carries its own — same rule as `blurb`.
+        expect(
+          home.because.trim().endsWith("."),
+          `${t.name} → ${home.section} has no trailing stop`,
+        ).toBe(true);
+        // One sentence. A reason that sprawls is two reasons, and the second
+        // one is usually "and it is also good at something unrelated".
+        expect(
+          home.because.replace(/\.\s*$/, "").split(". ").length,
+          `${t.name} → ${home.section} runs to more than one sentence`,
+        ).toBe(1);
+      }
+    }
+  });
+
+  it("never repeats a section on one tool", () => {
+    for (const t of allTools) {
+      const sections = (t.secondHomes ?? []).map((h) => h.section);
+      expect(new Set(sections).size, `${t.name} repeats a second home`).toBe(
+        sections.length,
+      );
+    }
+  });
+
+  it("uses the field, so the mechanism is not dead weight", () => {
+    // A taxonomy feature nothing exercises is not a feature. This also pins the
+    // answer to the question that motivated it: agent memory tools are
+    // reachable from the retrieval layer, not only from the agent layer.
+    const withHomes = allTools.filter((t) => (t.secondHomes?.length ?? 0) > 0);
+    expect(withHomes.length).toBeGreaterThan(4);
+
+    const fromRetrieval = getSecondHomeTools("retrieval-vector-stores").map(
+      (e) => e.tool.name,
+    );
+    expect(fromRetrieval).toContain("Letta");
+  });
+
+  it("never lists a tool as relevant to its own section", () => {
+    for (const c of categories) {
+      for (const { tool } of getSecondHomeTools(c.slug)) {
+        expect(tool.category.slug, `${tool.name} listed on its own page`).not.toBe(
+          c.slug,
+        );
+      }
+    }
+  });
+
+  it("resolves the inverse view to the same pairs as the forward one", () => {
+    // `getSecondHomeTools` is a separate traversal from `getSecondHomes`, so a
+    // drift between them would leave one side of the cross-reference rendering
+    // links to nothing.
+    for (const t of allTools) {
+      for (const { section } of getSecondHomes(t.category.slug, t.slug)) {
+        const back = getSecondHomeTools(section.slug).find(
+          (e) => e.tool.name === t.name,
+        );
+        expect(back, `${t.name} → ${section.slug} has no inverse edge`).toBeDefined();
+        expect(back!.because).toBe(
+          t.secondHomes!.find((h) => h.section === section.slug)!.because,
+        );
+      }
+    }
   });
 
   it("only points at tools a reader would actually weigh against this one", () => {

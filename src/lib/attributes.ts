@@ -1,4 +1,4 @@
-import type { CostModel, Deployment, Role, ToolKind } from "./types";
+import type { CostModel, Deployment, Role, SecondHome, ToolKind } from "./types";
 
 /**
  * Structured facts about each tool, keyed by display name and kept separate
@@ -34,6 +34,15 @@ export type ToolAttributes = {
   useWhen: string;
   skipWhen: string;
   alternatives?: string[];
+  /**
+   * Other sections this tool genuinely belongs to, each with the reason.
+   *
+   * Lives here rather than in `data.ts` because it is a classification claim,
+   * not a link: the section slugs are validated against the dataset at build
+   * time, so this file stays the single place a tool's relationships are
+   * authored. See `Tool.secondHomes` for why this exists.
+   */
+  secondHomes?: SecondHome[];
 };
 
 /** Reading material has no deployment, implementation or licence to speak of. */
@@ -147,6 +156,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "A managed gateway with guardrails and analytics already bundled.",
     skipWhen: "Prompts cannot leave your infrastructure.",
     alternatives: ["LiteLLM", "Cloudflare AI Gateway"],
+    secondHomes: [
+      {
+        section: "guardrails-safety",
+        because: "Its guardrails run inline in the request path, which is where safety checks belong rather than after the response.",
+      },
+    ],
   },
   "Cloudflare AI Gateway": {
     kind: "service", deployment: "saas", license: "proprietary", language: null, cost: "free-tier",
@@ -203,6 +218,16 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Gateway, observability and guardrails as one managed deployment.",
     skipWhen: "You want to adopt the pieces independently.",
     alternatives: ["Portkey", "Braintrust"],
+    secondHomes: [
+      {
+        section: "evaluation-observability",
+        because: "Its tracing and dashboards are the observability half of the same deployment, not an add-on.",
+      },
+      {
+        section: "guardrails-safety",
+        because: "Its guardrails enforce in the call path alongside the gateway rather than as a separate service.",
+      },
+    ],
   },
 
   // ---- 03 Retrieval & Vector Stores ------------------------------------
@@ -396,6 +421,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Managed training runs with sweeps and artifact tracking wired up.",
     skipWhen: "You want training infrastructure you run yourself.",
     alternatives: ["Replicate", "Weights & Biases"],
+    secondHomes: [
+      {
+        section: "evaluation-observability",
+        because: "A training run is an experiment, scored against a baseline the same way an eval set scores a prompt.",
+      },
+    ],
   },
 
   // ---- 05 Agent Frameworks ---------------------------------------------
@@ -447,6 +478,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "TypeScript agents with typed workflows and evals built in.",
     skipWhen: "You are working in Python.",
     alternatives: ["Vercel AI SDK", "OpenAI Agents SDK"],
+    secondHomes: [
+      {
+        section: "evaluation-observability",
+        because: "Its eval harness ships inside the framework, so grading an agent is part of running it rather than a separate tool.",
+      },
+    ],
   },
   "OpenAI Agents SDK": {
     kind: "framework", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
@@ -454,6 +491,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "A small, legible set of primitives for handoffs and guardrails.",
     skipWhen: "You need multi-provider abstraction at every layer.",
     alternatives: ["Claude Agent SDK", "smolagents"],
+    secondHomes: [
+      {
+        section: "guardrails-safety",
+        because: "Guardrails are a first-party primitive on the runner rather than a proxy in front of it.",
+      },
+    ],
   },
   "Agno": {
     kind: "framework", deployment: "self-hosted", license: "MPL-2.0", language: "Python", cost: "free",
@@ -475,6 +518,16 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Agents whose memory is a first-class, inspectable and editable state.",
     skipWhen: "You want memory to be a detail the framework handles for you.",
     alternatives: ["smolagents", "OpenAI Agents SDK"],
+    // This is the entry that forced the second-home field. Letta's memory is
+    // persisted, queried state over an embedding store — the same layer-3 job —
+    // so a reader looking for agent memory under Retrieval was previously right
+    // to conclude the taxonomy had no answer for it.
+    secondHomes: [
+      {
+        section: "retrieval-vector-stores",
+        because: "Its memory is persisted and retrieved over an embedding store, so it is a layer-3 store with an agent API on top.",
+      },
+    ],
   },
   "smolagents": {
     kind: "framework", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
@@ -656,15 +709,25 @@ export const attributes: Record<string, ToolAttributes> = {
     skipWhen: "You need self-hosting.",
     alternatives: ["Humanloop", "Agenta", "Promptwatch"],
   },
-  // Langfuse appears once, in Evaluation & Observability. It has a prompt
-  // module, but that is a feature of the same product — listing it twice
-  // would give one tool two pages and make its attributes ambiguous.
+  // Langfuse has one home page, in Evaluation & Observability. Its prompt
+  // module is a feature of the same product, so it does not get a second page
+  // and a second copy of its attributes — but it does get a second home in
+  // Prompt Engineering, which is a cross-reference rather than a duplicate.
+  // The two requirements are different and the distinction matters: a second
+  // *page* splits the attributes, a second *home* keeps one page and tells the
+  // reader where else to look.
   "Langfuse": {
     kind: "platform", deployment: "self-hosted", license: "MIT", language: "TypeScript", cost: "free-tier",
     roles: ["production"],
     useWhen: "Self-hostable tracing, prompts and evals in one place.",
     skipWhen: "You want a fully managed product with a support contract.",
     alternatives: ["LangSmith", "Braintrust", "Arize Phoenix", "Gentrace", "Opik"],
+    secondHomes: [
+      {
+        section: "prompt-engineering",
+        because: "Its prompt registry versions prompts and ties each version to the traces and scores it produced.",
+      },
+    ],
   },
   "Agenta": {
     kind: "platform", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free-tier",
@@ -737,6 +800,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Gateway-level observability with per-request cost and latency.",
     skipWhen: "You need eval primitives more than traffic logs.",
     alternatives: ["Langfuse", "Gentrace"],
+    secondHomes: [
+      {
+        section: "routing-gateways",
+        because: "It observes at the gateway, so the requests it reports on have already passed through layer 2.",
+      },
+    ],
   },
   "Weights & Biases": {
     kind: "platform", deployment: "saas", license: "proprietary", language: null, cost: "usage-based",
@@ -744,6 +813,16 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Experiment tracking and a model registry, with eval surfaces on top.",
     skipWhen: "You need an open, exportable format.",
     alternatives: ["Weights & Biases Launch", "LangSmith"],
+    secondHomes: [
+      {
+        section: "fine-tuning",
+        because: "The model registry and experiment ledger it is known for are training-time surfaces; this entry carries its eval half.",
+      },
+      {
+        section: "workflow-orchestration",
+        because: "Sweeps and artifact tracking are the orchestration of many training runs, which is the layer 6 job.",
+      },
+    ],
   },
   "OpenTelemetry": {
     kind: "library", deployment: "self-hosted", license: "Apache-2.0", language: "multi", cost: "free",
@@ -757,6 +836,12 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Prompt and eval work with a visual debugger for chains.",
     skipWhen: "Self-hosting or reproducibility is a requirement.",
     alternatives: ["Humanloop", "Braintrust"],
+    secondHomes: [
+      {
+        section: "prompt-engineering",
+        because: "Prompts are versioned artifacts here, diffed and promoted rather than edited in place.",
+      },
+    ],
   },
   "Gentrace": {
     kind: "platform", deployment: "self-hosted", license: "Apache-2.0", language: "TypeScript", cost: "free-tier",

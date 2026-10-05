@@ -48,4 +48,27 @@ describe("buildDataset", () => {
       expect(r.owns.length, r.id).toBeGreaterThan(10);
     }
   });
+
+  it("publishes second homes with a resolvable section and layer", () => {
+    // `layer` is the field an agent filters on and it is single-valued, so
+    // without this the taxonomy's overlaps are invisible to the machine
+    // reader — which is the whole audience for tools.json.
+    const known = new Set(d.sections.map((s) => s.slug));
+    for (const t of d.tools) {
+      for (const home of t.alsoIn) {
+        expect(known.has(home.section), `${t.name} → ${home.section}`).toBe(true);
+        expect(home.layer, `${t.name} → ${home.section}`).not.toBeNull();
+        expect(home.because.length, `${t.name} → ${home.section}`).toBeGreaterThan(10);
+        // Never the tool's own section, which would be a duplicate row.
+        expect(home.section, `${t.name} lists its own section`).not.toBe(t.section);
+      }
+    }
+  });
+
+  it("agrees with the dataset's own second-home counts", () => {
+    const declared = d.tools.reduce((n, t) => n + t.alsoIn.length, 0);
+    const authored = allTools.reduce((n, t) => n + (t.secondHomes?.length ?? 0), 0);
+    expect(declared).toBe(authored);
+    expect(declared).toBeGreaterThan(0);
+  });
 });

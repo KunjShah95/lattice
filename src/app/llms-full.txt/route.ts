@@ -1,4 +1,10 @@
-import { categories, getAlternatives, toolCount, toolsByRole } from "@/lib/data";
+import {
+  categories,
+  getAlternatives,
+  getSecondHomeTools,
+  toolCount,
+  toolsByRole,
+} from "@/lib/data";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { glossary } from "@/lib/glossary";
@@ -65,7 +71,47 @@ export function GET() {
       // now answer without the reader paging through 112 entries.
       lines.push(`- Owned by: ${tool.roles.map((r) => roleTitle(r)).join(", ")}`);
       if (alternatives.length) lines.push(`- Alternatives: ${alternatives.join(", ")}`);
+      // Second homes, because "which layer does X belong to" is answered
+      // incompletely by the heading this tool appears under. The reason is
+      // carried because the bare section name would read as a duplicate entry.
+      for (const home of tool.secondHomes ?? []) {
+        lines.push(`- Also in ${home.section}: ${home.because}`);
+      }
       lines.push("");
+    }
+  }
+
+  /**
+   * The cross-layer view, keyed by section instead of by tool.
+   *
+   * The per-tool "Also in" lines above are scattered through the document, one
+   * per tool, so an agent holding a question of the shape "what do I use for
+   * agent memory" has to know which tools to look up before it can answer.
+   * This section is the inverse index: for each layer, the tools that serve it
+   * without living there. It is the only place the taxonomy's overlaps are
+   * legible as a whole rather than one pair at a time.
+   */
+  const overlaps = categories
+    .map((c) => ({ category: c, entries: getSecondHomeTools(c.slug) }))
+    .filter(({ entries }) => entries.length > 0);
+  if (overlaps.length) {
+    lines.push("## Tools that span layers", "");
+    lines.push(
+      "Each tool below has one home section and is listed under every other layer it also serves.",
+      "",
+    );
+    for (const { category, entries } of overlaps) {
+      lines.push(
+        `### ${category.title}`,
+        "",
+        `${site.url}/${category.slug}`,
+        "",
+        ...entries.map(
+          (e) =>
+            `- ${e.tool.name} — also indexed in ${e.tool.category.title} (${site.url}/${e.tool.category.slug}/${e.tool.slug}): ${e.because}`,
+        ),
+        "",
+      );
     }
   }
 

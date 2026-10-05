@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategorySection } from "@/components/category-section";
-import { categories, getCategory } from "@/lib/data";
+import { categories, getCategory, getSecondHomeTools } from "@/lib/data";
+import { layerStyle } from "@/lib/layer";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -36,6 +37,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   if (!category) notFound();
 
   const siblings = categories.filter((c) => c.slug !== slug);
+  // Tools whose home is another layer but which declare this one too. Without
+  // this block, a second home is only visible from the tool's own page, so a
+  // reader who arrives at the layer where the tool actually matters — agent
+  // memory under Retrieval, a prompt registry under Prompt Engineering — never
+  // learns it is here.
+  const alsoHere = getSecondHomeTools(slug);
   const position = categories.findIndex((c) => c.slug === slug);
   const prev = position > 0 ? categories[position - 1] : null;
   const next = position < categories.length - 1 ? categories[position + 1] : null;
@@ -82,6 +89,53 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
       />
 
       <CategorySection category={category} headingLevel="h1" />
+
+      {/* Also here from another layer. Same content as the tool page's "Also
+          belongs in", reached from the other end — which is the direction that
+          was missing. The swatch is the tool's *home* layer, so the pair reads
+          as "this layer, and that one" rather than a second list of tools that
+          look native here. */}
+      {alsoHere.length ? (
+        <section className="border-t border-border py-10">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Also relevant here
+          </h2>
+          <p className="mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+            These tools are indexed in another layer, but they also do{" "}
+            {category.title.toLowerCase()}&apos;s job. Each carries its home
+            layer&apos;s colour.
+          </p>
+          <ul className="mt-5 space-y-px">
+            {alsoHere.map(({ tool, because }) => (
+              <li key={`${tool.category.slug}-${tool.slug}`}>
+                <Link
+                  href={`/${tool.category.slug}/${tool.slug}`}
+                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
+                    style={layerStyle(tool.category.layer)}
+                  />
+                  <span className="min-w-0">
+                    <span className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="text-[15px] font-medium group-hover:text-accent">
+                        {tool.name}
+                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                        {tool.category.short}
+                      </span>
+                    </span>
+                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                      {because}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* Prev / next */}
       <nav

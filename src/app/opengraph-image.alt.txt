@@ -1,1 +1,0 @@
-Lattice — the infrastructure behind working AI systems: 112 tools across nine stack layers

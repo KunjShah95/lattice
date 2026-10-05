@@ -30,6 +30,12 @@ export type FacetRow = {
   categorySlug: string;
   categoryShort: string;
   layer: number | null;
+  /**
+   * Other sections this tool also serves, as slugs. Optional so the facet
+   * logic can be exercised with rows built by hand in tests; every row the
+   * dataset actually ships carries it.
+   */
+  secondHomes?: string[];
 };
 
 /**
@@ -210,6 +216,12 @@ export function matchesQuery(row: FacetRow, query: string): boolean {
     row.skipWhen.toLowerCase().includes(q) ||
     (row.license?.toLowerCase().includes(q) ?? false) ||
     (row.language?.toLowerCase().includes(q) ?? false) ||
-    row.roles.some((r) => r.toLowerCase().includes(q))
+    row.roles.some((r) => r.toLowerCase().includes(q)) ||
+    // Section slugs, so a reader filtering the flat explorer for "guardrails"
+    // or "workflow-orchestration" finds the tools that only reach that layer as
+    // a second home. Without this the cross-reference exists on the tool and
+    // section pages but not in the one view a reader uses to search the whole
+    // index, which is where "where does X live" actually gets asked.
+    (row.secondHomes ?? []).some((s) => s.toLowerCase().includes(q))
   );
 }

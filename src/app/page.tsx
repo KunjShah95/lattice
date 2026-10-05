@@ -55,18 +55,24 @@ export default function HomePage() {
               Here; this says what happens when you click.
             */}
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a
-                href="#start-here"
+              <Link
+                href="/stack-builder"
                 className="inline-flex items-center gap-2 rounded-md bg-fg px-4 py-2.5 text-[14px] font-medium text-bg transition-opacity hover:opacity-90"
               >
-                Find my starting layers
-                <span aria-hidden="true">↓</span>
+                Build my stack
+                <span aria-hidden="true">→</span>
+              </Link>
+              <a
+                href="#start-here"
+                className="text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                or find my starting layers ↓
               </a>
               <Link
                 href="/all"
                 className="text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
               >
-                or browse all {toolCount}
+                browse all {toolCount}
               </Link>
             </div>
 

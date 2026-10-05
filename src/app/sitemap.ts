@@ -41,6 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${site.url}/stack-builder`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
       url: `${site.url}/glossary`,
       lastModified,
       changeFrequency: "monthly",
@@ -63,6 +69,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.85,
+    },
+    // Submission intake. Listed because `/methodology` links to it and a
+    // methodology page whose stated route for contributing is not in the
+    // sitemap is a small dead end. Low priority: it is a form, and a form that
+    // ranks is not doing the job the rest of this sitemap is for.
+    {
+      url: `${site.url}/submit`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.4,
     },
     ...ROLES.map((r) => ({
       url: `${site.url}/roles/${r.id}`,

@@ -11,7 +11,7 @@
  * `/search-index.json` route that serves it on demand, and the test that
  * guards its shape. The palette fetches it the first time it is opened.
  */
-import { categories } from "@/lib/data";
+import { categories, getCategory } from "@/lib/data";
 import { allAlternativesPages } from "@/lib/alternatives";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
@@ -37,6 +37,15 @@ export function buildSearchEntries(): SearchEntry[] {
         // Display strings, not ids: the fuzzy haystack matches what a reader
         // types ("infra", "platform"), not the internal slug.
         roles: tool.roles.map((r) => roleTitle(r)),
+        // Second-home sections as display titles, for the same reason as roles
+        // above. Someone typing "guardrails" or "agent memory" is describing a
+        // layer, not a tool, and a tool that reaches that layer only as a
+        // second home should be findable by the layer's name. The slugs would
+        // also match, but a slug read out in the palette's category line looks
+        // like a filename.
+        alsoIn: (tool.secondHomes ?? []).map(
+          (h) => getCategory(h.section)?.title ?? h.section,
+        ),
       })),
     ),
     // Essays — the site's actual argument. Excluding these meant a query for

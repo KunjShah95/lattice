@@ -36,6 +36,17 @@ export type CostModel =
  */
 export type Role = "platform" | "serving" | "data" | "applied" | "production";
 
+/**
+ * One declared second home: another section a tool belongs to, and the clause
+ * explaining why. See `Tool.secondHomes`.
+ */
+export type SecondHome = {
+  /** Section slug. Must resolve to a real, in-stack section. */
+  section: string;
+  /** One clause: why this tool belongs in that section too. Rendered as prose. */
+  because: string;
+};
+
 export type Tool = {
   /** URL-safe identifier, unique within a section. */
   slug: string;
@@ -89,6 +100,26 @@ export type Tool = {
    * seed the alternatives graph and the hand-written comparisons.
    */
   alternatives?: string[];
+
+  /**
+   * Other sections this tool genuinely belongs to, with the reason it does.
+   *
+   * A tool has exactly one home section, but not every tool has only one layer.
+   * W&B runs training experiments and scores LLM outputs; Letta's memory *is* an
+   * embedding store with an agent API on top; Vellum versions prompts and grades
+   * chains. Forcing each of those into one section is how a layer-ordered index
+   * ends up quietly lying about where a tool sits — the reader finds it in the
+   * one place it does not matter to them and concludes the index is wrong.
+   *
+   * `because` is required and rendered. The reason is the whole payload: a bare
+   * cross-reference reads as a mistake, and a reader who cannot see why a tool
+   * is in two sections has no way to judge whether the second placement is real.
+   *
+   * This is not the same as a `crosscutting` *section*. Evals span the stack as
+   * a category of tool; a second home says one tool has two jobs. Capped at two
+   * by the build guard, for the same reason roles are — see `data.ts`.
+   */
+  secondHomes?: SecondHome[];
 
   // ---- Provenance -------------------------------------------------------
 

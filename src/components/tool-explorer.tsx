@@ -238,6 +238,15 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
                   <span className="mt-1 block text-pretty text-[12.5px] leading-relaxed text-fg-subtle">
                     <span className="text-fg-muted">Use when</span> {t.useWhen}
                   </span>
+                  {/* A compact marker, not a second list entry: the explorer
+                      answers "where does this live" and the honest answer is
+                      "here, and there too". The reason for the second home is on
+                      the tool page, which has room for it. */}
+                  {t.secondHomes?.length ? (
+                    <span className="mt-1 block font-mono text-[10.5px] text-fg-subtle">
+                      also in {t.secondHomes.join(", ")}
+                    </span>
+                  ) : null}
                 </span>
                 <a
                   href={`https://${t.domain}`}

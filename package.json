@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "og:render": "node scripts/render-og.mjs",
+    "icons:render": "node scripts/render-icons.mjs",
     "og:probe": "node scripts/og-probe.mjs",
     "og:check": "python scripts/check-og-bounds.py og-out",
     "verify": "npm run generate && npm run lint && npm run test && npm run next:build",

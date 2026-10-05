@@ -34,6 +34,7 @@
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { MARK_CELLS } from "@/components/logo";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -159,48 +160,34 @@ function titleSize(title: string): number {
 }
 
 /**
- * The lattice glyph from components/logo.tsx, drawn with divs rather than
- * inline SVG. Satori's SVG support is real but partial, and four rounded
- * rectangles are not worth a rendering edge case — `position: absolute` is
- * supported everywhere and always behaves.
+ * The mark from components/logo.tsx, drawn with divs rather than inline SVG.
+ * Satori's SVG support is real but partial, and nine squares are not worth a
+ * rendering edge case — `position: absolute` is supported everywhere and
+ * always behaves.
  *
- * The asymmetry is what makes it read as a lattice rather than a grid: two
- * cells are full pills, two are near-square outlines, and exactly one is
- * filled. A 2x2 of identical squares is a favicon.
+ * `joint` colours the corner cell. On a layered card it takes the band tint,
+ * so the one coloured square in the masthead says which band the page is in;
+ * on the home card it keeps the accent, as on the live site.
  */
-function Glyph({ size = 30, color }: { size?: number; color: string }) {
-  const cell = Math.round(size * 0.4);
-  const gap = Math.round(size * 0.16);
-  const step = cell + gap;
-  const stroke = Math.max(2, Math.round(size * 0.075));
-  const cells: Array<{ x: number; y: number; r: number; filled: boolean }> = [
-    { x: 0, y: 0, r: cell, filled: false },
-    { x: step, y: 0, r: Math.round(cell * 0.2), filled: false },
-    { x: 0, y: step, r: Math.round(cell * 0.2), filled: false },
-    { x: step, y: step, r: Math.round(cell * 0.2), filled: true },
-  ];
+function Glyph({ size = 30, ink = C.fg, joint }: { size?: number; ink?: string; joint: string }) {
+  // Whole pixels, in the mark's 5:1.5 cell-to-gutter ratio.
+  const cell = Math.round((size * 5) / 18);
+  const step = Math.round((size * 6.5) / 18);
+  const dot = Math.max(2, Math.round(cell * 0.3));
   return (
-    <div
-      style={{
-        position: "relative",
-        width: size,
-        height: size,
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      {cells.map((c, i) => (
+    <div style={{ position: "relative", width: size, height: size, display: "flex" }}>
+      {MARK_CELLS.map(({ col, row, kind }) => (
         <div
-          key={i}
+          key={`${col}${row}`}
           style={{
             position: "absolute",
-            left: c.x,
-            top: c.y,
-            width: cell,
-            height: cell,
-            borderRadius: c.r,
-            border: c.filled ? "none" : `${stroke}px solid ${color}`,
-            backgroundColor: c.filled ? color : "transparent",
+            left: col * step + (kind === "dot" ? (cell - dot) / 2 : 0),
+            top: row * step + (kind === "dot" ? (cell - dot) / 2 : 0),
+            width: kind === "dot" ? dot : cell,
+            height: kind === "dot" ? dot : cell,
+            borderRadius: kind === "dot" ? dot / 2 : Math.max(1, Math.round(cell * 0.15)),
+            backgroundColor: kind === "joint" ? joint : ink,
+            opacity: kind === "dot" ? 0.4 : 1,
           }}
         />
       ))}
@@ -531,7 +518,7 @@ export function OgCard({
     >
       {/* Masthead: wordmark left, depth badge right. */}
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Glyph color={tint} />
+        <Glyph joint={band ? tint : C.accent} />
         <div style={{ display: "flex", marginLeft: 15 }}>
           <Label color={C.fg} size={22} tracking={2}>
             {siteName.toUpperCase()}
@@ -662,6 +649,218 @@ export function OgCard({
         >
           <Label color={C.subtle} size={20} tracking={1.2}>
             {clamp(footNote ?? meta, 62).toUpperCase()}
+          </Label>
+          <div style={{ display: "flex", marginLeft: "auto" }}>
+            <Label color={C.accent} size={20} tracking={1.2}>
+              {siteHost.toUpperCase()}
+            </Label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The home card. Not a variant of `OgCard`, because its job is different: a
+ * section card answers "where is this page", the home card answers "what is
+ * this site", and the honest answer is a drawing of the stack.
+ *
+ * So the right half is a section elevation — the nine layers drawn top-down
+ * from the surface to the substrate, the way a cross-section of a building is,
+ * with a dimension bracket marking each band. Every label is the real section
+ * title and every bracket the real band boundary; nothing on the card is
+ * illustration. Layer 01 is outlined in the accent because it is the substrate
+ * the rest bears on, which is the same claim the accent corner of the mark
+ * makes.
+ */
+export function OgHomeCard({
+  layers,
+  toolCount,
+  siteName,
+  siteHost,
+}: {
+  /** Stack layers, any order. Drawn top-down from 9 to 1. */
+  layers: Array<{ layer: number; title: string }>;
+  toolCount: number;
+  siteName: string;
+  siteHost: string;
+}) {
+  const ROW = 34;
+  const ROW_GAP = 4;
+  const BAND_GAP = 13;
+  const bands = BANDS_SURFACE_FIRST.map((b) => ({
+    ...b,
+    rows: b.layers.flatMap((n) => layers.filter((l) => l.layer === n)),
+  }));
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: C.bg,
+        backgroundImage: `linear-gradient(152deg, ${C.bgLift} 0%, ${C.bg} 44%, #08080a 100%), linear-gradient(${C.grid} 1px, transparent 1px), linear-gradient(90deg, ${C.grid} 1px, transparent 1px)`,
+        backgroundSize: "100% 100%, 64px 64px, 64px 64px",
+        padding: "54px 64px 50px",
+        fontFamily: SANS,
+      }}
+    >
+      {/* Masthead. */}
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <Glyph size={32} joint={C.accent} />
+        <div style={{ display: "flex", marginLeft: 15 }}>
+          <Label color={C.fg} size={22} tracking={2}>
+            {siteName.toUpperCase()}
+          </Label>
+        </div>
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Label color={C.subtle} size={18} tracking={2}>
+            {`${toolCount} TOOLS · 9 LAYERS · 3 BANDS`}
+          </Label>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        {/* Thesis. Lines are broken by hand; Satori's reflow is not trusted. */}
+        <div style={{ display: "flex", flexDirection: "column", width: 500 }}>
+          <Label color={C.accent} size={19} tracking={3}>
+            A CURATED INDEX
+          </Label>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
+            {["The layers", "behind working", "AI systems."].map((line) => (
+              <div
+                key={line}
+                style={{
+                  display: "flex",
+                  fontFamily: SERIF,
+                  fontSize: 64,
+                  lineHeight: 1.06,
+                  letterSpacing: -1.6,
+                  color: C.fg,
+                }}
+              >
+                {line}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 22 }}>
+            {["Ordered by where each tool sits in", "a real system, not by who paid."].map(
+              (line) => (
+                <div
+                  key={line}
+                  style={{
+                    display: "flex",
+                    fontSize: 23,
+                    lineHeight: 1.4,
+                    letterSpacing: -0.2,
+                    color: C.muted,
+                  }}
+                >
+                  {line}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+
+        {/* Section elevation. */}
+        <div style={{ display: "flex", flexDirection: "column", marginLeft: "auto" }}>
+          {bands.map((band, bi) => {
+            const h = band.rows.length * ROW + (band.rows.length - 1) * ROW_GAP;
+            const tint = BAND_HEX[band.id];
+            const [numeral, name] = BAND_LABEL[band.id].split(" · ");
+            return (
+              <div
+                key={band.id}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  marginTop: bi === 0 ? 0 : BAND_GAP,
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", width: 372 }}>
+                  {band.rows.map((row, ri) => (
+                    <div
+                      key={row.layer}
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        height: ROW,
+                        marginTop: ri === 0 ? 0 : ROW_GAP,
+                        backgroundColor: C.bgLift,
+                        border: `1px solid ${row.layer === 1 ? C.accent : C.border}`,
+                        borderLeft: `4px solid ${tint}`,
+                        borderRadius: 2,
+                        paddingLeft: 12,
+                        paddingRight: 12,
+                      }}
+                    >
+                      <Label color={C.subtle} size={14} tracking={1}>
+                        {String(row.layer).padStart(2, "0")}
+                      </Label>
+                      <div
+                        style={{
+                          display: "flex",
+                          marginLeft: 12,
+                          fontSize: 17,
+                          color: C.fg,
+                          letterSpacing: -0.1,
+                        }}
+                      >
+                        {clamp(row.title, 30)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Dimension bracket: a ticked line spanning the band. */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    width: 10,
+                    height: h,
+                    marginLeft: 12,
+                    borderRight: `2px solid ${C.borderFirm}`,
+                  }}
+                >
+                  <div style={{ display: "flex", width: 10, height: 2, backgroundColor: C.borderFirm }} />
+                  <div style={{ display: "flex", width: 10, height: 2, backgroundColor: C.borderFirm }} />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    height: h,
+                    marginLeft: 12,
+                    width: 92,
+                  }}
+                >
+                  <Label color={tint} size={15} tracking={1.5}>
+                    {numeral}
+                  </Label>
+                  <Label color={C.muted} size={14} tracking={1.5}>
+                    {name.toUpperCase()}
+                  </Label>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <Rule />
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", paddingTop: 20 }}>
+          <Label color={C.subtle} size={20} tracking={1.2}>
+            HAND-PICKED · NO SPONSORED PLACEMENT
           </Label>
           <div style={{ display: "flex", marginLeft: "auto" }}>
             <Label color={C.accent} size={20} tracking={1.2}>

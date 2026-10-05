@@ -4,7 +4,14 @@ import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
 import { roleTitle, rolesInOrder } from "@/lib/roles";
 import { StackSpine } from "@/components/stack-spine";
-import { allTools, getAlternatives, getAlternativeTo, getSiblingTools, getTool } from "@/lib/data";
+import {
+  allTools,
+  getAlternatives,
+  getAlternativeTo,
+  getSecondHomes,
+  getSiblingTools,
+  getTool,
+} from "@/lib/data";
 import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { hasAlternativesPage } from "@/lib/alternatives";
@@ -81,6 +88,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   const sectionPosts = postsForSection(categorySlug);
   const alternatives = getAlternatives(categorySlug, toolSlug);
   const alternativeTo = getAlternativeTo(categorySlug, toolSlug);
+  const secondHomes = getSecondHomes(categorySlug, toolSlug);
 
   // Comparisons that include this tool — the most valuable links on the page,
   // because they are the only place a tool appears in a decision context.
@@ -303,6 +311,43 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             section for the rest of the options.
           </span>
         </p>
+
+        {/* Second homes. A layer-ordered index that pretends every tool has
+            exactly one layer is convenient and wrong: the tools that span two
+            — an agent runtime whose memory is a vector store, an eval platform
+            whose registry versions prompts — are the ones a reader most needs
+            to find from the *other* direction. The reason is shown, because an
+            unexplained cross-reference reads as a mistake. */}
+        {secondHomes.length ? (
+          <div className="mt-5 border-l-2 border-border-strong pl-3.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+              Also belongs in
+            </h2>
+            <ul className="mt-2 space-y-1.5">
+              {secondHomes.map(({ section, because }) => (
+                <li
+                  key={section.slug}
+                  className="flex flex-wrap items-baseline gap-x-2 text-[13.5px] leading-relaxed text-fg-muted"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-[2px] shrink-0 translate-y-0.5 rounded-full"
+                    style={layerStyle(section.layer)}
+                  />
+                  <Link
+                    href={`/${section.slug}`}
+                    className="shrink-0 font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                  >
+                    {section.title}
+                  </Link>
+                  {/* `because` carries its own full stop, so nothing is appended
+                      here. Enforced by the build guard in `data.ts`. */}
+                  <span className="min-w-0">{because}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         <a
           href={tool.url}

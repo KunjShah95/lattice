@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
  */
 const links = [
   { href: "/", label: "Index" },
+  { href: "/stack-builder", label: "Stack Builder" },
   { href: "/fix", label: "Fix" },
   { href: "/all", label: "All tools" },
   { href: "/roles", label: "Roles" },

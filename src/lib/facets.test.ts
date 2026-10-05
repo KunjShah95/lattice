@@ -233,6 +233,23 @@ describe("matchesQuery", () => {
   it("returns false for a term in no field", () => {
     expect(matchesQuery(r, "kubernetes")).toBe(false);
   });
+
+  it("matches a section the tool only reaches as a second home", () => {
+    // The flat explorer is where "where does guardrails live" gets asked. A
+    // tool whose guardrails are a feature of its gateway is invisible to that
+    // query unless the second-home slugs are searchable.
+    const gateway = row({ name: "SomeGateway", secondHomes: ["guardrails-safety"] });
+    expect(matchesQuery(gateway, "guardrails")).toBe(true);
+    expect(matchesQuery(gateway, "guardrails-safety")).toBe(true);
+    // Not a home, so no match.
+    expect(matchesQuery(gateway, "routing")).toBe(false);
+  });
+
+  it("tolerates rows with no second homes at all", () => {
+    const plain = row({ name: "vLLM" });
+    expect(plain.secondHomes).toBeUndefined();
+    expect(matchesQuery(plain, "vllm")).toBe(true);
+  });
 });
 
 describe("activeFilterCount", () => {

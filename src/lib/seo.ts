@@ -243,6 +243,10 @@ export function siteJsonLd() {
       "@id": ids.organization,
       name: site.name,
       url: site.url,
+      // The 180px Apple touch icon doubles as the logo Google shows beside
+      // results: it is raster, square and over the 112px minimum, which the
+      // SVG icon is not. Regenerate with `npm run icons:render`.
+      logo: `${site.url}/apple-icon.png`,
       sameAs: [site.contact.x],
     },
   ];

@@ -1,0 +1,137 @@
+# Turns a labelled submission issue into a draft pull request, and refuses to
+# let that pull request merge until a human has edited it.
+#
+# WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT DO
+#
+# It fills in the fields that are facts and leaves the fields that are
+# judgements. Licence, language and whether public releases exist come from the
+# GitHub API, where a reviewer can check them. The layer, `cost`, `roles` and the
+# use-when/skip-when pair are left as `TODO`, because those are the argument the
+# index is making and `methodology` §01 claims a human makes it.
+#
+# So this workflow produces a PR that cannot merge as-is. That is the design, not
+# a limitation: an automated pipeline that fills in the judgement fields is the
+# vote-count directory this site argues against, and the difference is only
+# visible in a merge gate nobody can bypass.
+#
+# The gate is `submission-check`, below. It reads a marker in the PR body rather
+# than relying on branch protection, because a single-maintainer repository
+# cannot depend on `required_reviews`. It also greps the diff for `TODO`, so
+# flipping the marker by hand does not get an unfinished draft through.
+
+name: Submission
+
+on:
+  issues:
+    types: [labeled, edited, reopened]
+  pull_request:
+    branches: ["submission/**"]
+  # Manual dispatch, because the first run of anything like this should be
+  # triggered deliberately rather than discovered by an unrelated issue edit.
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Issue number to triage"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+# One triage per issue at a time. Two runs racing to open two PRs for one
+# submission is the failure mode worth guarding; the script also treats a 422
+# from GitHub as "a PR already exists" rather than as a failure.
+concurrency:
+  group: submission-${{ github.event.inputs.issue || github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    # The label check is the real filter. `edited` re-fires on any body change,
+    # which is how an issue that gets labelled later is picked up.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && github.event.issue.labels.some(l => l.name == 'submission'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # `contents: write` is declared above, so this token can push. No PAT, so
+      # a leaked log cannot exceed what this job already can do.
+      - name: Read the issue and write a branch
+        id: triage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue || github.event.issue.number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login || 'unknown' }}
+          ISSUE_TITLE: ${{ github.event.issue.title || '' }}
+          ISSUE_URL: ${{ github.event.issue.html_url || '' }}
+          REPO_SLUG: ${{ github.repository }}
+        run: node scripts/triage-submission.mjs
+
+      # Belt and braces against the harness ever running against the checkout it
+      # was pointed at. The script's own guard is that it only runs in CI, but a
+      # stray local run with a real token would push a branch from someone's
+      # working tree, and that is not recoverable by `git checkout main`.
+      - name: Confirm the push did not move this checkout
+        if: always()
+        run: |
+          branch=$(git branch --show-current)
+          if [ "$branch" != "main" ]; then
+            echo "::error::triage left the checkout on '$branch'. Expected main."
+            exit 1
+          fi
+
+  check:
+    # Fires on the PR the draft job opened. `github-script` needs the
+    # pull_request payload, which is why this is a separate job rather than a
+    # step in `draft` — that job's event is an issue, and a pull_request step
+    # there would read `undefined` and pass vacuously.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submission check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const number = pr.number;
+            const body = pr.body ?? '';
+
+            const marker = 'lattice:submission-status=';
+            const status = body.split(marker)[1]?.trim().split(/\s/)[0] ?? 'blocked';
+
+            // Fails closed. An absent, garbled or misspelt marker blocks, because
+            // a gate that can be bypassed by a typo is not a gate.
+            if (status !== 'ready') {
+              core.setFailed(
+                `Submission is blocked (marker reads "${status}"). Fill in every ` +
+                `TODO in the diff — layer, cost, roles, use/skip, blurb — then set ` +
+                `the marker to \`ready\` and re-run. A submission cannot publish itself.`,
+              );
+              return;
+            }
+
+            // The marker is a claim; this is the check. Flipping it without
+            // finishing the entry is the one thing that would make the whole
+            // pipeline a way to publish unreviewed text, so it is verified
+            // against the diff rather than trusted.
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: number,
+            });
+
+            const unfinished = files.filter((f) => /TODO/.test(f.patch ?? ''));
+            if (unfinished.length) {
+              core.setFailed(
+                `Marker says ready but ${unfinished.length} file(s) still contain TODO: ` +
+                `${unfinished.map((f) => f.filename).join(', ')}.`,
+              );
+            }
