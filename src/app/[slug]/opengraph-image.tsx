@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getCategory } from "@/lib/data";
+import { categories, getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgCard, bandLabel } from "@/lib/og";
 
@@ -8,7 +8,17 @@ export const alt = "Section cover";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-/** Cover image for a stack layer, generated on demand. */
+/**
+ * Prerendered at build time, mirroring the page's own params. On the Worker
+ * there is no filesystem behind `process.cwd()`, so the font reads in
+ * lib/og.tsx fail and an on-demand render returns a 500 — which is what every
+ * card in this segment did in production before this existed.
+ */
+export function generateStaticParams() {
+  return categories.map((c) => ({ slug: c.slug }));
+}
+
+/** Cover image for a stack layer. */
 export default async function Image({
   params,
 }: {

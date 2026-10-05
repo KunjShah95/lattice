@@ -304,7 +304,7 @@ src/
     compare/page.tsx        Comparison index, split across-layers vs substitutes
     compare/[slug]/         Comparison table, recommendation, backlinks
     methodology/page.tsx    How entries are chosen and checked, and where this is wrong
-    opengraph-image.tsx     Home cover image
+    opengraph-image.jpg     Home cover image (designed, static)
     feed.xml/route.ts       RSS of the essays
     sitemap.ts              Every indexable route, 250 URLs
     robots.ts               Allow answer engines, block training crawlers
@@ -552,7 +552,7 @@ not have, both show up in the summary. Current state: **250/250**, mean 70 KB.
 
 | Route | Card |
 | --- | --- |
-| `/` | Home |
+| `/` | Home — a static designed image, `src/app/opengraph-image.jpg` (source: `assets/image.png`) |
 | `/<section>` | Section |
 | `/<section>/<tool>` | Tool |
 | `/<section>/<tool>/alternatives` | Alternatives |

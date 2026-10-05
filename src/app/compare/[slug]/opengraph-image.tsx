@@ -9,6 +9,16 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 
 /**
+ * Prerendered at build time, mirroring the page's own params. On the Worker
+ * there is no filesystem behind `process.cwd()`, so the font reads in
+ * lib/og.tsx fail and an on-demand render returns a 500 — which is what every
+ * card in this segment did in production before this existed.
+ */
+export function generateStaticParams() {
+  return resolvedComparisons.map((c) => ({ slug: c.slug }));
+}
+
+/**
  * The verdict is a full paragraph, which is the wrong shape for a card: at
  * 1200x630 it runs six lines and unbalances the whole layout. Take the first
  * sentence and cap it, so every comparison card composes the same way.

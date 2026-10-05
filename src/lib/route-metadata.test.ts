@@ -295,11 +295,15 @@ describe("role index structured data", () => {
 
 describe("share image coverage", () => {
   const appDir = path.join(process.cwd(), "src", "app");
+  // The home card is a designed static image rather than a generated one, so a
+  // segment counts as covered by either form of the file convention.
+  const CARD_FILES = ["opengraph-image.tsx", "opengraph-image.jpg", "opengraph-image.png"];
+  const hasCard = (dir: string) => CARD_FILES.some((f) => fs.existsSync(path.join(dir, f)));
 
   it("has an opengraph-image route in every segment that is shared", () => {
     const missing = SEGMENTS_WITH_CARDS.filter((segment) => {
       const dir = segment ? path.join(appDir, segment) : appDir;
-      return !fs.existsSync(path.join(dir, "opengraph-image.tsx"));
+      return !hasCard(dir);
     });
     expect(missing).toEqual([]);
   });
@@ -315,7 +319,7 @@ describe("share image coverage", () => {
         if (entry.name.startsWith("(")) continue; // route groups
         const next = path.join(dir, entry.name);
         const child = segment ? `${segment}/${entry.name}` : entry.name;
-        if (fs.existsSync(path.join(next, "opengraph-image.tsx"))) {
+        if (hasCard(next)) {
           if (!SEGMENTS_WITH_CARDS.includes(child)) orphans.push(child);
         }
         walk(next, child);
@@ -324,5 +328,20 @@ describe("share image coverage", () => {
 
     walk(appDir, "");
     expect(orphans).toEqual([]);
+  });
+
+  it("prerenders every dynamic card instead of rendering it on the Worker", () => {
+    // lib/og.tsx reads its fonts from `process.cwd()`, which exists at build
+    // time and not on Cloudflare. A dynamic card with no `generateStaticParams`
+    // is rendered on demand there and returns a 500 — 81 of 250 cards did, and
+    // every page still declared its og:image, so nothing else noticed.
+    const onDemand = SEGMENTS_WITH_CARDS.filter((segment) => {
+      if (!segment.includes("[")) return false;
+      const file = path.join(appDir, segment, "opengraph-image.tsx");
+      return !/export\s+(async\s+)?function\s+generateStaticParams\b/.test(
+        fs.readFileSync(file, "utf8"),
+      );
+    });
+    expect(onDemand).toEqual([]);
   });
 });
