@@ -24,7 +24,7 @@ export function CategorySection({
     >
       <div className="flex gap-4 sm:gap-6">
         {/* Layer rule + ordinal */}
-        <div className="flex shrink-0 flex-col items-center gap-3 sm:w-12">
+        <div className="flex shrink-0 flex-col items-center gap-3 self-stretch sm:w-12">
           <span
             aria-hidden="true"
             className={`h-10 w-[3px] rounded-full ${isOffStack ? "opacity-30" : ""}`}
@@ -33,6 +33,12 @@ export function CategorySection({
           <span className="font-mono text-[13px] tabular-nums text-fg-subtle sm:text-[15px]">
             {category.index}
           </span>
+          {/* A dimension line runs from the ordinal down the length of the
+              section, so the tools below read as hanging off their layer. */}
+          <span
+            aria-hidden="true"
+            className="hidden w-px flex-1 bg-gradient-to-b from-border-strong to-transparent sm:block"
+          />
         </div>
 
         <div className="min-w-0 flex-1">

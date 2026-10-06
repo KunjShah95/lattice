@@ -42,7 +42,10 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label="Toggle colour theme"
       title="Toggle colour theme"
-      className="grid h-8 w-8 place-items-center rounded-md text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+      // Both glyphs occupy the same grid cell and trade places with a quarter
+      // turn: the sun sets as the moon rises. Still pure CSS on the `dark`
+      // class, so the toggle keeps holding no React state.
+      className="press grid h-9 w-9 place-items-center rounded-md text-fg-muted hover:bg-bg-sunken hover:text-fg [&>svg]:col-start-1 [&>svg]:row-start-1 [&>svg]:transition-[translate,scale,rotate,opacity] [&>svg]:duration-500 [&>svg]:ease-[var(--ease-spring)]"
     >
       {/* Shown in light mode — offers the switch to dark. */}
       <svg
@@ -54,7 +57,7 @@ export function ThemeToggle() {
         strokeWidth="1.8"
         strokeLinecap="round"
         aria-hidden="true"
-        className="dark:hidden"
+        className="rotate-0 scale-100 opacity-100 dark:-rotate-90 dark:scale-50 dark:opacity-0"
       >
         <circle cx="12" cy="12" r="4" />
         <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
@@ -71,7 +74,7 @@ export function ThemeToggle() {
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
-        className="hidden dark:block"
+        className="rotate-90 scale-50 opacity-0 dark:rotate-0 dark:scale-100 dark:opacity-100"
       >
         <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
       </svg>

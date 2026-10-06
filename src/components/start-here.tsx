@@ -186,8 +186,9 @@ export function StartHere() {
           <button
             type="button"
             onClick={reset}
-            className="font-mono text-[11px] text-fg-subtle transition-colors hover:text-fg"
+            className="press group inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono text-[11px] text-fg-subtle hover:bg-bg-sunken hover:text-fg"
           >
+            <span aria-hidden="true" className="inline-block transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-180">↺</span>
             Start over
           </button>
         </div>
@@ -200,12 +201,13 @@ export function StartHere() {
               <li key={slug} className="border-t border-border pt-3 first:border-t-0 first:pt-0">
                 <Link
                   href={`/${slug}`}
-                  className="group flex items-start gap-3"
+                  className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-bg-sunken"
                 >
                   <span className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full" style={layerStyle(slugToLayer(slug))} />
                   <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
+                    <span className="flex items-center gap-1.5 text-[15px] font-medium transition-colors group-hover:text-accent">
                       {first ?? slug}
+                      <span aria-hidden="true" className="nudge inline-block text-fg-subtle">→</span>
                     </span>
                     <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
                       {reasons.join(" · ")}
@@ -238,7 +240,19 @@ export function StartHere() {
           Two questions
         </h2>
         <span aria-hidden="true" className="h-px flex-1 bg-border" />
-        <span className="font-mono text-[11px] text-fg-subtle">
+        {/* Step pips, not just a fraction — the reader sees how far through
+            they are at a glance. */}
+        <span className="flex items-center gap-2 font-mono text-[11px] text-fg-subtle">
+          <span aria-hidden="true" className="flex gap-1">
+            {STEPS.map((s, i) => (
+              <span
+                key={s.id}
+                className={`h-1 rounded-full transition-all duration-500 ease-[var(--ease-out)] ${
+                  i === stepIndex ? "w-4 bg-accent" : i < stepIndex ? "w-1.5 bg-fg-muted" : "w-1.5 bg-border-strong"
+                }`}
+              />
+            ))}
+          </span>
           {stepIndex + 1} / {STEPS.length}
         </span>
       </div>
@@ -251,16 +265,25 @@ export function StartHere() {
         {step.question}
       </h3>
 
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-5 space-y-2.5">
         {step.options.map((option, i) => (
           <li key={option.label}>
             <button
               type="button"
               onClick={() => choose(i)}
-              className="group w-full rounded-lg border border-border bg-bg-elevated px-4 py-3 text-left transition-colors hover:border-border-strong hover:bg-bg-sunken"
+              className="btn-paper crop group w-full rounded-xl px-4 py-3.5 text-left [--crop-inset:-5px]"
             >
               <span className="flex items-baseline justify-between gap-3">
-                <span className="text-[14.5px] font-medium">{option.label}</span>
+                <span className="flex items-baseline gap-3">
+                  {/* Option letters, as on a specification form. */}
+                  <span
+                    aria-hidden="true"
+                    className="grid h-5 w-5 shrink-0 translate-y-[-1px] place-items-center rounded border border-border font-mono text-[10px] text-fg-subtle transition-colors group-hover:border-fg-subtle group-hover:text-fg"
+                  >
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className="text-[14.5px] font-medium">{option.label}</span>
+                </span>
                 <svg
                   width="14"
                   height="14"
@@ -271,12 +294,12 @@ export function StartHere() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
-                  className="shrink-0 text-fg-subtle transition-transform group-hover:translate-x-0.5"
+                  className="nudge shrink-0 text-fg-subtle transition-colors group-hover:text-fg"
                 >
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </span>
-              <span className="mt-1 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+              <span className="mt-1 block pl-8 text-pretty text-[13px] leading-relaxed text-fg-muted">
                 {option.detail}
               </span>
             </button>

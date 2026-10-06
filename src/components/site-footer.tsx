@@ -23,7 +23,7 @@ export function SiteFooter() {
   const offStack = categories.filter((c) => c.layer === null);
 
   return (
-    <footer className="mt-24 border-t border-border">
+    <footer className="mt-24 border-t border-border pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -152,8 +152,14 @@ function FooterLink({
     <li>
       <Link
         href={href}
-        className="flex items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
+        className="group flex min-h-7 items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
       >
+        {/* A short lead rule draws in ahead of the label on hover, so the
+            link being pointed at is marked without a colour shift alone. */}
+        <span
+          aria-hidden="true"
+          className="h-px w-0 shrink-0 self-center bg-accent transition-[width] duration-300 ease-[var(--ease-out)] group-hover:w-2.5"
+        />
         {children}
       </Link>
     </li>

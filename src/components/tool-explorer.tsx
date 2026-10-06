@@ -130,6 +130,22 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
 
   const activeCount = activeFilterCount({ section, ...selected });
 
+  /** Every live constraint as a removable chip, for the empty state. */
+  const activeChips = (() => {
+    const out: Array<{ group: GroupKey | "section"; value: string; label: string }> = [];
+    if (section) {
+      const first = tools.find((t) => t.categorySlug === section);
+      out.push({ group: "section", value: section, label: first?.categoryShort ?? section });
+    }
+    for (const g of FACET_GROUPS) {
+      for (const value of selected[g.key] ?? []) {
+        const known = facets.find((f) => f.group === g.key && f.value === value);
+        out.push({ group: g.key, value, label: known?.label ?? value });
+      }
+    }
+    return out;
+  })();
+
   function toggle(group: GroupKey, value: string) {
     setSelection((prev) => {
       const current = new Set(prev[group] ?? []);
@@ -189,23 +205,40 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && query) setQuery("");
+              }}
               placeholder="Filter by name, description or use-case…"
               aria-label="Filter tools"
-              className="h-9 w-full rounded-md border border-border bg-bg-elevated pl-8 pr-3 text-[13.5px] outline-none placeholder:text-fg-subtle focus:border-border-strong"
+              // A soft accent halo on focus in place of the browser ring — the
+              // field is already outlined, so a second hard outline doubles it.
+              className="h-10 w-full rounded-lg border border-border bg-bg-elevated pl-8 pr-9 text-[14px] shadow-ink outline-none transition-[box-shadow,border-color] duration-200 placeholder:text-fg-subtle focus:border-border-strong focus:shadow-[0_0_0_4px_var(--selection)] focus-visible:outline-none sm:h-9 sm:text-[13.5px]"
             />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Empty the filter text"
+                className="press absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-fg-subtle hover:bg-bg-sunken hover:text-fg"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            ) : null}
           </div>
 
           {query || activeCount ? (
             <button
               type="button"
               onClick={clearAll}
-              className="h-9 rounded-md border border-border px-2.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+              className="press h-10 rounded-lg border border-border px-3 text-[13px] text-fg-muted hover:border-border-strong hover:bg-bg-sunken hover:text-fg sm:h-9"
             >
               Clear{activeCount ? ` (${activeCount})` : ""}
             </button>
           ) : null}
 
-          <span aria-live="polite" className="font-mono text-[11px] text-fg-subtle">
+          <span aria-live="polite" className="min-w-[3.5rem] text-right font-mono text-[11px] text-fg-subtle">
             {results.length}
             {results.length === tools.length ? "" : ` / ${tools.length}`}
           </span>
@@ -264,24 +297,30 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
       </div>
 
       {results.length === 0 ? (
-        <p className="py-12 text-center text-sm text-fg-subtle">
-          Nothing matches those filters.
-        </p>
+        <EmptyState
+          query={query}
+          active={activeChips}
+          onClearQuery={() => setQuery("")}
+          onRemove={(group, value) =>
+            group === "section" ? pickSection(null) : toggle(group, value)
+          }
+          onReset={clearAll}
+        />
       ) : (
         <ul className="space-y-px">
           {results.map((t) => (
             <li key={`${t.categorySlug}-${t.slug}`}>
-              <div className="group -mx-2 flex items-start gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-bg-sunken">
+              <div className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-3 transition-colors duration-200 hover:bg-bg-sunken sm:py-2.5">
                 <span
                   aria-hidden="true"
-                  className="mt-1 h-8 w-[3px] shrink-0 rounded-full"
+                  className="mt-1 h-8 w-[3px] shrink-0 rounded-full transition-[width] duration-300 ease-[var(--ease-spring)] group-hover:w-[5px]"
                   style={layerStyle(t.layer)}
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                     <Link
                       href={`/${t.categorySlug}/${t.slug}`}
-                      className="truncate text-[14px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
+                      className="link-draw truncate text-[14px] font-medium"
                     >
                       {t.name}
                     </Link>
@@ -318,7 +357,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${t.name} (opens in a new tab)`}
-                  className="mt-0.5 shrink-0 text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  className="press mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle hover:bg-bg hover:text-fg focus-visible:opacity-100 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -338,13 +377,97 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
 // facet counts — now lives in `@/lib/facets`, where it can be tested without a
 // DOM. This component keeps only the wiring and the markup.
 
+/**
+ * One facet axis. On a phone it is a single swipeable rail rather than a
+ * wrapped block — five axes wrapping to three lines each pushed the first
+ * result below the fold of a 390px screen, under a sticky bar. From `sm` up
+ * there is room to wrap, so it does.
+ */
 function FacetRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-1">
+    <div className="rail -mx-5 mt-2 items-center gap-1 scroll-px-5 px-5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:[mask-image:none]">
       <span className="mr-1 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-subtle">
         {label}
       </span>
       {children}
+    </div>
+  );
+}
+
+/**
+ * The zero-result state. A dead end is the worst outcome of a filter UI, so
+ * this names exactly what is narrowing the list and lets each constraint be
+ * dropped on its own — usually one chip is the culprit, and resetting all of
+ * them throws away the rest of the reader's intent.
+ */
+function EmptyState({
+  query,
+  active,
+  onClearQuery,
+  onRemove,
+  onReset,
+}: {
+  query: string;
+  active: Array<{ group: GroupKey | "section"; value: string; label: string }>;
+  onClearQuery: () => void;
+  onRemove: (group: GroupKey | "section", value: string) => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="crop crop-static mx-auto my-10 max-w-md rounded-xl border border-dashed border-border-strong px-6 py-10 text-center [--crop-inset:-6px]">
+      {/* An empty slot in the stack, drawn: three layers with the middle
+          one missing. */}
+      <svg width="56" height="44" viewBox="0 0 56 44" fill="none" aria-hidden="true" className="mx-auto text-fg-subtle">
+        <rect x="4" y="2" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
+        <rect x="4.5" y="17.5" width="47" height="9" rx="2" stroke="currentColor" strokeDasharray="3 3" />
+        <rect x="4" y="32" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
+      </svg>
+      <p className="mt-5 font-serif text-[20px] font-medium tracking-[-0.01em] text-fg">
+        No tool fills that slot.
+      </p>
+      <p className="mx-auto mt-2 max-w-[36ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
+        Every tool here is ruled out by at least one constraint. Drop the one
+        that matters least:
+      </p>
+      <ul className="mt-5 flex flex-wrap justify-center gap-1.5">
+        {query ? (
+          <li>
+            <button
+              type="button"
+              onClick={onClearQuery}
+              className="press group inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-elevated px-2 py-1 text-[12px] text-fg-muted hover:border-border-strong hover:text-fg"
+            >
+              <span className="font-mono text-[10px] text-fg-subtle">text</span>
+              &ldquo;{query}&rdquo;
+              <span aria-hidden="true" className="text-fg-subtle transition-transform group-hover:rotate-90">×</span>
+              <span className="sr-only">(remove)</span>
+            </button>
+          </li>
+        ) : null}
+        {active.map((a) => (
+          <li key={`${a.group}-${a.value}`}>
+            <button
+              type="button"
+              onClick={() => onRemove(a.group, a.value)}
+              className="press group inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-elevated px-2 py-1 text-[12px] text-fg-muted hover:border-border-strong hover:text-fg"
+            >
+              <span className="font-mono text-[10px] text-fg-subtle">{a.group}</span>
+              {a.label}
+              <span aria-hidden="true" className="text-fg-subtle transition-transform group-hover:rotate-90">×</span>
+              <span className="sr-only">(remove)</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {/* Named "Reset", not "Clear": the toolbar's Clear button stays the one
+          control by that name. */}
+      <button
+        type="button"
+        onClick={onReset}
+        className="btn-paper mt-6 inline-flex h-9 items-center gap-2 rounded-lg px-3.5 text-[13px] font-medium"
+      >
+        Reset every filter
+      </button>
     </div>
   );
 }
@@ -384,9 +507,9 @@ function FacetChip({
       {...(facetGroup && facetValue
         ? { "data-facet": facetGroup, "data-facet-value": facetValue }
         : {})}
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] transition-colors ${
+      className={`press inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] sm:min-h-0 ${
         active
-          ? "border-border-strong bg-bg-sunken text-fg"
+          ? "border-transparent bg-bg-elevated text-fg shadow-lift"
           : "border-transparent text-fg-muted hover:bg-bg-sunken hover:text-fg"
       }`}
     >
@@ -398,7 +521,11 @@ function FacetChip({
         />
       ) : null}
       {label}
-      <span className="font-mono text-[10px] text-fg-subtle">{count}</span>
+      <span
+        className={`font-mono text-[10px] transition-colors ${active ? "text-fg-muted" : "text-fg-subtle"}`}
+      >
+        {count}
+      </span>
     </button>
   );
 }

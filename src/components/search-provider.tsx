@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   createContext,
   useCallback,
@@ -216,10 +217,10 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             type="button"
             aria-label="Close search"
             onClick={closePalette}
-            className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px]"
+            className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px] [animation:fade_160ms_var(--ease-out)_both]"
           />
 
-          <div className="relative w-full max-w-xl overflow-hidden rounded-xl border border-border-strong bg-bg-elevated shadow-2xl shadow-black/20">
+          <div className="pop-in relative w-full max-w-xl overflow-hidden rounded-2xl bg-bg-elevated shadow-float">
             <div className="flex items-center gap-3 border-b border-border px-4">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-fg-subtle" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
@@ -273,14 +274,54 @@ export function SearchProvider({ children }: { children: ReactNode }) {
               `getByRole("listitem")` in the browser tests — the placeholder row
               read as a result.
             */}
-            {loading || loadFailed || results.length === 0 ? (
-              <p role="status" className="px-3 py-8 text-center text-sm text-fg-subtle">
-                {loading
-                  ? "Loading index…"
-                  : loadFailed
-                    ? "Search is unavailable right now."
-                    : `Nothing matches “${query}”.`}
-              </p>
+            {loading ? (
+              // Skeleton rows in the shape of the results they stand in for —
+              // swatch, name, kind pill, section — so nothing jumps when the
+              // corpus lands. The status text stays for screen readers.
+              <div role="status" className="p-1.5">
+                <span className="sr-only">Loading index…</span>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <div key={i} aria-hidden="true" className="flex items-center gap-3 px-3 py-2.5">
+                    <span className="skeleton h-6 w-[3px] rounded-full" style={{ "--i": i } as React.CSSProperties} />
+                    <span className="flex flex-1 flex-col gap-1.5">
+                      <span className="flex items-center gap-2">
+                        <span className="skeleton h-3 rounded" style={{ width: `${[38, 52, 30, 46, 34][i]}%`, "--i": i } as React.CSSProperties} />
+                        <span className="skeleton h-3 w-9 rounded-full" style={{ "--i": i } as React.CSSProperties} />
+                      </span>
+                      <span className="skeleton h-2.5 w-1/4 rounded" style={{ "--i": i } as React.CSSProperties} />
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : loadFailed || results.length === 0 ? (
+              <div role="status" className="px-6 py-10 text-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true" className="mx-auto text-fg-subtle">
+                  {loadFailed ? (
+                    <path d="M12 8v5M12 16.5h.01M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                  ) : (
+                    <>
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m20 20-3.5-3.5M8.5 11h5" />
+                    </>
+                  )}
+                </svg>
+                <p className="mt-3 text-[14px] font-medium text-fg">
+                  {loadFailed ? "Search is unavailable right now." : `Nothing matches “${query}”.`}
+                </p>
+                <p className="mx-auto mt-1.5 max-w-[34ch] text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+                  {loadFailed
+                    ? "The index could not be fetched. Every tool is still one click away:"
+                    : "Try the problem instead of the product — “slow”, “cost”, “hallucination” — or browse:"}
+                </p>
+                <div className="mt-4 flex justify-center gap-2">
+                  <Link href="/all" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-lg px-3 text-[12.5px] font-medium">
+                    All tools
+                  </Link>
+                  <Link href="/fix" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-lg px-3 text-[12.5px] font-medium">
+                    Fix a symptom
+                  </Link>
+                </div>
+              </div>
             ) : (
               <ul
                 ref={listRef}
@@ -306,13 +347,15 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                       // means; the extra events were pure main-thread cost on the
                       // one interaction this palette exists to serve.
                       onMouseEnter={() => setActive(i)}
-                      className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+                      className={`relative flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-100 ${
                         i === active ? "bg-bg-sunken" : ""
                       }`}
                     >
                       <span
                         aria-hidden="true"
-                        className="mt-0.5 h-5 w-[3px] shrink-0 rounded-full"
+                        className={`mt-0.5 h-5 shrink-0 rounded-full transition-[width] duration-200 ease-[var(--ease-spring)] ${
+                          i === active ? "w-[5px]" : "w-[3px]"
+                        }`}
                         style={layerStyle(entry.categoryLayer)}
                       />
                       <span className="flex min-w-0 flex-1 flex-col">
@@ -384,8 +427,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         aria-hidden="true"
-                        className={`shrink-0 text-fg-subtle transition-opacity ${
-                          i === active ? "opacity-100" : "opacity-0"
+                        className={`shrink-0 text-fg-subtle transition-[opacity,translate] duration-200 ${
+                          i === active ? "translate-x-0 opacity-100" : "-translate-x-1 opacity-0"
                         }`}
                       >
                         <path d="M7 17 17 7M9 7h8v8" />
@@ -394,6 +437,24 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 ))}
               </ul>
             )}
+
+            {/* Keyboard legend. Hidden on touch, where there are no keys to
+                teach. */}
+            <div aria-hidden="true" className="hidden items-center gap-4 border-t border-border bg-bg-sunken/60 px-4 py-2 font-mono text-[10px] text-fg-subtle sm:flex">
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">↑</kbd>
+                <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">↓</kbd>
+                move
+              </span>
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">↵</kbd>
+                open
+              </span>
+              <span className="ml-auto flex items-center gap-1.5">
+                <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">esc</kbd>
+                close
+              </span>
+            </div>
           </div>
         </div>
       ) : null}
@@ -445,7 +506,7 @@ export function SearchTrigger({
       onMouseEnter={prefetch}
       onFocus={prefetch}
       aria-label="Search"
-      className={`group inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-bg-elevated px-2.5 text-sm text-fg-subtle transition-colors hover:border-border-strong hover:text-fg-muted ${
+      className={`press group inline-flex h-9 items-center gap-2 rounded-lg bg-bg-elevated px-2.5 text-sm text-fg-subtle shadow-ink hover:text-fg-muted hover:shadow-lift ${
         compact ? "sm:h-auto sm:px-3 sm:py-1.5" : ""
       } ${className}`}
     >
@@ -458,7 +519,7 @@ export function SearchTrigger({
       ) : (
         <>
           <span>Search</span>
-          <kbd className="ml-1 hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">
+          <kbd className="ml-1 hidden rounded border border-border bg-bg px-1.5 py-0.5 font-mono text-[10px] transition-colors group-hover:border-border-strong sm:inline">
             ⌘K
           </kbd>
         </>

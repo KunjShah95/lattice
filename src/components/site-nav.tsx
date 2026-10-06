@@ -43,7 +43,7 @@ export function DesktopNav() {
           key={l.href}
           href={l.href}
           aria-current={isActive(l.href) ? "page" : undefined}
-          className={`relative rounded-md px-2.5 py-1 text-[13px] transition-colors ${
+          className={`press group relative rounded-md px-2.5 py-1 text-[13px] ${
             isActive(l.href)
               ? "text-fg"
               : "text-fg-muted hover:bg-bg-sunken hover:text-fg"
@@ -51,11 +51,14 @@ export function DesktopNav() {
         >
           {l.label}
           {/* Underline is a drawn rule, not a pill — matches the rest of the
-              page's hairline treatment. */}
+              page's hairline treatment. Inactive links draw a faint rule from
+              the left on hover; the active one holds it in the accent. */}
           <span
             aria-hidden="true"
-            className={`absolute inset-x-2.5 -bottom-px h-px transition-opacity ${
-              isActive(l.href) ? "bg-accent opacity-100" : "opacity-0"
+            className={`absolute inset-x-2.5 -bottom-px h-px origin-left transition-transform duration-300 ease-[var(--ease-out)] ${
+              isActive(l.href)
+                ? "scale-x-100 bg-accent"
+                : "scale-x-0 bg-border-strong group-hover:scale-x-100"
             }`}
           />
         </Link>
@@ -104,31 +107,27 @@ export function MobileNav() {
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label={open ? "Close menu" : "Open menu"}
-        className="-mr-1 flex h-9 w-9 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+        className="press -mr-1 flex h-10 w-10 items-center justify-center rounded-md text-fg-muted hover:bg-bg-sunken hover:text-fg"
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          {open ? (
-            <>
-              <path d="M6 6l12 12" />
-              <path d="M18 6L6 18" />
-            </>
-          ) : (
-            <>
-              <path d="M4 7h16" />
-              <path d="M4 12h16" />
-              <path d="M4 17h16" />
-            </>
-          )}
-        </svg>
+        {/* Three rules that fold into a cross, rather than two icons
+            swapped — the control visibly becomes its own opposite. */}
+        <span aria-hidden="true" className="relative block h-3 w-4">
+          <span
+            className={`absolute left-0 h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-[var(--ease-out)] ${
+              open ? "top-[5.25px] rotate-45" : "top-0"
+            }`}
+          />
+          <span
+            className={`absolute left-0 top-[5.25px] h-[1.5px] rounded-full bg-current transition-all duration-200 ease-[var(--ease-out)] ${
+              open ? "w-0 opacity-0" : "w-3 opacity-100"
+            }`}
+          />
+          <span
+            className={`absolute left-0 h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-[var(--ease-out)] ${
+              open ? "top-[5.25px] -rotate-45" : "top-[10.5px]"
+            }`}
+          />
+        </span>
       </button>
 
       {open ? (
@@ -139,7 +138,7 @@ export function MobileNav() {
             tabIndex={-1}
             aria-hidden="true"
             onClick={close}
-            className="fixed inset-0 top-14 z-30 cursor-default"
+            className="fixed inset-0 top-14 z-30 cursor-default bg-bg/40"
           />
           <nav
             id="mobile-nav"
@@ -147,23 +146,42 @@ export function MobileNav() {
             // Solid, not `bg-bg/95 backdrop-blur-md` — at 95% the blur is
             // invisible, and a backdrop-filter has to be recomputed whenever
             // the content behind it changes. See the note on the site header.
-            className="absolute inset-x-0 top-full z-40 border-b border-border bg-bg"
+            className="pop-in absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-b border-border bg-bg pb-[env(safe-area-inset-bottom)] shadow-float"
           >
             <ul className="mx-auto max-w-5xl px-5 py-2 sm:px-6">
-              {links.map((l) => (
-                <li key={l.href}>
+              {links.map((l, i) => (
+                <li
+                  key={l.href}
+                  className="drop-in"
+                  style={{ "--i": i } as React.CSSProperties}
+                >
                   <Link
                     href={l.href}
                     onClick={close}
                     aria-current={isActive(l.href) ? "page" : undefined}
-                    className={`flex items-center justify-between border-b border-border py-3 text-[15px] last:border-b-0 ${
+                    className={`group flex min-h-12 items-center gap-4 border-b border-border py-3 text-[16px] transition-colors active:bg-bg-sunken ${
                       isActive(l.href) ? "text-fg" : "text-fg-muted"
                     }`}
                   >
-                    {l.label}
+                    {/* Sheet numbers, the way a drawing set indexes its
+                        pages — and a fixed-width gutter that keeps every
+                        label on the same left edge. */}
+                    <span
+                      aria-hidden="true"
+                      className={`w-5 font-mono text-[11px] ${
+                        isActive(l.href) ? "text-fg" : "text-fg-subtle"
+                      }`}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="flex-1">{l.label}</span>
                     {isActive(l.href) ? (
                       <span aria-hidden="true" className="h-px w-5 bg-accent" />
-                    ) : null}
+                    ) : (
+                      <span aria-hidden="true" className="nudge text-fg-subtle">
+                        →
+                      </span>
+                    )}
                   </Link>
                 </li>
               ))}
