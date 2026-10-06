@@ -38,21 +38,79 @@ import { MARK_CELLS } from "@/components/logo";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const [plexSans, plexSerif, plexMono] = await Promise.all([
-  readFile(join(process.cwd(), "assets/og/IBMPlexSans-SemiBold-subset.ttf")),
-  readFile(join(process.cwd(), "assets/og/IBMPlexSerif-Medium-subset.ttf")),
-  readFile(join(process.cwd(), "assets/og/IBMPlexMono-Medium-subset.ttf")),
-]);
+/**
+ * The three faces, read once at module scope — they do not vary per request, and
+ * reading them inside the handler would put ~187 KB of disk I/O in front of every
+ * share-card render.
+ *
+ * ## Why the read cannot be allowed to reject
+ *
+ * This was a bare top-level `await Promise.all([readFile(...)])`, and a top-level
+ * await that rejects takes the **whole module graph** down with it. On
+ * Cloudflare there is no filesystem, so the moment this module was evaluated by
+ * the Worker the read threw `ENOENT` and every route that touches it returned
+ * 500 — not the share cards, which are prerendered, but ordinary HTML pages,
+ * because `og.tsx` ends up in the shared chunk.
+ *
+ * That is the worst possible shape for the bug: the cards it exists to serve
+ * were fine, and everything it did not serve was broken. It also made
+ * `wrangler dev` useless as an oracle — every HTML route 500'd locally for the
+ * same reason, so no React-rendering change could be verified before deploying.
+ *
+ * So the read degrades instead of throwing. `OG_FONTS` is empty when the files
+ * are unreachable, and Satori falls back — which is harmless at runtime because
+ * every card is prerendered at build time, where the read succeeds.
+ *
+ * ## Why it is still caught if the fonts go missing at build time
+ *
+ * Because an empty `OG_FONTS` at build time would ship share cards rendered in
+ * Arial with nothing failing. `og.test.ts` asserts the faces are present when
+ * running under Node, so the fallback is only ever taken on the Worker, where
+ * nothing reads it.
+ */
+async function readOgFonts() {
+  try {
+    const [plexSans, plexSerif, plexMono] = await Promise.all([
+      readFile(join(process.cwd(), "assets/og/IBMPlexSans-SemiBold-subset.ttf")),
+      readFile(join(process.cwd(), "assets/og/IBMPlexSerif-Medium-subset.ttf")),
+      readFile(join(process.cwd(), "assets/og/IBMPlexMono-Medium-subset.ttf")),
+    ]);
+    return { plexSans, plexSerif, plexMono };
+  } catch {
+    // No filesystem — the Worker. See the note above.
+    return { plexSans: null, plexSerif: null, plexMono: null };
+  }
+}
+
+const { plexSans, plexSerif, plexMono } = await readOgFonts();
 
 /**
  * Only the weights that actually ship are declared. Satori matches on weight
  * and silently substitutes its own fallback face when a request asks for one it
  * was not given, so asking for 400 here would put Arial back on the card.
+ *
+ * Empty on a runtime with no filesystem, which is intended — see above.
  */
-export const OG_FONTS = [
-  { name: "Plex Serif", data: plexSerif, weight: 500 as const, style: "normal" as const },
-  { name: "Plex Sans", data: plexSans, weight: 600 as const, style: "normal" as const },
-  { name: "Plex Mono", data: plexMono, weight: 500 as const, style: "normal" as const },
+type OgFont = {
+  name: string;
+  data: Buffer;
+  weight: 500 | 600;
+  style: "normal";
+};
+
+/**
+ * Built by spreading rather than by `filter(Boolean)` after construction.
+ *
+ * The filter version needed a hand-written type predicate, and it was subtly
+ * wrong — `readFile` resolves to a `Buffer` whose `ArrayBuffer` view is not
+ * `SharedArrayBuffer`, so the predicate widened `data` and every one of the 18
+ * `opengraph-image.tsx` call sites failed to type-check. Spreading conditional
+ * elements infers correctly without a predicate at all.
+ */
+export const OG_FONTS: OgFont[] = [
+  ...(plexSerif ? [{ name: "Plex Serif", data: plexSerif, weight: 500 as const, style: "normal" as const }] : []),
+  ...(plexSans ? [{ name: "Plex Sans", data: plexSans, weight: 600 as const, style: "normal" as const }] : []),
+  ...(plexMono ? [{ name: "Plex Mono", data: plexMono, weight: 500 as const, style: "normal" as const }] : []),
 ];
 
 const SERIF = "Plex Serif";
