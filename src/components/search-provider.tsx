@@ -222,8 +222,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                   setActive(0);
                 }}
                 onKeyDown={onListKeyDown}
-                placeholder="Search tools…"
-                aria-label="Search tools"
+                placeholder="Search tools, guides, comparisons…"
+                aria-label="Search tools, guides and comparisons"
                 className="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-fg-subtle"
               />
               <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-fg-subtle sm:block">
@@ -273,8 +273,28 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                         style={layerStyle(entry.categoryLayer)}
                       />
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm font-medium">
-                          {entry.name}
+                        <span className="flex min-w-0 items-baseline gap-2">
+                          <span className="truncate text-sm font-medium">
+                            {entry.name}
+                          </span>
+                          {/*
+                            The corpus mixes five flavours (tools, essays, fix
+                            guides, comparisons, alternatives) and the category
+                            line alone does not always say which is which — a
+                            fix guide reads like an essay. The pill names the
+                            kind so a reader can tell before navigating.
+                          */}
+                          <span className="shrink-0 rounded-full border border-border px-1.5 py-px font-mono text-[9.5px] uppercase tracking-[0.08em] text-fg-subtle">
+                            {entry.kind === "tool"
+                              ? "Tool"
+                              : entry.href.startsWith("/fix/")
+                                ? "Guide"
+                                : entry.kind === "comparison"
+                                  ? entry.href.endsWith("/alternatives")
+                                    ? "Alternatives"
+                                    : "Compare"
+                                  : "Essay"}
+                          </span>
                         </span>
                         <span className="truncate text-xs text-fg-subtle">
                           {entry.categoryTitle}

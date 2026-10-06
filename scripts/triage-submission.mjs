@@ -51,6 +51,32 @@ const {
   REPO_SLUG: repoSlugEnv,
 } = process.env;
 
+/**
+ * Refuse to run outside CI.
+ *
+ * This script's first side effect is `git checkout -b` in whatever directory it
+ * is invoked from, followed by a `git push`. Run locally by accident, it moves
+ * the maintainer's working tree onto a submission branch and appends a `TODO`
+ * entry to `src/lib/data.ts` — and because the branch is never merged, the mess
+ * is only visible in `git status` until the next checkout overwrites it. It
+ * happened once during development, and recovering it cost a reset and a manual
+ * rebuild of fourteen files.
+ *
+ * `TRIAGE_ALLOW_LOCAL` is the escape hatch, and only `triage-harness.mjs` sets
+ * it: the harness needs to run the script, and it runs it inside a throwaway
+ * sandbox repository rather than a working tree.
+ */
+const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+if (!isCI && process.env.TRIAGE_ALLOW_LOCAL !== "1") {
+  console.error(
+    "Refusing to run outside CI.\n" +
+      "This script checks out a branch and pushes it. Run it through the\n" +
+      "workflow (label an issue `submission`), or set TRIAGE_ALLOW_LOCAL=1 if\n" +
+      "you are running it against a throwaway sandbox.",
+  );
+  process.exit(1);
+}
+
 if (!token || !issueNumber) {
   console.error("GITHUB_TOKEN and ISSUE_NUMBER are required.");
   process.exit(1);

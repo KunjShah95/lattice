@@ -80,6 +80,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.4,
     },
+    // Machine endpoints. Crawlers discover these here: robots.txt cannot list
+    // them (it only speaks allow/disallow), and nothing links to them from
+    // page chrome on purpose — so without sitemap entries they are reachable
+    // only to readers who already know they exist, which defeats their job.
+    // /api/search takes its query in the URL and is therefore not listable;
+    // it is advertised from llms.txt and mcp.json instead.
+    ...["llms.txt", "llms-full.txt", "tools.json", "mcp.json"].map((f) => ({
+      url: `${site.url}/${f}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     ...ROLES.map((r) => ({
       url: `${site.url}/roles/${r.id}`,
       lastModified,

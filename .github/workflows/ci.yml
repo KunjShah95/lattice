@@ -57,6 +57,14 @@ jobs:
       - name: Test
         run: npm run test -- --exclude src/lib/brand.test.ts
 
+      # The submission pipeline runs under bare node with no build step and pushes
+      # branches, so vitest cannot reach it. This harness runs it against a
+      # stubbed GitHub inside a throwaway repository, which is the only place its
+      # behaviour is testable without a token — and the only place it is safe to
+      # run at all.
+      - name: Submission pipeline
+        run: npm run test:submissions
+
       # Plain `next build`, deliberately not the OpenNext bundle. This step
       # exists to type-check and prerender; bundling the Worker is the deploy
       # pipeline's job, and doing it here doubles the slowest step in CI.
@@ -66,6 +74,15 @@ jobs:
       # `next build` passing is not sufficient for this route shape. A dynamic
       # segment named inconsistently builds cleanly and then 500s at runtime,
       # so the server is actually started and a sample of routes is requested.
+      #
+      # `/mcp` and `/mcp.json` are here for a specific reason. `/mcp` returned 500
+      # in production while every other route returned 200, because it was the
+      # only route declaring `runtime = "edge"` — it loads fine on Node and only
+      # fails on the Worker. `next start` would NOT have caught that, and neither
+      # does this step. It is here to catch the ordinary failure instead (a route
+      # that never builds, or a handler that throws on a cold call), and the real
+      # coverage is a `wrangler dev` smoke test in the deploy pipeline, which
+      # does not exist yet.
       - name: Smoke-test the built server
         run: |
           npx next start -p 3111 &
@@ -74,14 +91,27 @@ jobs:
             sleep 1
           done
           fail=0
-          for path in / /all /blog /compare /glossary \
+          for path in / /all /blog /compare /glossary /submit \
                       /glossary/kv-cache /inference-serving \
                       /inference-serving/vllm /blog/evals-are-the-asset \
-                      /compare/vector-databases /feed.xml /llms.txt /llms-full.txt /sitemap.xml; do
+                      /compare/vector-databases /feed.xml /llms.txt /llms-full.txt \
+                      /sitemap.xml /mcp.json; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
             echo "$code $path"
             [ "$code" = "200" ] || fail=1
           done
+          # A GET on the MCP endpoint is a 405 by design — it exists, but the
+          # protocol uses POST. Asserted rather than skipped, because a 404 would
+          # look identical to "the route was never built".
+          code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111/mcp")
+          echo "$code /mcp (expect 405)"
+          [ "$code" = "405" ] || fail=1
+          # And the route must answer JSON-RPC, not merely exist.
+          rpc=$(curl -s -X POST -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{}}}' \
+            "http://localhost:3111/mcp")
+          echo "$rpc" | head -c 160; echo
+          echo "$rpc" | grep -q '"protocolVersion"' || fail=1
           # An unknown path must 404, not 200 or 500.
           code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111/definitely-not-a-page")
           echo "$code /definitely-not-a-page"

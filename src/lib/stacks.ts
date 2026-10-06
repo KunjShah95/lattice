@@ -25,6 +25,13 @@ export type Workload =
   | "llm-api"
   | "finetuned";
 
+export type Filtering = "none" | "light" | "heavy";
+export type Freshness = "static" | "daily" | "realtime";
+export type Latency = "flexible" | "fast" | "realtime";
+export type StackLanguage = "any" | "python" | "typescript";
+export type Durability = "stateless" | "minutes" | "hours";
+export type Safety = "none" | "pii" | "strict";
+
 export type StackInput = {
   workload: Workload;
   /** Requests per month. Clamped to >= 0. */
@@ -38,6 +45,18 @@ export type StackInput = {
   costVsPerf?: number;
   /** -2 = simplest … +2 = most control. */
   simplicityVsControl?: number;
+  /** Retrieval: how much the answer depends on metadata filtering. */
+  filtering?: Filtering;
+  /** Retrieval: how often the corpus changes. */
+  freshness?: Freshness;
+  /** How fast an answer must come back. */
+  latency?: Latency;
+  /** Language the team ships in — matched against each tool's real `language`. */
+  language?: StackLanguage;
+  /** Agent/workflows: how long work must survive. */
+  durability?: Durability;
+  /** Guardrails: what the system must keep out of model I/O. */
+  safety?: Safety;
 };
 
 export type StackPick = {
@@ -47,15 +66,24 @@ export type StackPick = {
   toolSlug: string;
   url: string;
   fit: number;
+  /** Qualitative band for the fit score — numbers stay inside the engine. */
+  fitLabel: "Best fit" | "Strong fit" | "Workable" | "Stretch";
   why: string;
-  avoid: string;
+  /** The tool's own skip-when: the concrete failure mode to watch for. */
+  watchOut: string;
   alternative: string;
+  /** When the runner-up would be the better call, in its own words. */
+  switchWhen: string | null;
+  /** Which of the user's stated requirements this pick actually satisfies. */
+  matches: string[];
 };
 
 export type StackResult = {
   picks: StackPick[];
   costLow: number;
   costHigh: number;
+  /** Picks billed by usage or subscription — what actually moves the band. */
+  costDrivers: string[];
   confidence: number;
   risk: string;
   summary: string;
@@ -192,6 +220,17 @@ function countHits(text: string, words: string[]): number {
   return n;
 }
 
+function lowerFirst(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1).replace(/\.$/, "");
+}
+
+function fitLabelFor(fit: number): StackPick["fitLabel"] {
+  if (fit >= 8.5) return "Best fit";
+  if (fit >= 7.2) return "Strong fit";
+  if (fit >= 6) return "Workable";
+  return "Stretch";
+}
+
 /**
  * The single generic scorer. Every tool in a section passes through this —
  * no per-tool branches, no named exceptions. Corpus size only matters for
@@ -232,6 +271,30 @@ function scoreTool(tool: Tool, input: Required<StackInput>, profile: WorkloadPro
   else score += -input.simplicityVsControl * 0.4;
   if (input.avoidLockIn) score += isOpen(tool.license) ? 0.5 : -0.9;
 
+  // Use-case answers, read generically off real attributes and prose.
+  if (input.language !== "any" && tool.language) {
+    const lang = tool.language.toLowerCase();
+    if (lang === input.language || lang === "multi") score += 0.8;
+  }
+  if (input.latency === "realtime" && /(low-latency|edge|cach|stream)/i.test(text)) score += 0.5;
+  else if (input.latency === "fast" && /(low-latency|edge|cach|stream)/i.test(text)) score += 0.3;
+  if (input.freshness === "realtime" && (tool.deployment === "saas" || tool.deployment === "managed")) {
+    score += 0.4;
+  }
+  if ((input.durability === "minutes" || input.durability === "hours") && /durab|survive|replay|long-running|crash/i.test(text)) {
+    score += 0.7;
+  }
+  if (input.safety === "pii" && /pii|anonym/i.test(text)) score += 0.6;
+  if (input.safety === "strict" && /policy|moderation|guardrail|schema/i.test(text)) score += 0.6;
+  if (isRetrieval) {
+    if (input.filtering === "heavy") {
+      if (/filter/i.test(text)) score += 0.8;
+      if (/basic|limited/i.test(text)) score -= 0.8;
+    } else if (input.filtering === "light" && /filter/i.test(text)) {
+      score += 0.3;
+    }
+  }
+
   return clamp(Math.round(score * 10) / 10, 3, 9.8);
 }
 
@@ -244,25 +307,37 @@ function passesConstraints(tool: Tool, input: Required<StackInput>): boolean {
 
 /**
  * Risk is composed from the shape of the recommended stack (which sections
- * and deployments it contains), not from named products.
+ * and deployments it contains) plus the user's own answers — never from
+ * named products.
  */
-function composeRisk(result: StackPick[], workload: Workload): string {
+function composeRisk(result: StackPick[], input: Required<StackInput>): string {
   const parts: string[] = [];
   const slugs = new Set(result.map((p) => p.sectionSlug));
   if (slugs.has("retrieval-vector-stores")) {
     parts.push(
-      "Retrieval quality decides the outcome — most failures are ranking or chunking failures, not model failures. Build the eval set before tuning anything.",
+      input.filtering === "heavy"
+        ? "Filtering is load-bearing here — validate filtered recall against a query set before migrating, because most disappointing retrieval is a ranking problem wearing a database costume."
+        : "Retrieval quality decides the outcome — most failures are ranking or chunking failures, not model failures. Build the eval set before tuning anything.",
     );
   }
   if (slugs.has("agent-frameworks") || slugs.has("workflow-orchestration")) {
     parts.push(
-      "An agent loop that cannot survive a deploy will eventually cause real damage. Durability and tool permissions are the controls, not the prompt.",
+      input.durability === "hours"
+        ? "Hour-long work means the engine fixes durability, not idempotency — side-effecting tool calls still need idempotency keys, and a process restart mid-loop is the most common way agents cause real damage."
+        : "An agent loop that cannot survive a deploy will eventually cause real damage. Durability and tool permissions are the controls, not the prompt.",
     );
   }
   if (slugs.has("fine-tuning")) {
     parts.push("Fine-tuning teaches behaviour, not facts. If the answer changes monthly, it belongs in retrieval instead.");
   }
-  if (workload === "voice") {
+  if (input.safety !== "none") {
+    parts.push(
+      input.safety === "pii"
+        ? "PII is a data-flow problem — detect and redact before the model ever sees it, not after it answers."
+        : "A guardrail without an eval is a guess about which failures matter. Write the eval that found the failure, then the guardrail that blocks it.",
+    );
+  }
+  if (input.workload === "voice") {
     parts.push(
       "Lattice has no dedicated voice layer — inference latency and streaming orchestration dominate, and this pick is a starting proxy, not a verdict.",
     );
@@ -277,9 +352,11 @@ function composeRisk(result: StackPick[], workload: Workload): string {
 
 /**
  * Heuristic monthly band from query volume and the recommended stack's own
- * cost models — no vendor prices. Labelled estimate, not a quote.
+ * cost models — no vendor prices. Labelled estimate, not a quote. Drivers
+ * name the usage-billed picks that move the top of the band, so the reader
+ * can see where money would actually go.
  */
-function costBand(input: Required<StackInput>, picks: StackPick[]): { low: number; high: number } {
+function costBand(input: Required<StackInput>, picks: StackPick[]): { low: number; high: number; drivers: string[] } {
   const q = input.queriesPerMonth;
   let low: number;
   let high: number;
@@ -306,12 +383,19 @@ function costBand(input: Required<StackInput>, picks: StackPick[]): { low: numbe
       .flatMap((c) => c.tools)
       .find((t) => t.slug === p.toolSlug && (t.cost === "usage-based" || t.cost === "subscription")),
   ).length;
+  const drivers = picks
+    .filter((p) =>
+      categories
+        .flatMap((c) => c.tools)
+        .find((t) => t.slug === p.toolSlug && (t.cost === "usage-based" || t.cost === "subscription")),
+    )
+    .map((p) => p.tool);
   high = Math.round(high * (1 + metered * 0.08));
   if (input.selfHosted) {
     low = Math.max(low, 120);
     high = Math.round(high * 0.85);
   }
-  return { low, high };
+  return { low, high, drivers };
 }
 
 function normalize(raw: StackInput): Required<StackInput> {
@@ -324,7 +408,72 @@ function normalize(raw: StackInput): Required<StackInput> {
     avoidLockIn: raw.avoidLockIn ?? false,
     costVsPerf: clamp(raw.costVsPerf ?? 0, -2, 2),
     simplicityVsControl: clamp(raw.simplicityVsControl ?? 0, -2, 2),
+    filtering: raw.filtering ?? "none",
+    freshness: raw.freshness ?? "static",
+    latency: raw.latency ?? "flexible",
+    language: raw.language ?? "any",
+    durability: raw.durability ?? "stateless",
+    safety: raw.safety ?? "none",
   };
+}
+
+/**
+ * Which of the user's stated requirements a winning pick genuinely
+ * satisfies — checked against the tool's real attributes and prose, so
+ * every chip is earned, not decorated.
+ */
+function matchChips(tool: Tool, input: Required<StackInput>, sectionSlug: string): string[] {
+  const chips: string[] = [];
+  const text = haystack(tool);
+  if (input.selfHosted && tool.deployment === "self-hosted") chips.push("self-hosted");
+  if (input.openSource && isOpen(tool.license)) chips.push("open licence");
+  if (input.avoidLockIn && isOpen(tool.license)) chips.push("no lock-in");
+  if (sectionSlug === "retrieval-vector-stores" && input.filtering === "heavy" && /filter/i.test(text)) {
+    chips.push("heavy filtering");
+  }
+  if (input.latency === "realtime" && /(low-latency|edge|cach|stream)/i.test(text)) {
+    chips.push("< 500 ms latency");
+  } else if (input.latency === "fast" && /(low-latency|edge|cach|stream)/i.test(text)) {
+    chips.push("interactive latency");
+  }
+  if (input.language !== "any" && tool.language) {
+    const lang = tool.language.toLowerCase();
+    if (lang === input.language || lang === "multi") {
+      chips.push(input.language === "python" ? "Python" : "TypeScript");
+    }
+  }
+  if (input.durability === "hours" && /durab|survive|replay|long-running/i.test(text)) {
+    chips.push("survives restarts");
+  }
+  if (input.freshness === "realtime" && (tool.deployment === "saas" || tool.deployment === "managed")) {
+    chips.push("zero-ops updates");
+  }
+  if (input.safety === "pii" && /pii|anonym/i.test(text)) chips.push("PII redaction");
+  return chips.slice(0, 4);
+}
+
+/** One-line narration of the user's case, composed from their answers. */
+function caseSummary(input: Required<StackInput>, profile: WorkloadProfile): string {
+  const parts = [profile.label, `${input.queriesPerMonth.toLocaleString("en-US")} req/mo`];
+  if ((profile.id === "rag" || profile.id === "search") && input.documents > 0) {
+    const docs =
+      input.documents >= 1_000_000
+        ? `${Math.round(input.documents / 1_000_000)}M docs`
+        : `${Math.round(input.documents / 1_000)}K docs`;
+    parts.push(docs);
+    if (input.filtering === "heavy") parts.push("heavy filtering");
+    if (input.freshness === "realtime") parts.push("realtime updates");
+    else if (input.freshness === "daily") parts.push("daily updates");
+  }
+  if (input.latency === "realtime") parts.push("< 500 ms");
+  else if (input.latency === "fast") parts.push("< 2 s");
+  if (input.durability === "hours") parts.push("hour-long runs");
+  else if (input.durability === "minutes") parts.push("minute-long runs");
+  if (input.language !== "any") parts.push(input.language === "python" ? "Python shop" : "TypeScript shop");
+  if (input.safety === "pii") parts.push("PII in play");
+  else if (input.safety === "strict") parts.push("strict policy");
+  if (input.selfHosted) parts.push("self-hosted");
+  return parts.join(" · ");
 }
 
 export function recommendStack(raw: StackInput): StackResult {
@@ -332,8 +481,20 @@ export function recommendStack(raw: StackInput): StackResult {
   const profile = WORKLOAD_PROFILES.find((w) => w.id === input.workload);
   if (!profile) throw new Error(`Unknown workload "${input.workload}".`);
 
+  // The stack responds to the case: guardrails join when safety is stated,
+  // durable execution joins when work outlives a request. Both slot in ahead
+  // of observability, which stays last — the thing that watches the rest.
+  const sections = [...profile.sections];
+  const beforeEvals = (slug: string) => {
+    if (sections.includes(slug)) return;
+    const i = sections.indexOf("evaluation-observability");
+    sections.splice(i < 0 ? sections.length : i, 0, slug);
+  };
+  if (input.durability !== "stateless") beforeEvals("workflow-orchestration");
+  if (input.safety !== "none") beforeEvals("guardrails-safety");
+
   const picks: StackPick[] = [];
-  for (const sectionSlug of profile.sections) {
+  for (const sectionSlug of sections) {
     const category = categories.find((c) => c.slug === sectionSlug);
     const tools = getToolsForCategory(sectionSlug).filter((t) => t.kind !== "reading");
     if (!category || !tools.length) continue;
@@ -353,15 +514,16 @@ export function recommendStack(raw: StackInput): StackResult {
       toolSlug: winner.tool.slug,
       url: `/${sectionSlug}/${winner.tool.slug}`,
       fit: winner.fit,
+      fitLabel: fitLabelFor(winner.fit),
       why: winner.tool.useWhen,
-      avoid: runner
-        ? `${runner.tool.name} — ${runner.tool.useWhen}`
-        : winner.tool.skipWhen,
+      watchOut: winner.tool.skipWhen,
       alternative: runner ? runner.tool.name : "—",
+      switchWhen: runner ? lowerFirst(runner.tool.useWhen) : null,
+      matches: matchChips(winner.tool, input, sectionSlug),
     });
   }
 
-  const { low, high } = costBand(input, picks);
+  const { low, high, drivers } = costBand(input, picks);
   const constrained =
     (input.selfHosted ? 1 : 0) + (input.openSource ? 1 : 0) + (input.avoidLockIn ? 1 : 0);
   let confidence = 0.87 - constrained * 0.02;
@@ -372,8 +534,9 @@ export function recommendStack(raw: StackInput): StackResult {
     picks,
     costLow: low,
     costHigh: high,
+    costDrivers: drivers,
     confidence,
-    risk: composeRisk(picks, input.workload),
-    summary: `${profile.label} at ${input.queriesPerMonth.toLocaleString("en-US")} req/mo`,
+    risk: composeRisk(picks, input),
+    summary: caseSummary(input, profile),
   };
 }

@@ -160,7 +160,22 @@ export function GET() {
     );
   }
 
-  lines.push("## Glossary", "");
+  lines.push(
+  "## Querying this index instead of reading it",
+  "",
+  "This document is a few thousand lines. If you arrived with a specific question, the",
+  `MCP server at ${site.url}/mcp answers it in a few hundred tokens. Discovery:`,
+  `${site.url}/mcp.json. Tools: about, search_tools, get_tool, compare_tools,`,
+  "list_layers, layer_overlaps, diagnose_symptom, list_comparisons, define_term.",
+  "",
+  "Two of them have no equivalent in this document, because they are inverse lookups:",
+  "`layer_overlaps` answers \"where does agent memory live\" — each layer, and the tools that",
+  "serve it without being indexed there — and `diagnose_symptom` takes a problem rather than a",
+  "tool name and returns the ordered cheapest-first checklist.",
+  "",
+);
+
+lines.push("## Glossary", "");
   for (const t of glossary) {
     lines.push(
       `### ${t.term}`,

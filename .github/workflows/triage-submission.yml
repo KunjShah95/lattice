@@ -14,16 +14,16 @@
 # vote-count directory this site argues against, and the difference is only
 # visible in a merge gate nobody can bypass.
 #
-# The gate is `submission-check`, below. It reads a marker in the PR body rather
-# than relying on branch protection, because a single-maintainer repository
-# cannot depend on `required_reviews`. It also greps the diff for `TODO`, so
-# flipping the marker by hand does not get an unfinished draft through.
+# The gate is `check`, below. It reads a marker in the PR body rather than relying
+# on branch protection, because a single-maintainer repository cannot depend on
+# `required_reviews`. It also greps the diff for `TODO`, so flipping the marker by
+# hand does not get an unfinished draft through.
 
 name: Submission
 
 on:
   issues:
-    types: [labeled, edited, reopened]
+    types: [opened, labeled, edited, reopened]
   pull_request:
     branches: ["submission/**"]
   # Manual dispatch, because the first run of anything like this should be
@@ -40,20 +40,17 @@ permissions:
   issues: write
   pull-requests: write
 
-# One triage per issue at a time. Two runs racing to open two PRs for one
-# submission is the failure mode worth guarding; the script also treats a 422
-# from GitHub as "a PR already exists" rather than as a failure.
 concurrency:
   group: submission-${{ github.event.inputs.issue || github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   draft:
-    # The label check is the real filter. `edited` re-fires on any body change,
-    # which is how an issue that gets labelled later is picked up.
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issues' && github.event.issue.labels.some(l => l.name == 'submission'))
+    # Not gated on the label here. Gating at job level deadlocks the intake: an
+    # `opened` issue has no label yet, so the job would be skipped before the
+    # step that applies the label could run. The gate is a step-level `if`
+    # further down, which is where it can see the body.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,9 +59,68 @@ jobs:
         with:
           node-version: 22
 
+      # Labels are repository state, not `.github/settings.yml` — they are
+      # created through the API or the UI. Created here, idempotently, so a
+      # fresh clone of this repo has a working intake with no manual setup step
+      # that nobody remembers. A 422 means it already exists, which is success.
+      - name: Ensure the submission label exists
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'submission',
+                color: '0e7490',
+                description: 'A tool proposed for the index. Triaged by triage-submission.yml',
+              });
+              core.info('Created the `submission` label.');
+            } catch (error) {
+              if (error.status !== 422) core.setFailed(error.message);
+              else core.info('The `submission` label already exists.');
+            }
+
+      # The label is applied by reading the body, not by asking a maintainer to
+      # remember. The `/submit` page says "open a submission issue" and nothing
+      # more — a form that also requires a label is a form half the submissions
+      # never arrive on. The marker is the form's own `### Tool name` heading.
+      - name: Label it if it carries the form
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (!issue) { core.info('Not an issue event.'); return; }
+            if ((issue.labels ?? []).some((l) => l.name === 'submission')) {
+              core.info('Already labelled.'); return;
+            }
+            if (!(issue.body ?? '').includes('### Tool name')) {
+              core.info('Not a submission — no form marker in the body.');
+              return;
+            }
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['submission'],
+              });
+              core.info('Labelled as a submission.');
+            } catch (error) {
+              core.warning(`Could not label: ${error.message}`);
+            }
+
       # `contents: write` is declared above, so this token can push. No PAT, so
       # a leaked log cannot exceed what this job already can do.
+      #
+      # Both conditions are here rather than at job level: the label, so an
+      # unrelated bug report is never drafted, and the form marker, so a label
+      # applied by hand to the wrong issue still does nothing. Adding the label
+      # re-triggers this workflow, which is what actually starts the draft.
       - name: Read the issue and write a branch
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          github.event.issue.labels.some(l => l.name == 'submission')
         id: triage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,10 +131,12 @@ jobs:
           REPO_SLUG: ${{ github.repository }}
         run: node scripts/triage-submission.mjs
 
-      # Belt and braces against the harness ever running against the checkout it
-      # was pointed at. The script's own guard is that it only runs in CI, but a
-      # stray local run with a real token would push a branch from someone's
-      # working tree, and that is not recoverable by `git checkout main`.
+      # The script runs `git checkout -b` and `git push` in this workspace, which
+      # is how the script is meant to work — CI gives it a throwaway checkout.
+      # Running it locally instead would leave the maintainer's working tree on a
+      # submission branch with a junk entry in `src/lib/data.ts`, which is not
+      # recoverable by `git checkout main`. The script refuses to run outside CI
+      # for that reason; this step is the second guard.
       - name: Confirm the push did not move this checkout
         if: always()
         run: |
@@ -91,8 +149,8 @@ jobs:
   check:
     # Fires on the PR the draft job opened. `github-script` needs the
     # pull_request payload, which is why this is a separate job rather than a
-    # step in `draft` — that job's event is an issue, and a pull_request step
-    # there would read `undefined` and pass vacuously.
+    # step in `draft` — that job's event is an issue, so a pull_request step there
+    # would read `undefined` and pass vacuously.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -107,8 +165,8 @@ jobs:
             const marker = 'lattice:submission-status=';
             const status = body.split(marker)[1]?.trim().split(/\s/)[0] ?? 'blocked';
 
-            // Fails closed. An absent, garbled or misspelt marker blocks, because
-            // a gate that can be bypassed by a typo is not a gate.
+            // Fails closed. An absent, garbled or misspelt marker blocks,
+            // because a gate bypassable by a typo is not a gate.
             if (status !== 'ready') {
               core.setFailed(
                 `Submission is blocked (marker reads "${status}"). Fill in every ` +
@@ -119,9 +177,9 @@ jobs:
             }
 
             // The marker is a claim; this is the check. Flipping it without
-            // finishing the entry is the one thing that would make the whole
-            // pipeline a way to publish unreviewed text, so it is verified
-            // against the diff rather than trusted.
+            // finishing the entry is the one thing that would make this pipeline a
+            // way to publish unreviewed text, so it is verified against the diff
+            // rather than trusted.
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,

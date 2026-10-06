@@ -6,9 +6,9 @@ import { site } from "@/lib/site";
 import { absolute } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "All tools",
+  title: "All AI infrastructure tools",
   description:
-    `Every tool in the ${site.name} index in one filterable list — ${toolCount} tools ` +
+    `Every AI stack tool in the ${site.name} index — ${toolCount} tools ` +
     `across ${kinds.length} kinds, filterable by section, deployment model, kind and cost.`,
   alternates: { canonical: "/all" },
   // Next does not derive `og:url` from the canonical, and an inherited one
@@ -29,7 +29,7 @@ export default function AllToolsPage() {
           licensed
         </p>
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
-          Everything, filterable.
+          Every AI infrastructure tool, filterable.
         </h1>
         <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           The whole index in one list. Use it when you know what you are

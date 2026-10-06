@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
+import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
@@ -41,6 +42,8 @@ export default function HomePage() {
               Every entry here carries two sentences: when to use it, and when to skip it.
               Most directories publish the first. Almost none publish the second — it is the
               one that tells you whether anything on this page is worth your time.
+              If you are choosing AI infrastructure tools for a production AI stack,
+              this is the starting point: every layer, from inference runtimes to evals.
             </p>
 
             {/*
@@ -75,6 +78,8 @@ export default function HomePage() {
                 browse all {toolCount}
               </Link>
             </div>
+
+            <ProductHuntBadge className="mt-7" />
 
             {/*
               The proof point, placed at first contact rather than in a
@@ -182,14 +187,38 @@ export default function HomePage() {
 
       {/* Colophon.
 
-          The build in `src/lib/data.ts` throws if any entry's licence or cost
-          has not been re-checked within six months, so this site cannot ship
-          with a confident stale figure in it. That is the hardest claim in
-          this category to copy — it means doing the work, not writing the
-          sentence — and it is worth stating plainly rather than leaving in a
-          changelog nobody reads. */}
+          Opens with the definition this homepage exists to rank for. "AI
+          infrastructure" is the head term; the two sentences that follow are
+          written to stand alone as a quoted answer, naming each layer so an
+          answer engine can lift the passage whole. Counts come from the
+          dataset, not prose, so they cannot drift.
+      */}
       <section className="border-t border-border py-12">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="max-w-[62ch]">
+          <h2 className="text-[15px] font-medium">What is AI infrastructure?</h2>
+          <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
+            AI infrastructure is everything between your product and the model:
+            runtimes that serve weights, gateways that route requests, stores
+            that hold embeddings, frameworks that run agents, and evals that say
+            whether any of it works. Lattice indexes {toolCount} such AI
+            infrastructure tools as one AI stack, ordered by depth —{" "}
+            <Link
+              href="/all"
+              className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+            >
+              browse every tool
+            </Link>
+            , or{" "}
+            <Link
+              href="/stack-builder"
+              className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+            >
+              build your stack
+            </Link>
+            .
+          </p>
+        </div>
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-[46ch]">
             <h2 className="text-[15px] font-medium">How this list is kept</h2>
             <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
@@ -216,11 +245,12 @@ export default function HomePage() {
 
         {/* Reader-facing links only. /feed.xml and /llms.txt are deliberately not
             linked from anywhere visible: they are for crawlers and agents, which
-            find them via robots.txt and the sitemap, and a human clicking "RSS"
-            gets a raw XML document with no explanation of what it is. */}
+            find them via the sitemap (robots.txt cannot list URLs, only rules),
+            and a human clicking "RSS" gets a raw XML document with no
+            explanation of what it is. */}
         <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-6 font-mono text-[11px] text-fg-subtle">
           <Link href="/all" className="transition-colors hover:text-fg-muted">
-            All {toolCount} tools, filterable →
+            All {toolCount} AI infrastructure tools, filterable →
           </Link>
         </div>
       </section>

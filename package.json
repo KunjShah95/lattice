@@ -20,10 +20,11 @@
     "icons:render": "node scripts/render-icons.mjs",
     "og:probe": "node scripts/og-probe.mjs",
     "og:check": "python scripts/check-og-bounds.py og-out",
-    "verify": "npm run generate && npm run lint && npm run test && npm run next:build",
+    "verify": "npm run generate && npm run lint && npm run test && npm run test:submissions && npm run next:build",
     "generate": "node scripts/generate-awesome-list.mjs",
     "generate:check": "node scripts/generate-awesome-list.mjs --check",
     "indexnow": "node scripts/indexnow.mjs",
+    "test:submissions": "node scripts/triage-harness.mjs",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "deploy": "npm run build && npm run cf:deploy",
     "preview": "npm run build && wrangler dev"
@@ -31,6 +32,7 @@
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@next/mdx": "^16.3.7",
     "next": "16.3.7",
     "react": "19.2.8",

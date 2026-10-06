@@ -82,4 +82,42 @@ describe("recommendStack — genuine subsystem search", () => {
     } as never);
     expect(r.picks.length).toBeGreaterThan(0);
   });
+
+  it("adds guardrails when safety is stated, even where the workload omits it", () => {
+    const plain = recommendStack({ workload: "llm-api", queriesPerMonth: 100_000 });
+    expect(plain.picks.map((p) => p.sectionSlug)).not.toContain("guardrails-safety");
+    const guarded = recommendStack({ workload: "llm-api", queriesPerMonth: 100_000, safety: "strict" });
+    expect(guarded.picks.map((p) => p.sectionSlug)).toContain("guardrails-safety");
+  });
+
+  it("adds durable execution when work outlives a request", () => {
+    const plain = recommendStack({ workload: "rag", queriesPerMonth: 100_000 });
+    expect(plain.picks.map((p) => p.sectionSlug)).not.toContain("workflow-orchestration");
+    const durable = recommendStack({ workload: "rag", queriesPerMonth: 100_000, durability: "hours" });
+    expect(durable.picks.map((p) => p.sectionSlug)).toContain("workflow-orchestration");
+  });
+
+  it("matches the team's language against real tool attributes", () => {
+    const r = recommendStack({ workload: "agent", queriesPerMonth: 100_000, language: "python" });
+    const agents = r.picks.find((p) => p.sectionSlug === "agent-frameworks");
+    expect(["Python", "multi"]).toContain(
+      getToolByName(agents!.tool).language ?? "multi",
+    );
+  });
+
+  it("chips and summary narrate the stated case", () => {
+    const r = recommendStack({
+      workload: "rag",
+      queriesPerMonth: 500_000,
+      documents: 10_000_000,
+      filtering: "heavy",
+      selfHosted: true,
+    });
+    expect(r.summary).toContain("10M docs");
+    expect(r.summary).toContain("heavy filtering");
+    const retrieval = r.picks.find((p) => p.sectionSlug === "retrieval-vector-stores");
+    expect(retrieval!.matches).toContain("self-hosted");
+    expect(retrieval!.watchOut.length).toBeGreaterThan(10);
+    expect(retrieval!.fitLabel.length).toBeGreaterThan(0);
+  });
 });

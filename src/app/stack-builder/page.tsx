@@ -5,7 +5,7 @@ import { absolute } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Stack Builder",
   description:
-    "Answer four questions and get a recommended AI infrastructure stack — gateway, retrieval, inference, evals — with cost band, confidence and tradeoffs.",
+    "Describe your AI system and get a recommended stack of AI infrastructure tools — gateway, retrieval, inference, evals — as a shareable link with cost band, confidence and tradeoffs.",
   alternates: { canonical: "/stack-builder" },
   // Next does not derive `og:url` from the canonical, and an inherited one
   // points at the home page. See `absolute()` in lib/seo.ts.
@@ -23,9 +23,10 @@ export default function StackBuilderPage() {
           Build my AI stack.
         </h1>
         <p className="mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-          Four questions. One recommended stack, drawn from the 112 tools already
-          in the index — with the fit score, the alternative, and the reason to
-          skip it. Estimates are heuristic bands, not vendor quotes.
+          Describe your case — or start from a real one below. The stack updates
+          as you answer, every answer becomes part of a shareable link, and the
+          decision copies out as a report. Drawn from the 112 tools already in
+          the index; estimates are heuristic bands, not vendor quotes.
         </p>
       </header>
       <div className="mt-8">

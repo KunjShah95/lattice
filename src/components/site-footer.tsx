@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./logo";
+import { ProductHuntBadge } from "./product-hunt-badge";
 import { categories, stackLayers, toolCount } from "@/lib/data";
 import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
@@ -33,6 +34,20 @@ export function SiteFooter() {
             <p className="mt-4 font-mono text-[11px] text-fg-subtle">
               {toolCount} tools · {layers.length} layers · {glossary.length} terms
             </p>
+            <ProductHuntBadge className="mt-4" />
+            <a
+              href="https://usefulshelf.co/apps/lattice?utm_source=lattice.kkshah2005.workers.dev&utm_medium=referral&utm_campaign=badge&utm_content=light"
+              target="_blank"
+              rel="noopener"
+              className="mt-4 inline-block"
+            >
+              <img
+                src="https://usefulshelf.co/badge/lattice.svg"
+                alt="Featured on UsefulShelf"
+                width={248}
+                height={66}
+              />
+            </a>
           </div>
 
           <FooterColumn title="Layers">
