@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Tool } from "@/lib/types";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 
 /**
  * One tool in a list. Hairline-separated rather than boxed — the reference
@@ -32,7 +32,11 @@ export function ToolRow({
 
   return (
     <li>
-      <div className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-bg-sunken">
+      <div
+        data-spot=""
+        style={{ "--spot": layerColor(layer) } as React.CSSProperties}
+        className="group relative -mx-2 flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-bg-sunken"
+      >
         {/* The swatch thickens on hover — the row "takes" its layer colour
             rather than the whole row lighting up. */}
         <span

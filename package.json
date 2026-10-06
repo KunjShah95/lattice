@@ -35,6 +35,7 @@
     "cite:self-test": "node scripts/cite-check.mjs --self-test",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "deploy": "npm run build && npm run cf:deploy",
+    "deploy:live": "npm run build && npm run cf:deploy && npm run indexnow",
     "preview": "npm run build && wrangler dev"
   },
   "dependencies": {

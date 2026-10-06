@@ -496,11 +496,55 @@
      just below the line. */
   .mask-line {
     display: inline-block;
+    max-width: 100%;
     overflow: hidden;
     vertical-align: top;
     /* Room for descenders, taken back so the line box does not grow. */
     padding-bottom: 0.12em;
     margin-bottom: -0.12em;
+  }
+
+  /* A wash of the surface's own colour, following the pointer.
+     `--spot` is set per row (a layer or a band). Without it, the accent
+     is the fallback so unmarked controls still answer the cursor.
+     Only painted for a fine pointer — a stuck :hover after a tap would
+     leave a phone with a permanent glow. */
+  [data-spot] {
+    --mx: 50%;
+    --my: 40%;
+  }
+
+  [data-spot]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    background: radial-gradient(
+      200px circle at var(--mx) var(--my),
+      color-mix(in oklch, var(--spot, var(--accent)) 34%, transparent),
+      transparent 68%
+    );
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  /* Type stays above the wash. Absolute fills (layer tint, hatch) are
+     left alone — forcing them to `relative` would collapse the diagram. */
+  [data-spot] > :not(.absolute) {
+    position: relative;
+    z-index: 2;
+  }
+
+  [data-spot].crop::before {
+    z-index: 3;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-spot]:hover::after {
+      opacity: 1;
+    }
   }
 
   .mask-line > span {

@@ -295,13 +295,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
               </div>
             ) : loadFailed || results.length === 0 ? (
               <div role="status" className="px-6 py-10 text-center">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true" className="mx-auto text-fg-subtle">
+                <svg width="56" height="44" viewBox="0 0 56 44" fill="none" aria-hidden="true" className="mx-auto text-fg-subtle">
                   {loadFailed ? (
-                    <path d="M12 8v5M12 16.5h.01M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                    <path d="M28 6v14M28 28h.01M24.2 4.2 8.4 32.4A3.2 3.2 0 0 0 11.2 37h33.6a3.2 3.2 0 0 0 2.8-4.6L31.8 4.2a3.2 3.2 0 0 0-5.6 0Z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                   ) : (
                     <>
-                      <circle cx="11" cy="11" r="7" />
-                      <path d="m20 20-3.5-3.5M8.5 11h5" />
+                      <rect x="4" y="2" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
+                      <rect x="4.5" y="17.5" width="47" height="9" rx="2" stroke="currentColor" strokeDasharray="3 3" />
+                      <rect x="4" y="32" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
                     </>
                   )}
                 </svg>

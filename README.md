@@ -97,16 +97,13 @@ npx playwright test --project=e2e   # the interaction tests only
 
 ## Deploying to Cloudflare Workers
 
-This deploys as a **Worker via OpenNext**, not a static export. 250 routes are
-prerendered, but `/feed.xml`, `/llms.txt`, `/llms-full.txt` and the section, essay,
-comparison and glossary `opengraph-image` routes are server-rendered on demand, so
-there has to be something serving them. The tool, alternatives and role cards
-*are* prerendered because those routes declare `generateStaticParams`; the others
-declare none and render per request. That is a deliberate asymmetry for now, not a
-constraint: sections, posts, comparisons and glossary terms are all enumerable at
-build time, so adding `generateStaticParams` to those routes would move most of the
-remaining cards onto the static path if cold-start latency on a share ever justifies
-it.
+This deploys as a **Worker via OpenNext**, not a static export. Every page and
+every `opengraph-image` route is prerendered — each dynamic family (sections,
+tools, alternatives, essays, comparisons, symptoms, glossary terms, roles, bands
+and workload stacks) declares `generateStaticParams`, which matters because
+`lib/og.tsx` reads its fonts from disk and the Worker has no disk, so an
+on-demand card would be a 500. Only `/feed.xml`, `/llms.txt` and
+`/llms-full.txt` render per request, and they are why this is a Worker at all.
 
 ```bash
 npm run deploy     # build -> opennextjs-cloudflare build -> deploy
@@ -119,7 +116,10 @@ npm run preview    # build + adapt, then serve locally under workerd
 | `npm run next:build` | Plain Next build (`.next`), no adapter |
 | `npm run cf:deploy` | Uploads the Worker and its assets |
 | `npm run deploy` | `build` then `cf:deploy` |
+| `npm run deploy:live` | `deploy` then `indexnow` (live sitemap push) |
 | `npm run preview` | Build + adapt, then `wrangler dev` on workerd |
+
+After a successful deploy, run `npm run indexnow` so IndexNow engines pick up new URLs without waiting on a crawl.
 
 ### After every deploy: `npm run indexnow`
 

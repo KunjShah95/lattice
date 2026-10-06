@@ -65,6 +65,13 @@ export function GET() {
     `- Tracing and eval in one tool → ${site.url}/compare/llm-observability`,
     `- One gateway across many providers → ${site.url}/routing-gateways`,
     "",
+    "## Policies",
+    "",
+    `- Contact → ${site.url}/contact`,
+    `- About → ${site.url}/about`,
+    `- Privacy → ${site.url}/privacy`,
+    `- Returns → ${site.url}/returns`,
+    "",
     "## Essays",
     "",
   ];

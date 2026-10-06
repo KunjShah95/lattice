@@ -37,6 +37,7 @@ import { WORKLOADS } from "./stacks";
 import { ROLES } from "./roles";
 import { BANDS } from "./layer";
 import { site } from "./site";
+import sitemap from "@/app/sitemap";
 
 /**
  * Cross-route metadata invariants.
@@ -277,6 +278,10 @@ const SEGMENTS_WITH_CARDS = [
   "stack-builder",
   "stack/[workload]",
   "submit",
+  "about",
+  "contact",
+  "privacy",
+  "returns",
   "[slug]",
   "[slug]/[tool]",
   "[slug]/[tool]/alternatives",
@@ -312,6 +317,28 @@ describe("role index structured data", () => {
     // No duplicates: two roles pointing at one page would make the list
     // self-contradictory to a consumer resolving it.
     expect(new Set(listed.map((l) => l.url)).size).toBe(listed.length);
+  });
+
+  /**
+   * The sitemap is assembled by spreading literal entries next to `.map()` over
+   * the vocabularies, so the same URL can be emitted twice by two blocks that
+   * drifted apart. It did: `/bands`, `/bands/<id>` and `/stack/<id>` each
+   * appeared twice, and `/bands` three times.
+   *
+   * Nothing in the build or in `next build` objects. A duplicate URL in a
+   * sitemap is legal XML, so it shipped silently — it spends crawl budget and
+   * it makes the `lastModified` a crawler honours ambiguous, since two entries
+   * for one page can disagree.
+   */
+  it("publishes every URL exactly once", async () => {
+    const entries = await sitemap();
+    const urls = entries.map((e) => e.url);
+
+    const counts = new Map<string, number>();
+    for (const url of urls) counts.set(url, (counts.get(url) ?? 0) + 1);
+    const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([u]) => u);
+
+    expect(dupes).toEqual([]);
   });
 
   it("states the overlap so the counts are self-explaining", () => {
@@ -355,6 +382,10 @@ const INDEX_ROUTES: Array<[string, boolean]> = [
   ["bands", true],
   ["stack-builder", false],
   ["submit", false],
+  ["about", false],
+  ["contact", false],
+  ["privacy", false],
+  ["returns", false],
 ];
 
 describe("index page structured data", () => {

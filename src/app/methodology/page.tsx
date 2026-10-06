@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { InfoPageHeader } from "@/components/info-page";
 import { BANDS } from "@/lib/layer";
 import { AS_OF } from "@/lib/attributes";
 import { allTools, categories, stackLayers, toolCount } from "@/lib/data";
@@ -86,23 +87,22 @@ export default function MethodologyPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-          Methodology · v1 · dataset as of {AS_OF}
-        </p>
-        <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
-          How this index is compiled, and where it is wrong.
-        </h1>
-        <p className="mt-4 max-w-[60ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
-          {toolCount} tools across {categories.length} sections,{" "}
-          {resolvedComparisons.length} head-to-head comparisons and {posts.length}{" "}
-          essays. The selection, the checks, and — in the last section —{" "}
-          <span className="text-fg">
-            the specific ways a reader should distrust this page
-          </span>
-          .
-        </p>
-      </header>
+      <InfoPageHeader
+        breadcrumb="Methodology"
+        eyebrow={<>Methodology · v1 · dataset as of {AS_OF}</>}
+        title="How this index is compiled, and where it is wrong."
+        lede={
+          <>
+            {toolCount} tools across {categories.length} sections,{" "}
+            {resolvedComparisons.length} head-to-head comparisons and {posts.length}{" "}
+            essays. The selection, the checks, and — in the last section —{" "}
+            <span className="text-fg">
+              the specific ways a reader should distrust this page
+            </span>
+            .
+          </>
+        }
+      />
 
       {/* ------------------------------------------------------------ 1 */}
       <Section n="01" title="What gets included">

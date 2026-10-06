@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { site } from "./site";
+import { REPO } from "./submissions.mjs";
 
 /**
  * Branding invariants.
@@ -32,6 +33,16 @@ describe("branding", () => {
     expect(site.copyrightHolder).not.toMatch(/your name/i);
     expect(site.contact.email).not.toMatch(/^hello@example\./i);
     expect(site.contact.x).not.toMatch(/yourhandle/i);
+  });
+
+  /**
+   * `site.repo` and `submissions.mjs`'s `REPO` were two spellings of one fact:
+   * a bare `owner/repo` here and a full URL there. Nothing forced them to agree,
+   * so a repo rename that updated one left the other pointing at a 404 — and the
+   * contact page would offer an issue link that could not receive an issue.
+   */
+  it("derives the repo URL from the same constant issues are filed against", () => {
+    expect(site.repo).toBe(`https://github.com/${REPO}`);
   });
 
   it("keeps the meta description inside the search-result budget", () => {

@@ -80,7 +80,7 @@ export default function HomePage() {
       */}
       <section className="pb-12 pt-14 sm:pt-20">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             {/*
               Each word rises out of its own mask, staggered. Transform only —
               the glyphs are at full ink from the first frame, so LCP and the
@@ -88,7 +88,12 @@ export default function HomePage() {
               text nodes between the masks, so the heading still reads (and
               copies) as one sentence.
             */}
-            <h1 className="text-balance font-serif text-[36px] font-medium leading-[1.08] tracking-[-0.02em] sm:text-[46px]">
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
+              Sheet 01
+              <span aria-hidden="true" className="px-2 text-border-strong">/</span>
+              A production stack
+            </p>
+            <h1 className="max-w-full text-balance font-serif text-[32px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[44px] lg:text-[48px]">
               {HEADLINE.map((word, i) => (
                 <span key={word}>
                   <span className="mask-line">
@@ -124,10 +129,10 @@ export default function HomePage() {
               would compete with the section below it that is also called Start
               Here; this says what happens when you click.
             */}
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2">
               <Link
                 href="/stack-builder"
-                className="btn-ink group inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] font-medium"
+                className="btn-ink group inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium sm:justify-start"
               >
                 Build my stack
                 <span aria-hidden="true" className="nudge">→</span>
@@ -222,7 +227,9 @@ export default function HomePage() {
             <li key={s.slug} className="bg-bg">
               <Link
                 href={`/fix/${s.slug}`}
-                className="crop group flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken"
+                data-spot=""
+                style={{ "--spot": bandColor(s.band) } as React.CSSProperties}
+                className="crop group relative flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken"
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
@@ -241,7 +248,7 @@ export default function HomePage() {
             </li>
           ))}
           <li className="bg-bg-sunken/60">
-            <Link href="/compare" className="crop group flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken">
+            <Link href="/compare" data-spot="" className="crop group relative flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken">
               <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Choosing, not fixing</span>
               <span className="mt-auto flex items-end justify-between gap-3">
                 <span className="text-pretty text-[15px] font-medium leading-snug transition-colors group-hover:text-accent">
@@ -323,6 +330,13 @@ export default function HomePage() {
                 className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
               >
                 The full method, including what this list gets wrong
+              </Link>
+              . When something changes, it is listed on{" "}
+              <Link
+                href="/corrections"
+                className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+              >
+                Corrections
               </Link>
               .
             </p>

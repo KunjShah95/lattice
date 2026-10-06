@@ -569,6 +569,124 @@ export const comparisons: Comparison[] = [
     sections: ["inference-serving", "routing-gateways", "evaluation-observability"],
     related: ["the-cost-model", "choosing-an-inference-runtime", "observability-is-not-logging"],
   },
+  {
+    slug: "agent-frameworks",
+    kind: "substitutes",
+    title: "LangChain vs LlamaIndex vs Pydantic AI vs OpenAI Agents SDK",
+    description:
+      "Agent frameworks compared on retrieval depth, type safety, surface area and ecosystem — with a recommendation for data-heavy, schema-heavy and minimal-loop teams.",
+    intro:
+      "These four are the frameworks teams actually shortlist once they move past a script in a notebook. The split is not Python versus TypeScript — it is whether retrieval, types or a thin loop is the centre of the problem.",
+    tools: [
+      { name: "LangChain", angle: "Widest integrations, largest surface." },
+      { name: "LlamaIndex", angle: "Retrieval and indexing as the main event." },
+      { name: "Pydantic AI", angle: "Type-safe tools and structured agent outputs." },
+      { name: "OpenAI Agents SDK", angle: "Small primitives: handoffs, guardrails, tracing." },
+    ],
+    rows: [
+      { dimension: "Best for", values: [
+        "Breadth — many providers, tools and patterns already wired",
+        "RAG-heavy apps where data connectors matter",
+        "Agents where bad tool args are the main failure mode",
+        "A legible loop without adopting a whole platform",
+      ] },
+      { dimension: "Retrieval built in", values: [
+        "Via integrations, not the core abstraction",
+        "First-class — indexes, parsers and query engines",
+        "Via your own retrieval layer",
+        "Bring your own context",
+      ] },
+      { dimension: "Type safety", values: [
+        "Optional, varies by module",
+        "Moderate — Python-first data models",
+        "Strong — Pydantic models end to end",
+        "Moderate — typed runners and tools",
+      ] },
+      { dimension: "Multi-agent patterns", values: [
+        "Graphs, crews and handoffs via ecosystem",
+        "Workflows and agents over indexes",
+        "Delegation between typed agents",
+        "Handoffs as a first-class primitive",
+      ] },
+      { dimension: "Operational surface", values: [
+        "Large — many moving parts to learn",
+        "Medium — data stack plus agent layer",
+        "Small core — you own orchestration",
+        "Smallest — intentionally minimal API",
+      ] },
+      { dimension: "Where it loses", values: [
+        "Teams that want a thin, readable core",
+        "Pure tool loops with no retrieval",
+        "Batteries-included multi-provider glue",
+        "Deep retrieval tooling out of the box",
+      ] },
+    ],
+    verdict:
+      "Choose on the shape of the job. LlamaIndex when retrieval and connectors are the product; Pydantic AI when schema-safe tool calls are the risk; OpenAI Agents SDK when you want a small loop with handoffs and guardrails built in; LangChain when you need the widest integration surface and will pay the abstraction tax. Whichever you pick, run the loop on a durable host and trace every tool call — no framework replaces those.",
+    rules: [
+      "A framework orchestrates calls inside one process. It does not make long runs survive a deploy — that is a workflow engine's job.",
+      "Fewer tools beats a longer system prompt. Narrow the agent before you add another integration.",
+      "If you cannot trace a failing run step by step, you are debugging prose instead of the call that went wrong.",
+    ],
+    sections: ["agent-frameworks"],
+    related: ["agents-need-a-durable-host", "observability-is-not-logging", "where-guardrails-belong"],
+  },
+  {
+    slug: "guardrails-platforms",
+    kind: "substitutes",
+    title: "NeMo Guardrails vs Guardrails AI vs Presidio vs Invariant",
+    description:
+      "Safety layers compared on input rails, output validation, PII handling and whether they run inline or as a separate service — with a recommendation by compliance shape.",
+    intro:
+      "These four are not interchangeable filters. Some constrain dialogue flow, some validate structured output, some detect PII in text, and some enforce policy in the request path. Teams that bolt one on without naming the failure mode usually discover they still leak data in traces.",
+    tools: [
+      { name: "NeMo Guardrails", angle: "Programmable conversational rails and flows." },
+      { name: "Guardrails AI", angle: "Validator hub for model output schemas." },
+      { name: "Microsoft Presidio", angle: "PII detection and anonymization." },
+      { name: "Invariant Guardrails", angle: "Policy-as-code in the call path." },
+    ],
+    rows: [
+      { dimension: "Best for", values: [
+        "Multi-turn policies and topic boundaries",
+        "Structured output you can fail closed on",
+        "Redacting or blocking PII before storage",
+        "Inline enforcement with minimal latency tax",
+      ] },
+      { dimension: "Input vs output", values: [
+        "Both — flow and topical rails",
+        "Mostly output validation",
+        "Mostly input (and logs) before models",
+        "Both — request and response hooks",
+      ] },
+      { dimension: "Self-hostable", values: [
+        "Yes",
+        "Yes",
+        "Yes",
+        "Yes",
+      ] },
+      { dimension: "Open source core", values: [
+        "Yes",
+        "Yes",
+        "Yes",
+        "Partial — check licence for your use",
+      ] },
+      { dimension: "Where it loses", values: [
+        "Heavy if you only need a schema check",
+        "Weak on conversational topic control alone",
+        "Not a full safety policy language",
+        "Smaller validator ecosystem",
+      ] },
+    ],
+    verdict:
+      "Start with the failure you have seen. Presidio when PII in prompts or logs is the incident; Guardrails AI when bad JSON or schema violations are the incident; NeMo when the model keeps drifting off-topic across turns; Invariant when you need policy enforced on every hop with code reviewable rules. Whatever you pick, redact before traces land in a third-party observability tool — guardrails on the model do not fix logging.",
+    rules: [
+      "Guardrails belong at the gateway when every provider must see the same policy; they belong in the app when policy is task-specific.",
+      "PII detection on the way in is cheaper than explaining a breach on the way out.",
+      "A validator without tests is theatre. Ship a small adversarial set and run it in CI.",
+    ],
+    sections: ["guardrails-safety"],
+    related: ["where-guardrails-belong", "the-gateway-is-the-product", "observability-is-not-logging"],
+  },
 ];
 
 export const getComparison = (slug: string) =>

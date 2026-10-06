@@ -296,6 +296,104 @@ export const symptoms: Symptom[] = [
     comparisons: ["llm-observability", "gateway-guardrails-evals"],
     related: ["evals-are-the-asset", "observability-is-not-logging"],
   },
+  {
+    slug: "rag-hallucinations",
+    band: "state",
+    label: "RAG hallucinations",
+    title: "Why does my RAG system hallucinate?",
+    description:
+      "Why RAG apps invent facts: thin retrieval, bad chunks, or prompts that allow guessing — and the layer-by-layer order to fix it with the right tools.",
+    answer:
+      "RAG hallucinations usually mean the model answered without support in the retrieved text, or the chunks looked relevant but were not. Log retrieval for each failure, fix ranking and chunking before swapping models, and require citations or abstention when context is thin. Build a small eval of questions where every answer must stay inside the passages you retrieved.",
+    checks: [
+      {
+        layer: 9,
+        check: "Score failures where answers must cite retrieved passages",
+        why: "Without a grader that enforces grounding, you cannot tell whether a prompt change helped or you just got luckier on one demo.",
+        tools: ["promptfoo", "DeepEval"],
+      },
+      {
+        layer: 9,
+        check: "Log the retrieved chunks next to each bad answer",
+        why: "Hallucination in RAG is often 'the model guessed' or 'the wrong chunk ranked first'. You need both sides in one trace to know which.",
+        tools: ["Langfuse", "Arize Phoenix"],
+      },
+      {
+        layer: 3,
+        check: "Rerank before generation when recall is noisy",
+        why: "Vector search alone returns plausible neighbours. A cross-encoder second stage is the cheapest way to stop almost-right chunks from steering the model.",
+        tools: ["Rerankers"],
+      },
+      {
+        layer: 3,
+        check: "Fix parsing and chunk boundaries on the source documents",
+        why: "Chunks cut mid-table or mid-sentence produce context that reads well and contains no usable fact — the model fills the gap.",
+        tools: ["Docling", "Unstructured"],
+      },
+      {
+        layer: 8,
+        check: "Require citations, abstention, or a structured answer schema",
+        why: "When the fact was in context and still misused, tightening the output contract is cheaper than fine-tuning and easier to revert.",
+        tools: ["Instructor", "DSPy"],
+      },
+    ],
+    notTheFix: [
+      "Swapping to a larger model before checking what was retrieved for the failures.",
+      "Stuffing more chunks into the prompt without measuring whether recall improved.",
+      "Fine-tuning to 'stop hallucinating' when the retrieved passages never contained the answer.",
+    ],
+    comparisons: ["vector-databases", "retrieval-finetuning-prompting", "structured-output"],
+    related: ["fix-the-ranking-not-the-prompt", "context-is-a-budget", "evals-are-the-asset"],
+  },
+  {
+    slug: "pii-in-llm-traces",
+    band: "control",
+    label: "PII in logs",
+    title: "How do I stop PII showing up in LLM traces and prompts?",
+    description:
+      "Why customer data ends up in observability tools and prompt stores — and the order to fix it: redact before log, gate at the gateway, validate outputs, then prove it with tests.",
+    answer:
+      "PII in traces is almost always a logging choice, not a model bug. Redact or block before text hits your observability vendor, enforce the same policy at the gateway for every provider, and add output validators for fields that must never leave the system. Then sample production traces in an eval that fails when known patterns appear.",
+    checks: [
+      {
+        layer: 2,
+        check: "Apply one redaction policy on every model call",
+        why: "Multiple SDK paths mean multiple leak paths. The gateway is where provider keys and policy meet.",
+        tools: ["Portkey", "LiteLLM"],
+      },
+      {
+        layer: 7,
+        check: "Detect and strip PII before prompts are stored",
+        why: "Prompt management and tracing replay what you sent. Scrub at ingress, not when someone exports a CSV months later.",
+        tools: ["Microsoft Presidio", "Guardrails AI"],
+      },
+      {
+        layer: 7,
+        check: "Add conversational rails for fields users should never paste",
+        why: "When users paste secrets anyway, flow-level rails can refuse or mask before the model sees them.",
+        tools: ["NeMo Guardrails", "Invariant Guardrails"],
+      },
+      {
+        layer: 9,
+        check: "Audit what your tracing tool actually retains",
+        why: "Many 'debug' modes store full prompts by default. Turn retention down before you add more guardrails upstream.",
+        tools: ["Langfuse", "Arize Phoenix"],
+      },
+      {
+        layer: 9,
+        check: "Run a regression set that fails on synthetic PII patterns",
+        why: "Policy without a test decays the first time someone adds a new tool integration.",
+        tools: ["promptfoo", "DeepEval"],
+      },
+    ],
+    notTheFix: [
+      "Asking the model in the system prompt not to log sensitive data.",
+      "Deleting traces after the fact while leaving full prompts in the pipeline.",
+      "Buying a new observability tool without changing what gets sent to it.",
+    ],
+    comparisons: ["guardrails-platforms", "llm-gateways", "gateway-guardrails-evals"],
+    related: ["where-guardrails-belong", "observability-is-not-logging", "the-gateway-is-the-product"],
+  },
 ];
 
 /**

@@ -76,20 +76,38 @@ export function decodeStackInput(search: string): Omit<Required<StackInput>, "si
 }
 
 /**
+ * Where an exported report came from. Optional because the report is built
+ * on the server too, and a relative `/section/tool` path pasted into an ADR
+ * points nowhere — so links are emitted only when the caller knows the origin,
+ * never guessed.
+ */
+export type StackReportSource = {
+  /** Site origin, no trailing slash: entry paths are joined onto it. */
+  origin: string;
+  /** Absolute URL that reproduces this case, so a reader can change it. */
+  caseUrl?: string;
+};
+
+/**
  * The decision report: the whole recommendation as Markdown, ready to paste
  * into an ADR, a PR description or a design doc. Every claim in it already
  * appears on screen — this is an export format, not new content.
  */
-export function stackReportMarkdown(result: StackResult): string {
+export function stackReportMarkdown(result: StackResult, source?: StackReportSource): string {
   const lines = [
     `# Stack recommendation — ${result.summary}`,
     ``,
     `Recommended with the Lattice Stack Builder. Cost bands are heuristics from query volume, not vendor quotes.`,
     ``,
   ];
+  if (source?.caseUrl) {
+    lines.push(`Reproduce or change this case: ${source.caseUrl}`);
+    lines.push(``);
+  }
   for (const p of result.picks) {
     lines.push(`## ${p.section} — ${p.tool} (${p.fitLabel})`);
     lines.push(``);
+    if (source) lines.push(`- Lattice entry: ${source.origin}${p.url}`);
     lines.push(`- Why for this case: ${p.why}`);
     lines.push(`- Watch out: ${p.watchOut}`);
     if (p.alternative !== "—" && p.switchWhen) {
@@ -114,4 +132,35 @@ export function stackReportMarkdown(result: StackResult): string {
   lines.push(`${Math.round(result.confidence * 100)}% — lower when constraints narrow the field.`);
   lines.push(``);
   return lines.join("\n");
+}
+
+/** Same recommendation as {@link stackReportMarkdown}, as pretty-printed JSON. */
+export function stackReportJson(result: StackResult, source?: StackReportSource): string {
+  return JSON.stringify(
+    {
+      summary: result.summary,
+      ...(source?.caseUrl ? { caseUrl: source.caseUrl } : {}),
+      picks: result.picks.map((p) => ({
+        section: p.section,
+        sectionSlug: p.sectionSlug,
+        tool: p.tool,
+        url: source ? `${source.origin}${p.url}` : p.url,
+        fitLabel: p.fitLabel,
+        why: p.why,
+        watchOut: p.watchOut,
+        alternative: p.alternative,
+        switchWhen: p.switchWhen,
+        matches: p.matches,
+      })),
+      cost: {
+        lowUsdPerMonth: result.costLow,
+        highUsdPerMonth: result.costHigh,
+        drivers: result.costDrivers,
+      },
+      risk: result.risk,
+      confidence: result.confidence,
+    },
+    null,
+    2,
+  );
 }

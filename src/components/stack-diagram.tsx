@@ -89,7 +89,13 @@ export function StackDiagram() {
                           marks sit inside the row (`overflow-hidden`). */}
                       <Link
                         href={`/${category.slug}`}
-                        style={{ "--i": 9 - layer } as React.CSSProperties}
+                        data-spot=""
+                        style={
+                          {
+                            "--i": 9 - layer,
+                            "--spot": layerColor(layer),
+                          } as React.CSSProperties
+                        }
                         className="crop group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-lg px-3 py-3 transition-colors duration-200 [--crop-inset:3px] [--crop:6px] hover:bg-bg-sunken sm:gap-4"
                       >
                         {/* Full-bleed tint in the layer's own colour. */}

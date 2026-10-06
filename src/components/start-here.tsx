@@ -271,7 +271,8 @@ export function StartHere() {
             <button
               type="button"
               onClick={() => choose(i)}
-              className="btn-paper crop group w-full rounded-xl px-4 py-3.5 text-left [--crop-inset:-5px]"
+              data-spot=""
+              className="btn-paper crop group relative w-full rounded-xl px-4 py-3.5 text-left [--crop-inset:-5px]"
             >
               <span className="flex items-baseline justify-between gap-3">
                 <span className="flex items-baseline gap-3">

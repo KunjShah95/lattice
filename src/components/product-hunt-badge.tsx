@@ -26,7 +26,7 @@ export function ProductHuntBadge({ className = "" }: { className?: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Featured on Product Hunt"
-      className={`inline-block ${className}`}
+      className={`press inline-block max-w-[220px] overflow-hidden rounded-lg shadow-ink transition-transform duration-200 ease-[var(--ease-out)] hover:-translate-y-px ${className}`}
     >
       {/* Light mode */}
       <img
@@ -35,7 +35,7 @@ export function ProductHuntBadge({ className = "" }: { className?: string }) {
         width={250}
         height={54}
         loading="lazy"
-        className="block dark:hidden"
+        className="block h-auto w-full dark:hidden"
       />
       {/* Dark mode */}
       <img
@@ -44,7 +44,7 @@ export function ProductHuntBadge({ className = "" }: { className?: string }) {
         width={250}
         height={54}
         loading="lazy"
-        className="hidden dark:block"
+        className="hidden h-auto w-full dark:block"
         aria-hidden="true"
       />
     </a>

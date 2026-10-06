@@ -19,7 +19,31 @@
  * `src/lib/brand.test.ts` fails the suite while any of them is still a
  * placeholder, so this cannot ship unnoticed.
  */
+import { REPO } from "@/lib/submissions.mjs";
+
 const env = process.env;
+
+/**
+ * The named human behind the index, for pages that ask "who maintains this".
+ * Falls back to the copyright holder so the two can never disagree — an author
+ * byline and a footer that name different people is the kind of small
+ * inconsistency that costs a reader's trust in the whole page.
+ */
+const MAINTAINER_NAME =
+  env.NEXT_PUBLIC_AUTHOR_NAME || env.NEXT_PUBLIC_COPYRIGHT_HOLDER || null;
+
+/**
+ * Public repository, overridable so a fork or a second deployment is not
+ * hardcoded to the upstream owner. Issues are the durable channel for
+ * corrections; email is the fast one.
+ *
+ * The default is derived from `REPO` rather than typed out again, because it was
+ * already `owner/repo` here and a full URL next to it in `submissions.mjs` —
+ * two spellings of one fact, free to drift, and drifting apart means the
+ * contact page links to a repo that is not the one issues get filed against.
+ * `submissions.mjs` imports nothing, so this direction cannot cycle.
+ */
+const REPO_URL = env.NEXT_PUBLIC_REPO_URL || `https://github.com/${REPO}`;
 
 export const site = {
   /** Wordmark shown in the header and footer. */
@@ -65,6 +89,14 @@ export const site = {
     ? { name: env.NEXT_PUBLIC_AUTHOR_NAME, url: env.NEXT_PUBLIC_AUTHOR_URL ?? null }
     : null,
   copyrightYear: new Date().getFullYear(),
+  /**
+   * Exported separately from `site` because these are identity facts rather than
+   * metadata, and they need to be importable on their own: `/contact` states
+   * them in prose, and a page should not have to destructure the whole config
+   * object to name the person who maintains it.
+   */
+  maintainer: MAINTAINER_NAME,
+  repo: REPO_URL,
   contact: {
     email: env.NEXT_PUBLIC_CONTACT_EMAIL ?? "todo@example.invalid",
     x: env.NEXT_PUBLIC_CONTACT_X ?? "https://x.com/todo",

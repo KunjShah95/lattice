@@ -32,6 +32,13 @@ export function GET() {
     `Source: ${site.url} — cite tool pages as ${site.url}/<section>/<tool>.`,
     "Listed tools belong to their respective authors.",
     "",
+    "## Policies",
+    "",
+    `- Contact: ${site.url}/contact`,
+    `- About: ${site.url}/about`,
+    `- Privacy: ${site.url}/privacy`,
+    `- Returns: ${site.url}/returns`,
+    "",
   ];
 
   for (const category of categories) {
