@@ -305,7 +305,7 @@ src/
     apple-icon.png          (regenerate with `npm run icons:render`)
     feed.xml/route.ts       RSS of the essays
     sitemap.ts              Every indexable route, 250 URLs
-    robots.ts               Allow answer engines, block training crawlers
+    robots.ts               Allow answer engines and training crawlers, plus a Content-Signal usage statement
     llms.txt/route.ts       Plain-text table of contents, task-keyed
     llms-full.txt/route.ts  The whole index as one document, with a role section
     tools.json/route.ts     The index as JSON for coding agents, CORS-open
@@ -809,6 +809,18 @@ MistralAI-User) are allowed, training crawlers (GPTBot, ClaudeBot, CCBot,
 Bytespider, meta-externalagent, Amazonbot, Diffbot) are not. Google-Extended is
 allowed as a trade — it controls Gemini grounding *and* Gemini training, and blocking
 it was costing Gemini citations.
+
+Each of the three groups also carries a `Content-Signal` line —
+`search=yes, ai-input=yes, ai-train=yes, use=reference` — which states what a crawler
+may do with a page *after* fetching it, the thing `Allow`/`Disallow` cannot express.
+It is on every group rather than only `*` because REP matches the most specific group
+and ignores the rest, so a signal under `*` alone never reaches GPTBot. Two caveats
+worth knowing: the training crawlers above were since switched to `allow` on the
+owner's decision (see the header comment in `robots.ts`), so the current file allows
+everything; and no major crawler has committed to honouring this directive, so it
+declares a position rather than enforcing one. `src/lib/robots.test.ts` holds the
+policy — including that `other` renders verbatim, since `MetadataRoute.Robots`
+accepts any directive name and a misspelling ships silently.
 
 ---
 
