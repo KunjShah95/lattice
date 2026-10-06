@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { allTools, STALE_AFTER_MONTHS, staleCutoff, toolCount } from "./data";
+import { allTools, AS_OF_PATTERN, STALE_AFTER_MONTHS, staleCutoff, toolCount } from "./data";
+import { AS_OF, attributes } from "./attributes";
 import { buildVerificationReport } from "./verification";
 
 /**
@@ -68,5 +69,70 @@ describe("buildVerificationReport", () => {
     const late = buildVerificationReport(new Date(Date.UTC(2031, 0, 1)));
     expect(late.status).toBe("fail");
     expect(late.stale.length).toBe(allTools.length);
+  });
+});
+
+describe("per-tool asOf", () => {
+  /**
+   * The receipt publishes an `asOf` and an expiry *per entry*, which only says
+   * anything if entries can actually carry different dates. With a single global
+   * `AS_OF` all 112 rows share one value and the per-entry column is decorative.
+   *
+   * So this suite pins the mechanism, not the data: it asserts that the two
+   * cases are distinguishable in the report, and that every override is a real
+   * month and no older than the sweep it overrides. Whether any tool currently
+   * sets one is a content decision, not a correctness one.
+   */
+  const report = buildVerificationReport(BUILD);
+
+  it("distinguishes an inherited date from a per-tool one", () => {
+    for (const e of report.entries) {
+      expect(typeof e.perTool, e.name).toBe("boolean");
+    }
+    // The count has to agree with the flags, or the summary line lies.
+    expect(report.perToolChecked).toBe(report.entries.filter((e) => e.perTool).length);
+    expect(report.perToolChecked).toBeLessThanOrEqual(report.entries.length);
+  });
+
+  it("agrees with the attributes file about which entries have an override", () => {
+    for (const e of report.entries) {
+      expect(e.perTool, e.name).toBe(Boolean(attributes[e.name]?.asOf));
+    }
+  });
+
+  it("states the sweep an entry without its own date inherits", () => {
+    expect(report.datasetAsOf).toBe(AS_OF);
+    expect(AS_OF_PATTERN.test(report.datasetAsOf)).toBe(true);
+  });
+
+  it("carries a real month on every entry, override or inherited", () => {
+    for (const t of allTools) {
+      expect(t.asOf, t.name).toMatch(AS_OF_PATTERN);
+    }
+  });
+
+  it("never dates an override earlier than the sweep it overrides", () => {
+    // An override exists to record a *later*, more specific check. One set to an
+    // earlier month would shorten the entry's window while looking like a
+    // deliberate correction, which is the opposite of what the field is for.
+    for (const [name, attr] of Object.entries(attributes)) {
+      if (!attr.asOf) continue;
+      // `YYYY-MM` sorts correctly as a string — fixed width, zero-padded month —
+      // so this is a plain comparison rather than a Date round trip.
+      expect(attr.asOf < AS_OF, `${name}: ${attr.asOf} predates ${AS_OF}`).toBe(false);
+    }
+  });
+
+  it("gives an override a later expiry than the sweep", () => {
+    const overrides = Object.entries(attributes).filter(([, a]) => a.asOf);
+    for (const [name, attr] of overrides) {
+      if (!attr.asOf) continue;
+      const entry = report.entries.find((e) => e.name === name);
+      const inherited = report.entries.find(
+        (e) => e.asOf === AS_OF && e.name !== name,
+      );
+      expect(entry?.asOf).toBe(attr.asOf);
+      if (inherited) expect(entry!.expires >= inherited.expires).toBe(true);
+    }
   });
 });

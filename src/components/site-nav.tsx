@@ -20,6 +20,7 @@ const links = [
   { href: "/fix", label: "Fix" },
   { href: "/all", label: "All tools" },
   { href: "/roles", label: "Roles" },
+  { href: "/bands", label: "Bands" },
   { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Essays" },
   { href: "/glossary", label: "Glossary" },

@@ -10,12 +10,13 @@ import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import {
   breadcrumbNode,
-  datasetModified,
+  credit,
   faqPageJsonLd,
   graph,
   ids,
   listNames,
 } from "@/lib/seo";
+import { Byline } from "@/components/byline";
 import { allAlternativesPages } from "@/lib/alternatives";
 
 /**
@@ -125,9 +126,8 @@ export default async function AlternativesPage({
                 url: pageUrl,
                 name: `${entry.name} alternatives`,
                 description: decision.answer,
-                dateModified: datasetModified,
+                ...credit(),
                 isPartOf: { "@id": ids.website },
-                publisher: { "@id": ids.organization },
                 about: {
                   "@type": "SoftwareApplication",
                   name: entry.name,
@@ -207,6 +207,10 @@ export default async function AlternativesPage({
         <p className="mt-2.5 max-w-[64ch] text-pretty text-[15.5px] leading-relaxed text-fg">
           {verdict}
         </p>
+        {/* Sits directly under the verdict because that is the paragraph a
+            citation lifts, and a lifted paragraph with no accountable name on
+            the page is the one an engine has least reason to quote. */}
+        <Byline fact="Comparison reviewed" date={entry.asOf} className="mt-4" />
       </section>
 
       {/* A real comparison beats this page. */}

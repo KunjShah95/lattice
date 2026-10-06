@@ -70,6 +70,12 @@ const EXPECTED = [
   { path: "/mcp", status: 405 },
   // `/signal` is 405 on GET for the same reason — a beacon is a POST.
   { path: "/signal", status: 405 },
+  // The band axis. Both routes are prerendered via `generateStaticParams`, so a
+  // regression here is the `next build`-passes-but-500s class: a page that was
+  // never generated because its params did not match the vocabulary.
+  { path: "/bands", status: 200 },
+  { path: "/bands/compute", status: 200 },
+  { path: "/bands/nonsense", status: 404 },
   // An unknown path must 404, not 200 and not 500.
   { path: "/definitely-not-a-page", status: 404 },
 ];
@@ -143,7 +149,7 @@ const RPC = [
   {
     name: "tools/list",
     body: { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} },
-    expect: (r) => Array.isArray(r.result?.tools) && r.result.tools.length >= 9,
+    expect: (r) => Array.isArray(r.result?.tools) && r.result.tools.length >= 10,
     why: "every tool must be discoverable",
   },
   {
@@ -178,6 +184,107 @@ const RPC = [
     },
     expect: (r) => r.result?.isError === true && !r.error,
     why: "a model has to be able to read what it did wrong and retry",
+  },
+  {
+    name: "tools/call recommend_stack",
+    body: {
+      jsonrpc: "2.0",
+      id: 6,
+      method: "tools/call",
+      params: { name: "recommend_stack", arguments: { workload: "rag", queriesPerMonth: 200000 } },
+    },
+    expect: (r) => {
+      const out = JSON.parse(r.result.content[0].text);
+      // Picks with reasons, plus the honesty fields. A payload that dropped
+      // `assumptions` or the cost caveat would read as a confident answer for a
+      // case the caller never actually specified.
+      return (
+        out.picks.length > 1 &&
+        out.picks.every((p) => p.why && p.watchOut && p.url.startsWith("https://")) &&
+        Array.isArray(out.assumptions) &&
+        /not a vendor quote/i.test(out.cost.note)
+      );
+    },
+    why: "the Stack Builder must be reachable from an agent, with its limits stated",
+  },
+  {
+    name: "resources/list",
+    body: { jsonrpc: "2.0", id: 7, method: "resources/list", params: {} },
+    expect: (r) => Array.isArray(r.result?.resources) && r.result.resources.length > 50,
+    why: "the site's arguments must be readable as resources, not only assembled from tool fields",
+  },
+  {
+    name: "resources/templates/list",
+    body: { jsonrpc: "2.0", id: 8, method: "resources/templates/list", params: {} },
+    expect: (r) => r.result?.resourceTemplates?.length === 4,
+    why: "a client must be able to discover the four shapes without paging the whole list",
+  },
+  {
+    name: "resources/read an essay",
+    body: {
+      jsonrpc: "2.0",
+      id: 9,
+      method: "resources/read",
+      params: { uri: "text://lattice/essay/evals-are-the-asset" },
+    },
+    expect: (r) => r.result?.contents?.[0]?.text?.length > 1500,
+    why: "the essay must come back as prose, not a stub or a metadata record",
+  },
+  {
+    name: "resources/read a missing uri names the valid shapes",
+    body: {
+      jsonrpc: "2.0",
+      id: 10,
+      method: "resources/read",
+      params: { uri: "text://lattice/essay/nope" },
+    },
+    expect: (r) => r.result?.isError === true && /resources\/list/.test(r.result.contents[0].text),
+    why: "a guess has to be correctable, or the client gives up on the surface",
+  },
+];
+
+/**
+ * Facet queries against `/api/search`, which must answer 200 with a non-empty
+ * result set on the Worker.
+ *
+ * Each `expect` checks something the status alone cannot: that the *filters* took
+ * effect rather than being ignored. An endpoint that answered 200 and returned
+ * the unfiltered corpus would pass a status-only check, and a caller reading it
+ * would conclude the filter matched everything.
+ */
+const FACET_SEARCHES = [
+  {
+    name: "a single cost facet",
+    path: "/api/search?cost=free&limit=50",
+    expect: (j) => j.count > 0 && j.filters.cost[0] === "free",
+  },
+  {
+    name: "two axes ANDed",
+    path: "/api/search?kind=platform&deployment=saas&limit=50",
+    expect: (j) => j.count > 0 && j.filters.kind[0] === "platform" && j.filters.deployment[0] === "saas",
+  },
+  {
+    name: "a browse with no query",
+    path: "/api/search?role=serving&limit=50",
+    expect: (j) => j.query === "" && j.count > 0 && j.results.every((r) => r.kind === "tool"),
+  },
+  {
+    name: "a repeated key ORs",
+    path: "/api/search?cost=free&cost=usage-based&limit=50",
+    expect: (j) => j.filters.cost.length === 2,
+  },
+  {
+    name: "an unrecognised value is named",
+    path: "/api/search?q=a&cost=fre",
+    // This case returns an *empty* result set by design, alongside the vocabulary
+    // that explains why. `mayBeEmpty` opts it out of the shared count check.
+    mayBeEmpty: true,
+    expect: (j) => j.unrecognisedFilterValues?.cost?.[0] === "fre",
+  },
+  {
+    name: "the accepted vocabulary is published",
+    path: "/api/search?cost=free",
+    expect: (j) => Array.isArray(j.acceptedFilterValues?.cost) && j.acceptedFilterValues.cost.includes("free"),
   },
 ];
 
@@ -341,6 +448,68 @@ const main = async () => {
         why = `threw: ${error.message}`;
       }
       record(ok, `signal ${beacon.name}`, ok ? "" : `${why}`);
+    }
+
+    /**
+     * The facet surface, on the Worker.
+     *
+     * `/api/search` is the plain-HTTPS path into the index and its facets are the
+     * only way a caller without an MCP client can filter. Asserted here rather
+     * than in a unit test because the thing that can go wrong is the *bundling* —
+     * a `.mjs` import the Worker resolves differently from Node, or a filter that
+     * returns nothing on the runtime that actually serves traffic.
+     */
+    for (const facet of FACET_SEARCHES) {
+      let ok = false;
+      let detail = "";
+      try {
+        const res = await fetch(`${BASE}${facet.path}`);
+        const json = await res.json();
+        // Most facets must return results; `mayBeEmpty` — used by the unrecognised-value
+        // case — returns 200 with an empty result set and the published vocabulary.
+        ok = res.status === 200 && facet.expect(json) && (facet.mayBeEmpty || json.count > 0);
+        if (!ok) detail = `count=${json.count} ${JSON.stringify(json).slice(0, 100)}`;
+      } catch (error) {
+        detail = `threw: ${error.message}`;
+      }
+      record(ok, `api/search ${facet.name}`, detail);
+    }
+
+    /**
+     * The rate limiter, on the Worker.
+     *
+     * Only that it refuses and stays a 2xx-shaped answer: `/signal` rejects
+     * silently by design, so a flood is indistinguishable from accepted beacons
+     * from the outside — which is exactly why the limit has to be asserted by
+     * exhausting it rather than by reading a status code. The budget is 120 per
+     * minute, so this makes 130 requests; cheap against a local workerd and it is
+     * the only check that the limiter is actually wired into the bundle rather
+     * than merely imported.
+     */
+    {
+      let refused = 0;
+      let accepted = 0;
+      const body = JSON.stringify({
+        event: "tool",
+        from: "/inference-serving/vllm",
+        to: "/compare/inference-runtimes",
+      });
+      for (let i = 0; i < 130; i++) {
+        const res = await fetch(`${BASE}/signal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
+        // Accepted beacons answer 200 with the recorded edge; a rate-limited one
+        // answers 204 and is discarded.
+        if (res.status === 200) accepted++;
+        else if (res.status === 204) refused++;
+      }
+      record(
+        refused > 0 && accepted > 0,
+        "signal rate limiter refuses a flood",
+        `accepted=${accepted} refused=${refused} (both must be non-zero: the limit has to bind without breaking normal beacons)`,
+      );
     }
   } finally {
     shutdown();

@@ -196,7 +196,24 @@ export default function SubmitPage() {
           have to survive editing — the bot reads them, and a renamed field
           arrives empty.
         </p>
-        <pre className="mt-4 max-h-[28rem] overflow-auto rounded-lg border border-border bg-bg-elevated p-4 font-mono text-[12px] leading-relaxed text-fg-muted">
+        {/*
+          `tabIndex={0}` on a scrollable region is not a nicety: without it the
+          box can only be scrolled with a mouse, so a keyboard user cannot reach
+          the bottom of the template at all. axe reports it as
+          `scrollable-region-focusable`, and it is the only way to see the last
+          few fields of the form.
+
+          The `aria-label` names what the scrollable thing *is* rather than
+          repeating the visible heading — a screen reader announcing "The
+          template for opening a submission issue" tells the reader what they
+          have landed on when they tab into it.
+        */}
+        <pre
+          tabIndex={0}
+          role="group"
+          aria-label="Submission issue template"
+          className="mt-4 max-h-[28rem] overflow-auto rounded-lg border border-border bg-bg-elevated p-4 font-mono text-[12px] leading-relaxed text-fg-muted focus:outline-none focus-visible:border-border-strong"
+        >
           {ISSUE_TEMPLATE}
         </pre>
       </section>

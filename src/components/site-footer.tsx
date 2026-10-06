@@ -77,7 +77,12 @@ export function SiteFooter() {
             <FooterLink href="/compare">Comparisons</FooterLink>
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
+            <FooterLink href="/bands">By band</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
+            {/* Next to methodology rather than under "Submit", because it is the
+                evidence for the claim methodology makes rather than a way to
+                challenge it. */}
+            <FooterLink href="/corrections">Corrections</FooterLink>
             {/* Beside methodology rather than under "Corrections" because it is
                 how you challenge a selection, not how you report a broken
                 link — and methodology is what defines the bar it is judged

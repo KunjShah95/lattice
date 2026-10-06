@@ -5,8 +5,10 @@ import { CategorySection } from "@/components/category-section";
 import { categories, getCategory, getSecondHomeTools } from "@/lib/data";
 import { layerStyle } from "@/lib/layer";
 import { TrackLink } from "@/components/track-link";
+import { Byline } from "@/components/byline";
+import { AS_OF } from "@/lib/attributes";
 import { toJsonLd } from "@/lib/jsonld";
-import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, credit, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -63,7 +65,11 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                 url: pageUrl,
                 name: `${category.title} tools`,
                 description: `${category.description} ${category.responsibility}`,
-                dateModified: datasetModified,
+                // `credit()` replaces the bare `dateModified` it had: a layer
+                // page states a responsibility claim about the whole stack, so
+                // it is exactly the kind of page that should say who maintains
+                // it and when it was last checked.
+                ...credit(),
                 isPartOf: { "@id": ids.website },
                 breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
                 mainEntity: { "@id": `${pageUrl}#tools` },
@@ -90,6 +96,18 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
       />
 
       <CategorySection category={category} headingLevel="h1" />
+
+      {/* The layer page states a responsibility claim about the whole stack —
+          what belongs here and what does not — which is a claim about the
+          index, not about a tool. It gets the same attribution the tool pages
+          do. Placed after the section rather than inside it because
+          `CategorySection` is shared with the home page, where one byline for
+          all nine layers would be the honest rendering and nine would not be. */}
+      <Byline
+        fact="Layer boundaries and entries verified"
+        date={category.tools[0]?.asOf ?? AS_OF}
+        className="border-t border-border pt-5"
+      />
 
       {/* Also here from another layer. Same content as the tool page's "Also
           belongs in", reached from the other end — which is the direction that

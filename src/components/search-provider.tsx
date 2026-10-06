@@ -25,6 +25,17 @@ type SearchContextValue = {
 
 const SearchContext = createContext<SearchContextValue | null>(null);
 
+/**
+ * DOM id for the results list, shared by the input's `aria-controls` and the
+ * `<ul>`, and prefixed onto each row's id for `aria-activedescendant`.
+ *
+ * A constant rather than `useId()` because the value has to be a valid CSS-safe
+ * token in an `id`, and React's generated ids contain colons — which are legal
+ * in HTML5 but need escaping in any `querySelector`. There is one palette in the
+ * document, so a fixed id cannot collide.
+ */
+const LISTBOX_ID = "lattice-search-results";
+
 export function useSearch() {
   const ctx = useContext(SearchContext);
   if (!ctx) throw new Error("useSearch must be used inside <SearchProvider>");
@@ -224,6 +235,20 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 onKeyDown={onListKeyDown}
                 placeholder="Search tools, guides, comparisons…"
                 aria-label="Search tools, guides and comparisons"
+                // The combobox half of the pattern. Focus never leaves this
+                // input — the arrow keys move a highlight rather than focus —
+                // so `aria-activedescendant` is the only thing that tells a
+                // screen reader which row is current. Without it the keyboard
+                // navigation this palette has always had was purely visual.
+                role="combobox"
+                aria-expanded={!loading && !loadFailed && results.length > 0}
+                aria-controls={LISTBOX_ID}
+                aria-activedescendant={
+                  loading || loadFailed || results.length === 0
+                    ? undefined
+                    : `${LISTBOX_ID}-${active}`
+                }
+                autoComplete="off"
                 className="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-fg-subtle"
               />
               <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-fg-subtle sm:block">
@@ -231,28 +256,46 @@ export function SearchProvider({ children }: { children: ReactNode }) {
               </kbd>
             </div>
 
-            <ul ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5">
-              {loading ? (
-                /* The corpus is in flight. Almost always a few hundred
-                   milliseconds on a warm connection, and the input is already
-                   focused, so the reader can start typing while it lands. */
-                <li className="px-3 py-8 text-center text-sm text-fg-subtle">
-                  Loading index…
-                </li>
-              ) : loadFailed ? (
-                <li className="px-3 py-8 text-center text-sm text-fg-subtle">
-                  Search is unavailable right now.
-                </li>
-              ) : results.length === 0 ? (
-                <li className="px-3 py-8 text-center text-sm text-fg-subtle">
-                  Nothing matches “{query}”.
-                </li>
-              ) : (
-                results.map((entry, i) => (
-                  <li key={`${entry.kind}-${entry.href}`}>
-                    <button
-                      type="button"
-                      onClick={() => go(entry)}
+            {/*
+              A real listbox, not a `<ul>` of buttons.
+
+              Keyboard navigation here moves `active` and styles the row — a
+              visual highlight and nothing more. A screen-reader user arrowing
+              through the list is told nothing about which row moved, because
+              there is no selected state to announce and the input keeps focus
+              throughout. `role="listbox"` + `role="option"` + `aria-selected` on
+              the rows, and `aria-activedescendant` on the input, are what make
+              the arrow keys mean anything.
+
+              The three non-result states moved out of the list on purpose: a
+              listbox may only contain options, and "Loading index…" is a status,
+              not one. Rendering it as a `<li>` is also what made it match
+              `getByRole("listitem")` in the browser tests — the placeholder row
+              read as a result.
+            */}
+            {loading || loadFailed || results.length === 0 ? (
+              <p role="status" className="px-3 py-8 text-center text-sm text-fg-subtle">
+                {loading
+                  ? "Loading index…"
+                  : loadFailed
+                    ? "Search is unavailable right now."
+                    : `Nothing matches “${query}”.`}
+              </p>
+            ) : (
+              <ul
+                ref={listRef}
+                id={LISTBOX_ID}
+                role="listbox"
+                aria-label="Search results"
+                className="max-h-[52vh] overflow-y-auto p-1.5"
+              >
+                {results.map((entry, i) => (
+                  <li
+                    key={`${entry.kind}-${entry.href}`}
+                    id={`${LISTBOX_ID}-${i}`}
+                    role="option"
+                    aria-selected={i === active}
+                    onClick={() => go(entry)}
                       // `onMouseEnter`, not `onMouseMove`. `mousemove` fires on
                       // every pixel of travel within the row, not once on entry,
                       // so sweeping the cursor down the list scheduled a
@@ -263,7 +306,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                       // means; the extra events were pure main-thread cost on the
                       // one interaction this palette exists to serve.
                       onMouseEnter={() => setActive(i)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+                      className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                         i === active ? "bg-bg-sunken" : ""
                       }`}
                     >
@@ -289,11 +332,13 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                               ? "Tool"
                               : entry.href.startsWith("/fix/")
                                 ? "Guide"
-                                : entry.kind === "comparison"
-                                  ? entry.href.endsWith("/alternatives")
-                                    ? "Alternatives"
-                                    : "Compare"
-                                  : "Essay"}
+                                : entry.kind === "glossary"
+                                  ? "Term"
+                                  : entry.kind === "comparison"
+                                    ? entry.href.endsWith("/alternatives")
+                                      ? "Alternatives"
+                                      : "Compare"
+                                    : "Essay"}
                           </span>
                         </span>
                         <span className="truncate text-xs text-fg-subtle">
@@ -344,12 +389,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                         }`}
                       >
                         <path d="M7 17 17 7M9 7h8v8" />
-                      </svg>
-                    </button>
+                        </svg>
                   </li>
-                ))
-              )}
-            </ul>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       ) : null}

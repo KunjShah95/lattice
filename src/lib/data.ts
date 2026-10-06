@@ -29,7 +29,11 @@ const t = (name: string, host: string, blurb: string): Tool => {
     url: `https://${host}`,
     blurb,
     ...attrs,
-    asOf: AS_OF,
+    // `attrs.asOf` is a per-tool override for entries whose licence and cost
+    // were re-checked on their own date; the dataset-wide AS_OF is the default
+    // for everything else. Validated below, because a typo'd date here would
+    // otherwise become the receipt for a check that never happened.
+    asOf: attrs.asOf ?? AS_OF,
   };
 };
 
@@ -507,20 +511,54 @@ export function staleCutoff(now: Date): Date {
   );
 }
 
+/**
+ * A well-formed check date: `YYYY-MM` with a real month.
+ *
+ * Exported because `verification.test.ts` has to agree with the guard that
+ * publishes the receipt, and a hardcoded copy of a regex is a regex that will
+ * eventually disagree with the one it mirrors.
+ */
+export const AS_OF_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+// Every `asOf`, per-tool override or inherited, must be a real month. This runs
+// before the staleness guard because a malformed date parses to `Invalid Date`,
+// every comparison against it is false, and the guard below would read an
+// unparseable entry as *not* stale — the one failure mode where a typo silently
+// disables the check instead of failing loudly.
+{
+  const malformed = allTools.filter((t) => !AS_OF_PATTERN.test(t.asOf));
+  if (malformed.length) {
+    throw new Error(
+      `Malformed asOf for ${malformed.length} tool(s) — expected YYYY-MM: ` +
+        `${malformed
+          .slice(0, 8)
+          .map((t) => `${t.name}="${t.asOf}"`)
+          .join(", ")}${malformed.length > 8 ? "…" : ""}.`,
+    );
+  }
+}
+
 // Staleness. Licence and cost rot, so every entry is dated. Failing the build
 // is deliberate: a confident stale figure is worse than a broken build, because
 // a broken build cannot ship.
+//
+// `new Date("2026-09")` is parsed as UTC midnight on the first of the month, so
+// the comparison is month-granular and does not shift with the local timezone.
 {
   const cutoff = staleCutoff(new Date());
-  const stale = allTools.filter((t) => new Date(t.asOf) < cutoff);
+  const stale = allTools.filter((t) => new Date(`${t.asOf}-01`) < cutoff);
   if (stale.length) {
+    const inherited = allTools.filter((t) => !attributes[t.name]?.asOf);
     throw new Error(
       `Stale licence/cost data for ${stale.length} tool(s), last confirmed before ` +
         `${cutoff.toISOString().slice(0, 7)}: ${stale
           .slice(0, 8)
           .map((t) => t.name)
           .join(", ")}${stale.length > 8 ? "…" : ""}. ` +
-        `Re-check them and update AS_OF in src/lib/attributes.ts.`,
+        (inherited.length === stale.length
+          ? `Re-check them and update AS_OF in src/lib/attributes.ts.`
+          : `Most entries inherit the dataset AS_OF (${AS_OF}); bump it, or set a ` +
+            `per-tool asOf on the entries you re-checked individually.`),
     );
   }
 }

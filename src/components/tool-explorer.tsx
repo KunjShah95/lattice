@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { layerStyle } from "@/lib/layer";
 import { ROLES } from "@/lib/roles";
 import {
@@ -14,6 +14,12 @@ import {
   type FacetRow,
   type FacetSelection,
 } from "@/lib/facets";
+import {
+  decodeFacetQuery,
+  decodeFacetSelection,
+  encodeFacetSelection,
+  EMPTY_SELECTION,
+} from "@/lib/facet-url";
 
 /**
  * Role display names in vocabulary order.
@@ -46,10 +52,27 @@ type GroupKey = FacetKey;
  * option is what you would actually get by picking it.
  */
 export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
-  const [query, setQuery] = useState("");
-  const [section, setSection] = useState<string | null>(null);
-  const [selected, setSelected] = useState<FacetSelection>({});
+  /**
+   * Initial state read from the URL, so a shared link opens on the view it
+   * describes. `useState`'s lazy initialiser runs once per mount, so a
+   * `popstate` is handled by the effect below rather than by re-running it.
+   *
+   * Read in a client component rather than from a `searchParams` prop because
+   * `/all` is prerendered — awaiting `searchParams` would make it dynamic and
+   * trade a static page for one that can only be rendered per request.
+   */
+  const [query, setQuery] = useState(() =>
+    typeof window === "undefined" ? "" : decodeFacetQuery(window.location.search),
+  );
+  const [selection, setSelection] = useState<FacetSelection>(() =>
+    typeof window === "undefined"
+      ? EMPTY_SELECTION
+      : decodeFacetSelection(window.location.search),
+  );
   const [expanded, setExpanded] = useState<Partial<Record<GroupKey, boolean>>>({});
+
+  const section = selection.section ?? null;
+  const selected = selection;
 
   /**
    * The filter input updates immediately while the row list it drives is
@@ -108,7 +131,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
   const activeCount = activeFilterCount({ section, ...selected });
 
   function toggle(group: GroupKey, value: string) {
-    setSelected((prev) => {
+    setSelection((prev) => {
       const current = new Set(prev[group] ?? []);
       if (current.has(value)) current.delete(value);
       else current.add(value);
@@ -116,11 +139,34 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
     });
   }
 
+  function pickSection(value: string | null) {
+    setSelection((prev) => ({ ...prev, section: value }));
+  }
+
   function clearAll() {
     setQuery("");
-    setSection(null);
-    setSelected({});
+    setSelection(EMPTY_SELECTION);
   }
+
+  /**
+   * Mirror the selection into the URL.
+   *
+   * `replaceState` rather than `pushState`, deliberately: typing a filter should
+   * not fill the back button with one entry per keystroke, which is the
+   * behaviour a reader would describe as "the back button is broken". The cost
+   * is that Back leaves `/all` rather than undoing the last chip — and the
+   * alternative is worse, so this is the trade.
+   *
+   * A no-op when the URL already says this, so the first render does not push a
+   * history entry for state the reader did not choose.
+   */
+  useEffect(() => {
+    const search = encodeFacetSelection(query, selection);
+    const next = `${window.location.pathname}${search ? `?${search}` : ""}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [query, selection]);
 
   return (
     <div>
@@ -169,7 +215,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
           <FacetRow label="Section">
             <FacetChip
               active={section === null}
-              onClick={() => setSection(null)}
+              onClick={() => pickSection(null)}
               label="All"
               count={poolForGroup("section").length}
             />
@@ -177,7 +223,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
               <FacetChip
                 key={s.value}
                 active={section === s.value}
-                onClick={() => setSection(section === s.value ? null : s.value)}
+                onClick={() => pickSection(section === s.value ? null : s.value)}
                 label={s.label}
                 count={s.count}
                 layer={s.layer}
@@ -199,6 +245,8 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
                   onClick={() => toggle(g.key, f.value)}
                   label={f.label}
                   count={f.count}
+                  facetGroup={g.key}
+                  facetValue={f.value}
                 />
               ))}
               {items.length > 6 ? (
@@ -307,18 +355,35 @@ function FacetChip({
   label,
   count,
   layer,
+  facetGroup,
+  facetValue,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   count: number;
   layer?: number | null;
+  /**
+   * The facet axis and value this chip selects, as `data-` attributes.
+   *
+   * Not styling hooks. The accessible name is `${label} ${count}` — "Free 77" —
+   * which collides: `free` and `free-tier` both start with "Free", so a
+   * name-based selector matches two chips and fails in strict mode. The browser
+   * tests need to address one facet deterministically, and there is no role or
+   * ARIA attribute that distinguishes them without also changing what a screen
+   * reader announces.
+   */
+  facetGroup?: string;
+  facetValue?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      {...(facetGroup && facetValue
+        ? { "data-facet": facetGroup, "data-facet-value": facetValue }
+        : {})}
       className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] transition-colors ${
         active
           ? "border-border-strong bg-bg-sunken text-fg"

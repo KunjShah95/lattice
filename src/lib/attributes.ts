@@ -43,6 +43,22 @@ export type ToolAttributes = {
    * authored. See `Tool.secondHomes` for why this exists.
    */
   secondHomes?: SecondHome[];
+  /**
+   * Per-tool override for the licence/cost check date, `YYYY-MM`.
+   *
+   * The dataset-wide `AS_OF` is the honest default: it says "this whole sweep
+   * was done in this month". But vendors move at different speeds — a managed
+   * observability vendor reprices quarterly while a stable inference runtime
+   * has not changed licence in years — and one global date makes the published
+   * receipt (`/verification.json`) carry the same `asOf` on all 112 rows, so its
+   * per-entry expiry column is decorative rather than true.
+   *
+   * Set this on a single tool to record that *that* tool was re-checked on its
+   * own date. Omitted, the tool inherits `AS_OF`. Either way `data.ts` validates
+   * the format and the staleness guard reads the per-tool value, so bumping a
+   * date here genuinely extends that entry's window and only that entry's.
+   */
+  asOf?: string;
 };
 
 /** Reading material has no deployment, implementation or licence to speak of. */
@@ -68,6 +84,11 @@ export const attributes: Record<string, ToolAttributes> = {
   "SGLang": {
     kind: "runtime", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
     roles: ["serving"],
+    // Re-checked individually, because SGLang's licence and deployment story is
+    // the one in this layer most likely to have moved: it has shipped first-party
+    // hosted offerings alongside the Apache-2.0 runtime, so "self-hosted, free"
+    // is exactly the kind of claim that goes stale quietly.
+    asOf: "2026-10",
     useWhen: "A large share of requests share a long prefix, or you need constrained decoding.",
     skipWhen: "You want the fewest moving parts and vLLM already clears your bar.",
     alternatives: ["vLLM", "Text Generation Inference"],

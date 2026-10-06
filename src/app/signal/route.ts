@@ -3,6 +3,7 @@
 // which is also how `app/mcp/route.ts` and `app/submit/page.tsx` import their
 // sibling `.mjs` modules.
 import { allowedEvents, MAX_SIGNAL_BYTES, parseSignal } from "@/lib/signal.mjs";
+import { isRateLimited } from "@/lib/rate-limit.mjs";
 
 /**
  * `/signal` — receives navigation beacons and writes one structured line per click.
@@ -30,6 +31,11 @@ import { allowedEvents, MAX_SIGNAL_BYTES, parseSignal } from "@/lib/signal.mjs";
  *    moment anything renders it back as a link.
  * 3. **A size cap.** 512 bytes is more than the payload needs and less than a
  *    request body worth allocating memory for.
+ *
+ * Those three bound the cost of *one* request. A fourth, in `rate-limit.mjs`,
+ * bounds the number of them — because a flood of perfectly well-formed beacons
+ * is the actual attack here: it does not have to be malformed to be harmful, it
+ * only has to be repeated.
  *
  * ## 204 for rejections, 200 for accepted
  *
@@ -65,6 +71,20 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
+  /**
+   * Volume, not shape. The rules in `signal.mjs` bound what one beacon can cost;
+   * they cannot bound how many arrive, and a well-formed flood is exactly how
+   * the metrics this route exists to produce get poisoned
+   * (`strategy/04-monetisation.md` §7).
+   *
+   * `204` rather than `429`, like every other rejection here: a status the sender
+   * can see would show up as a failed request in the analytics this route
+   * produces, and there is no caller worth informing.
+   */
+  if (isRateLimited(request)) {
+    return new Response(null, { status: 204, headers: CORS });
+  }
+
   const declared = request.headers.get("content-length");
   if (declared && Number(declared) > MAX_SIGNAL_BYTES) {
     return new Response(null, { status: 204, headers: CORS });

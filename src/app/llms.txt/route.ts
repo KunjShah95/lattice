@@ -5,6 +5,7 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
 import { getSubstitutes } from "@/lib/alternatives";
 import { ROLES } from "@/lib/roles";
+import { TOOL_MANIFEST } from "@/lib/mcp";
 import { site } from "@/lib/site";
 
 /**
@@ -26,11 +27,21 @@ export function GET() {
     "",
     `The index is also an **MCP server** at \`${site.url}/mcp\` (Streamable HTTP), so a model can query it instead of reading the whole dataset into a context window. Discovery document: \`${site.url}/mcp.json\`.`,
     "",
-    "Nine tools: `about`, `search_tools`, `get_tool`, `compare_tools`, `list_layers`, `layer_overlaps`, `diagnose_symptom`, `list_comparisons`, `define_term`.",
+    // The count and the names both come from the manifest. Spelling them out was the
+    // drift risk: a tenth tool added to `mcp.ts` would be served by `/mcp` and
+    // unmentioned here, which is exactly the failure `llms.test.ts` exists to
+    // catch — now it cannot be introduced.
+    `${TOOL_MANIFEST.length} tools: ${TOOL_MANIFEST.map((t) => `\`${t.name}\``).join(", ")}.`,
     "",
     "Prefer these over the plain-text documents above when the question is specific. `search_tools({ layer, role, deployment, cost })` costs a few hundred tokens and answers the question; `llms-full.txt` is roughly six thousand lines. Use the documents for browsing, the server for lookup.",
     "",
-    `No MCP client? The same ranked search is plain HTTPS: \`${site.url}/api/search?q=vector+database&limit=10\` — JSON with absolute URLs, same ranking as the on-site palette. \`q\` is required, \`limit\` caps at 50.`,
+    `\`recommend_stack({ workload, queriesPerMonth, latency, safety, ... })\` answers "what do I need to build X" rather than "which tool for layer N": it returns one pick per required layer with the reason, that pick's own skip-when, and a runner-up to switch to. Anything you leave unset comes back in \`assumptions\`, so you can tell a recommendation for your case from one for the median case. Its cost figure is a band derived from query volume, not a vendor quote.`,
+    "",
+    `It also serves \`resources/read\`, which returns the site's arguments as text: \`text://lattice/essay/{slug}\`, \`compare/{slug}\`, \`fix/{slug}\`, \`term/{slug}\`. Use a tool to reason about a tool; use a resource to read the essay. \`resources/list\` enumerates them; \`resources/templates/list\` gives the four shapes.`,
+    "",
+    `No MCP client? The same ranked search is plain HTTPS: \`${site.url}/api/search?q=vector+database&limit=10\` — JSON with absolute URLs, same ranking as the on-site palette. It takes the same facets as a query string: \`layer\`, \`section\`, \`role\`, \`kind\`, \`deployment\`, \`cost\`. Repeat a key to OR within it (\`?cost=free&cost=usage-based\`); the axes AND together. \`q\` is required only when no facet is set, so \`?role=platform&cost=free\` is a complete browse. \`limit\` caps at 50, and any response carrying a facet echoes \`acceptedFilterValues\` so a wrong value can be corrected without a second request.`,
+    "",
+    `- [${site.url}/stack-builder] — Describe the workload and get a stack: one pick per layer, each with a reason and a way out. The URL is shareable, and any state is reproducible at \`${site.url}/stack-builder?<query>\`.`,
     "",
     "## Start here",
     "",

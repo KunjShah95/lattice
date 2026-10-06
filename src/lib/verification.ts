@@ -1,4 +1,5 @@
 import { allTools, STALE_AFTER_MONTHS, staleCutoff, toolCount } from "./data";
+import { AS_OF, attributes } from "./attributes";
 
 /**
  * The public receipt for the build's staleness guard.
@@ -30,11 +31,18 @@ export function buildVerificationReport(now: Date) {
     section: t.category.slug,
     path: `/${t.category.slug}/${t.slug}`,
     asOf: t.asOf,
+    /**
+     * Whether this entry carries its own check date or inherits the dataset-wide
+     * `AS_OF`. Published so a reader can tell "re-checked on its own schedule"
+     * from "covered by the sweep", which are different claims with different
+     * strengths. `data.ts` rejects a malformed `asOf` before this runs.
+     */
+    perTool: Boolean(attributes[t.name]?.asOf),
     expires: expiryOf(t.asOf),
   }));
 
   const stale = allTools
-    .filter((t) => new Date(t.asOf) < cutoff)
+    .filter((t) => new Date(`${t.asOf}-01`) < cutoff)
     .map((t) => t.name);
 
   return {
@@ -48,6 +56,13 @@ export function buildVerificationReport(now: Date) {
         "The build fails if any entry was last confirmed before the cutoff. A failing build cannot deploy.",
     },
     toolCount,
+    /**
+     * The sweep every entry inherits unless it carries its own date, and how
+     * many do. A reader can then tell the two cases apart rather than reading a
+     * single number as if it described 112 independent checks.
+     */
+    datasetAsOf: AS_OF,
+    perToolChecked: entries.filter((e) => e.perTool).length,
     nextRecheckBy: entries.reduce(
       (min, e) => (e.expires < min ? e.expires : min),
       entries[0]?.expires ?? "",

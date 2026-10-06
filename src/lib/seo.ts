@@ -96,6 +96,30 @@ export function listNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
+/**
+ * The tool page's `<meta name="description">`.
+ *
+ * This used to append the blurb and then close with "When to use it, when to
+ * skip it, licence and alternatives." — and because the blurb runs long, that
+ * closing clause fell past the ~160-character point where a search engine stops
+ * rendering, on 130 of 193 tool pages. The differentiator was being cut off on
+ * two-thirds of the index, which is the worst possible place to lose it: the
+ * use/skip pair is the entire argument for this site over a list of vendor
+ * links.
+ *
+ * So the blurb is out and the hook leads. Nothing is actually lost by dropping
+ * it — the same sentence already appears in three other places a reader or an
+ * engine will hit: the JSON-LD `WebPage.description`, the visible lead paragraph
+ * (`toolDefinition`), and the `ItemList` entry for this tool on `/all`. It was
+ * only ever duplicated in the one field with a hard ceiling.
+ */
+export function toolMetaDescription(tool: Tool, category: Category): string {
+  return (
+    `${tool.name} is ${describeKind(tool)} for ${category.title.toLowerCase()}: ` +
+    `when to use it, when to skip it, licence, cost and alternatives.`
+  );
+}
+
 /** The one-paragraph definition: what it is, where it sits, what it does. */
 export function toolDefinition(tool: Tool, category: Category): string {
   // Cross-cutting and off-stack sections are not layers; calling them one
@@ -283,6 +307,32 @@ export function authorNode(): object {
 /** Visible byline text: "Jane Doe" or "Lattice editorial". */
 export const bylineName = site.author?.name ?? `${site.name} editorial`;
 
+/**
+ * Authorship and verification fields for a page that is not an Article.
+ *
+ * A named editor with a visible update date was on every page answer engines
+ * cited in the category audit — and `/compare`, `/fix` and `/blog`, the three
+ * families that carry it, were the only ones declaring an author. The tool,
+ * glossary and alternatives pages were the larger sets and declared none, which
+ * is the wrong way round: most of the site was doing the harder half of the work
+ * without the cheap half.
+ *
+ * `dateModified` is deliberately the dataset's verification month rather than
+ * the build time. A definition does not expire and a licence does, and the whole
+ * freshness argument on this site rests on the date meaning something — so a
+ * field that said "rebuilt 4 minutes ago" would be the one place the claim
+ * quietly stopped being true.
+ *
+ * Spreads onto any node; `Article` callers already set these themselves.
+ */
+export function credit() {
+  return {
+    author: authorNode(),
+    publisher: { "@id": ids.organization },
+    dateModified: datasetModified,
+  };
+}
+
 /** A BreadcrumbList node for a @graph. Paths are site-relative ("" is home). */
 export function breadcrumbNode(
   pageUrl: string,
@@ -300,7 +350,93 @@ export function breadcrumbNode(
   };
 }
 
-/** Wrap nodes in a single JSON-LD document. */
-export function graph(...nodes: Array<object | object[]>) {
-  return { "@context": "https://schema.org", "@graph": nodes.flat() };
+/**
+ * Wrap nodes in a single JSON-LD document.
+ *
+ * `undefined` is dropped rather than rejected: a node built conditionally — an
+ * ItemList only where the page actually has a collection to list — is written
+ * as `items?.length ? { ... } : undefined`, and filtering here is what lets that
+ * read as one expression. A `null` in `@graph` is a parse error for a consumer
+ * even though `JSON.stringify` writes it happily, so it never leaves here.
+ */
+export function graph(...nodes: Array<object | object[] | undefined>) {
+  return { "@context": "https://schema.org", "@graph": nodes.flat().filter(Boolean) };
+}
+
+/** One entry in a collection page's ItemList. */
+export type ListEntry = { name: string; url: string; description?: string };
+
+/**
+ * An index page: a CollectionPage whose reason for existing is the set of pages
+ * it links to.
+ *
+ * Seven routes are exactly this shape — `/all`, `/blog`, `/compare`,
+ * `/stack-builder`, `/glossary`, `/methodology`, `/fix` — and all seven shipped
+ * with no structured data at all, while `/roles` and every section page carried
+ * a full graph. The failure was silent in every way that matters: the pages
+ * render, the sitemap lists them, `route-metadata.test.ts` passes, and the audit
+ * only reports it as "JSON-LD: none found" on a line next to four non-HTML
+ * endpoints. An index that names no collection is prose to a crawler, and the
+ * sub-pages it is the only parent of become reachable only by following a
+ * rendered link.
+ *
+ * `items` may be omitted for an index whose argument is not a set of pages —
+ * `/methodology` is a page *about* the index and lists nothing, so declaring a
+ * mainEntity it does not have would be the kind of small false claim this site
+ * exists to avoid. Those pages still get the WebPage node and the breadcrumb.
+ */
+export function collectionPageNodes({
+  pageUrl,
+  name,
+  description,
+  items,
+  crumbs,
+  listId = "items",
+}: {
+  pageUrl: string;
+  name: string;
+  description: string;
+  items?: ListEntry[];
+  crumbs: Array<{ name: string; path: string }>;
+  listId?: string;
+}) {
+  const list = items?.length ? `${pageUrl}#${listId}` : undefined;
+
+  return graph(
+    {
+      "@type": "CollectionPage",
+      "@id": pageUrl,
+      url: pageUrl,
+      name,
+      description,
+      dateModified: datasetModified,
+      isPartOf: { "@id": ids.website },
+      ...(list ? { mainEntity: { "@id": list } } : {}),
+      breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    },
+    items?.length
+      ? {
+          "@type": "ItemList",
+          "@id": list!,
+          name,
+          numberOfItems: items.length,
+          itemListElement: items.map((item, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: item.name,
+            ...(item.description ? { description: item.description } : {}),
+            url: item.url,
+          })),
+        }
+      : undefined,
+    breadcrumbNode(pageUrl, crumbs),
+  );
+}
+
+/** The trailing crumb every index page shares: home, then the page itself. */
+export function indexCrumbs(name: string, path: string) {
+  return [
+    { name: site.name, path: "" },
+    { name, path },
+  ];
 }

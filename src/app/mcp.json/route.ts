@@ -83,8 +83,28 @@ export function GET() {
           llmsFullTxt: `${site.url}/llms-full.txt`,
           searchIndex: `${site.url}/search-index.json`,
           searchApi: `${site.url}/api/search?q=<query>&limit=10`,
+          /**
+           * The same search with facets, for a client that would rather filter
+           * than phrase. Every axis may be repeated to OR within it; the axes
+           * AND together. `q` becomes optional once one filter is set.
+           */
+          searchApiFacets: `${site.url}/api/search?layer=3&role=data&cost=free`,
+          stackBuilder: `${site.url}/stack-builder`,
           verification: `${site.url}/verification.json`,
           sitemap: `${site.url}/sitemap.xml`,
+        },
+
+        /**
+         * The MCP resource surface, advertised here rather than left to be
+         * discovered. These are the site's arguments rather than its data: an
+         * essay, a comparison's recommendation, a symptom's checklist. A client
+         * that wants to *reason about* a tool calls a tool; one that wants to
+         * *read the argument* reads one of these.
+         */
+        mcpResources: {
+          uriPrefix: "text://lattice/",
+          shapes: ["essay/{slug}", "compare/{slug}", "fix/{slug}", "term/{slug}"],
+          discover: "resources/list and resources/templates/list on the /mcp endpoint",
         },
 
         // Provenance. A client deciding whether to trust a dataset benefits from

@@ -18,6 +18,7 @@ import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { BANDS } from "@/lib/layer";
 import { roleTitle } from "@/lib/roles";
+import { glossary } from "@/lib/glossary";
 import type { SearchEntry } from "@/lib/search";
 
 export function buildSearchEntries(): SearchEntry[] {
@@ -46,6 +47,17 @@ export function buildSearchEntries(): SearchEntry[] {
         alsoIn: (tool.secondHomes ?? []).map(
           (h) => getCategory(h.section)?.title ?? h.section,
         ),
+        // The filterable projection. Role *ids* rather than the display names
+        // above: this object exists for `search-filters.ts`, which backs a
+        // query surface, and `?role=platform` is the value in the URL.
+        facets: {
+          section: c.slug,
+          layer: c.layer,
+          roles: tool.roles,
+          kind: tool.kind,
+          deployment: tool.deployment,
+          cost: tool.cost,
+        },
       })),
     ),
     // Essays — the site's actual argument. Excluding these meant a query for
@@ -79,6 +91,24 @@ export function buildSearchEntries(): SearchEntry[] {
       categoryLayer: c.tools[0]?.layer ?? null,
       href: `/compare/${c.slug}`,
       tag: "Compared",
+    })),
+    // Glossary terms. Fifty-one definitions, each with its own page, and the
+    // palette returned nothing for any of them — so "paged attention" or "KV
+    // cache" found the tool that implements the term but not the page that
+    // explains it, which is the page a reader arriving from a search engine
+    // actually wants. Indexed as their own kind rather than folded into
+    // `tool`, because a term is not a tool and the palette's kind pill is how a
+    // reader tells the five flavours apart before navigating.
+    ...glossary.map((term) => ({
+      kind: "glossary" as const,
+      name: term.term,
+      // The definition, not the `detail`: one sentence is what the row can show
+      // and what a search result should return. `detail` is the page's job.
+      blurb: term.definition,
+      categoryTitle: "Glossary",
+      categoryLayer: term.layer,
+      href: `/glossary/${term.slug}`,
+      tag: "Term",
     })),
     // Alternatives pages. "X alternatives" and "alternatives to X" are two of
     // the highest-intent queries this index can serve, and the palette is the

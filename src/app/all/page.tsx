@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ToolExplorer } from "@/components/tool-explorer";
 import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
-import { absolute } from "@/lib/seo";
+import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   title: "All AI infrastructure tools",
@@ -21,8 +22,36 @@ const permissive = licenses.filter((l) =>
 ).reduce((n, l) => n + l.count, 0);
 
 export default function AllToolsPage() {
+  const pageUrl = `${site.url}/all`;
+  const name = "All AI infrastructure tools";
+
   return (
     <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* Every tool in the index, as an ItemList. This is the one page that
+          lists all 112 and the only parent of every tool page, so without it the
+          complete set is described nowhere in structured data — a crawler sees
+          112 links it has to follow rather than 112 entries it can read.
+          `blurb` is the description, same field the section pages use. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            collectionPageNodes({
+              pageUrl,
+              name,
+              description: metadata.description as string,
+              listId: "tools",
+              crumbs: indexCrumbs("All tools", "/all"),
+              items: allToolEntries.map((t) => ({
+                name: t.name,
+                description: t.blurb,
+                url: absolute(`/${t.categorySlug}/${t.slug}`),
+              })),
+            }),
+          ),
+        }}
+      />
+
       <header className="mb-8">
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           {toolCount} tools · {selfHostedCount} self-hosted · {permissive} permissively

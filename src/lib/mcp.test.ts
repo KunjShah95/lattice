@@ -9,11 +9,21 @@ import {
   layerOverlaps,
   listComparisons,
   listLayers,
+  readResource,
+  recommendStack,
+  RESOURCE_DESCRIPTIONS,
+  RESOURCE_TEMPLATES,
   searchTools,
   TOOL_DESCRIPTIONS,
   TOOL_MANIFEST,
 } from "./mcp";
 import { allTools, toolCount } from "./data";
+import { posts } from "./posts";
+import { resolvedComparisons } from "./comparisons";
+import { resolvedSymptoms } from "./symptoms";
+import { glossary } from "./glossary";
+import { essayBodies } from "@/content/essay-text.generated";
+import { encodeStackInput } from "./stack-url";
 import { site } from "./site";
 
 /**
@@ -466,6 +476,190 @@ describe("nothing here ranks by popularity", () => {
     for (const banned of ["the best ", "largest", "most comprehensive", "#1"]) {
       expect(strings, `server copy contains "${banned}"`).not.toContain(banned);
     }
+  });
+});
+
+describe("recommend_stack", () => {
+  it("is published in the manifest with a workload enum the engine accepts", () => {
+    // An undeclared argument is silently ignored by the handler, and a model
+    // would then read a recommendation for the wrong case as though it had
+    // specified the constraint. The enum is the contract.
+    const tool = TOOL_MANIFEST.find((t) => t.name === "recommend_stack");
+    expect(tool).toBeDefined();
+    const schema = tool!.inputSchema as unknown as {
+      required?: readonly string[];
+      properties: Record<string, { enum?: readonly string[] }>;
+    };
+    expect(schema.required).toEqual(["workload"]);
+    expect([...(schema.properties.workload.enum ?? [])]).toEqual([
+      "rag",
+      "agent",
+      "chatbot",
+      "voice",
+      "search",
+      "llm-api",
+      "finetuned",
+    ]);
+  });
+
+  it("recommends a pick per required layer, each with a reason and a way out", () => {
+    const r = recommendStack({ workload: "rag", queriesPerMonth: 200_000 });
+    expect(r.picks.length).toBeGreaterThan(2);
+    for (const pick of r.picks) {
+      expect(pick.why.length, `${pick.tool}: why`).toBeGreaterThan(10);
+      // The skip-when is the field the whole site sells, and a stack
+      // recommendation is where a model is most likely to over-commit.
+      expect(pick.watchOut.length, `${pick.tool}: watchOut`).toBeGreaterThan(10);
+    }
+  });
+
+  it("gives every pick an absolute, resolvable url", () => {
+    // A model that cannot resolve a citation will paraphrase instead, which is
+    // the outcome the citation instruction in `about()` exists to prevent.
+    for (const pick of recommendStack({ workload: "agent", queriesPerMonth: 100_000 }).picks) {
+      expect(pick.url, pick.tool).toMatch(new RegExp(`^${site.url}/[a-z0-9-]+/[a-z0-9-]+$`));
+    }
+  });
+
+  it("states every constraint the caller left unset", () => {
+    // The whole honesty argument: an agent that passes only `workload` must be
+    // able to tell it has a recommendation for the median case, not for theirs.
+    const bare = recommendStack({ workload: "rag" });
+    expect(bare.assumptions.length).toBeGreaterThan(2);
+    expect(bare.assumptions.join(" ")).toMatch(/unset/i);
+
+    const full = recommendStack({
+      workload: "rag",
+      queriesPerMonth: 500_000,
+      documents: 2_000_000,
+      latency: "fast",
+      safety: "pii",
+      durability: "hours",
+      language: "python",
+    });
+    expect(full.assumptions).toEqual([]);
+  });
+
+  it("labels the cost figure as a band, not a quote", () => {
+    // A hard number here would be the single most citable and least defensible
+    // claim the site could make, because it would read as vendor pricing.
+    const r = recommendStack({ workload: "llm-api", queriesPerMonth: 900_000 });
+    expect(r.cost.note).toMatch(/not a vendor quote|heuristic/i);
+    expect(r.cost.lowPerMonth).toBeLessThanOrEqual(r.cost.highPerMonth);
+  });
+
+  it("links to a builder url that reproduces the same recommendation", () => {
+    // The URL is the save, on the page and here. If it did not round-trip, the
+    // citation a model hands a human would land on a different stack.
+    const input = { workload: "search" as const, queriesPerMonth: 300_000, latency: "fast" as const };
+    const r = recommendStack(input);
+    expect(r.builderUrl).toBe(`${site.url}/stack-builder?${encodeStackInput(input)}`);
+  });
+
+  it("varies with the constraints, so the tool is not a fixed answer", () => {
+    const cheap = recommendStack({ workload: "llm-api", queriesPerMonth: 10_000, costVsPerf: -2 });
+    const fast = recommendStack({ workload: "llm-api", queriesPerMonth: 10_000, costVsPerf: 2 });
+    expect(cheap.picks.map((p) => p.tool)).not.toEqual(fast.picks.map((p) => p.tool));
+  });
+
+  it("names no superlative, like every other surface on the server", () => {
+    const copy = JSON.stringify(recommendStack({ workload: "rag", queriesPerMonth: 100_000 })).toLowerCase();
+    for (const banned of ["the best ", "largest", "most comprehensive"]) {
+      expect(copy).not.toContain(banned);
+    }
+  });
+});
+
+describe("MCP resources", () => {
+  it("describes one resource per essay, comparison, symptom and term", () => {
+    expect(RESOURCE_DESCRIPTIONS.length).toBe(
+      posts.length + resolvedComparisons.length + resolvedSymptoms.length + glossary.length,
+    );
+    const uris = RESOURCE_DESCRIPTIONS.map((r) => r.uri);
+    expect(new Set(uris).size).toBe(uris.length);
+  });
+
+  it("uses four uri shapes, each declared as a template", () => {
+    // A client that has to page ~70 entries to discover essays exist will not.
+    // The templates say "there are N of these" for the cost of four rows.
+    expect(RESOURCE_TEMPLATES.length).toBe(4);
+    const prefixes = new Set(RESOURCE_TEMPLATES.map((t) => t.uriTemplate.split("{")[0]));
+    for (const r of RESOURCE_DESCRIPTIONS) {
+      expect([...prefixes].some((p) => r.uri.startsWith(p)), r.uri).toBe(true);
+    }
+  });
+
+  it("reads an essay as prose, not a stub", () => {
+    const slug = posts[0].meta.slug;
+    const r = readResource(`text://lattice/essay/${slug}`);
+    expect("text" in r).toBe(true);
+    if (!("text" in r)) return;
+    // Long enough to be the essay rather than its metadata: the whole reason
+    // this surface exists is that a model should not have to reassemble an
+    // argument out of `useWhen` strings.
+    expect(r.text.length).toBeGreaterThan(1500);
+    expect(r.text).toContain(posts[0].meta.title);
+    // And the body came from the generated projection, not just the frontmatter.
+    expect(r.text).toContain(essayBodies[slug].slice(0, 40));
+  });
+
+  it("strips MDX syntax from the body it serves", () => {
+    // Serving raw MDX would hand a model `<RagPipeline />` and a frontmatter
+    // export, both of which it would either echo or choke on.
+    const r = readResource(`text://lattice/essay/${posts[0].meta.slug}`);
+    if (!("text" in r)) throw new Error("unreachable");
+    expect(r.text).not.toMatch(/^import\s/m);
+    expect(r.text).not.toMatch(/export const meta/);
+    // A figure becomes a marker rather than vanishing, so a gap in the prose is
+    // visible rather than silent.
+    expect(r.text).not.toMatch(/<(RequestPath|RagPipeline|AgentLoop|EvalFlywheel|PromptVsTune)\s*\/>/);
+  });
+
+  it("carries the recommendation and the table for a comparison", () => {
+    const c = resolvedComparisons[0];
+    const r = readResource(`text://lattice/compare/${c.slug}`);
+    if (!("text" in r)) throw new Error("unreachable");
+    expect(r.text).toContain(c.verdict);
+    for (const row of c.rows) expect(r.text).toContain(row.dimension);
+  });
+
+  it("keeps the cheapest-first order for a symptom guide", () => {
+    const s = resolvedSymptoms[0];
+    const r = readResource(`text://lattice/fix/${s.slug}`);
+    if (!("text" in r)) throw new Error("unreachable");
+    const first = r.text.indexOf(s.checks[0].check);
+    const second = r.text.indexOf(s.checks[1].check);
+    expect(first).toBeGreaterThan(-1);
+    expect(second).toBeGreaterThan(first);
+  });
+
+  it("gives every document its canonical page, so a citation resolves", () => {
+    for (const desc of RESOURCE_DESCRIPTIONS) {
+      const r = readResource(desc.uri);
+      if (!("text" in r)) throw new Error(`unreadable: ${desc.uri}`);
+      expect(r.text, desc.uri).toContain(site.url);
+    }
+  });
+
+  it("names the valid URIs when asked for one that does not exist", () => {
+    // A guess needs to be correctable, or the client gives up on the surface.
+    const r = readResource("text://lattice/essay/nope");
+    expect("error" in r).toBe(true);
+    if (!("error" in r)) return;
+    expect(r.error).toMatch(/resources\/list/);
+    expect(r.error).toMatch(/essay\/\{slug\}/);
+  });
+
+  it("rejects a missing uri", () => {
+    expect("error" in readResource(undefined)).toBe(true);
+  });
+
+  it("declares a resource capability at initialize, or clients will not look", () => {
+    // The manifest is asserted by name; the capability is what makes a client
+    // *offer* the surface. A resource list behind an undeclared capability is
+    // invisible to every client that respects the declaration.
+    const source = fs.readFileSync(new URL("../app/mcp/route.ts", import.meta.url), "utf8");
+    expect(source).toMatch(/capabilities:\s*\{[\s\S]{0,80}?resources/);
   });
 });
 

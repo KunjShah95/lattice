@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history, not the default single-commit fetch. The corrections
+          # log is generated from `git log` (scripts/build-corrections-log.mjs),
+          # so a shallow clone would compute a different log and `generate:check`
+          # could fail — or worse, commit a different log's worth of a page.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -65,6 +71,18 @@ jobs:
       - name: Submission pipeline
         run: npm run test:submissions
 
+      # The generated artefacts. `generate:check` asserts `public/awesome-lattice.md`
+      # is in step with the dataset and that `src/content/essay-text.generated.ts`
+      # is in step with the MDX essays.
+      #
+      # The essay one is the load-bearing half. Those bodies are served as MCP
+      # `resources/read`, so a reworded essay would keep shipping a copy of the old
+      # prose to every agent that reads it — while the page, the search index and
+      # the sitemap all show the new one. Nothing else would notice: the resource
+      # is text, so it cannot fail to build.
+      - name: Generated content is in step with its source
+        run: npm run generate:check
+
       # The Worker bundle, built and booted, because `next start` is Node and
       # cannot see a Worker-only failure. `/mcp` returned 500 in production while
       # every route passed every check above: it was the only route declaring
@@ -93,6 +111,17 @@ jobs:
       - name: Build
         run: npm run next:build
 
+      # Client bundle budget, measured from the build this step just produced.
+      #
+      # Commit a446032 cut main-thread work by hand across the palette and the
+      # explorer, and nothing noticed when it came back — `next build` prints
+      # route sizes and asserts on none of them. The clearest version of the same
+      # failure is the search corpus that used to be inlined into every route's
+      # payload: ~42 KB of JSON on a page whose own markup was 16 KB, found by
+      # reading the code rather than by a build failing.
+      - name: Client bundle budget
+        run: npm run budget
+
       # `next build` passing is not sufficient for this route shape. A dynamic
       # segment named inconsistently builds cleanly and then 500s at runtime,
       # so the server is actually started and a sample of routes is requested.
@@ -102,6 +131,19 @@ jobs:
       # route that never builds or a handler that throws cold, in about fifteen
       # seconds, and the other catches the runtime-specific class that this
       # structurally cannot see.
+      # Browser tests: accessibility and interaction.
+      #
+      # `next start` above this build is torn down before these run, because a
+      # `next dev` and `next build` cannot share a `.next` — and `playwright.config.ts`
+      # reuses an existing server when one is listening, which would silently
+      # test the wrong build.
+      - name: Browser tests
+        run: |
+          npm run a11y:install
+          npx playwright test
+        env:
+          CI: "1"
+
       - name: Smoke-test the built server
         run: |
           npx next start -p 3111 &
@@ -110,10 +152,11 @@ jobs:
             sleep 1
           done
           fail=0
-          for path in / /all /blog /compare /glossary /submit \
+          for path in / /all /blog /compare /glossary /submit /bands \
                       /glossary/kv-cache /inference-serving \
                       /inference-serving/vllm /blog/evals-are-the-asset \
-                      /compare/vector-databases /feed.xml /llms.txt /llms-full.txt \
+                      /compare/vector-databases /bands/compute /bands/state \
+                      /feed.xml /llms.txt /llms-full.txt \
                       /sitemap.xml /mcp.json; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
             echo "$code $path"
@@ -131,8 +174,41 @@ jobs:
             "http://localhost:3111/mcp")
           echo "$rpc" | head -c 160; echo
           echo "$rpc" | grep -q '"protocolVersion"' || fail=1
+          # An unknown dynamic-segment value must 404 rather than render. This is
+          # the check the band and role routes share: both are prerendered from a
+          # vocabulary, and a value outside it builds cleanly either way.
+          for path in /bands/nonsense /roles/nonsense; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111$path")
+            echo "$code $path (expect 404)"
+            [ "$code" = "404" ] || fail=1
+          done
+          # The facet surface. Asserted on the *filters* taking effect, not on
+          # the status, because a route that ignored them and returned the whole
+          # corpus would answer 200 and be useless to every agent without an MCP
+          # client.
+          facets=$(curl -s "http://localhost:3111/api/search?kind=platform&deployment=saas&limit=50")
+          echo "$facets" | head -c 120; echo
+          echo "$facets" | grep -q '"deployment":\["saas"\]' || fail=1
+          echo "$facets" | grep -q '"count":[1-9]' || fail=1
           # An unknown path must 404, not 200 or 500.
           code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3111/definitely-not-a-page")
           echo "$code /definitely-not-a-page"
           [ "$code" = "404" ] || fail=1
+
+          # Share-card bounds, against the same server.
+          #
+          # This is the only check in the repo that catches a clipped or
+          # overflowing Open Graph card. Satori throws on neither: it renders a
+          # card with the sentence cut off past the padding, and the page that
+          # references it is a perfectly valid PNG that nobody looks at twice.
+          #
+          # It runs here rather than in its own step because it needs a
+          # *production* server — in dev every card pays a Turbopack compile first
+          # and a stale dev bundle hands back a card the production build would
+          # not — and starting a second one would double the boot wait.
+          # Share-card bounds, against the same server. `node` form, not
+          # `npm run og:render -- --base`: npm parses `--base` as its own flag
+          # and errors out before the script runs.
+          node scripts/render-og.mjs --base http://localhost:3111
+          python scripts/check-og-bounds.py og-out || fail=1
           exit $fail

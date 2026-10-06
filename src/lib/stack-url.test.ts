@@ -42,6 +42,21 @@ describe("stack URL state", () => {
     expect(decoded?.costVsPerf).toBe(2);
   });
 
+  /**
+   * `/api/search` reserves `q` for the text query, and this encoder already uses
+   * `q` for `queriesPerMonth`. The two namespaces never meet — they are different
+   * routes — but a reader or an agent copying a builder URL onto the search
+   * endpoint would get a silent, wrong result rather than an error, so it is
+   * pinned here where the collision is visible.
+   */
+  it("uses keys that do not collide with the /api/search facet vocabulary", () => {
+    const encoded = encodeStackInput({ workload: "rag", queriesPerMonth: 1000 });
+    const keys = [...new URLSearchParams(encoded).keys()];
+    for (const reserved of ["layer", "section", "role", "kind", "deployment", "cost"]) {
+      expect(keys, `builder URL uses /api/search's "${reserved}"`).not.toContain(reserved);
+    }
+  });
+
   it("a decoded URL rebuilds the same stack", () => {
     const input = {
       workload: "agent" as const,

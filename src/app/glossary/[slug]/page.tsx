@@ -4,9 +4,11 @@ import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
 import { getGlossaryTerm, glossary } from "@/lib/glossary";
 import { getToolByName, stackLayers } from "@/lib/data";
+import { AS_OF } from "@/lib/attributes";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
-import { breadcrumbNode, graph, ids, lowerFirst } from "@/lib/seo";
+import { breadcrumbNode, credit, graph, ids, lowerFirst } from "@/lib/seo";
+import { Byline } from "@/components/byline";
 
 export function generateStaticParams() {
   return glossary.map((t) => ({ slug: t.slug }));
@@ -84,6 +86,7 @@ export default async function GlossaryTermPage({
                 "@id": `${site.url}/glossary/${term.slug}`,
                 url: `${site.url}/glossary/${term.slug}`,
                 name: `What is ${lowerFirst(term.term)}?`,
+                ...credit(),
                 isPartOf: { "@id": ids.website },
                 mainEntity: { "@id": `${site.url}/glossary/${term.slug}#term` },
                 breadcrumb: { "@id": `${site.url}/glossary/${term.slug}#breadcrumb` },
@@ -141,6 +144,12 @@ export default async function GlossaryTermPage({
         <p className="mt-6 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg">
           {term.definition}
         </p>
+
+        {/* A definition does not expire the way a licence or a price does, so
+            the stamp says the entry was last reviewed rather than implying the
+            fact is perishable. Reviews still happen — the build gate is what
+            produces this date. */}
+        <Byline fact="Entry last reviewed" date={AS_OF} className="mt-4" />
 
         <div className="mt-8 border-t border-border pt-7">
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">

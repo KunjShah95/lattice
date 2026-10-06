@@ -55,3 +55,11 @@ next-env.d.ts
 # local server logs
 /server.log
 /server.err
+.png/
+/images/
+.playwright-mcp/
+gtm/
+lattice-launch/
+strategy/
+.txt
+.zip

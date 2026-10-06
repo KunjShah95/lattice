@@ -3,10 +3,12 @@ import Link from "next/link";
 import { layerStyle } from "@/lib/layer";
 import { posts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
-import { absolute } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Essays",
+  title: "Essays on production AI",
   description:
     "Long-form notes on the architectural decisions behind production AI systems: runtimes, gateways, retrieval, evaluation, durability and fine-tuning.",
   alternates: { canonical: "/blog" },
@@ -24,8 +26,36 @@ function formatDate(iso: string) {
 }
 
 export default function BlogIndexPage() {
+  const pageUrl = `${site.url}/blog`;
+  const name = "Essays";
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* The essays as an ItemList. The per-post pages each carry Article
+          JSON-LD, but nothing joined them: this is the only page that says
+          which essays exist, and it links out by rendered <a> alone otherwise.
+          `dek` is the description — the same one each post's own metadata
+          uses, so the two cannot disagree. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            collectionPageNodes({
+              pageUrl,
+              name,
+              description: metadata.description as string,
+              listId: "essays",
+              crumbs: indexCrumbs("Essays", "/blog"),
+              items: posts.map((p) => ({
+                name: p.meta.title,
+                description: p.meta.dek,
+                url: absolute(`/blog/${p.meta.slug}`),
+              })),
+            }),
+          ),
+        }}
+      />
+
       <header>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           {posts.length} essays

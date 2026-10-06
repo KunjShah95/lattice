@@ -49,7 +49,15 @@ import { roleTitle, ROLES } from "@/lib/roles";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
+import { posts } from "@/lib/posts";
 import { AS_OF } from "@/lib/attributes";
+import {
+  recommendStack as recommendStackFor,
+  WORKLOADS,
+  type StackInput,
+} from "@/lib/stacks";
+import { encodeStackInput } from "@/lib/stack-url";
+import { essayBodies } from "@/content/essay-text.generated";
 import { site } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 
@@ -433,6 +441,116 @@ export function define(args: { term: string }) {
 }
 
 /**
+ * Recommend a stack for a described workload, over the same engine the Stack
+ * Builder page runs in the browser.
+ *
+ * ## Why this exists
+ *
+ * `/stack-builder` is the site's highest-leverage interactive surface and until
+ * now it had no machine affordance at all: nine MCP tools, and every one of
+ * them about tools, layers, comparisons or terms. A model asked "what do I need
+ * to build a RAG pipeline" could read the whole dataset and assemble an answer
+ * from the components — which is precisely what `stacks.ts` already does, from
+ * the same dataset, deterministically.
+ *
+ * ## The constraints matter and are passed through, not summarised
+ *
+ * An agent that passes only `workload` gets a recommendation for the *median*
+ * case and has no way to know it. So `queriesPerMonth`, `documents`, the
+ * filtering/freshness/latency axes and the three booleans are all first-class,
+ * and `assumptions` states every one that was left at its default. A caller who
+ * did not say what their latency requirement is should not be able to read a
+ * confident recommendation as though they had.
+ *
+ * Cost is a **band derived from query volume**, not a quote, and says so in
+ * `costNote`. The site's whole argument is that a confident wrong number is
+ * worse than an absent one; a hard figure here would be the same failure in a
+ * place harder to fact-check, because it would look like it came from a vendor.
+ */
+/**
+ * Public entry point, accepting a partial input.
+ *
+ * The engine's own `StackInput` requires `queriesPerMonth`, which is correct for
+ * the browser form — it always has a value. An MCP caller who sends only
+ * `workload` must not be rejected for it, because "what do I need for a RAG
+ * pipeline" is the question the tool exists to answer and the volume is a
+ * refinement. So the argument is widened here and the omission is reported in
+ * `assumptions` rather than being an error.
+ */
+export function recommendStack(args: Partial<StackInput> & { workload: StackInput["workload"] }) {
+  const input = { queriesPerMonth: 0, ...args } as StackInput;
+  const result = recommendStackFor(input);
+  const profile = WORKLOADS.find((w) => w.id === input.workload);
+
+  return {
+    workload: {
+      id: input.workload,
+      label: profile?.label ?? input.workload,
+      detail: profile?.detail ?? null,
+    },
+    summary: result.summary,
+    /**
+     * Every input the caller did not state, named. Omitted values are not
+     * neutral: `latency` defaults to "flexible" and `safety` to "none", and a
+     * recommendation that silently assumed both would be answering a different
+     * question than the one asked.
+     */
+    assumptions: defaultAssumptions(input),
+    picks: result.picks.map((p) => ({
+      tool: p.tool,
+      section: p.section,
+      fit: p.fitLabel,
+      why: p.why,
+      watchOut: p.watchOut,
+      ...(p.alternative !== "—" && p.switchWhen
+        ? { alternative: p.alternative, switchWhen: p.switchWhen }
+        : {}),
+      ...(p.matches.length ? { satisfies: p.matches } : {}),
+      // `picks[].url` is a site-relative path on the page, because the browser
+      // renders it as a `next/link` href. Here it has to be absolute, or a model
+      // that follows it has no origin to resolve against — and an answer whose
+      // citations do not resolve is not citable.
+      url: `${site.url}${p.url}`,
+    })),
+    cost: {
+      lowPerMonth: result.costLow,
+      highPerMonth: result.costHigh,
+      drivers: result.costDrivers,
+      note:
+        "A heuristic band derived from query volume and document count. Not a vendor " +
+        "quote, and not current pricing for any specific product.",
+    },
+    risk: result.risk,
+    confidence: Number(result.confidence.toFixed(2)),
+    confidenceNote:
+      "Falls as constraints narrow the field. Below about 0.5 this is a starting " +
+      "point to check, not a decision.",
+    builderUrl: `${site.url}/stack-builder?${encodeStackInput(input)}`,
+    citation: `Cite ${site.url}/stack-builder?${encodeStackInput(input)} for the recommendation, or the tool pages for individual picks.`,
+  };
+}
+
+/** Inputs the caller left at their default, so the answer states its own gaps. */
+function defaultAssumptions(input: StackInput): string[] {
+  const out: string[] = [];
+  if (!input.queriesPerMonth) out.push("queriesPerMonth: unset, treated as a small workload");
+  if (!input.documents) out.push("documents: unset, treated as a small corpus");
+  if (!input.latency || input.latency === "flexible") {
+    out.push('latency: unset or "flexible" — the cheapest option was preferred');
+  }
+  if (!input.safety || input.safety === "none") {
+    out.push('safety: unset or "none" — no guardrail was recommended on this basis');
+  }
+  if (!input.durability || input.durability === "stateless") {
+    out.push('durability: unset or "stateless" — no durable execution layer was required');
+  }
+  if (!input.language || input.language === "any") {
+    out.push('language: unset or "any" — no language constraint was applied');
+  }
+  return out;
+}
+
+/**
  * Server identity and its own limits.
  *
  * Stated because `strategy/02-unique-selling-points.md` §3 says the caveat is
@@ -655,6 +773,74 @@ export const TOOL_MANIFEST = [
     },
     run: async (args: { term: string }) => define(args),
   },
+  {
+    name: "recommend_stack",
+    description:
+      "Recommend a whole stack for a described workload — the same engine the Stack Builder page runs. Returns one pick per required layer with a reason, the pick's own skip-when, and a runner-up to switch to. State your constraints: anything left unset is returned in `assumptions`, so you can tell a recommendation for your case from one for the median case.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workload: {
+          type: "string",
+          enum: ["rag", "agent", "chatbot", "voice", "search", "llm-api", "finetuned"],
+          description: "What you are building. Decides which layers are required at all.",
+        },
+        queriesPerMonth: {
+          type: "integer",
+          minimum: 0,
+          description: "Request volume. Drives the cost band and whether self-hosting wins.",
+        },
+        documents: {
+          type: "integer",
+          minimum: 0,
+          description: "Corpus size, for retrieval workloads.",
+        },
+        latency: {
+          type: "string",
+          enum: ["flexible", "fast", "realtime"],
+          description: "How fast an answer must come back. Defaults to flexible.",
+        },
+        filtering: {
+          type: "string",
+          enum: ["none", "light", "heavy"],
+          description: "How much the answer depends on metadata filtering.",
+        },
+        freshness: {
+          type: "string",
+          enum: ["static", "daily", "realtime"],
+          description: "How often the corpus changes.",
+        },
+        durability: {
+          type: "string",
+          enum: ["stateless", "minutes", "hours"],
+          description: "How long agent work must survive a restart.",
+        },
+        safety: {
+          type: "string",
+          enum: ["none", "pii", "strict"],
+          description: "What the system must keep out of model I/O.",
+        },
+        language: {
+          type: "string",
+          enum: ["any", "python", "typescript"],
+          description: "The language the team ships in.",
+        },
+        costVsPerf: {
+          type: "integer",
+          minimum: -2,
+          maximum: 2,
+          description: "-2 minimise cost, 0 balanced, +2 maximise performance.",
+        },
+        openSource: { type: "boolean", description: "Only permissively-licensed tools." },
+        selfHosted: { type: "boolean", description: "Must run inside your own network." },
+        avoidLockIn: { type: "boolean", description: "Prefer tools that keep an exit open." },
+      },
+      required: ["workload"],
+      additionalProperties: false,
+    },
+    run: async (args: Partial<StackInput> & { workload: StackInput["workload"] }) =>
+      recommendStack(args),
+  },
 ] as const;
 
 export type ToolName = (typeof TOOL_MANIFEST)[number]["name"];
@@ -665,3 +851,244 @@ export const TOOL_DESCRIPTIONS = TOOL_MANIFEST.map((t) => ({
   description: t.description,
   inputSchema: t.inputSchema,
 }));
+
+/**
+ * ## Why resources, when there are already nine tools
+ *
+ * A tool call is a *question*. Every essay, comparison, symptom guide and
+ * glossary term on this site is not a question — it is a document that exists
+ * because someone asked a question once, and the answer is the whole thing
+ * rather than a field in a JSON payload. Making a model `search_tools` for an
+ * essay, then `get_tool` for each tool it names, then reassemble the argument
+ * out of `useWhen` and `skipWhen` strings, spends more context to reach a
+ * worse copy of what the page already says in order.
+ *
+ * So the corpus is exposed as resources: `text://lattice/essay/<slug>` returns
+ * the argument, `text://lattice/compare/<slug>` the recommendation and its
+ * table, `text://lattice/fix/<slug>` the ordered checklist. A client that wants
+ * to *reason about* a tool asks a tool; a client that wants to *read the site's
+ * argument* reads a resource. Neither pays for the other.
+ *
+ * The URIs are `text://` rather than https because they name documents this
+ * server composes from the dataset, not pages it serves. Both are listed in
+ * `resources/list` with their canonical page URL, so a model can still cite the
+ * linkable thing.
+ */
+export type ResourceDescriptor = {
+  uri: string;
+  name: string;
+  description: string;
+  mimeType: string;
+};
+
+const essayResources: ResourceDescriptor[] = posts.map((p) => ({
+  uri: `text://lattice/essay/${p.meta.slug}`,
+  name: p.meta.title,
+  description: p.meta.description ?? p.meta.dek,
+  mimeType: "text/markdown",
+}));
+
+const comparisonResources: ResourceDescriptor[] = resolvedComparisons.map((c) => ({
+  uri: `text://lattice/compare/${c.slug}`,
+  name: c.title,
+  description: c.description,
+  mimeType: "text/markdown",
+}));
+
+const symptomResources: ResourceDescriptor[] = resolvedSymptoms.map((s) => ({
+  uri: `text://lattice/fix/${s.slug}`,
+  name: s.title,
+  description: s.description,
+  mimeType: "text/markdown",
+}));
+
+const glossaryResources: ResourceDescriptor[] = glossary.map((g) => ({
+  uri: `text://lattice/term/${g.slug}`,
+  name: g.term,
+  description: g.definition,
+  mimeType: "text/markdown",
+}));
+
+export const RESOURCE_DESCRIPTIONS: ResourceDescriptor[] = [
+  ...essayResources,
+  ...comparisonResources,
+  ...symptomResources,
+  ...glossaryResources,
+];
+
+/**
+ * The four shapes, as templates.
+ *
+ * Published because `resources/list` is ~70 entries and a client that has to
+ * page the lot to discover that essays exist at all will not. The template is
+ * the cheap way to say "there are 70 of these, one per essay".
+ */
+export const RESOURCE_TEMPLATES = [
+  {
+    uriTemplate: "text://lattice/essay/{slug}",
+    name: "Essay",
+    description: "One argumentative essay. Slugs: " + posts.map((p) => p.meta.slug).join(", "),
+    mimeType: "text/markdown",
+  },
+  {
+    uriTemplate: "text://lattice/compare/{slug}",
+    name: "Comparison",
+    description:
+      "One head-to-head comparison, ending in a recommendation. Slugs: " +
+      resolvedComparisons.map((c) => c.slug).join(", "),
+    mimeType: "text/markdown",
+  },
+  {
+    uriTemplate: "text://lattice/fix/{slug}",
+    name: "Symptom guide",
+    description:
+      "One symptom's cheapest-first checklist through the stack. Slugs: " +
+      resolvedSymptoms.map((s) => s.slug).join(", "),
+    mimeType: "text/markdown",
+  },
+  {
+    uriTemplate: "text://lattice/term/{slug}",
+    name: "Glossary term",
+    description: `One term defined, with what it implies. ${glossary.length} terms.`,
+    mimeType: "text/markdown",
+  },
+];
+
+export type ResourceContent = { uri: string; mimeType: string; text: string };
+
+/**
+ * Read one resource, or return an error naming the URIs that do exist.
+ *
+ * An error rather than a throw: a client that guesses a slug needs to be told
+ * what the real ones are, and the cost of listing them is a few hundred bytes
+ * against a request that failed for no reason the model could have known.
+ */
+export function readResource(uri: string | undefined): ResourceContent | { error: string } {
+  if (!uri) return { error: "A resource read needs a `uri`." };
+
+  const known = RESOURCE_DESCRIPTIONS.some((r) => r.uri === uri);
+  if (!known) {
+    return {
+      error:
+        `No resource at ${uri}. \`resources/list\` returns all ${RESOURCE_DESCRIPTIONS.length}, ` +
+        `and \`resources/templates/list\` the four shapes: ` +
+        RESOURCE_TEMPLATES.map((t) => t.uriTemplate).join(", ") +
+        ". Send the URI exactly as listed.",
+    };
+  }
+
+  return { uri, mimeType: "text/markdown", text: resourceText(uri) };
+}
+
+/**
+ * The document behind a URI, as Markdown.
+ *
+ * Rendered from the same objects the pages render from, so a resource and its
+ * page cannot disagree — the same argument `llms-full.txt` makes, and the reason
+ * this is a renderer rather than a set of stored files. Every document ends with
+ * its canonical page URL, because a model that reads a resource and cannot cite
+ * it will paraphrase it instead, which is the outcome this index is trying to
+ * avoid.
+ */
+function resourceText(uri: string): string {
+  // `text://lattice/essay/<slug>` splits to ["text:", "", "lattice", "essay",
+  // "<slug>"] — the empty component after the scheme is why this is indexed
+  // rather than pattern-matched, and getting it wrong returns "" for every
+  // resource, which looks like a missing file rather than a bad parse.
+  const parts = uri.split("/");
+  const kind = parts[3];
+  const slug = parts[4];
+
+  const footer = (pageUrl: string, factsVerified: string) =>
+    [
+      "",
+      "---",
+      "",
+      `Canonical page: ${pageUrl}`,
+      `Licence and cost facts verified ${factsVerified}; the build fails if they go stale.`,
+      "This index sells nothing and takes no sponsorship. No tool is ranked by popularity.",
+    ].join("\n");
+
+  if (kind === "essay") {
+    const post = posts.find((p) => p.meta.slug === slug);
+    const body = essayBodies[post?.meta.slug ?? ""];
+    if (!post) return "";
+    // `essayBodies` is a build-time projection of the MDX source — the essays are
+    // compiled to React components at import time, so the prose is not reachable
+    // from the component. `scripts/build-essay-text.mjs` writes it and
+    // `npm run generate:check` fails if it drifts from the MDX, so a reworded
+    // essay cannot ship with a stale copy here.
+    const lines = [
+      `# ${post.meta.title}`,
+      "",
+      post.meta.dek,
+      "",
+      body ?? "_Body unavailable: run `npm run generate` to rebuild the essay text._",
+      footer(`${site.url}/blog/${post.meta.slug}`, AS_OF),
+    ];
+    return lines.join("\n");
+  }
+
+  if (kind === "compare") {
+    const c = resolvedComparisons.find((x) => x.slug === slug);
+    if (!c) return "";
+    const lines = [
+      `# ${c.title}`,
+      "",
+      c.intro,
+      "",
+      ...c.tools.map((t) => `- **${t.name}** — ${t.angle}`),
+      "",
+      "| | " + c.tools.map((t) => t.name).join(" | ") + " |",
+      "| --- | " + c.tools.map(() => "---").join(" | ") + " |",
+      ...c.rows.map((r) => `| ${r.dimension} | ${r.values.join(" | ")} |`),
+      "",
+      "## Recommendation",
+      "",
+      c.verdict,
+      "",
+      "## Rules of thumb",
+      "",
+      ...c.rules.map((r) => `- ${r}`),
+      footer(`${site.url}/compare/${c.slug}`, AS_OF),
+    ];
+    return lines.join("\n");
+  }
+
+  if (kind === "fix") {
+    const s = resolvedSymptoms.find((x) => x.slug === slug);
+    if (!s) return "";
+    const lines = [
+      `# ${s.title}`,
+      "",
+      s.answer,
+      "",
+      "## Checklist, cheapest first",
+      "",
+      ...s.checks.map(
+        (ch, i) =>
+          `${i + 1}. **[layer ${ch.layer}]** ${ch.check}\n   ${ch.why}` +
+          (ch.tools.length ? `\n   Tools: ${ch.tools.join(", ")}` : ""),
+      ),
+      "",
+      "## Looks like a fix, is not",
+      "",
+      ...s.notTheFix.map((n) => `- ${n}`),
+      footer(`${site.url}/fix/${s.slug}`, AS_OF),
+    ];
+    return lines.join("\n");
+  }
+
+  const g = glossary.find((x) => x.slug === slug);
+  if (!g) return "";
+  return [
+    `# ${g.term}`,
+    "",
+    g.definition,
+    "",
+    g.detail,
+    ...(g.tools?.length ? ["", `Tools that use it: ${g.tools.join(", ")}`] : []),
+    ...(g.see?.length ? ["", `See also: ${g.see.join(", ")}`] : []),
+    footer(`${site.url}/glossary/${g.slug}`, AS_OF),
+  ].join("\n");
+}

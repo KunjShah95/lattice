@@ -112,26 +112,37 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
         </p>
       ) : (
         <dl className="divide-y divide-border">
+          {/*
+            The layer rail lives *inside* the `<dt>`, not beside the group.
+
+            HTML allows a `div` wrapper inside a `dl` to group one `dt`/`dd` pair,
+            and that wrapper may contain nothing else — axe reports
+            `definition-list` and `dlitem` (102 nodes: both elements of every one
+            of the 51 terms) when it does. The rail used to be a sibling of that
+            wrapper, which is what broke it.
+
+            Putting it in the `<dt>` is also the better reading: the swatch marks
+            *this term's* layer, so it belongs with the term rather than floating
+            beside the whole group.
+          */}
           {results.map((t) => (
-            <div key={t.slug} className="flex gap-3 py-4 first:pt-0">
-              <span
-                aria-hidden="true"
-                className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
-                style={layerStyle(t.layer)}
-              />
-              <div className="min-w-0 flex-1">
-                <dt>
-                  <Link
-                    href={`/glossary/${t.slug}`}
-                    className="text-[16px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:text-accent hover:decoration-border-strong"
-                  >
-                    {t.term}
-                  </Link>
-                </dt>
-                <dd className="mt-1 text-pretty text-[14px] leading-relaxed text-fg-muted">
-                  {t.definition}
-                </dd>
-              </div>
+            <div key={t.slug} className="py-4 first:pt-0">
+              <dt className="flex items-start gap-2.5">
+                <span
+                  aria-hidden="true"
+                  className="mt-2 h-5 w-[3px] shrink-0 rounded-full"
+                  style={layerStyle(t.layer)}
+                />
+                <Link
+                  href={`/glossary/${t.slug}`}
+                  className="text-[16px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:text-accent hover:decoration-border-strong"
+                >
+                  {t.term}
+                </Link>
+              </dt>
+              <dd className="mt-1 pl-[22px] text-pretty text-[14px] leading-relaxed text-fg-muted">
+                {t.definition}
+              </dd>
             </div>
           ))}
         </dl>

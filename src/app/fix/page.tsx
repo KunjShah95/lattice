@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BANDS, bandColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
-import { absolute } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Fix a symptom",
+  title: "Fix an AI system by symptom",
   description:
     "Start from what is wrong, not from a tool category: slow, expensive, wrong answers, unreliable agents. Each symptom gets an ordered, layer-by-layer checklist.",
   alternates: { canonical: "/fix" },
@@ -16,8 +18,36 @@ export const metadata: Metadata = {
 
 /** Symptoms grouped under the band whose failure they sound like. */
 export default function FixIndexPage() {
+  const pageUrl = `${site.url}/fix`;
+  const name = "Fix a symptom";
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* The symptoms as an ItemList. These five pages are the ones phrased the
+          way people actually type — "why is my LLM app slow" — and each carries
+          HowTo + FAQPage. This index is their only parent, and it described none
+          of them. `description` is the symptom's own summary, the same line the
+          page leads with. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            collectionPageNodes({
+              pageUrl,
+              name,
+              description: metadata.description as string,
+              listId: "symptoms",
+              crumbs: indexCrumbs("Fix a symptom", "/fix"),
+              items: resolvedSymptoms.map((s) => ({
+                name: s.title,
+                description: s.description,
+                url: absolute(`/fix/${s.slug}`),
+              })),
+            }),
+          ),
+        }}
+      />
+
       <header>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           {resolvedSymptoms.length} symptoms

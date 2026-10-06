@@ -42,9 +42,13 @@ export async function generateMetadata({
   return {
     title: `${meta.title} tools — ${tools.length}, with when to skip each (${meta.short})`,
     description:
-      `${tools.length} tools a ${meta.title.toLowerCase()} engineer is accountable for: ` +
-      `${names.join(", ")} and more. What each is for, when to skip it, and which ` +
-      `section of the stack it sits in.`,
+      // "owns" over "is accountable for", and a tighter tail: the five names are
+      // the variable part, so every word spent on framing is multiplied by six
+      // pages. The widest role ran to 233 characters, past the point a search
+      // result renders. The hook survives, which is what mattered.
+      `${tools.length} tools a ${meta.title.toLowerCase()} engineer owns: ` +
+      `${names.join(", ")} and more — with when to use it, when to skip it, ` +
+      `and where it sits.`,
     alternates: { canonical: `/roles/${meta.id}` },
     // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
     // canonical, and an inherited one points at the home page.

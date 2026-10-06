@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { allTools, getAlternatives, getSiblingTools } from "./data";
-import { absolute, describeKind, listNames, lowerFirst, openness, toolDefinition, toolQuestions } from "./seo";
+import {
+  absolute,
+  collectionPageNodes,
+  describeKind,
+  listNames,
+  lowerFirst,
+  openness,
+  toolDefinition,
+  toolMetaDescription,
+  toolQuestions,
+} from "./seo";
 import { site } from "./site";
 
 /**
@@ -119,4 +129,138 @@ describe("answer copy", () => {
       }
     },
   );
+});
+
+/** The blurb is the one field long enough to push a description over budget. */
+const MAX_DESC = 160;
+
+describe("toolMetaDescription", () => {
+  /**
+   * The regression this exists to prevent. An audit of the live site found 130 of
+   * 193 tool pages describing themselves past 160 characters, because the blurb
+   * ran long and pushed the closing "when to use it, when to skip it" clause off
+   * the end. That clause is the entire reason this index exists rather than
+   * being another directory, and it was being truncated on two-thirds of the
+   * index. Nothing failed: the pages rendered, the metadata was non-empty, and
+   * every existing test passed.
+   */
+  it.each(allTools.map((t) => [t.name, t] as const))(
+    "%s: fits the truncation window",
+    (_, entry) => {
+      const desc = toolMetaDescription(entry, entry.category);
+      expect(desc.length, `${entry.name} is ${desc.length} chars`).toBeLessThanOrEqual(MAX_DESC);
+    },
+  );
+
+  it.each(allTools.map((t) => [t.name, t] as const))(
+    "%s: keeps the use/skip hook inside the visible description",
+    (_, entry) => {
+      // The specific failure: the hook exists in the string but renders past the
+      // cut. Asserting on the whole string would pass on the old version too.
+      const desc = toolMetaDescription(entry, entry.category);
+      const hook = desc.slice(0, MAX_DESC);
+      expect(hook, entry.name).toMatch(/when to use it, when to skip it/);
+    },
+  );
+
+  it.each(allTools.map((t) => [t.name, t] as const))(
+    "%s: names the tool and the section",
+    (_, entry) => {
+      const desc = toolMetaDescription(entry, entry.category);
+      expect(desc).toContain(entry.name);
+      expect(desc).toContain(entry.category.title.toLowerCase());
+      expect(desc).not.toMatch(/undefined|null|\.\./);
+    },
+  );
+
+  it("drops the blurb, which is already in three other places", () => {
+    // Stated as an invariant rather than left implicit: someone will eventually
+    // ask to put the blurb back for keyword coverage, and the answer is that it
+    // is already the JSON-LD description, the visible lead paragraph and the
+    // `/all` ItemList entry.
+    const entry = allTools[0];
+    expect(toolMetaDescription(entry, entry.category)).not.toContain(entry.blurb);
+    expect(toolDefinition(entry, entry.category)).toContain(entry.blurb);
+  });
+});
+
+describe("collectionPageNodes", () => {
+  const pageUrl = `${site.url}/example`;
+  const base = { pageUrl, name: "Example", description: "An example index." };
+
+  it("declares a CollectionPage, an ItemList and a breadcrumb", () => {
+    const doc = collectionPageNodes({
+      ...base,
+      listId: "items",
+      crumbs: [{ name: "Example", path: "/example" }],
+      items: [{ name: "A", url: `${site.url}/example/a` }],
+    }) as { "@graph": Array<Record<string, unknown>> };
+
+    expect(doc["@graph"].map((n) => n["@type"])).toEqual([
+      "CollectionPage",
+      "ItemList",
+      "BreadcrumbList",
+    ]);
+  });
+
+  it("points the page's mainEntity at the list it declares", () => {
+    // Without this the CollectionPage is a page about some tools; with it, the
+    // two nodes are related and a consumer can resolve the list from the page.
+    const doc = collectionPageNodes({
+      ...base,
+      listId: "items",
+      crumbs: [{ name: "Example", path: "/example" }],
+      items: [{ name: "A", url: `${site.url}/example/a` }],
+    }) as { "@graph": Array<Record<string, unknown>> };
+
+    const page = doc["@graph"][0];
+    const list = doc["@graph"][1];
+    expect(list["@id"]).toBe(`${pageUrl}#items`);
+    expect(page.mainEntity).toEqual({ "@id": `${pageUrl}#items` });
+  });
+
+  it("numbers entries from one and gives every one a URL", () => {
+    const items = [
+      { name: "A", url: `${site.url}/a` },
+      { name: "B", url: `${site.url}/b` },
+    ];
+    const doc = collectionPageNodes({
+      ...base,
+      crumbs: [{ name: "Example", path: "/example" }],
+      items,
+    }) as { "@graph": Array<Record<string, unknown>> };
+
+    const list = doc["@graph"][1] as {
+      numberOfItems: number;
+      itemListElement: Array<Record<string, unknown>>;
+    };
+    expect(list.numberOfItems).toBe(items.length);
+    expect(list.itemListElement.map((i) => i.position)).toEqual([1, 2]);
+    expect(list.itemListElement.every((i) => typeof i.url === "string")).toBe(true);
+  });
+
+  it("omits the list entirely when the page has nothing to list", () => {
+    // `/methodology` is about the index and links to no collection of its own.
+    // Declaring a mainEntity that does not exist is a small false claim, and the
+    // absence has to be a clean two-node graph rather than a null in @graph.
+    const doc = collectionPageNodes({
+      ...base,
+      crumbs: [{ name: "Example", path: "/example" }],
+    }) as { "@graph": Array<Record<string, unknown>> };
+
+    expect(doc["@graph"].map((n) => n["@type"])).toEqual([
+      "CollectionPage",
+      "BreadcrumbList",
+    ]);
+    expect(doc["@graph"][0].mainEntity).toBeUndefined();
+  });
+
+  it("serialises without a null in the graph", () => {
+    // `JSON.stringify` writes a null happily and every consumer then chokes, so
+    // the filter in `graph()` is the thing being pinned.
+    const json = JSON.stringify(
+      collectionPageNodes({ ...base, crumbs: [{ name: "Example", path: "/example" }] }),
+    );
+    expect(json).not.toContain("null");
+  });
 });

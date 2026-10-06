@@ -1,3 +1,5 @@
+import { stackLayers } from "./data";
+
 /**
  * Maps a stack depth to its colour stop in the ramp defined in globals.css.
  * Kept as a plain CSS-var reference so light/dark switching stays free —
@@ -60,6 +62,23 @@ export function bandOf(layer: number | null | undefined): Band | null {
   if (!layer || layer < 1) return null;
   const found = BANDS.find((b) => b.layers.includes(Math.round(layer)));
   return found ? found.id : null;
+}
+
+export function bandMeta(band: Band | null | undefined) {
+  if (!band) return undefined;
+  return BANDS.find((b) => b.id === band);
+}
+
+/**
+ * The in-stack sections a band owns, substrate first.
+ *
+ * Off-stack material is excluded deliberately: a band is a position in the
+ * stack, so reading material belongs to none of them. `stackLayers` is already
+ * the in-stack list in stack order, so this is a filter on it rather than a
+ * second ordering to keep in step.
+ */
+export function bandLayers(band: Band) {
+  return stackLayers.filter((c) => bandOf(c.layer) === band);
 }
 
 /** CSS variable for a band's identity colour. */

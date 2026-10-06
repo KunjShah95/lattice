@@ -5,19 +5,17 @@ import { toolsByRole, toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
 import {
   absolute,
-  breadcrumbNode,
-  datasetModified,
-  graph,
-  ids,
+  collectionPageNodes,
+  indexCrumbs,
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Tools by role",
+  title: "Tools by engineering role",
   description:
     `The ${site.name} index cut by engineering specialisation rather than stack ` +
     `layer: what an ML platform, AI infrastructure, data, applied or production ` +
-    `engineer is accountable for, and the ${toolCount} tools that answer to it.`,
+    `engineer owns, and the ${toolCount} tools that answer to it.`,
   alternates: { canonical: "/roles" },
   openGraph: { url: absolute("/roles") },
 };
@@ -46,38 +44,21 @@ export default function RolesIndexPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: toJsonLd(
-            graph(
-              {
-                "@type": "CollectionPage",
-                "@id": pageUrl,
-                url: pageUrl,
-                name: "Tools by role",
-                description: metadata.description as string,
-                dateModified: datasetModified,
-                isPartOf: { "@id": ids.website },
-                breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
-              },
-              {
-                // An ItemList of the roles, each linking to the collection page
-                // that holds its tools. Without this the page is prose to a
-                // crawler and the five sub-pages are undiscoverable from it.
-                "@type": "ItemList",
-                "@id": `${pageUrl}#roles`,
-                name: "Engineering specialisations",
-                numberOfItems: ROLES.length,
-                itemListElement: ROLES.map((r, i) => ({
-                  "@type": "ListItem",
-                  position: i + 1,
-                  name: r.title,
-                  description: r.owns,
-                  url: `${pageUrl}/${r.id}`,
-                })),
-              },
-              breadcrumbNode(pageUrl, [
-                { name: site.name, path: "" },
-                { name: "By role", path: "/roles" },
-              ]),
-            ),
+            collectionPageNodes({
+              pageUrl,
+              name: "Tools by role",
+              description: metadata.description as string,
+              listId: "roles",
+              crumbs: indexCrumbs("By role", "/roles"),
+              // An ItemList of the roles, each linking to the collection page
+              // that holds its tools. Without this the page is prose to a
+              // crawler and the five sub-pages are undiscoverable from it.
+              items: ROLES.map((r) => ({
+                name: r.title,
+                description: r.owns,
+                url: `${pageUrl}/${r.id}`,
+              })),
+            }),
           ),
         }}
       />

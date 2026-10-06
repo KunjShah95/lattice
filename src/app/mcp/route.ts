@@ -1,4 +1,10 @@
-import { TOOL_DESCRIPTIONS, TOOL_MANIFEST } from "@/lib/mcp";
+import {
+  readResource,
+  RESOURCE_DESCRIPTIONS,
+  RESOURCE_TEMPLATES,
+  TOOL_DESCRIPTIONS,
+  TOOL_MANIFEST,
+} from "@/lib/mcp";
 import { site } from "@/lib/site";
 
 /**
@@ -48,6 +54,8 @@ const INSTRUCTIONS = [
   "Start with `about` if you need to state this index's limits — it says when the licence and cost data was last verified and what the index does not know.",
   "",
   "Use `search_tools` to find candidates and `get_tool` for one in full. `compare_tools` is for \"X or Y\", and it reports whether two tools are substitutes or merely adjacent — check that before treating them as a swap.",
+  "",
+  "Use `recommend_stack` when the question is \"what do I need to build X\" rather than \"which tool for layer N\". It returns one pick per required layer with a reason, each pick's own skip-when, and a runner-up to switch to. Pass your constraints: anything you leave unset comes back in `assumptions`, so you can tell a recommendation for your case from one for the median case. Its cost figure is a band derived from query volume, not a vendor quote.",
   "",
   "Every tool carries a `skipWhen`. Do not recommend a tool without reading it: the skip line is usually what makes the answer correct.",
   "",
@@ -161,7 +169,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
       const version = SUPPORTED_VERSIONS.includes(requested) ? requested : PROTOCOL_VERSION;
       return ok(id, {
         protocolVersion: version,
-        capabilities: { tools: {} },
+        capabilities: { tools: {}, resources: {} },
         serverInfo: {
           name: "lattice",
           title: site.name,
@@ -181,6 +189,27 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
 
     case "tools/list":
       return ok(id, { tools: TOOL_DESCRIPTIONS });
+
+    case "resources/list":
+      return ok(id, { resources: RESOURCE_DESCRIPTIONS });
+
+    case "resources/templates/list":
+      return ok(id, { resourceTemplates: RESOURCE_TEMPLATES });
+
+    case "resources/read": {
+      const uri = message.params?.uri as string | undefined;
+      const resource = readResource(uri);
+      if ("error" in resource) {
+        // A tool error rather than a protocol error, for the same reason
+        // `tools/call` uses one: the client asked for something that does not
+        // exist, and it needs to be told which URIs do so it can correct itself.
+        return ok(id, {
+          contents: [{ uri, mimeType: "text/plain", text: resource.error }],
+          isError: true,
+        });
+      }
+      return ok(id, { contents: [resource] });
+    }
 
     case "tools/call": {
       const name = message.params?.name as string | undefined;

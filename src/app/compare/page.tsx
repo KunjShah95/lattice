@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { layerStyle } from "@/lib/layer";
 import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons";
-import { absolute } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Comparisons",
+  title: "AI tool comparisons",
   description:
     "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes — gateway vs evals, retrieval vs fine-tuning — each ending in a recommendation.",
   alternates: { canonical: "/compare" },
@@ -18,8 +20,36 @@ const substitutes = resolvedComparisons.filter((c) => c.kind === "substitutes");
 const crossLayer = resolvedComparisons.filter((c) => c.kind === "cross-layer");
 
 export default function CompareIndexPage() {
+  const pageUrl = `${site.url}/compare`;
+  const name = "Comparisons";
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* The comparisons as an ItemList, with each one described by its verdict
+          rather than its intro. The verdict is the answer — it is what the page
+          exists to give — and on the page itself it is further down, after the
+          case for both sides. A crawler reading only this list gets the
+          conclusion. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            collectionPageNodes({
+              pageUrl,
+              name,
+              description: metadata.description as string,
+              listId: "comparisons",
+              crumbs: indexCrumbs("Comparisons", "/compare"),
+              items: resolvedComparisons.map((c) => ({
+                name: c.title,
+                description: c.verdict,
+                url: absolute(`/compare/${c.slug}`),
+              })),
+            }),
+          ),
+        }}
+      />
+
       <header>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           {resolvedComparisons.length} comparisons

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { StackBuilder } from "@/components/stack-builder";
-import { absolute } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Stack Builder",
+  title: "AI stack builder",
   description:
     "Describe your AI system and get a recommended stack of AI infrastructure tools — gateway, retrieval, inference, evals — as a shareable link with cost band, confidence and tradeoffs.",
   alternates: { canonical: "/stack-builder" },
@@ -13,8 +15,46 @@ export const metadata: Metadata = {
 };
 
 export default function StackBuilderPage() {
+  const pageUrl = `${site.url}/stack-builder`;
+  const name = "Stack Builder";
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* WebApplication, not CollectionPage. This is the one route on the site
+          that is a tool rather than a list, so it gets the type that says so:
+          a thing a reader operates, free, in a browser, with no install.
+          `applicationCategory` is UtilitiesApplication — closest schema.org
+          offers for "not an editor, not a game" — and the tool count is stated
+          because it is the honest bound on what the output can draw from. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            graph(
+              {
+                "@type": "WebApplication",
+                "@id": pageUrl,
+                url: pageUrl,
+                name,
+                description: metadata.description as string,
+                applicationCategory: "UtilitiesApplication",
+                operatingSystem: "Any",
+                isAccessibleForFree: true,
+                browserRequirements: "Requires JavaScript",
+                dateModified: datasetModified,
+                isPartOf: { "@id": ids.website },
+                publisher: { "@id": ids.organization },
+                breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+              },
+              breadcrumbNode(pageUrl, [
+                { name: site.name, path: "" },
+                { name, path: "/stack-builder" },
+              ]),
+            ),
+          ),
+        }}
+      />
+
       <header>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           Tell me what to use

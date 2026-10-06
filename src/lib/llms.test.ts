@@ -3,6 +3,7 @@ import { GET as llmsTxt } from "@/app/llms.txt/route";
 import { GET as llmsFull } from "@/app/llms-full.txt/route";
 import { ROLES } from "./roles";
 import { allTools, toolCount } from "./data";
+import { TOOL_MANIFEST } from "./mcp";
 
 /**
  * These two documents are the site's pitch to answer engines and coding agents,
@@ -44,6 +45,39 @@ describe("/llms.txt", () => {
   it("carries the headline counts", async () => {
     const text = await summary();
     expect(text).toContain(`${toolCount} tools`);
+  });
+
+  it("advertises every MCP tool by name, and the count agrees with the manifest", async () => {
+    // The sentence naming the tools is hand-written, so a tool added to the
+    // manifest silently stops being mentioned — the exact drift this file
+    // exists to prevent, applied to itself. Derived from the manifest rather
+    // than from a second list.
+    const text = await summary();
+    for (const tool of TOOL_MANIFEST) {
+      expect(text, `${tool.name} is not advertised in /llms.txt`).toContain(tool.name);
+    }
+    const claimed = Number(text.match(/^(\w+) tools:/m)?.[1]);
+    expect(claimed).toBe(TOOL_MANIFEST.length);
+  });
+
+  it("documents the facet vocabulary on /api/search", async () => {
+    // An agent that guesses `?deployment=hosted` instead of `self-hosted` gets an
+    // empty result set, which reads as "nothing matches". The names, the
+    // OR-within/AND-across rule and the `q`-becomes-optional rule are all here
+    // for that reason.
+    const text = await summary();
+    for (const key of ["layer", "section", "role", "kind", "deployment", "cost"]) {
+      expect(text, `no mention of the ${key} facet`).toContain(key);
+    }
+    expect(text).toMatch(/OR within/i);
+    expect(text).toMatch(/AND together/i);
+    expect(text).toMatch(/required only when no facet/i);
+  });
+
+  it("links the Stack Builder, which had no machine affordance at all", async () => {
+    const text = await summary();
+    expect(text).toContain("/stack-builder");
+    expect(text).toContain("recommend_stack");
   });
 });
 

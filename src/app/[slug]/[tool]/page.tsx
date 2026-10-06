@@ -16,17 +16,18 @@ import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { hasAlternativesPage } from "@/lib/alternatives";
 import { TrackLink } from "@/components/track-link";
+import { Byline } from "@/components/byline";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import {
   breadcrumbNode,
-  datasetModified,
-  describeKind,
+  credit,
   faqPageJsonLd,
   graph,
   ids,
   toolDefinition,
   toolEntityJsonLd,
+  toolMetaDescription,
   toolQuestions,
 } from "@/lib/seo";
 
@@ -63,7 +64,11 @@ export async function generateMetadata({
   // is, when to use it, and what else to look at.
   return {
     title: `${tool.name}: when to use it, and alternatives`,
-    description: `${tool.name} is ${describeKind(tool)} for ${category.title.toLowerCase()}. ${tool.blurb} When to use it, when to skip it, licence and alternatives.`,
+    // `toolMetaDescription` leads with the use/skip hook on purpose; see the
+    // comment there. An audit of the live site found the old blurb-then-hook
+    // order pushed "when to skip it" past the truncation point on 130 of 193
+    // tool pages.
+    description: toolMetaDescription(tool, category),
     alternates: { canonical: `/${category.slug}/${tool.slug}` },
     openGraph: {
       type: "article",
@@ -123,9 +128,12 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                 url: pageUrl,
                 name: `${tool.name}: when to use it, and alternatives`,
                 description: toolDefinition(tool, category),
-                dateModified: datasetModified,
+                // `credit()` adds author + publisher + dateModified. The
+                // per-tool `tool.asOf` is the visible stamp below; this is the
+                // dataset-wide month, which is what the index as a whole was
+                // last checked against.
+                ...credit(),
                 isPartOf: { "@id": ids.website },
-                publisher: { "@id": ids.organization },
                 about: { "@id": `${pageUrl}#subject` },
                 mainEntity: { "@id": `${pageUrl}#subject` },
                 breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
@@ -200,6 +208,11 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         <p className="mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
           {toolDefinition(tool, category)}
         </p>
+
+        {/* Who wrote it and when the facts were checked. The per-tool `asOf` is
+            the date this entry was last verified, which is the one a reader
+            weighing a licence or a price is asking about. */}
+        <Byline fact="Facts verified" date={tool.asOf} className="mt-4" />
 
         {/* The facts a decision turns on. Licence and deployment are the two
             that most often rule a tool in or out before anything else.

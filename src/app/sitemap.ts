@@ -6,6 +6,8 @@ import { resolvedComparisons } from "@/lib/comparisons";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { glossary } from "@/lib/glossary";
 import { ROLES } from "@/lib/roles";
+import { BANDS } from "@/lib/layer";
+import { WORKLOADS } from "@/lib/stacks";
 import { site } from "@/lib/site";
 import { datasetModified } from "@/lib/seo";
 
@@ -61,6 +63,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    // The corrections log. Beside `/methodology` because it is the evidence for
+    // the claim that page makes. `weekly`, not `monthly`: it changes whenever
+    // the dataset does, which is the point of it.
+    {
+      url: `${site.url}/corrections`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
     // Roles are the one view that answers "what does my job own", and no
     // competitor has that axis at all — so it is the cheapest new set of URLs
     // to be found for.
@@ -70,6 +81,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.85,
     },
+    // The band axis.
+    {
+      url: `${site.url}/bands`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    ...BANDS.map((b) => ({
+      url: `${site.url}/bands/${b.id}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    // The seven workload stacks. These are the answer to "what should I run for
+    // a RAG app / an agent / a voice agent" — a query no other route on this
+    // site can answer for a reader who has not run the questionnaire, and an
+    // MCP-less agent has no call at all. `/stack-builder` itself stays in the
+    // sitemap; these are the indexable shadows of its output.
+    ...WORKLOADS.map((w) => ({
+      url: `${site.url}/stack/${w.id}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     // Submission intake. Listed because `/methodology` links to it and a
     // methodology page whose stated route for contributing is not in the
     // sitemap is a small dead end. Low priority: it is a form, and a form that
@@ -97,6 +132,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    })),
+    // The band axis. Lower than `/fix`, because a band is a coarser cut of the
+    // same data and the symptom pages are what people actually search — but the
+    // bands had no URL at all, so this is the difference between an axis a
+    // reader can cite and one they can only read about.
+    {
+      url: `${site.url}/bands`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    ...BANDS.map((b) => ({
+      url: `${site.url}/bands/${b.id}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    // The seven workload stacks. These are the answer to "what should I run for
+    // a RAG app / an agent / a voice agent" — a query no other route on this
+    // site can answer for a reader who has not run the questionnaire, and an
+    // MCP-less agent has no call at all. `/stack-builder` itself stays in the
+    // sitemap; these are the indexable shadows of its output.
+    ...WORKLOADS.map((w) => ({
+      url: `${site.url}/stack/${w.id}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
     ...categories.map((c) => ({
       url: `${site.url}/${c.slug}`,

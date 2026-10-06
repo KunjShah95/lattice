@@ -134,7 +134,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         */}
         <SearchProvider>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          {/*
+            Skip link. The header carries nine layer links plus the search and
+            the theme toggle, so a keyboard user landing on any page has to tab
+            through all of it before reaching the content — on a section page
+            that is a dozen stops before the actual entry.
+
+            Visually hidden until focused rather than `display: none`, because a
+            `display: none` element is not focusable and the link would be
+            unreachable by definition. `sr-only` alone would leave it invisible
+            when focused too, so the focus-visible override is what makes it
+            appear.
+          */}
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:border focus:border-border-strong focus:bg-bg-elevated focus:px-3 focus:py-2 focus:text-[13px] focus:text-fg"
+          >
+            Skip to content
+          </a>
+          <main id="main" tabIndex={-1} className="flex-1">
+            {children}
+          </main>
           <SiteFooter />
         </SearchProvider>
 

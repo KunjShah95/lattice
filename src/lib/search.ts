@@ -3,7 +3,7 @@
  * the comparisons are where the site's actual argument lives — a query for
  * "evals" that only returns tools is hiding the best answer on the site.
  */
-export type SearchKind = "tool" | "essay" | "comparison";
+export type SearchKind = "tool" | "essay" | "comparison" | "glossary";
 
 /**
  * One row in the search index. Deliberately flattened rather than a union of
@@ -47,6 +47,16 @@ export type SearchEntry = {
    * layer is not where they are indexed.
    */
   alsoIn?: string[];
+  /**
+   * The filterable values for a tool entry, and absent on every other kind.
+   *
+   * See `search-filters.ts` for why these are a nested object rather than more
+   * top-level fields: `tag` is a display label set on essays too, so a filter
+   * reading `kind` off it would match prose. Absence is load-bearing — it is
+   * what lets a filter on a tool-only axis exclude an essay rather than let it
+   * through unfiltered.
+   */
+  facets?: import("./search-filters").SearchFacets;
 };
 
 /** @deprecated Retained so existing imports keep working during the rename. */

@@ -7,7 +7,8 @@ import { resolvedComparisons } from "@/lib/comparisons";
 import { posts } from "@/lib/posts";
 import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
-import { absolute } from "@/lib/seo";
+import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
 
 /**
  * /methodology — what this index claims, how it is checked, and what it
@@ -32,7 +33,7 @@ import { absolute } from "@/lib/seo";
  */
 
 export const metadata: Metadata = {
-  title: "Methodology",
+  title: "How the index is built",
   description:
     "How the Lattice index is compiled and checked — the inclusion rules, the six-month build gate on licence and cost data, and an explicit list of what this index gets wrong or leaves out.",
   alternates: { canonical: "/methodology" },
@@ -49,8 +50,42 @@ const unconfirmedLicences = allTools.filter(
 const selfHosted = allTools.filter((t) => t.deployment === "self-hosted").length;
 
 export default function MethodologyPage() {
+  const pageUrl = `${site.url}/methodology`;
+
   return (
     <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+      {/* A WebPage, not a CollectionPage: this page is *about* the index and
+          lists nothing, so declaring a mainEntity it does not have would be the
+          kind of small false claim the index is arguing against.
+          `about: { @id: organization }` is the load-bearing line — it ties the
+          methodology to the thing it describes, which is how a reader (or an
+          engine) arrives at "this index states its own limits" rather than at a
+          page about nothing in particular. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd(
+            graph(
+              {
+                "@type": "WebPage",
+                "@id": pageUrl,
+                url: pageUrl,
+                name: "Methodology",
+                description: metadata.description as string,
+                dateModified: datasetModified,
+                isPartOf: { "@id": ids.website },
+                about: { "@id": ids.organization },
+                breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+              },
+              breadcrumbNode(pageUrl, [
+                { name: site.name, path: "" },
+                { name: "Methodology", path: "/methodology" },
+              ]),
+            ),
+          ),
+        }}
+      />
+
       <header>
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
           Methodology · v1 · dataset as of {AS_OF}

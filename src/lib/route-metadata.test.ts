@@ -12,7 +12,9 @@ import { metadata as compareMetadata } from "@/app/compare/page";
 import { metadata as fixMetadata } from "@/app/fix/page";
 import { metadata as glossaryMetadata } from "@/app/glossary/page";
 import { metadata as methodologyMetadata } from "@/app/methodology/page";
+import { metadata as correctionsMetadata } from "@/app/corrections/page";
 import { metadata as rolesMetadata } from "@/app/roles/page";
+import { metadata as bandsMetadata } from "@/app/bands/page";
 import { metadata as stackBuilderMetadata } from "@/app/stack-builder/page";
 import { generateMetadata as categoryMetadata } from "@/app/[slug]/page";
 import { generateMetadata as toolMetadata } from "@/app/[slug]/[tool]/page";
@@ -22,14 +24,18 @@ import { generateMetadata as symptomMetadata } from "@/app/fix/[slug]/page";
 import { generateMetadata as termMetadata } from "@/app/glossary/[slug]/page";
 import { generateMetadata as postMetadata } from "@/app/blog/[slug]/page";
 import { generateMetadata as roleMetadata } from "@/app/roles/[role]/page";
+import { generateMetadata as bandMetadata } from "@/app/bands/[band]/page";
+import { generateMetadata as stackWorkloadMetadata } from "@/app/stack/[workload]/page";
 import { allTools, categories, toolsByRole } from "./data";
-import { absolute } from "./seo";
+import { absolute, bylineName, credit, datasetModified, ids } from "./seo";
 import { allAlternativesPages } from "./alternatives";
 import { resolvedComparisons } from "./comparisons";
 import { resolvedSymptoms } from "./symptoms";
 import { glossary } from "./glossary";
 import { posts } from "./posts";
+import { WORKLOADS } from "./stacks";
 import { ROLES } from "./roles";
+import { BANDS } from "./layer";
 import { site } from "./site";
 
 /**
@@ -89,7 +95,9 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
     ["/fix", fixMetadata as Metadata],
     ["/glossary", glossaryMetadata as Metadata],
     ["/methodology", methodologyMetadata as Metadata],
+    ["/corrections", correctionsMetadata as Metadata],
     ["/roles", rolesMetadata as Metadata],
+    ["/bands", bandsMetadata as Metadata],
     ["/stack-builder", stackBuilderMetadata as Metadata],
   ];
 
@@ -149,6 +157,20 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
           Promise<Metadata>,
         ],
     ),
+    ...WORKLOADS.map(
+      (w) =>
+        [`/stack/${w.id}`, stackWorkloadMetadata(params({ workload: w.id }))] as [
+          string,
+          Promise<Metadata>,
+        ],
+    ),
+    ...BANDS.map(
+      (b) =>
+        [`/bands/${b.id}`, bandMetadata(params({ band: b.id }))] as [
+          string,
+          Promise<Metadata>,
+        ],
+    ),
   ];
 
   const resolved = await Promise.all(
@@ -164,10 +186,10 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 8, not 9: the home page carries no metadata of its own and is covered by
+    // 10, not 11: the home page carries no metadata of its own and is covered by
     // `absolute("/")` in seo.test.ts instead.
     const expected =
-      8 +
+      10 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
@@ -175,7 +197,9 @@ describe("route metadata, across every route", () => {
       resolvedSymptoms.length +
       glossary.length +
       posts.length +
-      ROLES.length;
+      ROLES.length +
+      BANDS.length +
+      WORKLOADS.length;
     expect(routes.length).toBe(expected);
     // A floor, not a count: if a route family stops being collected the exact
     // assertion above still passes and this is what notices.
@@ -245,9 +269,13 @@ const SEGMENTS_WITH_CARDS = [
   "fix",
   "glossary",
   "methodology",
+  "corrections",
   "roles",
   "roles/[role]",
+  "bands",
+  "bands/[band]",
   "stack-builder",
+  "stack/[workload]",
   "submit",
   "[slug]",
   "[slug]/[tool]",
@@ -294,6 +322,245 @@ describe("role index structured data", () => {
     const multi = allTools.filter((t) => t.roles.length > 1).length;
     expect(tagged - allTools.length).toBe(multi);
     expect(tagged).toBeGreaterThan(allTools.length);
+  });
+});
+
+/**
+ * Index pages and the structured data they owe a crawler.
+ *
+ * Seven routes — `/all`, `/blog`, `/compare`, `/stack-builder`, `/glossary`,
+ * `/methodology`, `/fix` — shipped with no JSON-LD at all while `/roles` and
+ * every section page carried a full graph. Nothing caught it: the pages render,
+ * the sitemap lists them, every metadata assertion below passes, and it only
+ * shows up in `scripts/audit-seo.mjs` as "JSON-LD: none found" on lines sitting
+ * next to four non-HTML endpoints that legitimately have none.
+ *
+ * Asserted against the source rather than a rendered page, because these graphs
+ * are injected as a `<script>` in the component body — `metadata` cannot see
+ * them, and rendering all seven in a unit test is not what this file is for.
+ * What matters is that a new index page cannot be added without noticing it
+ * owes a collection, so the map below is the assertion surface: a route in it
+ * must emit `application/ld+json`.
+ */
+const INDEX_ROUTES: Array<[string, boolean]> = [
+  // [segment, expects a CollectionPage over its own children]
+  ["all", true],
+  ["blog", true],
+  ["compare", true],
+  ["fix", true],
+  ["glossary", true],
+  ["methodology", false],
+  ["corrections", false],
+  ["roles", true],
+  ["bands", true],
+  ["stack-builder", false],
+  ["submit", false],
+];
+
+describe("index page structured data", () => {
+  const appDir = path.join(process.cwd(), "src", "app");
+  const srcOf = (segment: string) =>
+    fs.readFileSync(path.join(appDir, segment, "page.tsx"), "utf8");
+
+  it("gives every index route a JSON-LD block", () => {
+    const missing: string[] = [];
+    for (const [segment] of INDEX_ROUTES) {
+      if (!/type="application\/ld\+json"/.test(srcOf(segment))) missing.push(`/${segment}`);
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it("declares a collection exactly where the page is a list of sub-pages", () => {
+    // The collection itself is built by `collectionPageNodes` in lib/seo.ts, so
+    // the signal in the page is the call plus a `listId` — not a literal
+    // `"@type": "ItemList"`, which would mean grepping the shared helper instead
+    // of the page and finding it everywhere at once.
+    //
+    // The four negative cases are deliberate, not oversights: `/methodology` and
+    // `/corrections` are pages *about* the index and link to no collection,
+    // `/stack-builder` is an interactive tool rather than a list, and `/submit` is
+    // a form. Declaring a collection on any of them would be a claim the page does
+    // not make — `/corrections` in particular is a `Blog`, whose posts are rows
+    // rather than sub-pages.
+    const wrong: string[] = [];
+    for (const [segment, expectsList] of INDEX_ROUTES) {
+      const hasList = /collectionPageNodes\([\s\S]*?listId:/.test(srcOf(segment));
+      if (hasList !== expectsList) wrong.push(`/${segment}`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("has a segment in the map for every directory holding an index route", () => {
+    // Stops the map drifting from reality as routes are added, which is how it
+    // stops meaning anything. Directories with no `page.tsx` are machine
+    // endpoints (`llms.txt`, `tools.json`, `/api`) and are correctly absent.
+    const unlisted: string[] = [];
+    for (const entry of fs.readdirSync(appDir, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith("(") || entry.name.startsWith("[")) {
+        continue;
+      }
+      if (!fs.existsSync(path.join(appDir, entry.name, "page.tsx"))) continue;
+      if (!INDEX_ROUTES.some(([segment]) => segment === entry.name)) unlisted.push(entry.name);
+    }
+    expect(unlisted).toEqual([]);
+  });
+});
+
+describe("meta description budget", () => {
+  /**
+   * One rule, applied everywhere.
+   *
+   * There was no single rule before this: `brand.test.ts` held the homepage to
+   * ~160 characters while `comparisons.test.ts` let comparison pages run to 200,
+   * and nothing covered the tool pages at all — which is where an audit of the
+   * live site found 130 of 193 over budget with the site "when to skip it"
+   * clause truncated away.
+   *
+   * The 200 ceiling is deliberate rather than 160: several pages are honest
+   * sentences that cannot be said in less, and truncating prose to hit a number
+   * produces worse copy, not better SEO. What must hold is that the sentence
+   * which carries the page's argument is not the part being cut — asserted in
+   * `seo.test.ts` for tool pages, where the hook is generated.
+   */
+  const CEILING = 200;
+
+  it("keeps every route's description under the ceiling", async () => {
+    const over: string[] = [];
+    for (const r of await allRoutes()) {
+      const desc = r.meta.description;
+      if (typeof desc === "string" && desc.length > CEILING) {
+        over.push(`${r.path} (${desc.length})`);
+      }
+    }
+    expect(over).toEqual([]);
+  });
+});
+
+describe("title budget", () => {
+  /**
+   * A title under 25 characters renders as a stub. `/blog` was "Essays · Lattice"
+   * at 16 and `/glossary` "Glossary · Lattice" at 18 — neither says what the page
+   * is. The floor exists to catch that class.
+   *
+   * There is deliberately no matching ceiling. Sixty-four titles run long, and
+   * that is correct: `/fix/measure-llm-changes` front-loads the whole query, "How
+   * do I know if my LLM changes actually helped?", which survives truncation.
+   * Capping those would cut the search term off the front of the one field that
+   * has to carry it.
+   */
+  const FLOOR = 25;
+
+  it("gives every route a title long enough to read as a result", async () => {
+    const short: string[] = [];
+    for (const r of await allRoutes()) {
+      // The template is applied by the layout, not by `generateMetadata`, so the
+      // raw value is what every route in this file returns and it is 10
+      // characters shorter than what a reader sees. Measuring it raw would fail
+      // "Essays on production AI" (23) for a page that actually renders as
+      // "Essays on production AI · Lattice" (33) — so the template is applied
+      // here to measure the string a search result shows.
+      const raw = r.meta.title;
+      if (typeof raw !== "string") continue;
+      const rendered = site.titleTemplate.replace("%s", raw);
+      if (rendered.length < FLOOR) {
+        short.push(`${r.path} "${rendered}" (${rendered.length})`);
+      }
+    }
+    expect(short).toEqual([]);
+  });
+});
+
+/**
+ * Every page making a factual claim names who wrote it and when it was checked.
+ *
+ * The category audit found a named editor with a visible verification date on
+ * every page engines cited — and `/compare`, `/fix` and `/blog` were the only
+ * families declaring one. The tool pages (112), glossary pages (51) and
+ * alternatives pages made up the bulk of the site and had none, which is effort
+ * ranked exactly backwards against result.
+ *
+ * Asserted against the rendered output rather than the source, because the two
+ * halves of this are independent and both matter: the JSON-LD `author` is what a
+ * consumer reads, and the visible byline is what a reader (or a passage
+ * extractor) actually sees. Emitting one without the other is the easy mistake,
+ * and it looks fine in either file alone.
+ */
+describe("authorship and verification", () => {
+  const appDir = path.join(process.cwd(), "src", "app");
+
+  /** The page families that state a claim about the index's own data. */
+  const CREDITED_SEGMENTS = [
+    "[slug]",
+    "[slug]/[tool]",
+    "[slug]/[tool]/alternatives",
+    "glossary/[slug]",
+  ];
+
+  it("declares an author and a date on every credited JSON-LD graph", () => {
+    // Read from source because these nodes are built in the component body, not
+    // in `generateMetadata`, so there is nothing on the metadata object to check.
+    const missing: string[] = [];
+    for (const segment of CREDITED_SEGMENTS) {
+      const src = fs.readFileSync(path.join(appDir, segment, "page.tsx"), "utf8");
+      if (!/\.\.\.credit\(\)/.test(src)) missing.push(`${segment}: no credit()`);
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it("renders a visible byline on every credited page family", () => {
+    // The half that cannot be asserted from JSON-LD: an author in structured
+    // data that no reader ever sees is a signal to machines and not to people,
+    // and these pages are read by both.
+    const missing: string[] = [];
+    for (const segment of CREDITED_SEGMENTS) {
+      const src = fs.readFileSync(path.join(appDir, segment, "page.tsx"), "utf8");
+      if (!/<Byline\b/.test(src)) missing.push(`${segment}: no <Byline>`);
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it("spreads credit() rather than restating author and date by hand", () => {
+    // `credit()` exists so the author, publisher and date cannot drift apart
+    // across four page families — which is what happened before it: three
+    // families each spelled out a subset of the three fields. A page that
+    // hand-rolls `dateModified` here has opted out of that.
+    const stray: string[] = [];
+    for (const segment of CREDITED_SEGMENTS) {
+      const src = fs.readFileSync(path.join(appDir, segment, "page.tsx"), "utf8");
+      // Outside the helper itself: a stray `dateModified:` alongside a credit()
+      // means two dates on one page.
+      if (/\.\.\.credit\(\)/.test(src) && /dateModified:/.test(src)) {
+        stray.push(`${segment}: credit() plus a hand-written dateModified`);
+      }
+    }
+    expect(stray).toEqual([]);
+  });
+
+  it("resolves credit() to a real author node and the dataset's month", () => {
+    // The end of the chain. `credit()` must point at a Person when one is
+    // configured and at the organisation otherwise — never a Person named after
+    // the organisation, which is a false claim in the field engines read.
+    //
+    // Both branches are asserted rather than just the configured one, because
+    // `vitest.config.mts` only forwards the branding variables and
+    // `NEXT_PUBLIC_AUTHOR_NAME` is not among them — so in CI `site.author` is
+    // null and the byline reads "Lattice editorial". `brand.test.ts` is gated
+    // off CI for exactly that reason. Asserting the named branch here would
+    // mean this file fails on every push and passes on every machine.
+    const node = credit() as { author: object; dateModified: string };
+
+    expect(node.dateModified).toBe(datasetModified);
+    // First of the month, not the build time: the freshness argument on this
+    // site rests on the date meaning the last verification.
+    expect(node.dateModified).toMatch(/^\d{4}-\d{2}-01$/);
+
+    if (site.author) {
+      expect(node.author).toEqual({ "@type": "Person", name: site.author.name });
+      expect(bylineName).toBe(site.author.name);
+    } else {
+      expect(node.author).toEqual({ "@id": ids.organization });
+      expect(bylineName).toBe(`${site.name} editorial`);
+    }
   });
 });
 

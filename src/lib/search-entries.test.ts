@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { categories } from "./data";
+import { glossary } from "./glossary";
 import { buildSearchEntries } from "./search-entries";
 import { buildIndex, searchTools } from "./search";
 
@@ -24,11 +25,30 @@ describe("buildSearchEntries", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("covers tools, essays and comparisons", () => {
+  it("covers every kind the palette can return", () => {
     // Excluding essays was a real regression once: a query for "evals"
-    // returned only tools and hid the best answer on the site.
+    // returned only tools and hid the best answer on the site. Glossary was the
+    // same mistake later — 51 terms, each with a page, none findable by name.
+    //
+    // Asserted as an exact set rather than a superset, because a new kind that
+    // ships without a branch in the palette's pill renderer is exactly the kind
+    // of addition this is here to catch.
     const kinds = new Set(entries.map((e) => e.kind));
-    expect(kinds).toEqual(new Set(["tool", "essay", "comparison"]));
+    expect(kinds).toEqual(new Set(["tool", "essay", "comparison", "glossary"]));
+  });
+
+  it("indexes every glossary term, reachable by its own name", () => {
+    const terms = entries.filter((e) => e.kind === "glossary");
+    expect(terms).toHaveLength(glossary.length);
+
+    const index = buildIndex(entries);
+    for (const term of glossary) {
+      const hits = searchTools(index, term.term);
+      expect(
+        hits.some((h) => h.href === `/glossary/${term.slug}`),
+        `"${term.term}" does not find its own page`,
+      ).toBe(true);
+    }
   });
 
   it("gives every entry the fields the palette renders", () => {
@@ -46,6 +66,27 @@ describe("buildSearchEntries", () => {
     for (const e of entries) {
       if (e.kind === "tool") expect(e.external, `external for ${e.name}`).toMatch(/^https?:\/\//);
       else expect(e.external, `external on ${e.kind} ${e.name}`).toBeUndefined();
+    }
+  });
+
+  it("carries filter facets on tools and only tools", () => {
+    // Absence on non-tools is what lets `search-filters.ts` exclude an essay from
+    // `?cost=free` rather than let it through unfiltered. If a non-tool ever grew
+    // a `facets` object, that logic would start reading fields it does not have.
+    for (const e of entries) {
+      if (e.kind === "tool") {
+        expect(e.facets, `facets for ${e.name}`).toBeDefined();
+        expect(e.facets!.roles.length, `roles for ${e.name}`).toBeGreaterThan(0);
+        // The facet's section must be the tool's real home section, or
+        // `?section=retrieval-vector-stores` would not find it. Asserted against
+        // the dataset rather than against the href, which would pass for a
+        // projection that disagreed with the URL.
+        const home = e.href.split("/")[1];
+        expect(e.facets!.section, `section for ${e.name}`).toBe(home);
+        expect(categories.some((c) => c.slug === e.facets!.section)).toBe(true);
+      } else {
+        expect(e.facets, `facets on ${e.kind} ${e.name}`).toBeUndefined();
+      }
     }
   });
 

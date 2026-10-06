@@ -9,7 +9,7 @@ Sections are ordered as a production stack: layer 1 is the substrate everything
 else runs on, layer 9 is the surface you look at. Off-stack material (reading,
 courses) sits deliberately outside the stack.
 
-There are **six ways in**, because people arrive from different directions:
+There are **seven ways in**, because people arrive from different directions:
 
 | Route | Starts from |
 | --- | --- |
@@ -19,17 +19,21 @@ There are **six ways in**, because people arrive from different directions:
 | `/roles` | **Your job** — what a platform, infra, data, applied or production engineer owns |
 | `/compare` | A decision — two or three tools head-to-head, ending in a recommendation |
 | `/blog` | The reasoning — essays arguing the calls, not listing products |
+| `/stack-builder` | The problem itself — describe the workload, get a recommended stack |
 
-Routes: `/` · `/all` · `/roles` · `/roles/<role>` · `/<section>` · `/<section>/<tool>` ·
-`/<section>/<tool>/alternatives` · `/compare` · `/compare/<slug>` · `/fix` ·
-`/fix/<slug>` · `/glossary` · `/glossary/<term>` · `/blog` · `/blog/<post>` ·
-`/methodology` · `/feed.xml` · `/llms.txt` · `/llms-full.txt` · `/tools.json` ·
-`/verification.json` · `/search-index.json` · `/sitemap.xml`
+Routes: `/` · `/all` · `/roles` · `/roles/<role>` · `/bands` · `/bands/<band>` ·
+`/stack-builder` · `/stack/<workload>` · `/corrections` · `/<section>` ·
+`/<section>/<tool>` · `/<section>/<tool>/alternatives` · `/compare` ·
+`/compare/<slug>` · `/fix` · `/fix/<slug>` · `/glossary` · `/glossary/<term>` ·
+`/blog` · `/blog/<post>` · `/methodology` · `/submit` · `/feed.xml` ·
+`/llms.txt` · `/llms-full.txt` · `/tools.json` · `/verification.json` ·
+`/search-index.json` · `/sitemap.xml` · `/mcp` · `/mcp.json` · `/api/search`
 
 Built with **Next.js 16** (App Router), **React 19**, **Tailwind CSS v4**,
 TypeScript and MDX. Deployed to Cloudflare Workers via OpenNext — a Worker, not
-a static export. 250 routes are prerendered; the remainder are a handful of
-on-demand responses (see the deploy note below).
+a static export. 250 routes were prerendered; with the role, band, stack and
+corrections additions this is now that plus the new families (see the deploy
+note below).
 
 ---
 
@@ -69,13 +73,17 @@ npm start              # serve the production build
 npm run next:build     # plain Next build only, no adapter
 npm run lint
 npm run test           # vitest, 392 unit tests
-npm run verify         # generate + lint + test + next build
+npm run verify         # generate + generate:check + lint + test + test:submissions + next:build + budget
 npm run generate       # rebuild the GitHub awesome-list from the dataset
 npm run generate:check # assert public/awesome-lattice.md is in step with the data
 npm run indexnow       # push all sitemap URLs to Bing/Yandex/Seznam/Naver after a deploy
 npm run og:render      # save every Open Graph card to og-out/ for review
 npm run og:check       # assert no card clips or overflows its padding
 npm run og:probe       # render one card standalone and report Satori flex-rule offenders
+npm run budget         # assert every route's client-bundle ceiling
+npm run audit:seo      # crawl the rendered site and report SEO findings
+npm run a11y           # Playwright + axe: a11y floor and the route palette in both themes
+npx playwright test --project=e2e   # the interaction tests only
 ```
 
 > **`npm run build` and `npm start` cannot share a `.next` directory with a running
@@ -216,33 +224,21 @@ positioning audit had a named human on it.
 
 ## Testing
 
-Unit tests only — they cover the pure data and logic modules, not components. **392
-tests across 18 suites**; `src/lib/seo.test.ts` is the largest because it asserts a
-generated sentence for every one of the 112 tools rather than sampling.
+Two layers. **Unit tests** cover the pure data and logic modules under `src/lib`
+and the machine-route handlers in `src/app` (vitest, node). A browser suite in
+`e2e/` (Playwright + axe) covers what the unit tests structurally cannot:
+heading landmarks, the palette's keyboard selection, the URL-sync of `/all` and
+`/stack-builder`, and a WCAG floor in both themes. **1047 tests across 32 suites**
+passed on the last local run; `src/lib/seo.test.ts` remains the largest because
+it asserts a generated sentence for every one of the 112 tools rather than
+sampling.
 
-| Suite | Tests | Covers |
-| --- | --- | --- |
-| `src/lib/seo.test.ts` | 120 | Every generated answer sentence for all 112 tools, plus `absolute()` |
-| `src/lib/data.test.ts` | 42 | Section and tool invariants, layer ordering, controlled facet vocabularies, date staleness, lookups, the alternatives graph |
-| `src/lib/search.test.ts` | 29 | Tier ordering, AND semantics, the fuzzy floor, roles in the index, essays and comparisons |
-| `src/lib/facets.test.ts` | 27 | Facet semantics — OR within a group, AND across groups, counts from the pool that excludes the group being counted |
-| `src/lib/comparisons.test.ts` | 27 | Row/tool counts, every reference resolves, no self-comparison |
-| `src/lib/posts.test.ts` | 22 | Frontmatter, date sorting, backlink integrity, coverage per section |
-| `src/lib/glossary.test.ts` | 19 | Term metadata, uniqueness, cross-links |
-| `src/lib/alternatives.test.ts` | 16 | Substitutes graph, adjacency split, derived verdicts |
-| `src/lib/roles.test.ts` | 13 | Role coverage, the two-role cap, distribution, and that no role is a superset of another |
-| `src/lib/symptoms.test.ts` | 11 | Symptom checklist integrity |
-| `src/lib/jsonld.test.ts` | 11 | Script-injection escaping |
-| `src/lib/layer.test.ts` | 11 | Band mapping, clamping, and that the OG card and the site agree on every layer |
-| `src/lib/verification.test.ts` | 10 | The staleness receipt matches what the guard enforces |
-| `src/lib/route-metadata.test.ts` | 9 | Every one of the 250 routes: canonical present, `og:url` present, the two equal, and share-card coverage |
-| `src/lib/llms.test.ts` | 8 | `/llms.txt` and `/llms-full.txt` carry the decision pair and the role section |
-| `src/lib/dataset.test.ts` | 6 | The agent-facing JSON document, including that every role id resolves inline |
-| `src/lib/search-entries.test.ts` | 6 | Index shape survives a JSON round trip and still ranks |
-| `src/lib/brand.test.ts` | 5 | No placeholder domain, contact or over-long description |
+The per-suite table is generated from the actual test files — check the
+`vitest.config.mts` `include` glob for the source of truth. The suites most
+worth understanding are not the largest, but the ones added for a specific
+incident, which are called out in [Build-time guards](#build-time-guards).
 
-Three of these deserve their own note, because they guard the class of bug this
-repo actually produced rather than the one it was designed against.
+Three suites earn their own note here because they guard theclass of bug this repo actually produced rather than the one it was designed against:
 
 **`route-metadata.test.ts` exists because `og:url` and `rel=canonical` disagreed.**
 Next does not derive `og:url` from `alternates.canonical` — set it once in the root
@@ -772,7 +768,22 @@ copy-shaped rather than dataset-shaped, and would otherwise ship silently:
 | `route-metadata.test.ts` | An indexable route family that stopped being generated |
 | `route-metadata.test.ts` | A route with no share card, or a card on a route with none |
 | `llms.test.ts` | An agent-facing document that lost the use/skip pair or the role section |
+| `llms.test.ts` | `/llms.txt` advertising a different tool list than the MCP manifest declares |
 | `dataset.test.ts` | `tools.json` carrying a role id its own vocabulary does not define |
+| `corrections.test.ts` | A corrections page that stopped being true, or went silent |
+| `search-filters.test.ts` | A facet axis that returns rows which do not satisfy it |
+| `mcp.test.ts` | `recommend_stack` and `resources/read` dropping a stated-limit field |
+| `facet-url.test.ts` | A shared-link facet state that does not round-trip, or a `q` collision with `/api/search` |
+| `rate-limit.test.ts` | A limiter that accepts every request, or tracks every client |
+| `check-bundle-budget.mjs` | A route's client-bundle ceiling crossed |
+
+And the browser suite, which is the only one that can see DOM:
+
+| Guard | Catches |
+| --- | --- |
+| `e2e/a11y.spec.ts` | A route that renders without a single `h1`, without a main landmark, or with a new axe violation in either theme |
+| `e2e/interactions.spec.ts` | The palette losing keyboard selection, the explorer losing its URL state, the builder failing to reproduce from its link |
+| `worker-smoke.mjs` | A Worker-only 500, a missing resource capability, or a rate limiter that never trips |
 
 ---
 

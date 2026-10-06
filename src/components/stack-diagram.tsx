@@ -37,11 +37,22 @@ export function StackDiagram() {
         </span>
       </div>
 
-      <div
-        className="relative rounded-lg border border-border bg-bg-elevated/60 p-1.5"
-        role="list"
-        aria-label="AI system layers, ordered surface first"
-      >
+      {/*
+        A plain div, not `role="list"`.
+
+        It carried `role="list"` with the label "AI system layers, ordered surface
+        first", but its children are the three band `<section>`s — not
+        `listitem`s. axe reports it as `aria-required-children`, and it was a real
+        defect rather than a pedantic one: a list whose children are not list items
+        announces as a list and then offers a screen-reader user nothing to move
+        between.
+
+        The list semantics belong on each band's `<ul>` below, where the children
+        genuinely are list items, and each is labelled with its band so the
+        announcement is *better* than one flat list was — the reader hears which
+        family of layers they have moved into.
+      */}
+      <div className="relative rounded-lg border border-border bg-bg-elevated/60 p-1.5">
         {bandOrder.map((band) => (
           <section key={band.id} className="mb-1 last:mb-0">
             {/* The band heading carries the symptom it is associated with,
@@ -59,7 +70,7 @@ export function StackDiagram() {
               </span>
             </h3>
 
-            <ul>
+            <ul aria-label={`Band ${band.roman} · ${band.title} layers, surface first`}>
               {ordered
                 .filter((c) => bandOf(c.layer) === band.id)
                 .map((category) => {
@@ -70,7 +81,7 @@ export function StackDiagram() {
                   const isCrosscutting = category.role === "crosscutting";
 
                   return (
-                    <li key={category.slug} role="listitem">
+                    <li key={category.slug}>
                       <Link
                         href={`/${category.slug}`}
                         className="group relative flex items-center gap-3 overflow-hidden rounded-md px-3 py-3 transition-colors hover:bg-bg-sunken sm:gap-4"
