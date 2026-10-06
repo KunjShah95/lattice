@@ -25,6 +25,9 @@
     "generate:check": "node scripts/generate-awesome-list.mjs --check",
     "indexnow": "node scripts/indexnow.mjs",
     "test:submissions": "node scripts/triage-harness.mjs",
+    "test:worker": "node scripts/worker-smoke.mjs",
+    "cite": "node scripts/cite-check.mjs",
+    "cite:self-test": "node scripts/cite-check.mjs --self-test",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "deploy": "npm run build && npm run cf:deploy",
     "preview": "npm run build && wrangler dev"

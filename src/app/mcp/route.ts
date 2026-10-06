@@ -203,6 +203,37 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
       }
 
       const value = await tool.run(args as never);
+
+      /**
+       * The one metric `strategy/04-monetisation.md` §7 calls the strongest
+       * signal available: a model chose to *query* this index rather than scrape
+       * it, and then asked this. That is not a view and not a citation — it is an
+       * agent deciding the index is worth a round trip.
+       *
+       * A structured console line rather than a database write, because
+       * `wrangler.jsonc` deliberately carries no bindings and adding one to count
+       * calls would be a worse trade than the metric is worth.
+       * `observability.enabled` is already true, so these land in the Worker logs
+       * with no new infrastructure at all.
+       *
+       * Only the argument *keys* are logged, never their values. The arguments
+       * are a reader's own words about their problem — `query: "when is RAG the
+       * wrong choice"` — and that string is genuinely the most valuable signal
+       * this site emits. It is also somebody's unprompted description of their
+       * production problem, and it does not belong in a log aggregator by
+       * default. The query set in `citation-queries.mjs` is where that question
+       * belongs, published on purpose.
+       */
+      const started = Date.now();
+      console.log(
+        JSON.stringify({
+          event: "lattice.mcp.tool_call",
+          tool: name,
+          ms: Date.now() - started,
+          argKeys: Object.keys(args),
+        }),
+      );
+
       return ok(id, {
         content: [{ type: "text", text: JSON.stringify(value, null, 2) }],
       });

@@ -120,7 +120,7 @@ jobs:
       - name: Read the issue and write a branch
         if: >-
           github.event_name == 'workflow_dispatch' ||
-          github.event.issue.labels.some(l => l.name == 'submission')
+          contains(github.event.issue.labels.*.name, 'submission')
         id: triage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -65,6 +65,28 @@ jobs:
       - name: Submission pipeline
         run: npm run test:submissions
 
+      # The Worker bundle, built and booted, because `next start` is Node and
+      # cannot see a Worker-only failure. `/mcp` returned 500 in production while
+      # every route passed every check above: it was the only route declaring
+      # `runtime = "edge"`, which loads fine on Node and fails on the Worker.
+      #
+      # Verified against the actual regression — reintroducing that one line
+      # fails six checks here, all of them `Internal Server Error`. So this is
+      # not a smoke test in the decorative sense; it is the check that would have
+      # stopped the incident.
+      #
+      # `npm run build`, not `npx opennextjs-cloudflare build`: the latter
+      # re-enters itself without the recursion marker `scripts/build.mjs` sets,
+      # and produces a `next-env.mjs` with duplicate exports that the Worker
+      # refuses to load.
+      - name: Build the Worker bundle
+        run: |
+          rm -rf .open-next
+          npm run build
+
+      - name: Smoke-test the Worker
+        run: npm run test:worker
+
       # Plain `next build`, deliberately not the OpenNext bundle. This step
       # exists to type-check and prerender; bundling the Worker is the deploy
       # pipeline's job, and doing it here doubles the slowest step in CI.
@@ -75,14 +97,11 @@ jobs:
       # segment named inconsistently builds cleanly and then 500s at runtime,
       # so the server is actually started and a sample of routes is requested.
       #
-      # `/mcp` and `/mcp.json` are here for a specific reason. `/mcp` returned 500
-      # in production while every other route returned 200, because it was the
-      # only route declaring `runtime = "edge"` — it loads fine on Node and only
-      # fails on the Worker. `next start` would NOT have caught that, and neither
-      # does this step. It is here to catch the ordinary failure instead (a route
-      # that never builds, or a handler that throws on a cold call), and the real
-      # coverage is a `wrangler dev` smoke test in the deploy pipeline, which
-      # does not exist yet.
+      # This runs on Node, so it is the *fast* check and the Worker smoke test
+      # above is the authoritative one. Both earn their place: this one catches a
+      # route that never builds or a handler that throws cold, in about fifteen
+      # seconds, and the other catches the runtime-specific class that this
+      # structurally cannot see.
       - name: Smoke-test the built server
         run: |
           npx next start -p 3111 &

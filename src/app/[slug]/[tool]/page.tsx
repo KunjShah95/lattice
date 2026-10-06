@@ -15,6 +15,7 @@ import {
 import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { hasAlternativesPage } from "@/lib/alternatives";
+import { TrackLink } from "@/components/track-link";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import {
@@ -334,12 +335,17 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                     className="inline-block h-2.5 w-[2px] shrink-0 translate-y-0.5 rounded-full"
                     style={layerStyle(section.layer)}
                   />
-                  <Link
+                  {/* Tracked, because whether anyone follows a second home is the
+                      only evidence that the taxonomy's overlaps are the thing
+                      readers actually want — the claim `layer_overlaps` and this
+                      field were added to serve. */}
+                  <TrackLink
                     href={`/${section.slug}`}
+                    event="second-home"
                     className="shrink-0 font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
                   >
                     {section.title}
-                  </Link>
+                  </TrackLink>
                   {/* `because` carries its own full stop, so nothing is appended
                       here. Enforced by the build guard in `data.ts`. */}
                   <span className="min-w-0">{because}</span>
@@ -402,8 +408,13 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           <ul className="mt-4 space-y-px">
             {inComparisons.map((c) => (
               <li key={c.slug}>
-                <Link
+                {/* Tracked because this is the exit into the cross-layer wedge —
+                    the comparison surface `strategy/02` §4 says no funded
+                    competitor can occupy. Whether anyone walks from a tool into
+                    one is the only direct evidence the wedge is being used. */}
+                <TrackLink
                   href={`/compare/${c.slug}`}
+                  event="compare"
                   className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
@@ -419,7 +430,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                       {c.description}
                     </span>
                   </span>
-                </Link>
+                </TrackLink>
               </li>
             ))}
           </ul>
@@ -471,12 +482,17 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                 entries are adjacent rather than real substitutes, neither of
                 which fits in a list on this page. */}
             {hasAlternativesPage(categorySlug, toolSlug) ? (
-              <Link
+              // Tracked, not wrapped in an extra element: `strategy/02` §5 calls
+              // alternatives pages the single biggest lever for a directory, so
+              // whether anyone walks into one is the most important navigation
+              // fact on this site.
+              <TrackLink
                 href={`/${categorySlug}/${toolSlug}/alternatives`}
+                event="alternatives"
                 className="shrink-0 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
               >
                 compare {alternatives.length} →
-              </Link>
+              </TrackLink>
             ) : null}
           </div>
           <ul className="mt-4 space-y-px">

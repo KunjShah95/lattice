@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CategorySection } from "@/components/category-section";
 import { categories, getCategory, getSecondHomeTools } from "@/lib/data";
 import { layerStyle } from "@/lib/layer";
+import { TrackLink } from "@/components/track-link";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -108,8 +109,13 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           <ul className="mt-5 space-y-px">
             {alsoHere.map(({ tool, because }) => (
               <li key={`${tool.category.slug}-${tool.slug}`}>
-                <Link
+                {/* Tracked, but the reverse direction of the tool page's
+                    "Also belongs in". Taken together the two counts say whether
+                    the crossing is being read from either end — a field that is
+                    only ever read in one direction is a field nobody needed. */}
+                <TrackLink
                   href={`/${tool.category.slug}/${tool.slug}`}
+                  event="second-home"
                   className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
@@ -130,7 +136,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                       {because}
                     </span>
                   </span>
-                </Link>
+                </TrackLink>
               </li>
             ))}
           </ul>
