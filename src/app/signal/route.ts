@@ -31,10 +31,23 @@ import { allowedEvents, MAX_SIGNAL_BYTES, parseSignal } from "@/lib/signal.mjs";
  * 3. **A size cap.** 512 bytes is more than the payload needs and less than a
  *    request body worth allocating memory for.
  *
- * ## 204, always
+ * ## 204 for rejections, 200 for accepted
  *
- * Even on rejection. A beacon has no caller worth informing, and a 4xx would be
- * visible as failed requests in the analytics the route exists to produce.
+ * A rejection is a malformed beacon, which is noise, and a 4xx would be visible
+ * as failed requests in the analytics this route exists to produce — so a rejected
+ * beacon answers 204 and says nothing at all. Not telling anyone is deliberate.
+ *
+ * An *accepted* beacon answers 200 with the edge it recorded. That is the change
+ * from answering 204 for everything, which was defensible and turned out to make
+ * the route untestable: with every case returning the same status and an empty
+ * body, the only way to assert "this one was counted and that one was discarded"
+ * was to scrape the Worker's stdout, which is a subprocess's buffered pipe and
+ * fails intermittently — and did, here, in a way that looked like a product bug.
+ *
+ * Both statuses are 2xx, so neither pollutes request analytics. `sendBeacon` does
+ * not read a response, so nothing about the client changes. And the body is only
+ * ever the validated record: an event from a closed set of four, and two paths
+ * that already passed the shape checks, so there is nothing here to reflect.
  */
 export const dynamic = "force-dynamic";
 
@@ -83,16 +96,20 @@ export async function POST(request: Request) {
 // `from` and `to` are both logged because the record is an edge. A log that only
 // says "an alternatives link was clicked" cannot answer "alternatives-page entry",
 // which is the metric this route exists to serve.
-console.log(
-  JSON.stringify({
-    event: "lattice.signal",
-    kind: parsed.event,
-    from: parsed.from,
-    to: parsed.to,
-    at: new Date().toISOString(),
-  }),
-);
-  return new Response(null, { status: 204, headers: CORS });
+const record = {
+  event: "lattice.signal" as const,
+  kind: parsed.event,
+  from: parsed.from,
+  to: parsed.to,
+  at: new Date().toISOString(),
+};
+
+console.log(JSON.stringify(record));
+
+// The same record, echoed. See the note above: this is what makes "was this
+// counted?" answerable without reading the Worker's stdout, which is what the
+// smoke test used to have to do.
+return Response.json(record, { status: 200, headers: CORS });
 }
 
 /** A GET is not a signal. Answering it keeps the route from looking missing. */

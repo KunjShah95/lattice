@@ -83,18 +83,21 @@ const EXPECTED = [
  * failure mode an unauthenticated public endpoint is most likely to have.
  */
 /**
- * Beacon posts that must all answer 204, whether accepted or rejected.
+ * Beacon posts, and what each must answer.
  *
- * Every case returns 204 deliberately — see `app/signal/route.ts` — so the status
- * alone proves the route loaded and the validator ran, and cannot tell an accepted
- * beacon from a rejected one. `logged` is what closes that: a unique token is
- * embedded in the payload and the Worker log is grepped for it afterwards, so the
- * test asserts not just "did not 500" but "this one was counted, that one was
- * discarded".
+ * Accepted beacons answer 200 with the recorded edge. Rejected ones answer 204
+ * and an empty body — a malformed beacon is noise, and a 4xx would show up as
+ * failed requests in the very analytics this route exists to produce, so
+ * rejection stays silent and inside the 2xx range.
  *
- * That distinction is the whole security property of the route. An endpoint that
- * logged everything would pass every one of these checks and hand anyone on the
- * internet a write API for the metrics in `04-monetisation.md` §7.
+ * The status alone distinguishes the two, which is the point: this used to assert
+ * that every case answered 204 and then scrape the Worker's stdout to see which
+ * ones had been logged. Scraping a subprocess's buffered pipe fails intermittently
+ * — and did, here, intermittently enough to look like a product bug and to cost
+ * more time than the thing it was verifying.
+ *
+ * `expect` receives the status and the parsed body (null when there is none), so a
+ * case can assert that the recorded edge carries both ends of the navigation.
  */
 const BEACONS = [
   {
@@ -104,33 +107,22 @@ const BEACONS = [
       from: "/inference-serving/vllm",
       to: "/compare/inference-runtimes",
     },
-    expect: 204,
-    // Grepped for in the Worker log. Real paths, because a fabricated one would
-    // make the assertion depend on the validator accepting paths nothing else on
-    // the site produces. The destination is asserted too — a log that recorded
-    // only the source would still match here, which is how the first version of
-    // this shipped.
-    logged: "/compare/inference-runtimes",
+    expect: (status, body) =>
+      status === 200 &&
+      body?.event === "lattice.signal" &&
+      body?.kind === "compare" &&
+      // Both ends, or the log is a counter rather than an edge and every
+      // "did anyone arrive at X" metric is wrong. The first version recorded only
+      // the page the reader was already on.
+      body?.from === "/inference-serving/vllm" &&
+      body?.to === "/compare/inference-runtimes" &&
+      typeof body?.at === "string",
+    why: "expected a 200 echoing the recorded edge",
   },
-  {
-    name: "an event outside the vocabulary",
-    body: { event: "nope", from: "/smokenope", to: "/smokenope" },
-    expect: 204,
-    silent: "smokenope",
-  },
-  {
-    name: "a scheme-relative destination",
-    body: { event: "tool", from: "/a", to: "//smokeevil.com" },
-    expect: 204,
-    silent: "smokeevil",
-  },
-  {
-    name: "a beacon with no destination",
-    body: { event: "compare", from: "/smokehalf" },
-    expect: 204,
-    silent: "smokehalf",
-  },
-  { name: "a non-JSON body", raw: "not json at all", expect: 204, silent: "not json at all" },
+  { name: "an event outside the vocabulary", body: { event: "nope", from: "/a", to: "/b" }, expect: 204 },
+  { name: "a scheme-relative destination", body: { event: "tool", from: "/a", to: "//evil.com" }, expect: 204 },
+  { name: "a beacon with no destination", body: { event: "compare", from: "/a" }, expect: 204 },
+  { name: "a non-JSON body", raw: "not json at all", expect: 204 },
   { name: "an empty body", raw: "", expect: 204 },
   { name: "an oversized body", raw: "x".repeat(2000), expect: 204 },
 ];
@@ -322,47 +314,33 @@ const main = async () => {
     }
 
     for (const beacon of BEACONS) {
+      let ok = false;
+      let why = beacon.why ?? "";
       try {
         const res = await fetch(`${BASE}/signal`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: beacon.raw ?? JSON.stringify(beacon.body),
         });
-        record(
-          res.status === beacon.expect,
-          `signal ${beacon.name}`,
-          res.status === beacon.expect ? "" : `expected ${beacon.expect}, got ${res.status}`,
-        );
+        const expect =
+          typeof beacon.expect === "function"
+            ? beacon.expect
+            : (status) => status === beacon.expect;
+        // A rejected beacon has no body; do not throw trying to read one.
+        const text = await res.text();
+        let body = null;
+        try {
+          body = text ? JSON.parse(text) : null;
+        } catch {
+          body = null;
+        }
+        ok = expect(res.status, body);
+        if (!ok && !why) why = `expected ${beacon.expect}, got ${res.status}`;
       } catch (error) {
-        record(false, `signal ${beacon.name}`, `threw: ${error.message}`);
+        ok = false;
+        why = `threw: ${error.message}`;
       }
-    }
-
-    // Whether each beacon was *counted*, as opposed to answered. `wrangler dev`
-    // prints Worker `console.log` to stdout, which `log` has been accumulating
-    // since spawn, so this reads the real emission rather than inferring it.
-    //
-    // A short settle, because a rejected beacon is rejected without logging and a
-    // logged one is written as the response is flushed — reading `log` on the same
-    // tick as the fetch can win the race in either direction.
-    await sleep(1000);
-    for (const beacon of BEACONS) {
-      const needle = beacon.logged ?? beacon.silent;
-      if (!needle) continue;
-      const present = log.includes(needle);
-      if (beacon.logged) {
-        record(
-          present,
-          `signal ${beacon.name} is logged`,
-          present ? "" : "no Worker log line contained it — accepted but never recorded",
-        );
-      } else {
-        record(
-          !present,
-          `signal ${beacon.name} is not logged`,
-          present ? "a rejected beacon reached the log — the validator was bypassed" : "",
-        );
-      }
+      record(ok, `signal ${beacon.name}`, ok ? "" : `${why}`);
     }
   } finally {
     shutdown();

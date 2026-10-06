@@ -195,7 +195,18 @@ already was and never where they went — which made `kind: "compare"` read as a
 comparison exit while proving only that a comparison link was rendered. Every
 "did anyone arrive at X" row in this table would have been wrong, silently. A
 status-only smoke test cannot catch that; clicking the link in a real browser and
-reading what went over the wire did. The path verified end to end:
+reading what went over the wire did.
+
+`/signal` answers **200 with the recorded edge** for an accepted beacon and **204,
+empty** for a rejected one. The split replaced answering 204 for everything. Both
+statuses are 2xx, so a malformed beacon still never appears as a failed request in
+the analytics this route exists to produce — but a route where every answer is
+identical can only be verified by scraping the Worker's stdout, which is a
+subprocess's buffered pipe and fails intermittently. It did, here, often enough to
+look like a product bug and to cost more time than it saved.
+`src/lib/signal-route.test.ts` now pins the contract directly.
+
+The path verified end to end in a real browser:
 
 ```
 browser click → sendBeacon → POST /signal → validate → console.log
