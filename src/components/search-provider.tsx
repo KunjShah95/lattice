@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useDeferredValue,
   useMemo,
   useRef,
   useState,
@@ -59,15 +60,45 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   // Lowercasing and pre-splitting happen once per dataset, not per keystroke.
   const index = useMemo(() => buildIndex(entries ?? []), [entries]);
 
+  /**
+   * The result list is derived from a deferred copy of the query.
+   *
+   * Every keystroke is a discrete interaction, and INP is measured per
+   * interaction — so the render that a keystroke triggers is counted against it.
+   * Scoring the corpus is sub-millisecond, but reconciling the resulting rows
+   * is not, and the browse case renders the entire index. Deferring lets the
+   * input's own state land and paint at normal priority while the list catches
+   * up in a background pass, which is what keeps a burst of typing responsive.
+   *
+   * Enter-navigate is guarded on the chosen row existing, so hitting it during
+   * the brief window where `results` still reflects the previous query is a
+   * no-op rather than a navigation to the wrong page.
+   */
+  const deferredQuery = useDeferredValue(query);
+
   const results = useMemo(
-    () => searchTools(index, query, 40),
-    [index, query],
+    () => searchTools(index, deferredQuery, 40),
+    [index, deferredQuery],
   );
 
-  // Kick the fetch off as a side effect of the first open. Guarded on `entries`
-  // so repeat opens reuse the loaded corpus rather than refetching.
+  /**
+   * Guards against two concurrent fetches, which guarding on `entries` alone
+   * does not do.
+   *
+   * `entries` stays null until the response arrives, so a reader who hovers the
+   * trigger and then clicks before the request resolves passes the `entries`
+   * check twice and starts a second download of the same 55 KB file. Hovering
+   * the button is the fastest way to open the palette, which makes that a
+   * likely path rather than a theoretical one. A ref is the right shape here
+   * because it does not trigger a render.
+   */
+  const inFlight = useRef(false);
+
+  // Kick the fetch off as a side effect of the first open, or of the first
+  // intent to open it. Guarded so repeat calls reuse the loaded corpus.
   const load = useCallback(() => {
-    if (entries !== null || loadFailed) return;
+    if (entries !== null || loadFailed || inFlight.current) return;
+    inFlight.current = true;
     fetch(INDEX_URL)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -222,7 +253,16 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                     <button
                       type="button"
                       onClick={() => go(entry)}
-                      onMouseMove={() => setActive(i)}
+                      // `onMouseEnter`, not `onMouseMove`. `mousemove` fires on
+                      // every pixel of travel within the row, not once on entry,
+                      // so sweeping the cursor down the list scheduled a
+                      // `setActive` — and therefore a full re-render of the
+                      // results, plus the `scrollIntoView` effect below it —
+                      // dozens of times per second. The intent is "highlight the
+                      // row under the cursor", which is exactly what `mouseenter`
+                      // means; the extra events were pure main-thread cost on the
+                      // one interaction this palette exists to serve.
+                      onMouseEnter={() => setActive(i)}
                       className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                         i === active ? "bg-bg-sunken" : ""
                       }`}

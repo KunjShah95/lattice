@@ -114,13 +114,33 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
-    /* Drafting grid rather than a soft glow — the page should read as
-       a working surface with structure, not a marketing backdrop. */
+  }
+
+  /* Drafting grid rather than a soft glow — the page should read as a working
+     surface with structure, not a marketing backdrop.
+
+     Painted on a fixed pseudo-element rather than on `body` with
+     `background-attachment: fixed`. The two are visually identical, but not
+     computationally: a fixed attachment on the scrolling body has to be
+     re-rastered against the viewport on every scroll frame, and that raster
+     work runs on the main thread — the same thread INP is measured on. A
+     `position: fixed` element is promoted to its own composited layer,
+     rastered once, and re-used as the page scrolls, so the grid goes from a
+     per-frame cost to a one-off.
+
+     `z-index: -1` sits it behind the content (body's own background has
+     propagated to the canvas, which paints beneath everything regardless) and
+     `pointer-events: none` keeps it from ever intercepting a click. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-image:
       linear-gradient(to right, var(--grid) 1px, transparent 1px),
       linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
     background-size: 56px 56px;
-    background-attachment: fixed;
   }
 
   ::selection {

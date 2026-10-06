@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { layerStyle } from "@/lib/layer";
 import { ROLES } from "@/lib/roles";
 import {
@@ -51,7 +51,19 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
   const [selected, setSelected] = useState<FacetSelection>({});
   const [expanded, setExpanded] = useState<Partial<Record<GroupKey, boolean>>>({});
 
-  const textMatch = useMemo(() => textAndSectionMatches(tools, query, null), [tools, query]);
+  /**
+   * The filter input updates immediately while the row list it drives is
+   * derived from a deferred copy of the query. Each keystroke is a discrete
+   * interaction and INP is scored on the paint that follows it, so the character
+   * has to land first and the re-render of up to 113 rows can trail behind it.
+   * Without this the whole list reconciles inside the keystroke's own frame.
+   */
+  const deferredQuery = useDeferredValue(query);
+
+  const textMatch = useMemo(
+    () => textAndSectionMatches(tools, deferredQuery, null),
+    [tools, deferredQuery],
+  );
 
   /**
    * Which rows survive every *other* group, used to count each group's options.
@@ -112,7 +124,12 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
 
   return (
     <div>
-      <div className="sticky top-14 z-30 -mx-5 mb-6 border-b border-border bg-bg/90 px-5 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+      {/* Solid rather than `bg-bg/90 backdrop-blur-md`. This bar is sticky above a
+          list of 113 rows, so it is exactly the case backdrop-filter is worst
+          at: every scroll frame changes the content behind it, forcing a blur
+          of the whole bar. At 90% opacity that blur is barely perceptible, and
+          the rows scrolling under it are the point. */}
+      <div className="sticky top-14 z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-[12rem] flex-1">
             <svg

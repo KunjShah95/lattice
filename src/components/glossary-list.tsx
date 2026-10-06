@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { layerStyle } from "@/lib/layer";
 import type { GlossaryTerm } from "@/lib/glossary";
 
@@ -22,8 +22,16 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
     return [...m.entries()].sort((a, b) => a[0] - b[0]);
   }, [terms]);
 
+  /**
+   * Derived from a deferred copy of the query so the character lands in the
+   * input and paints on its own, and the definition rows reconcile behind it.
+   * Every keystroke is scored as an interaction, so the work it triggers
+   * counts against its latency.
+   */
+  const deferredQuery = useDeferredValue(query);
+
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     return terms.filter((t) => {
       if (layer !== "all" && t.layer !== layer) return false;
       if (!q) return true;
@@ -33,11 +41,15 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
         t.detail.toLowerCase().includes(q)
       );
     });
-  }, [terms, query, layer]);
+  }, [terms, deferredQuery, layer]);
 
   return (
     <div>
-      <div className="sticky top-14 z-30 -mx-5 mb-6 border-b border-border bg-bg/90 px-5 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+      {/* Solid rather than `bg-bg/90 backdrop-blur-md`, for the same reason as the
+          filter bar on /all: a sticky backdrop-filter over a long scrolling list
+          re-blurs on every frame, and at 90% opacity the effect is close to
+          invisible. */}
+      <div className="sticky top-14 z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-[12rem] flex-1">
             <svg

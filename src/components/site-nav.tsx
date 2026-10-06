@@ -143,7 +143,10 @@ export function MobileNav() {
           <nav
             id="mobile-nav"
             aria-label="Sections"
-            className="absolute inset-x-0 top-full z-40 border-b border-border bg-bg/95 backdrop-blur-md"
+            // Solid, not `bg-bg/95 backdrop-blur-md` — at 95% the blur is
+            // invisible, and a backdrop-filter has to be recomputed whenever
+            // the content behind it changes. See the note on the site header.
+            className="absolute inset-x-0 top-full z-40 border-b border-border bg-bg"
           >
             <ul className="mx-auto max-w-5xl px-5 py-2 sm:px-6">
               {links.map((l) => (
