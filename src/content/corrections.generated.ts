@@ -22,6 +22,16 @@ export type Correction = {
 
 export const corrections: Correction[] = [
   {
+    "date": "2026-10-06",
+    "title": "Update .gitignore, package dependencies, and CI configuration; enhance accessibility and sitemap",
+    "hash": "78f8be9",
+    "url": "https://github.com/KunjShah95/lattice/commit/78f8be97b91484cfd75f0e86ed36984bfdd05cdf",
+    "touched": [
+      "classification",
+      "the index"
+    ]
+  },
+  {
     "date": "2026-10-05",
     "title": "Add rendering scripts for icons and SEO audit; update package.json and README",
     "hash": "3626745",
