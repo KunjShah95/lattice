@@ -35,7 +35,18 @@ import { useCallback, type ReactNode } from "react";
  *
  * ## What is and is not sent
  *
- * Sent: the two paths, as event and destination. Both are already public URLs.
+ * Sent: `from` (the page the click happened on) and `to` (the destination), plus
+ * the link's kind. Both are already public URLs.
+ *
+ * **Both ends are required, and that is the whole point.** The first version sent
+ * `location.pathname` under the key `to`, which recorded the page you were on and
+ * dropped where you went. That silently turns "a comparison link was rendered"
+ * into "the wedge is being used" — `kind: "compare"` looked like a comparison exit
+ * in the log while carrying no evidence anyone reached a comparison page. It
+ * survived a status-only smoke test, which cannot see payload contents, and it
+ * survived review, because the `href` is right there in the surrounding markup.
+ * Clicking the link in a real browser and reading what went over the wire is what
+ * caught it.
  *
  * Not sent: referrer, user agent, anything identifying, anything cross-site. There
  * is no session and no cookie, so the log cannot be joined into a profile — which
@@ -74,15 +85,29 @@ export function TrackLink({
 }) {
   const onClick = useCallback(() => {
     try {
-      // `pathname` from `location` rather than parsing `href`, so a link built
-      // from a section slug cannot report a path that does not match where it
-      // actually went.
-      navigator.sendBeacon("/signal", JSON.stringify({ event, to: location.pathname }));
+      // `from` is read from `location`, because it is the page the click happened
+      // on — the one thing the href cannot tell us.
+      //
+      // `to` is resolved against the origin rather than passed through, so the
+      // destination is always a bare path. The validator rejects anything not
+      // starting with a single slash, and handing it `href` raw would let a future
+      // absolute URL quietly produce a beacon that gets silently dropped.
+      //
+      // Both ends, because the record is an edge. The first version sent only
+      // `location.pathname` under the key `to`, which recorded where a reader
+      // already was and dropped where they went — so `kind: "compare"` looked
+      // like a comparison exit while proving only that a comparison link existed.
+      const to = new URL(href, location.origin).pathname;
+
+      navigator.sendBeacon(
+        "/signal",
+        JSON.stringify({ event, from: location.pathname, to }),
+      );
     } catch {
       // No `sendBeacon` (older browser), or a CSP that forbids it. Either way the
       // link still works, which is the only thing that matters here.
     }
-  }, [event]);
+  }, [event, href]);
 
   return (
     <Link

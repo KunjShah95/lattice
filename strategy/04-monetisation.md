@@ -187,7 +187,21 @@ architectural decision for a number. Two routes do the work:
 
 - `src/app/mcp/route.ts` emits `{event: "lattice.mcp.tool_call", tool, ms, argKeys}`.
 - `src/app/signal/route.ts` receives navigation beacons and emits
-  `{event: "lattice.signal", kind, to, at}`.
+  `{event: "lattice.signal", kind, from, to, at}`.
+
+Both ends of the navigation edge are logged. The first version sent only the page
+the click happened on, under the key `to`, so the log recorded where a reader
+already was and never where they went — which made `kind: "compare"` read as a
+comparison exit while proving only that a comparison link was rendered. Every
+"did anyone arrive at X" row in this table would have been wrong, silently. A
+status-only smoke test cannot catch that; clicking the link in a real browser and
+reading what went over the wire did. The path verified end to end:
+
+```
+browser click → sendBeacon → POST /signal → validate → console.log
+{"event":"lattice.signal","kind":"alternatives",
+ "from":"/inference-serving/vllm","to":"/inference-serving/vllm/alternatives"}
+```
 
 `scripts/worker-smoke.mjs` asserts **which beacons are logged and which are
 discarded**, not merely that they answer 204 — an endpoint that logged everything

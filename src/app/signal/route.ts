@@ -79,10 +79,15 @@ export async function POST(request: Request) {
 // beacon's own value and `event: "lattice.signal"` is the log record's. Two keys
 // called `event` means the spread silently overwrote the envelope type, which is
 // the kind of thing that makes a log unqueryable six months later.
+//
+// `from` and `to` are both logged because the record is an edge. A log that only
+// says "an alternatives link was clicked" cannot answer "alternatives-page entry",
+// which is the metric this route exists to serve.
 console.log(
   JSON.stringify({
     event: "lattice.signal",
     kind: parsed.event,
+    from: parsed.from,
     to: parsed.to,
     at: new Date().toISOString(),
   }),

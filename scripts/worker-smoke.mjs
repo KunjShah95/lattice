@@ -99,15 +99,37 @@ const EXPECTED = [
 const BEACONS = [
   {
     name: "a valid beacon",
-    body: { event: "compare", to: "/compare/vector-databases" },
+    body: {
+      event: "compare",
+      from: "/inference-serving/vllm",
+      to: "/compare/inference-runtimes",
+    },
     expect: 204,
-    // Grepped for in the Worker log. A real path, because a fabricated one would
-    // make the assertion depend on the validator accepting paths that nothing else
-    // in the site produces.
-    logged: "/compare/vector-databases",
+    // Grepped for in the Worker log. Real paths, because a fabricated one would
+    // make the assertion depend on the validator accepting paths nothing else on
+    // the site produces. The destination is asserted too — a log that recorded
+    // only the source would still match here, which is how the first version of
+    // this shipped.
+    logged: "/compare/inference-runtimes",
   },
-  { name: "an event outside the vocabulary", body: { event: "nope", to: "/smokenope" }, expect: 204, silent: "smokenope" },
-  { name: "a scheme-relative destination", body: { event: "tool", to: "//smokeevil.com" }, expect: 204, silent: "smokeevil" },
+  {
+    name: "an event outside the vocabulary",
+    body: { event: "nope", from: "/smokenope", to: "/smokenope" },
+    expect: 204,
+    silent: "smokenope",
+  },
+  {
+    name: "a scheme-relative destination",
+    body: { event: "tool", from: "/a", to: "//smokeevil.com" },
+    expect: 204,
+    silent: "smokeevil",
+  },
+  {
+    name: "a beacon with no destination",
+    body: { event: "compare", from: "/smokehalf" },
+    expect: 204,
+    silent: "smokehalf",
+  },
   { name: "a non-JSON body", raw: "not json at all", expect: 204, silent: "not json at all" },
   { name: "an empty body", raw: "", expect: 204 },
   { name: "an oversized body", raw: "x".repeat(2000), expect: 204 },
