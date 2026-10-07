@@ -19,13 +19,17 @@ export function SiteHeader() {
     // scroll frames — the region beneath it changes — so on a header that is on
     // screen for the entire session it is a per-frame main-thread charge for
     // an effect nobody would notice missing.
-    <header className="sticky top-0 z-40 border-b border-border bg-bg">
+    //
+    // `header-elevate` adds a shadow once content scrolls beneath the bar. It is
+    // a scroll-driven CSS animation, so it costs the main thread nothing — the
+    // compositor owns it, unlike the blur this replaced.
+    <header className="header-elevate sticky top-0 z-40 border-b border-border bg-bg pt-[env(safe-area-inset-top)]">
       {/* `relative` anchors the mobile drawer, which is absolutely
           positioned at top-full of this bar. */}
       <div className="relative mx-auto flex h-14 max-w-5xl items-center gap-4 px-5 sm:px-6">
         <Link
           href="/"
-          className="shrink-0 text-[15px] transition-opacity hover:opacity-70"
+          className="press group -ml-1.5 shrink-0 rounded-md px-1.5 py-1 text-[15px] hover:bg-bg-sunken"
         >
           <Logo />
         </Link>
@@ -42,6 +46,13 @@ export function SiteHeader() {
           <MobileNav />
         </div>
       </div>
+      {/* Reading progress: a hairline in the accent that draws across the
+          bottom edge of the bar as the page scrolls. Scroll-driven, so it is
+          absent where scroll timelines are unsupported rather than janky. */}
+      <span
+        aria-hidden="true"
+        className="scroll-progress pointer-events-none absolute inset-x-0 -bottom-px h-px bg-accent/70"
+      />
     </header>
   );
 }

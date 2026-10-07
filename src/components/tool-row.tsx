@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Tool } from "@/lib/types";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 
 /**
  * One tool in a list. Hairline-separated rather than boxed — the reference
@@ -32,10 +32,16 @@ export function ToolRow({
 
   return (
     <li>
-      <div className="group -mx-2 flex items-start gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-bg-sunken">
+      <div
+        data-spot=""
+        style={{ "--spot": layerColor(layer) } as React.CSSProperties}
+        className="group relative -mx-2 flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-bg-sunken"
+      >
+        {/* The swatch thickens on hover — the row "takes" its layer colour
+            rather than the whole row lighting up. */}
         <span
           aria-hidden="true"
-          className="mt-1 h-8 w-[3px] shrink-0 rounded-full"
+          className="mt-1 h-8 w-[3px] shrink-0 rounded-full transition-[width] duration-300 ease-[var(--ease-spring)] group-hover:w-[5px]"
           style={layerStyle(layer)}
         />
 
@@ -45,7 +51,7 @@ export function ToolRow({
               href={tool.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="truncate text-[14px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
+              className="link-draw truncate text-[14px] font-medium"
             >
               {tool.name}
             </a>
@@ -62,7 +68,7 @@ export function ToolRow({
 
         {/* Host is de-emphasised: it tells you what kind of thing this is
             (own site vs. a repo) without competing with the name. */}
-        <span className="mt-0.5 hidden shrink-0 font-mono text-[11px] text-fg-subtle sm:block">
+        <span className="mt-0.5 hidden shrink-0 font-mono text-[11px] text-fg-subtle transition-colors group-hover:text-fg-muted sm:block">
           {tool.domain.replace(/^www\./, "")}
         </span>
 
@@ -76,7 +82,7 @@ export function ToolRow({
             // visible below `sm`, revealed on hover above it. `p-1.5` rather
             // than `p-0.5` because a 13px glyph with 2px of padding is a ~18px
             // target, well under the 44px minimum.
-            className="mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle transition-opacity hover:text-fg focus-visible:opacity-100 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
+            className="press mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle hover:bg-bg hover:text-fg focus-visible:opacity-100 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <span className="sr-only">More about {tool.name} in this index</span>
             <svg
@@ -113,7 +119,7 @@ export function ToolRow({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            className="transition-all sm:-translate-x-1 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100"
+            className="transition-all duration-300 ease-[var(--ease-out)] sm:-translate-x-1 sm:translate-y-1 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
           >
             <path d="M7 17 17 7M9 7h8v8" />
           </svg>

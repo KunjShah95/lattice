@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { InfoPageHeader } from "@/components/info-page";
 import { LAYERS, REPO, ISSUE_TEMPLATE } from "@/lib/submissions.mjs";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
@@ -96,29 +97,19 @@ export default function SubmitPage() {
         }}
       />
 
-      <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
-        <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
-          <li>
-            <Link href="/" className="transition-colors hover:text-fg-muted">
-              Index
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page">Submit</li>
-        </ol>
-      </nav>
-
-      <header className="mt-6">
-        <h1 className="text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[40px]">
-          Submit a tool
-        </h1>
-        <p className="mt-4 text-pretty text-[16px] leading-relaxed text-fg-muted">
-          This index is ordered by stack layer rather than popularity, which
-          only means something if the order is deliberate. Every entry was placed
-          by a person who decided where it belonged and why. A submission is a
-          proposal for that decision, not a request to skip it.
-        </p>
-      </header>
+      <InfoPageHeader
+        breadcrumb="Submit"
+        eyebrow="Submit · reviewed by a person"
+        title="Submit a tool"
+        lede={
+          <>
+            This index is ordered by stack layer rather than popularity, which
+            only means something if the order is deliberate. Every entry was
+            placed by a person who decided where it belonged and why. A
+            submission is a proposal for that decision, not a request to skip it.
+          </>
+        }
+      />
 
       {/* What the reviewer decides, stated before the button rather than
           after. A submitter who does not know submissions are usually declined

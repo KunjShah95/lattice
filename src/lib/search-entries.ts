@@ -114,6 +114,43 @@ export function buildSearchEntries(): SearchEntry[] {
     // the highest-intent queries this index can serve, and the palette is the
     // only place a reader who types either will find them — they are one hop
     // from the tool page, which is one hop too many.
+    // Trust and policy pages — discoverable from Cmd-K ("privacy", "contact").
+    {
+      kind: "essay" as const,
+      name: "Contact",
+      blurb: "Email, GitHub issues, and machine-readable endpoints for agents.",
+      categoryTitle: "Site",
+      categoryLayer: null,
+      href: "/contact",
+      tag: "Site",
+    },
+    {
+      kind: "essay" as const,
+      name: "Privacy policy",
+      blurb: "What Lattice collects, third-party badges, and how to reach the maintainer.",
+      categoryTitle: "Site",
+      categoryLayer: null,
+      href: "/privacy",
+      tag: "Site",
+    },
+    {
+      kind: "essay" as const,
+      name: "About Lattice",
+      blurb: "What this index is and how entries are chosen, checked, and corrected.",
+      categoryTitle: "Site",
+      categoryLayer: null,
+      href: "/about",
+      tag: "Site",
+    },
+    {
+      kind: "essay" as const,
+      name: "Returns and refunds",
+      blurb: "Nothing is sold on this domain; vendor purchases use vendor policies.",
+      categoryTitle: "Site",
+      categoryLayer: null,
+      href: "/returns",
+      tag: "Site",
+    },
     ...allAlternativesPages().flatMap((p) => {
       const found = categories
         .find((c) => c.slug === p.slug)

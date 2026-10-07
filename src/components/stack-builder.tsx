@@ -14,7 +14,12 @@ import {
   type StackLanguage,
   type Workload,
 } from "@/lib/stacks";
-import { decodeStackInput, encodeStackInput, stackReportMarkdown } from "@/lib/stack-url";
+import {
+  decodeStackInput,
+  encodeStackInput,
+  stackReportJson,
+  stackReportMarkdown,
+} from "@/lib/stack-url";
 
 /**
  * Stack Builder — a live configurator, not a form. The recommendation
@@ -236,7 +241,7 @@ function readInitialCase(): Case {
 export function StackBuilder() {
   const [c, setC] = useState<Case>(readInitialCase);
   const patch = (p: Partial<Case>) => setC((prev) => ({ ...prev, ...p }));
-  const [copied, setCopied] = useState<"link" | "report" | null>(null);
+  const [copied, setCopied] = useState<"link" | "report" | "json" | null>(null);
 
   const { workload } = c;
   const retrieval = workload === "rag" || workload === "search";
@@ -307,7 +312,11 @@ export function StackBuilder() {
     !c.avoidLockIn &&
     c.costVsPerf === 0;
 
-  async function copyText(text: string, which: "link" | "report") {
+  // Read at click time, not render: `window` does not exist on the server.
+  const caseUrl = () => `${window.location.origin}${window.location.pathname}?${encoded}`;
+  const reportSource = () => ({ origin: window.location.origin, caseUrl: caseUrl() });
+
+  async function copyText(text: string, which: "link" | "report" | "json") {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -517,17 +526,24 @@ export function StackBuilder() {
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => void copyText(`${window.location.origin}${window.location.pathname}?${encoded}`, "link")}
+            onClick={() => void copyText(caseUrl(), "link")}
             className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
           >
             {copied === "link" ? "✓ Link copied" : "Copy link to this stack"}
           </button>
           <button
             type="button"
-            onClick={() => void copyText(stackReportMarkdown(result), "report")}
+            onClick={() => void copyText(stackReportMarkdown(result, reportSource()), "report")}
             className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
           >
             {copied === "report" ? "✓ Report copied" : "Copy decision report"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void copyText(stackReportJson(result, reportSource()), "json")}
+            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+          >
+            {copied === "json" ? "✓ JSON copied" : "Copy JSON"}
           </button>
         </div>
 

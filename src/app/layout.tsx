@@ -5,6 +5,7 @@ import "./globals.css";
 import { SearchProvider } from "@/components/search-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SpotLight } from "@/components/spot-light";
 import { themeInitScript } from "@/components/theme-toggle";
 import { site } from "@/lib/site";
 import { absolute } from "@/lib/seo";
@@ -133,6 +134,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           every route on the site.
         */}
         <SearchProvider>
+          <SpotLight />
           <SiteHeader />
           {/*
             Skip link. The header carries nine layer links plus the search and

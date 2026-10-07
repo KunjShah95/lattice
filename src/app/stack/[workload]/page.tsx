@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { recommendStack, WORKLOADS, type Workload } from "@/lib/stacks";
-import { encodeStackInput } from "@/lib/stack-url";
+import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
+import { CopyButton } from "@/components/copy-button";
 import { site } from "@/lib/site";
 import {
   absolute,
@@ -68,6 +69,9 @@ export default async function StackWorkloadPage({
   const result = recommendStack({ workload: meta.id as Workload, ...DEFAULT_CASE });
   const pageUrl = `${site.url}/stack/${meta.id}`;
   const builderPath = `/stack-builder?${encodeStackInput({ workload: meta.id as Workload, ...DEFAULT_CASE })}`;
+  // Built here, at prerender, against the canonical origin — so a report
+  // copied from any preview deployment still links to the real site.
+  const reportSource = { origin: site.url, caseUrl: `${site.url}${builderPath}` };
 
   const fitClass = (fit: string) =>
     fit === "Best fit"
@@ -150,6 +154,18 @@ export default async function StackWorkloadPage({
           to change it — the recommendation recomputes, and anything it assumes
           comes back in the answer rather than staying silent.
         </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <CopyButton
+            text={stackReportMarkdown(result, reportSource)}
+            label="Copy decision report"
+            copiedLabel="Report copied"
+          />
+          <CopyButton
+            text={stackReportJson(result, reportSource)}
+            label="Copy JSON"
+            copiedLabel="JSON copied"
+          />
+        </div>
       </header>
 
       <section className="mt-10 border-t border-border pt-8">

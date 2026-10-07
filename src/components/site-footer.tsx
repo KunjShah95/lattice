@@ -23,9 +23,9 @@ export function SiteFooter() {
   const offStack = categories.filter((c) => c.layer === null);
 
   return (
-    <footer className="mt-24 border-t border-border">
+    <footer className="mt-24 border-t border-border pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <div>
             <Logo />
             <p className="mt-3 max-w-[30ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
@@ -90,11 +90,33 @@ export function SiteFooter() {
             <FooterLink href="/submit">Submit a tool</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>
           </FooterColumn>
+
+          <FooterColumn title="Site">
+            <FooterLink href="/contact">Contact</FooterLink>
+            <FooterLink href="/about">About</FooterLink>
+            <FooterLink href="/returns">Returns &amp; refunds</FooterLink>
+            <FooterLink href="/privacy">Privacy</FooterLink>
+            <FooterLink href="/feed.xml">feed.xml</FooterLink>
+            <FooterLink href="/llms.txt">llms.txt</FooterLink>
+            <FooterLink href="/mcp.json">mcp.json</FooterLink>
+          </FooterColumn>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-[11px] text-fg-subtle">
             © {site.copyrightYear} {site.copyrightHolder}
+            <span className="px-2" aria-hidden="true">·</span>
+            <Link href="/contact" className="transition-colors hover:text-fg-muted">
+              Contact
+            </Link>
+            <span className="px-2" aria-hidden="true">·</span>
+            <Link href="/about" className="transition-colors hover:text-fg-muted">
+              About
+            </Link>
+            <span className="px-2" aria-hidden="true">·</span>
+            <Link href="/privacy" className="transition-colors hover:text-fg-muted">
+              Privacy
+            </Link>
           </p>
           <p className="font-mono text-[11px] text-fg-subtle">
             <a
@@ -152,8 +174,14 @@ function FooterLink({
     <li>
       <Link
         href={href}
-        className="flex items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
+        className="group flex min-h-7 items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
       >
+        {/* A short lead rule draws in ahead of the label on hover, so the
+            link being pointed at is marked without a colour shift alone. */}
+        <span
+          aria-hidden="true"
+          className="h-px w-0 shrink-0 self-center bg-accent transition-[width] duration-300 ease-[var(--ease-out)] group-hover:w-2.5"
+        />
         {children}
       </Link>
     </li>

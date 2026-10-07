@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodeStackInput, encodeStackInput, stackReportMarkdown } from "./stack-url";
+import { decodeStackInput, encodeStackInput, stackReportJson, stackReportMarkdown } from "./stack-url";
 import { recommendStack } from "./stacks";
 
 describe("stack URL state", () => {
@@ -88,5 +88,50 @@ describe("stack decision report", () => {
     expect(md).toContain(`$${result.costLow}–$${result.costHigh}/mo`);
     expect(md).toContain(result.risk);
     expect(md).toContain(`${Math.round(result.confidence * 100)}%`);
+  });
+
+  it("exports the same recommendation as structured JSON", () => {
+    const result = recommendStack({
+      workload: "rag",
+      queriesPerMonth: 500000,
+      documents: 10000000,
+      filtering: "heavy",
+    });
+    const parsed = JSON.parse(stackReportJson(result)) as {
+      summary: string;
+      picks: Array<{ tool: string; why: string }>;
+      cost: { lowUsdPerMonth: number; highUsdPerMonth: number };
+      risk: string;
+      confidence: number;
+    };
+    expect(parsed.summary).toBe(result.summary);
+    expect(parsed.picks).toHaveLength(result.picks.length);
+    expect(parsed.picks[0]?.tool).toBe(result.picks[0]?.tool);
+    expect(parsed.cost.lowUsdPerMonth).toBe(result.costLow);
+    expect(parsed.risk).toBe(result.risk);
+    expect(parsed.confidence).toBe(result.confidence);
+  });
+
+  it("links each pick and the case itself when given a source", () => {
+    const result = recommendStack({ workload: "agent", queriesPerMonth: 100000 });
+    const caseUrl = "https://lattice.test/stack-builder?workload=agent&q=100000";
+    const md = stackReportMarkdown(result, { origin: "https://lattice.test", caseUrl });
+    for (const p of result.picks) {
+      expect(md).toContain(`- Lattice entry: https://lattice.test${p.url}`);
+    }
+    expect(md).toContain(caseUrl);
+
+    const parsed = JSON.parse(stackReportJson(result, { origin: "https://lattice.test", caseUrl })) as {
+      caseUrl: string;
+      picks: Array<{ url: string }>;
+    };
+    expect(parsed.caseUrl).toBe(caseUrl);
+    expect(parsed.picks[0]?.url).toBe(`https://lattice.test${result.picks[0]?.url}`);
+  });
+
+  it("stays link-free without a source, so nothing points at the wrong host", () => {
+    const result = recommendStack({ workload: "agent", queriesPerMonth: 100000 });
+    expect(stackReportMarkdown(result)).not.toContain("Lattice entry:");
+    expect(JSON.parse(stackReportJson(result))).not.toHaveProperty("caseUrl");
   });
 });

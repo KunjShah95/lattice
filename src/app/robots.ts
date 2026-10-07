@@ -27,7 +27,44 @@ import { site } from "@/lib/site";
  * Verify IP ranges against each operator's published JSON, which changes:
  *   openai.com/searchbot.json · claude.com/crawling/bots.json
  *   docs.perplexity.ai/guides/bots
+ *
+ * THE USAGE LINE, AND WHAT IT IS NOT
+ *
+ * `Content-Signal` states what a crawler may do with a page *after* fetching it,
+ * which `Allow`/`Disallow` cannot express: they only answer "may you fetch this".
+ * It is repeated on all three groups rather than only `*` on purpose — REP matches
+ * the most specific group and ignores the rest, so a `Content-Signal` under `*`
+ * alone would never reach GPTBot, which matches the training group above.
+ *
+ * Every value is `yes`, and that is not a default leaking through: it is the owner
+ * decision above, restated in the vocabulary that has since been standardised for
+ * it. Omission is the thing that would be ambiguous — a directive states a
+ * preference, and absence states nothing at all.
+ *
+ * Honest about its weight: no major crawler has committed to honouring this line
+ * (Cloudflare introduced it, and Google's parser reports it as an unknown field,
+ * which is a cosmetic warning in Search Console). It changes no behaviour today.
+ * It is here because "everything is allowed, including for training" is a
+ * deliberate position that currently lives only in a comment nobody but this
+ * repository will read, and a machine-readable statement of it costs three lines.
+ * The thing that actually decides behaviour remains the WAF and the per-crawler
+ * rules above.
  */
+
+/**
+ * Stated usage permissions, emitted on every rule group below.
+ *
+ * A shared constant rather than three literals, because the groups differ only in
+ * which agents they name — the position on downstream use is one decision about
+ * the whole site, and writing it three times is how two of them drift apart while
+ * the file still reads as though it holds a single policy.
+ *
+ * `use=reference` is the category that means "quote me and link back", as opposed to
+ * the training category. It is stated explicitly because an agent that fetches under
+ * an `ai-train=yes` site has no way to infer that citation is still wanted.
+ */
+const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes, use=reference";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -50,6 +87,7 @@ export default function robots(): MetadataRoute.Robots {
           "MistralAI-User",
         ],
         allow: "/",
+        other: { "Content-Signal": CONTENT_SIGNAL },
       },
       {
         // AI training and dataset crawlers — explicitly allowed per the owner
@@ -67,11 +105,13 @@ export default function robots(): MetadataRoute.Robots {
           "Diffbot",
         ],
         allow: "/",
+        other: { "Content-Signal": CONTENT_SIGNAL },
       },
       {
         // Everything else, including search engines and browsers.
         userAgent: "*",
         allow: "/",
+        other: { "Content-Signal": CONTENT_SIGNAL },
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,

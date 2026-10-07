@@ -9,9 +9,21 @@ import { categories, toolCount } from "@/lib/data";
 export default function NotFound() {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col justify-center px-5 py-20 sm:px-6">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-        404
-      </p>
+      {/* A sheet reference that points nowhere — the drawing-set version
+          of a 404. The empty frame is the missing sheet. */}
+      <div className="flex items-center gap-4">
+        <div
+          aria-hidden="true"
+          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-md border border-dashed border-border-strong [--crop-inset:-5px]"
+        >
+          <span className="font-mono text-[11px] text-fg-subtle">?</span>
+        </div>
+        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
+          404
+          <br />
+          Sheet not in set
+        </p>
+      </div>
 
       <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
         Nothing at this address.
@@ -26,13 +38,14 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap gap-2">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-[14px] font-medium transition-colors hover:border-accent hover:text-accent"
+          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] font-medium"
         >
+          <span aria-hidden="true" className="inline-block transition-transform duration-200 ease-[var(--ease-spring)] group-hover:-translate-x-0.5">←</span>
           Back to the index
         </Link>
         <Link
           href="/all"
-          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-[14px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+          className="btn-paper inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] text-fg-muted hover:text-fg"
         >
           Search all {toolCount} tools
         </Link>
@@ -47,7 +60,7 @@ export default function NotFound() {
             <li key={c.slug}>
               <Link
                 href={`/${c.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                className="press inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted hover:border-border-strong hover:bg-bg-elevated hover:text-fg"
               >
                 <span className="font-mono text-[11px] text-fg-subtle">
                   {c.index}

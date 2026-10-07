@@ -97,16 +97,13 @@ npx playwright test --project=e2e   # the interaction tests only
 
 ## Deploying to Cloudflare Workers
 
-This deploys as a **Worker via OpenNext**, not a static export. 250 routes are
-prerendered, but `/feed.xml`, `/llms.txt`, `/llms-full.txt` and the section, essay,
-comparison and glossary `opengraph-image` routes are server-rendered on demand, so
-there has to be something serving them. The tool, alternatives and role cards
-*are* prerendered because those routes declare `generateStaticParams`; the others
-declare none and render per request. That is a deliberate asymmetry for now, not a
-constraint: sections, posts, comparisons and glossary terms are all enumerable at
-build time, so adding `generateStaticParams` to those routes would move most of the
-remaining cards onto the static path if cold-start latency on a share ever justifies
-it.
+This deploys as a **Worker via OpenNext**, not a static export. Every page and
+every `opengraph-image` route is prerendered — each dynamic family (sections,
+tools, alternatives, essays, comparisons, symptoms, glossary terms, roles, bands
+and workload stacks) declares `generateStaticParams`, which matters because
+`lib/og.tsx` reads its fonts from disk and the Worker has no disk, so an
+on-demand card would be a 500. Only `/feed.xml`, `/llms.txt` and
+`/llms-full.txt` render per request, and they are why this is a Worker at all.
 
 ```bash
 npm run deploy     # build -> opennextjs-cloudflare build -> deploy
@@ -119,7 +116,10 @@ npm run preview    # build + adapt, then serve locally under workerd
 | `npm run next:build` | Plain Next build (`.next`), no adapter |
 | `npm run cf:deploy` | Uploads the Worker and its assets |
 | `npm run deploy` | `build` then `cf:deploy` |
+| `npm run deploy:live` | `deploy` then `indexnow` (live sitemap push) |
 | `npm run preview` | Build + adapt, then `wrangler dev` on workerd |
+
+After a successful deploy, run `npm run indexnow` so IndexNow engines pick up new URLs without waiting on a crawl.
 
 ### After every deploy: `npm run indexnow`
 
@@ -305,7 +305,7 @@ src/
     apple-icon.png          (regenerate with `npm run icons:render`)
     feed.xml/route.ts       RSS of the essays
     sitemap.ts              Every indexable route, 250 URLs
-    robots.ts               Allow answer engines, block training crawlers
+    robots.ts               Allow answer engines and training crawlers, plus a Content-Signal usage statement
     llms.txt/route.ts       Plain-text table of contents, task-keyed
     llms-full.txt/route.ts  The whole index as one document, with a role section
     tools.json/route.ts     The index as JSON for coding agents, CORS-open
@@ -809,6 +809,18 @@ MistralAI-User) are allowed, training crawlers (GPTBot, ClaudeBot, CCBot,
 Bytespider, meta-externalagent, Amazonbot, Diffbot) are not. Google-Extended is
 allowed as a trade — it controls Gemini grounding *and* Gemini training, and blocking
 it was costing Gemini citations.
+
+Each of the three groups also carries a `Content-Signal` line —
+`search=yes, ai-input=yes, ai-train=yes, use=reference` — which states what a crawler
+may do with a page *after* fetching it, the thing `Allow`/`Disallow` cannot express.
+It is on every group rather than only `*` because REP matches the most specific group
+and ignores the rest, so a signal under `*` alone never reaches GPTBot. Two caveats
+worth knowing: the training crawlers above were since switched to `allow` on the
+owner's decision (see the header comment in `robots.ts`), so the current file allows
+everything; and no major crawler has committed to honouring this directive, so it
+declares a position rather than enforcing one. `src/lib/robots.test.ts` holds the
+policy — including that `other` renders verbatim, since `MetadataRoute.Robots`
+accepts any directive name and a misspelling ships silently.
 
 ---
 

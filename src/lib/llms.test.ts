@@ -79,6 +79,14 @@ describe("/llms.txt", () => {
     expect(text).toContain("/stack-builder");
     expect(text).toContain("recommend_stack");
   });
+
+  it("lists policy pages with absolute URLs", async () => {
+    const text = await summary();
+    expect(text).toContain("## Policies");
+    for (const path of ["/contact", "/about", "/privacy", "/returns"]) {
+      expect(text).toContain(path);
+    }
+  });
 });
 
 describe("/llms-full.txt", () => {

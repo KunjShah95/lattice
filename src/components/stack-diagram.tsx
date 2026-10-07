@@ -52,7 +52,9 @@ export function StackDiagram() {
         announcement is *better* than one flat list was — the reader hears which
         family of layers they have moved into.
       */}
-      <div className="relative rounded-lg border border-border bg-bg-elevated/60 p-1.5">
+      {/* The frame is a drawing, so it carries permanent crop corners just
+          outside its edge — the same marks a row picks up on hover, at rest. */}
+      <div className="crop crop-static relative rounded-xl bg-bg-elevated/70 p-1.5 shadow-ink [--crop-inset:-7px] [--crop:10px]">
         {bandOrder.map((band) => (
           <section key={band.id} className="mb-1 last:mb-0">
             {/* The band heading carries the symptom it is associated with,
@@ -82,14 +84,24 @@ export function StackDiagram() {
 
                   return (
                     <li key={category.slug}>
+                      {/* `--i` staggers the meter and rule draw-on by depth,
+                          so the stack assembles surface-down on load. Crop
+                          marks sit inside the row (`overflow-hidden`). */}
                       <Link
                         href={`/${category.slug}`}
-                        className="group relative flex items-center gap-3 overflow-hidden rounded-md px-3 py-3 transition-colors hover:bg-bg-sunken sm:gap-4"
+                        data-spot=""
+                        style={
+                          {
+                            "--i": 9 - layer,
+                            "--spot": layerColor(layer),
+                          } as React.CSSProperties
+                        }
+                        className="crop group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-lg px-3 py-3 transition-colors duration-200 [--crop-inset:3px] [--crop:6px] hover:bg-bg-sunken sm:gap-4"
                       >
                         {/* Full-bleed tint in the layer's own colour. */}
                         <span
                           aria-hidden="true"
-                          className="pointer-events-none absolute inset-0 opacity-[0.07] transition-opacity group-hover:opacity-[0.14]"
+                          className="pointer-events-none absolute inset-0 opacity-[0.07] transition-opacity duration-300 group-hover:opacity-[0.16]"
                           style={layerStyle(layer)}
                         />
                         {/* Hatch encodes position rather than colour: a layer
@@ -106,7 +118,7 @@ export function StackDiagram() {
                             in it. */}
                         <span
                           aria-hidden="true"
-                          className={`relative h-9 w-[3px] shrink-0 rounded-full ${
+                          className={`draw-y relative h-9 w-[3px] shrink-0 rounded-full transition-[height] duration-300 ease-[var(--ease-spring)] group-hover:h-10 ${
                             isCrosscutting ? "opacity-70" : ""
                           }`}
                           style={{
@@ -120,13 +132,21 @@ export function StackDiagram() {
                           }}
                         />
 
-                        <span className="relative w-6 shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle">
+                        <span className="relative w-6 shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle transition-colors group-hover:text-fg">
                           {category.index}
                         </span>
 
                         <span className="relative min-w-0 flex-1">
-                          <span className="block truncate text-[14px] font-medium">
-                            {category.title}
+                          <span className="flex items-center gap-1.5">
+                            <span className="truncate text-[14px] font-medium">
+                              {category.title}
+                            </span>
+                            <span
+                              aria-hidden="true"
+                              className="-translate-x-1 text-[12px] text-fg-subtle opacity-0 transition-[translate,scale,rotate,opacity] duration-300 ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100"
+                            >
+                              →
+                            </span>
                           </span>
                           {/* The responsibility line is the reason to click, so
                               it stays — but two lines on a 390px screen pushed
@@ -146,7 +166,7 @@ export function StackDiagram() {
                         <span className="relative flex shrink-0 items-center gap-2">
                           <span className="hidden h-[3px] w-24 overflow-hidden rounded-full bg-border sm:block">
                             <span
-                              className="block h-full rounded-full"
+                              className="draw-x block h-full rounded-full"
                               style={{ width: `${width}%`, ...layerStyle(layer) }}
                             />
                           </span>
@@ -169,6 +189,27 @@ export function StackDiagram() {
           </span>
           <span aria-hidden="true" className="h-px flex-1 bg-border" />
         </div>
+
+        {/* Title block — the box in the corner of every engineering sheet
+            that says what the drawing is, how it is scaled and which way up
+            it reads. Here it is the legend for the two encodings above. */}
+        <dl className="mx-1.5 mb-1 mt-2 hidden grid-cols-3 sm:grid overflow-hidden rounded-md border border-border font-mono text-[9.5px] uppercase tracking-[0.12em] text-fg-subtle">
+          <div className="border-r border-border px-2.5 py-1.5">
+            <dt className="sr-only">Orientation</dt>
+            <dd>Drawn surface ↑</dd>
+          </div>
+          <div className="border-r border-border px-2.5 py-1.5">
+            <dt className="sr-only">Scale</dt>
+            <dd>Bar · tools/layer</dd>
+          </div>
+          <div className="flex items-center gap-2 px-2.5 py-1.5">
+            <dt className="sr-only">Hatch</dt>
+            <dd className="flex items-center gap-1.5">
+              <span aria-hidden="true" className="inline-block h-2 w-3 rounded-[1px] border border-current opacity-60 [background:repeating-linear-gradient(to_right,currentColor_0_1px,transparent_1px_3px)]" />
+              <span className="truncate">solid · in stack</span>
+            </dd>
+          </div>
+        </dl>
       </div>
 
       {/* Off-stack: visually detached, deliberately not part of the stack. */}
@@ -176,7 +217,7 @@ export function StackDiagram() {
         <Link
           key={category.slug}
           href={`/${category.slug}`}
-          className="group mt-1.5 flex items-center gap-3 rounded-md border border-dashed border-border-strong px-3 py-2.5 transition-colors hover:bg-bg-sunken sm:gap-4"
+          className="group mt-3 flex items-center gap-3 rounded-lg border border-dashed border-border-strong px-3 py-2.5 transition-[background-color,border-color] duration-200 hover:border-fg-subtle hover:bg-bg-sunken sm:gap-4"
         >
           <span aria-hidden="true" className="h-9 w-[3px] shrink-0 rounded-full bg-fg-subtle opacity-40" />
           <span className="w-6 shrink-0 font-mono text-[12px] text-fg-subtle">

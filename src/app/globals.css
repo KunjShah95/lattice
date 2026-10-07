@@ -47,6 +47,46 @@
 
   /* Engineering-paper grid. Reads as a drafting surface, not a glow. */
   --grid: oklch(0.16 0 0 / 0.045);
+
+  /* --- Motion -------------------------------------------------------
+     Two curves, three durations. Everything that moves on the site picks
+     from these, so a hover on a chip and a hover on a diagram row feel
+     like the same hand. `--ease-out` is a long-tail settle (things arrive
+     and come to rest); `--ease-spring` overshoots by a hair and is kept
+     for press/release, where a little give reads as physical. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur: 220ms;
+  --dur-slow: 520ms;
+
+  /* --- Ink shadows --------------------------------------------------
+     Stacked, low-alpha, each layer doubling the last. A single big blur
+     reads as a floating card; a stack of tight ones reads as paper resting
+     on paper. The first ring is a hairline, so an elevated surface never
+     needs a separate border. */
+  --shadow-ink:
+    0 0 0 1px var(--border),
+    0 1px 1px -0.5px oklch(0.2 0 0 / 0.05),
+    0 3px 3px -1.5px oklch(0.2 0 0 / 0.04),
+    0 6px 6px -3px oklch(0.2 0 0 / 0.035);
+  --shadow-lift:
+    0 0 0 1px var(--border-strong),
+    0 1px 1px -0.5px oklch(0.2 0 0 / 0.06),
+    0 3px 3px -1.5px oklch(0.2 0 0 / 0.05),
+    0 8px 8px -4px oklch(0.2 0 0 / 0.05),
+    0 18px 18px -9px oklch(0.2 0 0 / 0.04);
+  --shadow-float:
+    0 0 0 1px var(--border-strong),
+    0 2px 4px oklch(0.2 0 0 / 0.04),
+    0 12px 24px -6px oklch(0.2 0 0 / 0.12),
+    0 32px 64px -16px oklch(0.2 0 0 / 0.18);
+  /* The 1px light edge on the top of a filled button — the detail that
+     makes ink look pressed into the page rather than printed on it. */
+  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.16);
+
+  --skeleton: oklch(0.16 0 0 / 0.06);
+  --skeleton-sheen: oklch(1 0 0 / 0.7);
 }
 
 .dark {
@@ -77,6 +117,25 @@
   --layer-9: oklch(0.76 0.13 270);
 
   --grid: oklch(1 0 0 / 0.04);
+
+  /* In the dark the drop shadow does almost nothing; the edge light does
+     the work instead, so elevation reads as a raised lip, not a glow. */
+  --shadow-ink:
+    0 0 0 1px var(--border),
+    inset 0 1px 0 oklch(1 0 0 / 0.035),
+    0 2px 4px oklch(0 0 0 / 0.3);
+  --shadow-lift:
+    0 0 0 1px var(--border-strong),
+    inset 0 1px 0 oklch(1 0 0 / 0.05),
+    0 6px 12px -4px oklch(0 0 0 / 0.5);
+  --shadow-float:
+    0 0 0 1px var(--border-strong),
+    inset 0 1px 0 oklch(1 0 0 / 0.06),
+    0 24px 48px -12px oklch(0 0 0 / 0.7);
+  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.5);
+
+  --skeleton: oklch(1 0 0 / 0.05);
+  --skeleton-sheen: oklch(1 0 0 / 0.06);
 }
 
 @theme inline {
@@ -157,6 +216,24 @@
   * {
     scrollbar-color: var(--border-strong) transparent;
   }
+
+  body {
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Mono only ever sets counts, ordinals and labels — figures that sit in
+     columns — so it is always tabular. A "1" that is narrower than an "8"
+     makes a column of counts look ragged. */
+  .font-mono {
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
+
+  /* Display serif: optical tightening and real quotes. */
+  .font-serif {
+    font-feature-settings: "kern", "liga";
+    hanging-punctuation: first;
+  }
 }
 
 @layer utilities {
@@ -231,6 +308,477 @@
     );
     opacity: 0.14;
   }
+
+  /* --- Elevation ------------------------------------------------------ */
+  .shadow-ink {
+    box-shadow: var(--shadow-ink);
+  }
+
+  .shadow-lift {
+    box-shadow: var(--shadow-lift);
+  }
+
+  .shadow-float {
+    box-shadow: var(--shadow-float);
+  }
+
+  /* --- Crop marks -----------------------------------------------------
+     The print-shop registration corners that tell a pressman where a sheet
+     is trimmed. On hover they close in on the element, so the interactive
+     surface is "selected" the way a draughtsman would mark it — a drafting
+     convention doing the job a generic glow or lift usually does.
+
+     Eight one-pixel gradients on a single pseudo-element: two strokes per
+     corner. `--crop` is the tick length and `--crop-inset` how far outside
+     the box they sit; rows inside an `overflow: hidden` frame pass a
+     positive inset so the marks are not clipped. Uses `::before` because
+     `.hatch` already owns `::after`. */
+  .crop {
+    --crop: 7px;
+    --crop-inset: -3px;
+    --crop-color: var(--fg-subtle);
+    position: relative;
+  }
+
+  .crop::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--crop-inset) - 3px);
+    pointer-events: none;
+    opacity: 0;
+    color: var(--crop-color);
+    background:
+      linear-gradient(currentColor, currentColor) top left / var(--crop) 1px no-repeat,
+      linear-gradient(currentColor, currentColor) top left / 1px var(--crop) no-repeat,
+      linear-gradient(currentColor, currentColor) top right / var(--crop) 1px no-repeat,
+      linear-gradient(currentColor, currentColor) top right / 1px var(--crop) no-repeat,
+      linear-gradient(currentColor, currentColor) bottom left / var(--crop) 1px no-repeat,
+      linear-gradient(currentColor, currentColor) bottom left / 1px var(--crop) no-repeat,
+      linear-gradient(currentColor, currentColor) bottom right / var(--crop) 1px no-repeat,
+      linear-gradient(currentColor, currentColor) bottom right / 1px var(--crop) no-repeat;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      inset var(--dur) var(--ease-out);
+  }
+
+  .crop:hover::before,
+  .crop:focus-visible::before {
+    opacity: 1;
+    inset: var(--crop-inset);
+  }
+
+  /* Always-on variant, for frames that are a drawing rather than a control. */
+  .crop-static::before {
+    opacity: 0.9;
+    inset: var(--crop-inset);
+  }
+
+  /* --- Drawn underline ------------------------------------------------
+     The rule is drawn left-to-right on hover rather than toggled, and
+     retracts to the right on leave — the pen continues in the direction it
+     was travelling instead of rewinding. */
+  .link-draw {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: 0% 1px;
+    padding-bottom: 1px;
+    transition: background-size var(--dur-slow) var(--ease-out);
+  }
+
+  .link-draw:hover,
+  .group:hover .link-draw-group,
+  .link-draw:focus-visible {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+
+  .link-draw-group {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: 0% 1px;
+    padding-bottom: 1px;
+    transition: background-size var(--dur-slow) var(--ease-out);
+  }
+
+  .nudge {
+    transition: transform var(--dur) var(--ease-spring);
+  }
+
+  .group:hover .nudge,
+  .group:focus-visible .nudge {
+    transform: translateX(3px);
+  }
+
+  .group:hover .nudge-down,
+  .group:focus-visible .nudge-down {
+    transform: translateY(2px);
+  }
+
+  .group:hover .nudge-up-right,
+  .group:focus-visible .nudge-up-right {
+    transform: translate(2px, -2px);
+  }
+
+  /* --- Entrances --------------------------------------------------------
+     Transform only, never opacity. An element that starts transparent is
+     invisible to LCP until it lands, and mid-fade text fails a contrast
+     audit taken at the wrong moment. A mask-and-rise reveal has neither
+     problem: the glyphs are at full ink from the first frame, they are
+     just below the line. */
+  .mask-line {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    vertical-align: top;
+    /* Room for descenders, taken back so the line box does not grow. */
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+
+  /* A wash of the surface's own colour, following the pointer.
+     `--spot` is set per row (a layer or a band). Without it, the accent
+     is the fallback so unmarked controls still answer the cursor.
+     Only painted for a fine pointer — a stuck :hover after a tap would
+     leave a phone with a permanent glow. */
+  [data-spot] {
+    --mx: 50%;
+    --my: 40%;
+  }
+
+  [data-spot]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    background: radial-gradient(
+      200px circle at var(--mx) var(--my),
+      color-mix(in oklch, var(--spot, var(--accent)) 34%, transparent),
+      transparent 68%
+    );
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  /* Type stays above the wash. Absolute fills (layer tint, hatch) are
+     left alone — forcing them to `relative` would collapse the diagram. */
+  [data-spot] > :not(.absolute) {
+    position: relative;
+    z-index: 2;
+  }
+
+  [data-spot].crop::before {
+    z-index: 3;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-spot]:hover::after {
+      opacity: 1;
+    }
+  }
+
+  .mask-line > span {
+    display: inline-block;
+    animation: rise var(--dur-slow) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+  }
+
+  /* Bars and rules that draw themselves, staggered by `--i`. */
+  .draw-x {
+    transform-origin: left center;
+    animation: draw-x 900ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 200ms);
+  }
+
+  .draw-y {
+    transform-origin: center top;
+    animation: draw-y 700ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 120ms);
+  }
+
+  /* A hand-drawn stroke under a word, inked after the headline lands. */
+  .ink-stroke path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ink 900ms var(--ease-out) 620ms forwards;
+  }
+
+  .pop-in {
+    transform-origin: top center;
+    animation: pop-in var(--dur) var(--ease-out) both;
+  }
+
+  .drop-in {
+    animation: drop-in var(--dur) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 28ms);
+  }
+
+  /* --- Header elevation on scroll ------------------------------------
+     A scroll-driven animation, not a scroll listener: the compositor runs
+     it, so there is no main-thread work on scroll at all. At the top of the
+     page the bar is flush with the paper; once content passes under it, it
+     picks up a hairline shadow. Browsers without scroll timelines keep the
+     flush bar, which is what it was before. */
+  @supports (animation-timeline: scroll()) {
+    .header-elevate {
+      animation: header-elevate linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80px;
+    }
+  }
+
+  /* Reading-progress rule along the bottom of the header on long pages. */
+  @supports (animation-timeline: scroll()) {
+    .scroll-progress {
+      transform-origin: left center;
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  @supports not (animation-timeline: scroll()) {
+    .scroll-progress {
+      display: none;
+    }
+  }
+
+  /* Status dot that breathes, for the "verified" marker. */
+  .pulse-dot {
+    position: relative;
+  }
+
+  .pulse-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse 2.4s var(--ease-out) infinite;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes draw-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes draw-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes ink {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes drop-in {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheen {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes header-elevate {
+  from {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  to {
+    box-shadow: 0 1px 0 var(--border), 0 8px 16px -12px oklch(0.2 0 0 / 0.25);
+  }
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@layer components {
+  /* Component classes, not utilities. They live in the components layer so
+     a utility passed beside them wins: `btn-paper text-fg-muted`,
+     `skeleton rounded-full` and `rail sm:overflow-visible` all depend on it.
+     In the utilities layer these rules came after Tailwind's own and beat
+     every same-specificity utility, responsive variants included. */
+
+  /* --- Ink button -----------------------------------------------------
+     Edge highlight on top, ink shadow below, a 1px lift on hover and a
+     spring-back press. The arrow inside nudges forward, so the button says
+     which way it goes before it is pressed. */
+  .btn-ink {
+    position: relative;
+    isolation: isolate;
+    background: var(--fg);
+    color: var(--bg);
+    box-shadow:
+      var(--edge-highlight),
+      0 0 0 1px var(--fg),
+      0 1px 2px oklch(0.2 0 0 / 0.2),
+      0 4px 8px -2px oklch(0.2 0 0 / 0.18);
+    transition:
+      transform var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .btn-ink:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      var(--edge-highlight),
+      0 0 0 1px var(--fg),
+      0 2px 3px oklch(0.2 0 0 / 0.2),
+      0 10px 18px -6px oklch(0.2 0 0 / 0.3);
+  }
+
+  .btn-ink:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 60ms;
+  }
+
+  /* Secondary: paper rather than ink. */
+  .btn-paper {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: var(--shadow-ink);
+    transition:
+      transform var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
+  }
+
+  .btn-paper:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-1px);
+  }
+
+  .btn-paper:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 60ms;
+  }
+
+  /* Generic press feedback for small controls (chips, icon buttons). */
+  .press {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .press:active {
+    transform: scale(0.96);
+    transition-timing-function: var(--ease-spring);
+  }
+
+  /* --- Skeleton -------------------------------------------------------
+     A sheen that crosses the block once a second and a bit — slow enough
+     to read as "working", not "broken". */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton);
+    border-radius: 4px;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--skeleton-sheen),
+      transparent
+    );
+    animation: sheen 1.3s var(--ease-out) infinite;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* --- Horizontal rails ---------------------------------------------
+     A row that scrolls sideways on a phone instead of wrapping into five
+     lines. The edges fade so the cut-off chip is the affordance. */
+  .rail {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12px,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
 }
 
 @layer components {
@@ -377,6 +925,16 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    /* Staggered entrances hold their start frame for the length of their
+       delay; with the motion gone, that would be a pause for nothing. */
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* The sheen and pulse are ambient motion with no end state worth
+     showing — remove them rather than freeze them mid-sweep. */
+  .skeleton::after,
+  .pulse-dot::after {
+    display: none;
   }
 }

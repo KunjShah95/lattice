@@ -81,30 +81,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.85,
     },
-    // The band axis.
-    {
-      url: `${site.url}/bands`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    ...BANDS.map((b) => ({
-      url: `${site.url}/bands/${b.id}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
-    // The seven workload stacks. These are the answer to "what should I run for
-    // a RAG app / an agent / a voice agent" — a query no other route on this
-    // site can answer for a reader who has not run the questionnaire, and an
-    // MCP-less agent has no call at all. `/stack-builder` itself stays in the
-    // sitemap; these are the indexable shadows of its output.
-    ...WORKLOADS.map((w) => ({
-      url: `${site.url}/stack/${w.id}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
     // Submission intake. Listed because `/methodology` links to it and a
     // methodology page whose stated route for contributing is not in the
     // sitemap is a small dead end. Low priority: it is a form, and a form that
@@ -115,13 +91,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.4,
     },
+    // Trust and operator pages. Listed because answer engines and sceptical
+    // readers look for them by URL pattern, and a site that publishes
+    // methodology but hides contact or privacy in the crawl graph is making a
+    // smaller claim than the pages themselves do.
+    {
+      url: `${site.url}/about`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${site.url}/contact`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${site.url}/privacy`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${site.url}/returns`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
     // Machine endpoints. Crawlers discover these here: robots.txt cannot list
     // them (it only speaks allow/disallow), and nothing links to them from
     // page chrome on purpose — so without sitemap entries they are reachable
     // only to readers who already know they exist, which defeats their job.
     // /api/search takes its query in the URL and is therefore not listable;
     // it is advertised from llms.txt and mcp.json instead.
-    ...["llms.txt", "llms-full.txt", "tools.json", "mcp.json"].map((f) => ({
+    ...["llms.txt", "llms-full.txt", "tools.json", "mcp.json", "feed.xml"].map((f) => ({
       url: `${site.url}/${f}`,
       lastModified,
       changeFrequency: "monthly" as const,

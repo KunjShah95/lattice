@@ -72,29 +72,44 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * prerendered paths like `/inference-serving/vllm` share one build artefact with
  * every other tool page, so budgeting them separately would be sixteen copies of
  * one number — and the thing worth watching is the template's shared chunk.
+ *
+ * Raised by 1 KB (2 KB on `/all`) for the UI detailing pass: the search
+ * palette's skeleton rows, its designed empty and failure states and keyboard
+ * legend, and the mobile drawer's morphing control and numbered rows all live
+ * in the layout's client components, so they land on every route (+0.9 KB
+ * gzip). `/all` additionally gained an empty state that lists each live
+ * constraint as its own removable chip (+0.9 KB). Everything else in that pass
+ * — crop marks, drawn underlines, entrances, skeleton sheen, header elevation
+ * — is CSS and costs no JS at all.
+ *
+ * Raised by 0.5 KB on four routes after that: `/[slug]` and `/[slug]/[tool]`
+ * for the layer-coloured spotlight on tool rows (`spot-light.tsx`, +0.1 KB),
+ * `/stack/[workload]` for the copy-report buttons, the one client island on an
+ * otherwise static page (+0.2 KB), and `/stack-builder` for the report's
+ * absolute entry links and reproduce-this-case URL (+0.1 KB).
  */
 const BUDGETS = {
-  "/": 160_000,
-  "/stack-builder": 165_000,
-  "/all": 160_000,
+  "/": 161_000,
+  "/stack-builder": 166_500,
+  "/all": 162_000,
   "/glossary": 160_000,
-  "/methodology": 157_000,
-  "/submit": 157_000,
-  "/blog": 157_000,
-  "/compare": 157_000,
-  "/fix": 157_000,
-  "/roles": 157_000,
-  "/bands": 157_000,
-  "/[slug]": 157_000,
-  "/[slug]/[tool]": 157_000,
-  "/[slug]/[tool]/alternatives": 157_000,
-  "/roles/[role]": 157_000,
-  "/bands/[band]": 157_000,
-  "/stack/[workload]": 157_000,
-  "/blog/[slug]": 157_000,
-  "/compare/[slug]": 157_000,
-  "/fix/[slug]": 157_000,
-  "/glossary/[slug]": 157_000,
+  "/methodology": 158_000,
+  "/submit": 158_000,
+  "/blog": 158_000,
+  "/compare": 158_000,
+  "/fix": 158_000,
+  "/roles": 158_000,
+  "/bands": 158_000,
+  "/[slug]": 158_500,
+  "/[slug]/[tool]": 158_500,
+  "/[slug]/[tool]/alternatives": 158_000,
+  "/roles/[role]": 158_000,
+  "/bands/[band]": 158_000,
+  "/stack/[workload]": 158_500,
+  "/blog/[slug]": 158_000,
+  "/compare/[slug]": 158_000,
+  "/fix/[slug]": 158_000,
+  "/glossary/[slug]": 158_000,
 };
 
 const NEXT = join(root, ".next");
