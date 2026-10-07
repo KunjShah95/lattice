@@ -81,10 +81,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * constraint as its own removable chip (+0.9 KB). Everything else in that pass
  * — crop marks, drawn underlines, entrances, skeleton sheen, header elevation
  * — is CSS and costs no JS at all.
+ *
+ * Raised by 0.5 KB on four routes after that: `/[slug]` and `/[slug]/[tool]`
+ * for the layer-coloured spotlight on tool rows (`spot-light.tsx`, +0.1 KB),
+ * `/stack/[workload]` for the copy-report buttons, the one client island on an
+ * otherwise static page (+0.2 KB), and `/stack-builder` for the report's
+ * absolute entry links and reproduce-this-case URL (+0.1 KB).
  */
 const BUDGETS = {
   "/": 161_000,
-  "/stack-builder": 166_000,
+  "/stack-builder": 166_500,
   "/all": 162_000,
   "/glossary": 160_000,
   "/methodology": 158_000,
@@ -94,12 +100,12 @@ const BUDGETS = {
   "/fix": 158_000,
   "/roles": 158_000,
   "/bands": 158_000,
-  "/[slug]": 158_000,
-  "/[slug]/[tool]": 158_000,
+  "/[slug]": 158_500,
+  "/[slug]/[tool]": 158_500,
   "/[slug]/[tool]/alternatives": 158_000,
   "/roles/[role]": 158_000,
   "/bands/[band]": 158_000,
-  "/stack/[workload]": 158_000,
+  "/stack/[workload]": 158_500,
   "/blog/[slug]": 158_000,
   "/compare/[slug]": 158_000,
   "/fix/[slug]": 158_000,

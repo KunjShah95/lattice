@@ -402,73 +402,6 @@
     transition: background-size var(--dur-slow) var(--ease-out);
   }
 
-  /* --- Ink button -----------------------------------------------------
-     Edge highlight on top, ink shadow below, a 1px lift on hover and a
-     spring-back press. The arrow inside nudges forward, so the button says
-     which way it goes before it is pressed. */
-  .btn-ink {
-    position: relative;
-    isolation: isolate;
-    background: var(--fg);
-    color: var(--bg);
-    box-shadow:
-      var(--edge-highlight),
-      0 0 0 1px var(--fg),
-      0 1px 2px oklch(0.2 0 0 / 0.2),
-      0 4px 8px -2px oklch(0.2 0 0 / 0.18);
-    transition:
-      transform var(--dur-fast) var(--ease-spring),
-      box-shadow var(--dur) var(--ease-out),
-      background-color var(--dur) var(--ease-out);
-  }
-
-  .btn-ink:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      var(--edge-highlight),
-      0 0 0 1px var(--fg),
-      0 2px 3px oklch(0.2 0 0 / 0.2),
-      0 10px 18px -6px oklch(0.2 0 0 / 0.3);
-  }
-
-  .btn-ink:active {
-    transform: translateY(0) scale(0.975);
-    transition-duration: 60ms;
-  }
-
-  /* Secondary: paper rather than ink. */
-  .btn-paper {
-    background: var(--bg-elevated);
-    color: var(--fg);
-    box-shadow: var(--shadow-ink);
-    transition:
-      transform var(--dur-fast) var(--ease-spring),
-      box-shadow var(--dur) var(--ease-out),
-      color var(--dur) var(--ease-out);
-  }
-
-  .btn-paper:hover {
-    box-shadow: var(--shadow-lift);
-    transform: translateY(-1px);
-  }
-
-  .btn-paper:active {
-    transform: translateY(0) scale(0.975);
-    transition-duration: 60ms;
-  }
-
-  /* Generic press feedback for small controls (chips, icon buttons). */
-  .press {
-    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-    transition-duration: var(--dur-fast);
-    transition-timing-function: var(--ease-out);
-  }
-
-  .press:active {
-    transform: scale(0.96);
-    transition-timing-function: var(--ease-spring);
-  }
-
   .nudge {
     transition: transform var(--dur) var(--ease-spring);
   }
@@ -581,58 +514,6 @@
   .drop-in {
     animation: drop-in var(--dur) var(--ease-out) both;
     animation-delay: calc(var(--i, 0) * 28ms);
-  }
-
-  /* --- Skeleton -------------------------------------------------------
-     A sheen that crosses the block once a second and a bit — slow enough
-     to read as "working", not "broken". */
-  .skeleton {
-    position: relative;
-    overflow: hidden;
-    background: var(--skeleton);
-    border-radius: 4px;
-  }
-
-  .skeleton::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--skeleton-sheen),
-      transparent
-    );
-    animation: sheen 1.3s var(--ease-out) infinite;
-    animation-delay: calc(var(--i, 0) * 90ms);
-  }
-
-  /* --- Horizontal rails ---------------------------------------------
-     A row that scrolls sideways on a phone instead of wrapping into five
-     lines. The edges fade so the cut-off chip is the affordance. */
-  .rail {
-    display: flex;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-    mask-image: linear-gradient(
-      to right,
-      transparent 0,
-      #000 12px,
-      #000 calc(100% - 28px),
-      transparent 100%
-    );
-  }
-
-  .rail::-webkit-scrollbar {
-    display: none;
-  }
-
-  .rail > * {
-    scroll-snap-align: start;
-    flex-shrink: 0;
   }
 
   /* --- Header elevation on scroll ------------------------------------
@@ -770,6 +651,134 @@
     transform: scale(2.6);
     opacity: 0;
   }
+}
+
+@layer components {
+  /* Component classes, not utilities. They live in the components layer so
+     a utility passed beside them wins: `btn-paper text-fg-muted`,
+     `skeleton rounded-full` and `rail sm:overflow-visible` all depend on it.
+     In the utilities layer these rules came after Tailwind's own and beat
+     every same-specificity utility, responsive variants included. */
+
+  /* --- Ink button -----------------------------------------------------
+     Edge highlight on top, ink shadow below, a 1px lift on hover and a
+     spring-back press. The arrow inside nudges forward, so the button says
+     which way it goes before it is pressed. */
+  .btn-ink {
+    position: relative;
+    isolation: isolate;
+    background: var(--fg);
+    color: var(--bg);
+    box-shadow:
+      var(--edge-highlight),
+      0 0 0 1px var(--fg),
+      0 1px 2px oklch(0.2 0 0 / 0.2),
+      0 4px 8px -2px oklch(0.2 0 0 / 0.18);
+    transition:
+      transform var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .btn-ink:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      var(--edge-highlight),
+      0 0 0 1px var(--fg),
+      0 2px 3px oklch(0.2 0 0 / 0.2),
+      0 10px 18px -6px oklch(0.2 0 0 / 0.3);
+  }
+
+  .btn-ink:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 60ms;
+  }
+
+  /* Secondary: paper rather than ink. */
+  .btn-paper {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: var(--shadow-ink);
+    transition:
+      transform var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
+  }
+
+  .btn-paper:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-1px);
+  }
+
+  .btn-paper:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 60ms;
+  }
+
+  /* Generic press feedback for small controls (chips, icon buttons). */
+  .press {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .press:active {
+    transform: scale(0.96);
+    transition-timing-function: var(--ease-spring);
+  }
+
+  /* --- Skeleton -------------------------------------------------------
+     A sheen that crosses the block once a second and a bit — slow enough
+     to read as "working", not "broken". */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton);
+    border-radius: 4px;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--skeleton-sheen),
+      transparent
+    );
+    animation: sheen 1.3s var(--ease-out) infinite;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* --- Horizontal rails ---------------------------------------------
+     A row that scrolls sideways on a phone instead of wrapping into five
+     lines. The edges fade so the cut-off chip is the affordance. */
+  .rail {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12px,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
 }
 
 @layer components {

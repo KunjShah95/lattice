@@ -97,7 +97,13 @@ jobs:
       # re-enters itself without the recursion marker `scripts/build.mjs` sets,
       # and produces a `next-env.mjs` with duplicate exports that the Worker
       # refuses to load.
+      # `scripts/build.mjs` refuses to bundle without an https SITE_URL, which
+      # is right for a deploy and wrong for CI: this bundle is booted and
+      # smoke-tested, never shipped. The repo variable wins when set; the
+      # fallback is the live origin so the gate's domain checks still pass.
       - name: Build the Worker bundle
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'https://lattice.kkshah2005.workers.dev' }}
         run: |
           rm -rf .open-next
           npm run build

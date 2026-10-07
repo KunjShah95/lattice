@@ -138,7 +138,7 @@ export function MobileNav() {
             tabIndex={-1}
             aria-hidden="true"
             onClick={close}
-            className="fixed inset-0 top-14 z-30 cursor-default bg-bg/40"
+            className="fixed inset-0 top-[calc(3.5rem+env(safe-area-inset-top))] z-30 cursor-default bg-bg/40"
           />
           <nav
             id="mobile-nav"
@@ -146,7 +146,7 @@ export function MobileNav() {
             // Solid, not `bg-bg/95 backdrop-blur-md` — at 95% the blur is
             // invisible, and a backdrop-filter has to be recomputed whenever
             // the content behind it changes. See the note on the site header.
-            className="pop-in absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-b border-border bg-bg pb-[env(safe-area-inset-bottom)] shadow-float"
+            className="pop-in absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] overflow-y-auto overscroll-contain border-b border-border bg-bg pb-[env(safe-area-inset-bottom)] shadow-float"
           >
             <ul className="mx-auto max-w-5xl px-5 py-2 sm:px-6">
               {links.map((l, i) => (

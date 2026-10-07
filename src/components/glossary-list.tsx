@@ -49,7 +49,7 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
           filter bar on /all: a sticky backdrop-filter over a long scrolling list
           re-blurs on every frame, and at 90% opacity the effect is close to
           invisible. */}
-      <div className="sticky top-14 z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-6 sm:px-6">
+      <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-[12rem] flex-1">
             <svg
