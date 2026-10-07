@@ -70,7 +70,7 @@ export default function RolesIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Start from what you own.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           The stack diagram answers <em>where things sit</em>; this answers{" "}
           <em>what you are accountable for</em>. Each specialisation lists the
           tools that role actually owns, grouped by the layer they live in — so
@@ -113,7 +113,7 @@ export default function RolesIndexPage() {
         })}
       </ul>
 
-      <p className="mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
         Roles are assigned by what the tool is <em>for</em>, not by who vendors
         it, and a tool can belong to two — an eval framework really is part of
         what a platform engineer owns and part of what an applied engineer owns.

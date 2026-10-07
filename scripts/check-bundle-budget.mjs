@@ -87,26 +87,57 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * `/stack/[workload]` for the copy-report buttons, the one client island on an
  * otherwise static page (+0.2 KB), and `/stack-builder` for the report's
  * absolute entry links and reproduce-this-case URL (+0.1 KB).
+ *
+ * Raised by 0.5 KB on `/all` for `DecisionValve variant="inline"`: each explorer
+ * row now prints the skip-when line beside use-when (+0.2 KB, the markup for the
+ * second line and its mark). That line is the claim no competitor makes
+ * (`strategy/02` §2), so it is not the kind of cost to trade away. The rest of the
+ * freshness work (`FreshnessMeter`, `/verification`) is server-rendered and adds
+ * no client JS; `/verification` is budgeted at the shared floor to prove it — and
+ * the budget did prove it: an early `ToolChip` imported the preview client
+ * component, which put its chunk on `/verification` too (+0.7 KB) until the two
+ * were split into separate modules.
+ *
+ * Raised by 1 KB on `/[slug]/[tool]` for `PreviewLink` (the hover card on the
+ * sibling and alternative chips, +0.5 KB) and the badge disclosure's `CopyButton`
+ * (+0.2 KB). Both are the only client islands on an otherwise static page.
+ *
+ * Raised by 1.5 KB on `/stack-builder` for the answer-to-pick diff (a second
+ * engine run per click plus the note it renders), the layer strip, the rolling
+ * cost digits and the confidence meter (+1.1 KB measured). All four are
+ * interactive and live in the one page that exists to be interactive; the
+ * rolling digits are CSS transforms, so no animation library came with them.
+ *
+ * Raised by 1 KB on `/blog/[slug]` for `ReadingRail` (+0.7 KB measured): the active
+ * section highlight and the progress line need scroll position, which is the one
+ * thing here that cannot be CSS. The contents block itself (`EssayContents`) is a
+ * server-rendered `<details>` and costs nothing, and the heading ids are stamped at
+ * compile time by a rehype plugin, so the anchors need no client code either.
+ *
+ * `/compare/build` (a new interactive route) is budgeted at 163 KB; it measured
+ * 157.7 KB, which is the shared floor plus the picker and the table.
  */
 const BUDGETS = {
   "/": 161_000,
-  "/stack-builder": 166_500,
-  "/all": 162_000,
+  "/stack-builder": 168_000,
+  "/all": 162_500,
   "/glossary": 160_000,
   "/methodology": 158_000,
+  "/verification": 158_000,
   "/submit": 158_000,
   "/blog": 158_000,
   "/compare": 158_000,
+  "/compare/build": 163_000, // measured 157.7 KB; headroom left for the picker to grow
   "/fix": 158_000,
   "/roles": 158_000,
   "/bands": 158_000,
   "/[slug]": 158_500,
-  "/[slug]/[tool]": 158_500,
+  "/[slug]/[tool]": 159_500,
   "/[slug]/[tool]/alternatives": 158_000,
   "/roles/[role]": 158_000,
   "/bands/[band]": 158_000,
   "/stack/[workload]": 158_500,
-  "/blog/[slug]": 158_000,
+  "/blog/[slug]": 159_000,
   "/compare/[slug]": 158_000,
   "/fix/[slug]": 158_000,
   "/glossary/[slug]": 158_000,

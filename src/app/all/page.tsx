@@ -60,7 +60,7 @@ export default function AllToolsPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Every AI infrastructure tool, filterable.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           The whole index in one list. Use it when you know what you are
           looking for; use the{" "}
           <Link

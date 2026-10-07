@@ -110,7 +110,7 @@ export default function HomePage() {
               ))}
             </h1>
 
-            <p className="mt-5 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+            <p className="editorial-justify mt-5 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
               Every entry here carries two sentences: when to use it, and when to skip it.
               Most directories publish the first. Almost none publish the second — it is the
               one that tells you whether anything on this page is worth your time.
@@ -295,7 +295,7 @@ export default function HomePage() {
       <section className="border-t border-border py-12">
         <div className="max-w-[62ch]">
           <h2 className="text-[15px] font-medium">What is AI infrastructure?</h2>
-          <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
             AI infrastructure is everything between your product and the model:
             runtimes that serve weights, gateways that route requests, stores
             that hold embeddings, frameworks that run agents, and evals that say
@@ -320,7 +320,7 @@ export default function HomePage() {
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-[46ch]">
             <h2 className="text-[15px] font-medium">How this list is kept</h2>
-            <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
+            <p className="editorial-justify mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
               Entries are hand-picked rather than submitted, and ordered by where
               they sit in a real system rather than by how popular they are. Any
               licence or cost figure older than six months fails the build, so a

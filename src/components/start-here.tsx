@@ -219,7 +219,7 @@ export function StartHere() {
           })}
         </ol>
 
-        <p className="mt-6 text-pretty text-[13px] leading-relaxed text-fg-subtle">
+        <p className="editorial-justify mt-6 text-pretty text-[13px] leading-relaxed text-fg-subtle">
           A starting order, not an architecture. If you are still unsure, read{" "}
           <Link
             href="/blog/evals-are-the-asset"

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { allTools, AS_OF_PATTERN, STALE_AFTER_MONTHS, staleCutoff, toolCount } from "./data";
 import { AS_OF, attributes } from "./attributes";
-import { buildVerificationReport } from "./verification";
+import { buildVerificationReport, groupByCheck } from "./verification";
 
 /**
  * The verification report is the public receipt for the build's staleness
@@ -69,6 +69,41 @@ describe("buildVerificationReport", () => {
     const late = buildVerificationReport(new Date(Date.UTC(2031, 0, 1)));
     expect(late.status).toBe("fail");
     expect(late.stale.length).toBe(allTools.length);
+  });
+});
+
+describe("groupByCheck", () => {
+  const report = buildVerificationReport(BUILD);
+  const groups = groupByCheck(report.entries);
+
+  it("places every entry in exactly one group", () => {
+    const total = groups.reduce((n, g) => n + g.entries.length, 0);
+    expect(total).toBe(report.entries.length);
+    const names = groups.flatMap((g) => g.entries.map((e) => e.name));
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("puts the soonest-to-expire group first", () => {
+    const expiries = groups.map((g) => g.expires);
+    expect(expiries).toEqual([...expiries].sort());
+    expect(groups[0].expires).toBe(report.nextRecheckBy);
+  });
+
+  it("gives every entry in a group the group's check month and expiry", () => {
+    for (const g of groups) {
+      for (const e of g.entries) {
+        expect(e.asOf).toBe(g.asOf);
+        expect(e.expires).toBe(g.expires);
+      }
+    }
+  });
+
+  it("counts per-tool dates inside the group, so the page can tell the two cases apart", () => {
+    expect(groups.reduce((n, g) => n + g.perTool, 0)).toBe(report.perToolChecked);
+  });
+
+  it("is empty for an empty receipt rather than throwing", () => {
+    expect(groupByCheck([])).toEqual([]);
   });
 });
 

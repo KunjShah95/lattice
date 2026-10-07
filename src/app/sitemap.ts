@@ -42,6 +42,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    // The cross-layer comparison builder. Beside `/compare` and above the
+    // individual comparisons: it is the one comparison surface that covers pairs
+    // nobody wrote by hand, which `strategy/02` §4 names as the wedge.
+    {
+      url: `${site.url}/compare/build`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
     {
       url: `${site.url}/stack-builder`,
       lastModified,
@@ -70,6 +79,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${site.url}/corrections`,
       lastModified,
       changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    // The freshness ledger: the human view of `/verification.json`, and the
+    // place the staleness guard — the claim `strategy/02` §3 ranks strongest and
+    // calls invisible — is shown rather than asserted. `monthly`: it changes when
+    // the dataset is re-verified, which is the cadence the guard enforces.
+    {
+      url: `${site.url}/verification`,
+      lastModified,
+      changeFrequency: "monthly",
       priority: 0.6,
     },
     // Roles are the one view that answers "what does my job own", and no
@@ -119,18 +138,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.4,
     },
-    // Machine endpoints. Crawlers discover these here: robots.txt cannot list
-    // them (it only speaks allow/disallow), and nothing links to them from
-    // page chrome on purpose — so without sitemap entries they are reachable
-    // only to readers who already know they exist, which defeats their job.
-    // /api/search takes its query in the URL and is therefore not listable;
+    // Machine endpoints are deliberately NOT listed here. A sitemap is a list
+    // of indexable HTML pages, and Google treats every URL in it as a page
+    // candidate: `llms.txt`, `llms-full.txt`, `tools.json`, `mcp.json` and
+    // `feed.xml` are `text/plain` / `application/json` / RSS, so listing them
+    // spends crawl budget on URLs that can never index and surfaces them in
+    // Search Console as excluded/error rows. They are discoverable without it:
+    // the footer links `/llms.txt` and `/mcp.json`, `/methodology` links
+    // `/tools.json`, and `llms.txt` itself advertises `llms-full.txt`.
+    // `/api/search` takes its query in the URL and is therefore not listable;
     // it is advertised from llms.txt and mcp.json instead.
-    ...["llms.txt", "llms-full.txt", "tools.json", "mcp.json", "feed.xml"].map((f) => ({
-      url: `${site.url}/${f}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.5,
-    })),
     ...ROLES.map((r) => ({
       url: `${site.url}/roles/${r.id}`,
       lastModified,

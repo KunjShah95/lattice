@@ -76,7 +76,7 @@ export default function BandsIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Nine layers, three bands.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           The layers are ordered because they are a dependency chain — you cannot
           tune weights before you serve them. But a reader rarely arrives with a
           layer in mind; they arrive with a symptom. And almost every production
@@ -122,7 +122,7 @@ export default function BandsIndexPage() {
         })}
       </ul>
 
-      <p className="mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
         The collapse is a simplification, and it hides something:{" "}
         <span className="text-fg-muted">band III is five of the nine layers</span>
         , so the band a reader is in does not tell them how much of the stack is

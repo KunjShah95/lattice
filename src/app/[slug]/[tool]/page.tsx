@@ -11,12 +11,21 @@ import {
   getSecondHomes,
   getSiblingTools,
   getTool,
+  STALE_AFTER_MONTHS,
 } from "@/lib/data";
 import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { hasAlternativesPage } from "@/lib/alternatives";
 import { TrackLink } from "@/components/track-link";
 import { Byline } from "@/components/byline";
+import { DecisionValve } from "@/components/ui/decision-valve";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { FreshnessStamp } from "@/components/ui/freshness";
+import { LinkRow } from "@/components/ui/link-row";
+import { PreviewToolChip } from "@/components/ui/preview-tool-chip";
+import { ToolPreview } from "@/components/ui/tool-preview";
+import { CopyButton } from "@/components/copy-button";
+import { badgeMarkdown } from "@/lib/badge";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import {
@@ -30,6 +39,14 @@ import {
   toolMetaDescription,
   toolQuestions,
 } from "@/lib/seo";
+
+/**
+ * The build date, fixed once per build. The freshness meter shows the entry's
+ * state *when the guard ran*, the same instant `/verification.json` reports, so
+ * it is read once at module load rather than per page: 112 pages that each read
+ * the clock could straddle a month boundary and disagree with one another.
+ */
+const BUILT_AT = new Date();
 
 /**
  * One page per tool, nested under its section: /<section>/<tool>.
@@ -103,6 +120,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   );
 
   const pageUrl = `${site.url}/${category.slug}/${tool.slug}`;
+  const badgeText = badgeMarkdown(site.url, category.slug, tool.slug, tool.name, tool.asOf);
   const questions = toolQuestions(
     tool,
     category,
@@ -205,7 +223,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         {/* What it is, as a sentence that names its subject. Answer engines
             lift passages, not layouts — "Paged-attention inference engine…"
             on its own does not say what it is describing. */}
-        <p className="mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
           {toolDefinition(tool, category)}
         </p>
 
@@ -259,16 +277,15 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </div>
         </dl>
 
-        {/* Calibration stamp + stack position. */}
+        {/* Calibration stamp + stack position. The stamp is the guard made
+            visible: when this was checked, how many months the build still
+            accepts it, and the month it starts refusing it. */}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: "var(--band-control)" }}
-            />
-            Verified {tool.asOf}
-          </span>
+          <FreshnessStamp
+            asOf={tool.asOf}
+            now={BUILT_AT}
+            windowMonths={STALE_AFTER_MONTHS}
+          />
           <div className="min-w-[15rem] flex-1">
             <StackSpine layer={category.layer} />
           </div>
@@ -284,34 +301,14 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             every competitor in this category publishes a "best for" line and
             not one of them publishes the "skip when" half. That second
             sentence is the reason to trust the first. */}
-        <div className="mt-7 grid gap-px border border-border bg-border sm:grid-cols-2">
-          <div className="bg-bg-elevated p-3.5">
-            <h2 className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg">
-              <span
-                aria-hidden="true"
-                className="inline-block h-2 w-2 shrink-0 rounded-[1px] border border-accent bg-accent"
-              />
-              Use {tool.name} when
-            </h2>
-            <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg">
-              {tool.useWhen}
-            </p>
-          </div>
-          <div className="bg-bg-elevated p-3.5">
-            <h2 className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
-              <span
-                aria-hidden="true"
-                className="inline-block h-2 w-2 shrink-0 rounded-full border border-fg-subtle"
-              />
-              Skip {tool.name} when
-            </h2>
-            <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
-              {tool.skipWhen}
-            </p>
-          </div>
-        </div>
+        <DecisionValve
+          className="mt-7"
+          toolName={tool.name}
+          useWhen={tool.useWhen}
+          skipWhen={tool.skipWhen}
+        />
 
-        <p className="mt-6 max-w-[60ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
           <span className="text-fg">{category.responsibility}</span>{" "}
           <span className="text-fg-muted">
             — that is what this layer of the stack is answerable for. See the
@@ -334,9 +331,9 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             unexplained cross-reference reads as a mistake. */}
         {secondHomes.length ? (
           <div className="mt-5 border-l-2 border-border-strong pl-3.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+            <Eyebrow as="h2" size="xs">
               Also belongs in
-            </h2>
+            </Eyebrow>
             <ul className="mt-2 space-y-1.5">
               {secondHomes.map(({ section, because }) => (
                 <li
@@ -389,20 +386,53 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             <path d="M7 17 17 7M9 7h8v8" />
           </svg>
         </a>
+
+        {/* Straight into the cross-layer builder with this tool already chosen.
+            Plain `Link`, not `TrackLink`: the builder is a page, not a funnel
+            step, and `/signal` only accepts the four events the strategy's
+            metrics need. */}
+        <Link
+          href={`/compare/build?tools=${category.slug}/${tool.slug}`}
+          className="mt-7 ml-3 inline-flex items-center gap-1.5 px-1 py-2 text-[13.5px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+        >
+          Compare with another tool
+        </Link>
+
+        {/* A badge a README can carry: when this entry's facts were last
+            confirmed. A disclosure, not a block, so it costs the page nothing
+            for the reader who does not maintain a README. No popularity figure
+            on it, on purpose — see `lib/badge.ts`. */}
+        <details className="mt-6 max-w-md border-l-2 border-border-strong pl-3.5">
+          <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle transition-colors hover:text-fg-muted">
+            Badge this entry
+          </summary>
+          <div className="mt-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- an SVG that is already the right size; next/image would add an optimizer this Worker deliberately does not ship */}
+            <img
+              src={`/${category.slug}/${tool.slug}/badge.svg`}
+              alt={`Lattice badge: ${tool.name} verified ${tool.asOf}`}
+              height={20}
+            />
+            <pre className="mt-3 overflow-x-auto rounded-md border border-border bg-bg-sunken p-3 font-mono text-[11.5px] leading-relaxed text-fg-muted">
+              <code>{badgeText}</code>
+            </pre>
+            <div className="mt-2">
+              <CopyButton text={badgeText} label="Copy Markdown" copiedLabel="Copied" />
+            </div>
+          </div>
+        </details>
       </header>
 
       {/* Quick answers: the remaining questions people ask about a tool,
           each a self-contained passage. Mirrored in the FAQPage JSON-LD. */}
       {answerBlocks.length ? (
         <section className="mt-14 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Quick answers
-          </h2>
+          <Eyebrow as="h2">Quick answers</Eyebrow>
           <dl className="mt-4 space-y-5">
             {answerBlocks.map((qa) => (
               <div key={qa.question}>
                 <dt className="text-[15px] font-medium">{qa.question}</dt>
-                <dd className="mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+                <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
                   {qa.answer}
                 </dd>
               </div>
@@ -415,9 +445,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           more than a link with a sentence on it. */}
       {inComparisons.length ? (
         <section className="mt-14 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Compared in
-          </h2>
+          <Eyebrow as="h2">Compared in</Eyebrow>
           <ul className="mt-4 space-y-px">
             {inComparisons.map((c) => (
               <li key={c.slug}>
@@ -425,25 +453,13 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                     the comparison surface `strategy/02` §4 says no funded
                     competitor can occupy. Whether anyone walks from a tool into
                     one is the only direct evidence the wedge is being used. */}
-                <TrackLink
+                <LinkRow
                   href={`/compare/${c.slug}`}
                   event="compare"
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
-                    style={layerStyle(category.layer)}
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
-                      {c.title}
-                    </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                      {c.description}
-                    </span>
-                  </span>
-                </TrackLink>
+                  layer={category.layer}
+                  title={c.title}
+                  description={c.description}
+                />
               </li>
             ))}
           </ul>
@@ -453,30 +469,16 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {/* Reading on this layer */}
       {sectionPosts.length ? (
         <section className="mt-12">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Reading on {category.short.toLowerCase()}
-          </h2>
+          <Eyebrow as="h2">Reading on {category.short.toLowerCase()}</Eyebrow>
           <ul className="mt-4 space-y-px">
             {sectionPosts.map((p) => (
               <li key={p.meta.slug}>
-                <Link
+                <LinkRow
                   href={`/blog/${p.meta.slug}`}
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
-                    style={layerStyle(p.meta.layers[0] ?? null)}
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
-                      {p.meta.title}
-                    </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                      {p.meta.dek}
-                    </span>
-                  </span>
-                </Link>
+                  layer={p.meta.layers[0] ?? null}
+                  title={p.meta.title}
+                  description={p.meta.dek}
+                />
               </li>
             ))}
           </ul>
@@ -488,9 +490,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {alternatives.length ? (
         <section className="mt-12">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-              Alternatives to {tool.name}
-            </h2>
+            <Eyebrow as="h2">Alternatives to {tool.name}</Eyebrow>
             {/* A dedicated page carries the reverse edges and marks which
                 entries are adjacent rather than real substitutes, neither of
                 which fits in a list on this page. */}
@@ -511,24 +511,12 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           <ul className="mt-4 space-y-px">
             {alternatives.map(({ tool: alt, category: altCat }) => (
               <li key={`${altCat.slug}-${alt.slug}`}>
-                <Link
+                <LinkRow
                   href={`/${altCat.slug}/${alt.slug}`}
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full"
-                    style={layerStyle(altCat.layer)}
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
-                      {alt.name}
-                    </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                      {alt.blurb}
-                    </span>
-                  </span>
-                </Link>
+                  layer={altCat.layer}
+                  title={alt.name}
+                  description={alt.blurb}
+                />
               </li>
             ))}
           </ul>
@@ -538,23 +526,17 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {/* Reverse edge: who else points here as a substitute. */}
       {alternativeTo.length ? (
         <section className="mt-10">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Listed as an alternative to
-          </h2>
+          <Eyebrow as="h2">Listed as an alternative to</Eyebrow>
           <ul className="mt-3 flex flex-wrap gap-2">
             {alternativeTo.map(({ tool: other, category: c }) => (
               <li key={`${c.slug}-${other.slug}`}>
-                <Link
+                <PreviewToolChip
                   href={`/${c.slug}/${other.slug}`}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                  layer={c.layer}
+                  preview={<ToolPreview tool={other} />}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="h-3 w-[2px] rounded-full"
-                    style={layerStyle(c.layer)}
-                  />
                   {other.name}
-                </Link>
+                </PreviewToolChip>
               </li>
             ))}
           </ul>
@@ -564,23 +546,17 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {/* Siblings — the crawl graph that keeps a section connected. */}
       {siblings.length ? (
         <section className="mt-12">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-            Also in {category.short.toLowerCase()}
-          </h2>
+          <Eyebrow as="h2">Also in {category.short.toLowerCase()}</Eyebrow>
           <ul className="mt-4 flex flex-wrap gap-2">
             {siblings.map((s) => (
               <li key={s.slug}>
-                <Link
+                <PreviewToolChip
                   href={`/${category.slug}/${s.slug}`}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                  layer={category.layer}
+                  preview={<ToolPreview tool={s} />}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="h-3 w-[2px] rounded-full"
-                    style={layerStyle(category.layer)}
-                  />
                   {s.name}
-                </Link>
+                </PreviewToolChip>
               </li>
             ))}
           </ul>

@@ -13,19 +13,25 @@ export function CopyButton({
   label,
   copiedLabel,
 }: {
-  text: string;
+  /**
+   * The string, or a function that builds it. A function is for text that depends
+   * on the browser — a URL with the current origin and query — which does not exist
+   * at render on the server. It runs at click time, never during render.
+   */
+  text: string | (() => string);
   label: string;
   copiedLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
+    const value = typeof text === "function" ? text() : text;
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(value);
     } catch {
       // Clipboard API is unavailable on insecure origins and in some embeds.
       const ta = document.createElement("textarea");
-      ta.value = text;
+      ta.value = value;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");

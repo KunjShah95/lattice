@@ -62,7 +62,7 @@ export default function StackBuilderPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Build my AI stack.
         </h1>
-        <p className="mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Describe your case — or start from a real one below. The stack updates
           as you answer, every answer becomes part of a shareable link, and the
           decision copies out as a report. Drawn from the 112 tools already in

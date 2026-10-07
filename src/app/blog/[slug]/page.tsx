@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EssayContents } from "@/components/essay-contents";
+import { ReadingRail } from "@/components/reading-rail";
+import { essayHeadings } from "@/lib/headings";
 import { layerStyle } from "@/lib/layer";
 import { getPost, posts, relatedPosts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
@@ -54,6 +57,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
 
   const { meta, Component } = post;
   const related = relatedPosts(slug);
+  const headings = essayHeadings(slug);
   const sections = meta.sections
     .map((s) => getCategory(s))
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
@@ -66,6 +70,11 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         dangerouslySetInnerHTML={{ __html: toJsonLd(postJsonLd(meta)) }}
       />
 
+      {/* `relative` so the reading rail can hang off the article's right edge
+          without reflowing it: the essay's line length is the thing that makes it
+          readable, and a rail that narrowed it would cost more than it gave. */}
+      <div className="relative">
+      <ReadingRail headings={headings} />
       <article>
         <header className="mb-10">
           <Link
@@ -79,7 +88,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
             {meta.title}
           </h1>
 
-          <p className="mt-4 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
             {meta.dek}
           </p>
 
@@ -103,10 +112,13 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </div>
         </header>
 
+        <EssayContents headings={headings} />
+
         <div className="prose-lattice">
           <Component />
         </div>
       </article>
+      </div>
 
       {/*
         The next step, in the reader's terms.

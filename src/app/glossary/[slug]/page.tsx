@@ -141,7 +141,7 @@ export default async function GlossaryTermPage({
           </h1>
         </div>
 
-        <p className="mt-6 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg">
+        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg">
           {term.definition}
         </p>
 
@@ -155,7 +155,7 @@ export default async function GlossaryTermPage({
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             What it implies
           </h2>
-          <p className="mt-3 max-w-[64ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[64ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             {term.detail}
           </p>
         </div>

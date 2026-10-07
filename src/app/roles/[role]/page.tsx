@@ -142,7 +142,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
           <h1 className="text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
             {meta.title}
           </h1>
-          <p className="mt-3 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg">
+          <p className="editorial-justify mt-3 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg">
             {meta.owns}
           </p>
           <p className="mt-2 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
@@ -222,7 +222,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Shared with another role
           </h2>
-          <p className="mt-2 max-w-[60ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
             These are part of what you own and part of what someone else owns.
             That overlap is where the interesting arguments happen — who decides
             the eval threshold, who carries the pager.

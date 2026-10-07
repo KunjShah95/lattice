@@ -56,7 +56,7 @@ export default function GlossaryIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           The words, defined once.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Short enough to answer a question, opinionated enough to be useful.
           Each entry says what the term{" "}
           <em className="text-fg not-italic">implies for a decision</em>, not just

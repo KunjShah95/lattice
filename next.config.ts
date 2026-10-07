@@ -27,6 +27,10 @@ const withMDX = createMDX({
         { tools: linkableTools, terms: glossaryLinkMap },
       ],
     ],
+    // Gives every h2/h3 an id at compile time, so the contents rail and `#section`
+    // links work in the prerendered HTML. Same reason as above for the path: the
+    // loader serialises options and cannot carry a function.
+    rehypePlugins: [path.resolve(process.cwd(), "src/lib/rehype-heading-ids.mjs")],
   },
 });
 

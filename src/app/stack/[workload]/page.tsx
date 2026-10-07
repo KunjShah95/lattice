@@ -137,13 +137,13 @@ export default async function StackWorkloadPage({
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           A {meta.label.toLowerCase()} stack.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           {result.summary}. At the default case — 100k requests a month, no
           further constraints — drawn from the 112 tools already in the index.
           Each pick is a tool whose own skip-when is stated, because a stack
           built on tools it does not know how to overcommit to is a guess.
         </p>
-        <p className="mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           This is the default case, stated as such.{" "}
           <Link
             href={builderPath}
@@ -193,15 +193,15 @@ export default async function StackWorkloadPage({
                   {p.matches.join(" · ")}
                 </p>
               ) : null}
-              <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <p className="editorial-justify mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
                 {p.why}
               </p>
-              <p className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+              <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
                 <span className="text-fg-muted">Watch out: </span>
                 {p.watchOut}
               </p>
               {p.alternative !== "—" && p.switchWhen ? (
-                <p className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+                <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
                   <span className="text-fg-subtle">Consider </span>
                   {p.alternative}
                   <span className="text-fg-subtle"> instead when </span>
@@ -247,13 +247,13 @@ export default async function StackWorkloadPage({
             </div>
           ) : null}
         </dl>
-        <p className="mt-5 text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-5 text-pretty text-[14px] leading-relaxed text-fg-muted">
           <span className="text-fg">Biggest risk at the default case: </span>
           {result.risk}
         </p>
       </section>
 
-      <p className="mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
         A starting point, not a prescription. The recommendation at the default
         case is what the engine would tell a stranger with your workload; the
         recommendation at *your* case is what it tells you once it knows the

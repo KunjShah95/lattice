@@ -1,15 +1,10 @@
 import { stackLayers } from "./data";
+import { layerColor } from "./layer-color";
 
-/**
- * Maps a stack depth to its colour stop in the ramp defined in globals.css.
- * Kept as a plain CSS-var reference so light/dark switching stays free —
- * the browser resolves `--layer-N` per theme without any JS.
- */
-export function layerColor(layer: number | null | undefined): string {
-  if (!layer || layer < 1) return "var(--fg-subtle)";
-  const clamped = Math.min(Math.round(layer), 9);
-  return `var(--layer-${clamped})`;
-}
+// Re-exported so every existing `import { layerColor } from "./layer"` keeps working.
+// The definition is in `layer-color.ts`, which has no imports and so is safe to use
+// from a client component; this module pulls in the whole dataset.
+export { layerColor };
 
 /**
  * Which of the three bands a layer belongs to.

@@ -13,6 +13,8 @@ import { metadata as fixMetadata } from "@/app/fix/page";
 import { metadata as glossaryMetadata } from "@/app/glossary/page";
 import { metadata as methodologyMetadata } from "@/app/methodology/page";
 import { metadata as correctionsMetadata } from "@/app/corrections/page";
+import { metadata as verificationMetadata } from "@/app/verification/page";
+import { metadata as compareBuildMetadata } from "@/app/compare/build/page";
 import { metadata as rolesMetadata } from "@/app/roles/page";
 import { metadata as bandsMetadata } from "@/app/bands/page";
 import { metadata as stackBuilderMetadata } from "@/app/stack-builder/page";
@@ -93,10 +95,12 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
     ["/all", allMetadata as Metadata],
     ["/blog", blogMetadata as Metadata],
     ["/compare", compareMetadata as Metadata],
+    ["/compare/build", compareBuildMetadata as Metadata],
     ["/fix", fixMetadata as Metadata],
     ["/glossary", glossaryMetadata as Metadata],
     ["/methodology", methodologyMetadata as Metadata],
     ["/corrections", correctionsMetadata as Metadata],
+    ["/verification", verificationMetadata as Metadata],
     ["/roles", rolesMetadata as Metadata],
     ["/bands", bandsMetadata as Metadata],
     ["/stack-builder", stackBuilderMetadata as Metadata],
@@ -187,10 +191,11 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 10, not 11: the home page carries no metadata of its own and is covered by
-    // `absolute("/")` in seo.test.ts instead.
+    // 12, not 13: the home page carries no metadata of its own and is covered by
+    // `absolute("/")` in seo.test.ts instead. Matches the `staticRoutes` list in
+    // `allRoutes()` above, so adding a static route means touching both.
     const expected =
-      10 +
+      12 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
@@ -267,10 +272,12 @@ const SEGMENTS_WITH_CARDS = [
   "all",
   "blog",
   "compare",
+  "compare/build",
   "fix",
   "glossary",
   "methodology",
   "corrections",
+  "verification",
   "roles",
   "roles/[role]",
   "bands",
@@ -378,6 +385,7 @@ const INDEX_ROUTES: Array<[string, boolean]> = [
   ["glossary", true],
   ["methodology", false],
   ["corrections", false],
+  ["verification", false],
   ["roles", true],
   ["bands", true],
   ["stack-builder", false],

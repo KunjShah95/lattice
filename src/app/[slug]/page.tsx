@@ -119,7 +119,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Also relevant here
           </h2>
-          <p className="mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
             These tools are indexed in another layer, but they also do{" "}
             {category.title.toLowerCase()}&apos;s job. Each carries its home
             layer&apos;s colour.

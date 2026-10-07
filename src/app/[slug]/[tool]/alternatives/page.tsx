@@ -204,7 +204,7 @@ export default async function AlternativesPage({
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
           The short answer
         </p>
-        <p className="mt-2.5 max-w-[64ch] text-pretty text-[15.5px] leading-relaxed text-fg">
+        <p className="editorial-justify mt-2.5 max-w-[64ch] text-pretty text-[15.5px] leading-relaxed text-fg">
           {verdict}
         </p>
         {/* Sits directly under the verdict because that is the paragraph a
@@ -315,7 +315,7 @@ export default async function AlternativesPage({
               Adjacent, not substitutes
             </h2>
           </div>
-          <p className="mt-3 max-w-[62ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
             These appear in the same graph but sit in a different layer. They solve a
             neighbouring problem, not this one — including them in a shortlist is the
             most common mistake made when migrating off {entry.name}.
@@ -351,7 +351,7 @@ export default async function AlternativesPage({
         </section>
       ) : null}
 
-      <p className="mt-12 border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
         This graph is bidirectional and unsponsored. A tool appears here if{" "}
         {entry.name} or another entry names it as a substitute, and{" "}
         {listNames(subs.map((s) => s.tool.name))} point at {entry.name} as well.

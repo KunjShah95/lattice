@@ -135,7 +135,7 @@ export default async function ComparisonPage({
           {comparison.title}
         </h1>
 
-        <p className="mt-4 max-w-[62ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
           {comparison.intro}
         </p>
 
@@ -146,7 +146,7 @@ export default async function ComparisonPage({
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Short answer
           </p>
-          <p className="mt-1.5 text-pretty text-[15.5px] leading-relaxed text-fg">
+          <p className="editorial-justify mt-1.5 text-pretty text-[15.5px] leading-relaxed text-fg">
             {shortAnswer(comparison.verdict)}
           </p>
         </div>
@@ -279,7 +279,7 @@ export default async function ComparisonPage({
 
       {/* Stated limits. Pages that said what they did not measure were the
           ones cited over generic roundups in the category audit. */}
-      <p className="mt-6 max-w-[68ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-6 max-w-[68ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
         <span className="font-medium text-fg-muted">What this table is not.</span>{" "}
         These are editorial judgements, not benchmarks: Lattice has not run
         these tools head to head, and no cell uses GitHub stars or vendor
@@ -300,7 +300,7 @@ export default async function ComparisonPage({
         <h2 className="mt-2 text-balance text-[17px] font-medium leading-snug">
           {decision.question}
         </h2>
-        <p className="mt-3 max-w-[68ch] text-pretty text-[15.5px] leading-relaxed text-fg">
+        <p className="editorial-justify mt-3 max-w-[68ch] text-pretty text-[15.5px] leading-relaxed text-fg">
           {comparison.verdict}
         </p>
       </section>
@@ -312,7 +312,7 @@ export default async function ComparisonPage({
         </h2>
         <ul className="mt-4 space-y-3">
           {comparison.rules.map((rule) => (
-            <li key={rule} className="flex gap-3 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+            <li key={rule} className="editorial-justify flex gap-3 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
               <span aria-hidden="true" className="mt-2 h-[3px] w-3 shrink-0 rounded-full" style={layerStyle(head?.layer ?? null)} />
               {rule}
             </li>
@@ -330,7 +330,7 @@ export default async function ComparisonPage({
           {questions.slice(1).map((qa) => (
             <div key={qa.question}>
               <dt className="text-[15px] font-medium">{qa.question}</dt>
-              <dd className="mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
                 {qa.answer}
               </dd>
             </div>
@@ -360,7 +360,7 @@ export default async function ComparisonPage({
                     <span className="block text-[15px] font-medium group-hover:text-accent">
                       {p.meta.title}
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="editorial-justify mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
                       {p.meta.dek}
                     </span>
                   </span>

@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
-import { layerStyle } from "@/lib/layer";
+import { DecisionValve } from "@/components/ui/decision-valve";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterEmptyState } from "@/components/ui/filter-empty-state";
+import { layerColor, layerStyle } from "@/lib/layer";
 import { ROLES } from "@/lib/roles";
 import {
   activeFilterCount,
@@ -297,12 +300,12 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
       </div>
 
       {results.length === 0 ? (
-        <EmptyState
+        <FilterEmptyState
           query={query}
           active={activeChips}
           onClearQuery={() => setQuery("")}
           onRemove={(group, value) =>
-            group === "section" ? pickSection(null) : toggle(group, value)
+            group === "section" ? pickSection(null) : toggle(group as GroupKey, value)
           }
           onReset={clearAll}
         />
@@ -339,9 +342,16 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
                   <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
                     {t.blurb}
                   </span>
-                  <span className="mt-1 block text-pretty text-[12.5px] leading-relaxed text-fg-subtle">
-                    <span className="text-fg-muted">Use when</span> {t.useWhen}
-                  </span>
+                  {/* Both halves, not the flattering one. `skipWhen` is the claim
+                      no competitor can make (`strategy/02` §2), and a list that
+                      printed only `useWhen` was a directory like any other. */}
+                  <DecisionValve
+                    variant="inline"
+                    className="mt-1.5"
+                    toolName={t.name}
+                    useWhen={t.useWhen}
+                    skipWhen={t.skipWhen}
+                  />
                   {/* A compact marker, not a second list entry: the explorer
                       answers "where does this live" and the honest answer is
                       "here, and there too". The reason for the second home is on
@@ -395,137 +405,22 @@ function FacetRow({ label, children }: { label: string; children: React.ReactNod
 }
 
 /**
- * The zero-result state. A dead end is the worst outcome of a filter UI, so
- * this names exactly what is narrowing the list and lets each constraint be
- * dropped on its own — usually one chip is the culprit, and resetting all of
- * them throws away the rest of the reader's intent.
+ * The explorer's chip: a `FilterChip` that takes a stack layer rather than a
+ * colour, so the seven call sites above stay one line each. The layer-to-colour
+ * step lives here because this file already imports `lib/layer`; the shared chip
+ * must not, or the dataset ships to every page that uses it.
  */
-function EmptyState({
-  query,
-  active,
-  onClearQuery,
-  onRemove,
-  onReset,
-}: {
-  query: string;
-  active: Array<{ group: GroupKey | "section"; value: string; label: string }>;
-  onClearQuery: () => void;
-  onRemove: (group: GroupKey | "section", value: string) => void;
-  onReset: () => void;
-}) {
-  return (
-    <div className="crop crop-static mx-auto my-10 max-w-md rounded-xl border border-dashed border-border-strong px-6 py-10 text-center [--crop-inset:-6px]">
-      {/* An empty slot in the stack, drawn: three layers with the middle
-          one missing. */}
-      <svg width="56" height="44" viewBox="0 0 56 44" fill="none" aria-hidden="true" className="mx-auto text-fg-subtle">
-        <rect x="4" y="2" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
-        <rect x="4.5" y="17.5" width="47" height="9" rx="2" stroke="currentColor" strokeDasharray="3 3" />
-        <rect x="4" y="32" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
-      </svg>
-      <p className="mt-5 font-serif text-[20px] font-medium tracking-[-0.01em] text-fg">
-        No tool fills that slot.
-      </p>
-      <p className="mx-auto mt-2 max-w-[36ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
-        Every tool here is ruled out by at least one constraint. Drop the one
-        that matters least:
-      </p>
-      <ul className="mt-5 flex flex-wrap justify-center gap-1.5">
-        {query ? (
-          <li>
-            <button
-              type="button"
-              onClick={onClearQuery}
-              className="press group inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-elevated px-2 py-1 text-[12px] text-fg-muted hover:border-border-strong hover:text-fg"
-            >
-              <span className="font-mono text-[10px] text-fg-subtle">text</span>
-              &ldquo;{query}&rdquo;
-              <span aria-hidden="true" className="text-fg-subtle transition-transform group-hover:rotate-90">×</span>
-              <span className="sr-only">(remove)</span>
-            </button>
-          </li>
-        ) : null}
-        {active.map((a) => (
-          <li key={`${a.group}-${a.value}`}>
-            <button
-              type="button"
-              onClick={() => onRemove(a.group, a.value)}
-              className="press group inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-elevated px-2 py-1 text-[12px] text-fg-muted hover:border-border-strong hover:text-fg"
-            >
-              <span className="font-mono text-[10px] text-fg-subtle">{a.group}</span>
-              {a.label}
-              <span aria-hidden="true" className="text-fg-subtle transition-transform group-hover:rotate-90">×</span>
-              <span className="sr-only">(remove)</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      {/* Named "Reset", not "Clear": the toolbar's Clear button stays the one
-          control by that name. */}
-      <button
-        type="button"
-        onClick={onReset}
-        className="btn-paper mt-6 inline-flex h-9 items-center gap-2 rounded-lg px-3.5 text-[13px] font-medium"
-      >
-        Reset every filter
-      </button>
-    </div>
-  );
-}
-
 function FacetChip({
-  active,
-  onClick,
-  label,
-  count,
   layer,
-  facetGroup,
-  facetValue,
+  ...rest
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   count: number;
   layer?: number | null;
-  /**
-   * The facet axis and value this chip selects, as `data-` attributes.
-   *
-   * Not styling hooks. The accessible name is `${label} ${count}` — "Free 77" —
-   * which collides: `free` and `free-tier` both start with "Free", so a
-   * name-based selector matches two chips and fails in strict mode. The browser
-   * tests need to address one facet deterministically, and there is no role or
-   * ARIA attribute that distinguishes them without also changing what a screen
-   * reader announces.
-   */
   facetGroup?: string;
   facetValue?: string;
 }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      {...(facetGroup && facetValue
-        ? { "data-facet": facetGroup, "data-facet-value": facetValue }
-        : {})}
-      className={`press inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] sm:min-h-0 ${
-        active
-          ? "border-transparent bg-bg-elevated text-fg shadow-lift"
-          : "border-transparent text-fg-muted hover:bg-bg-sunken hover:text-fg"
-      }`}
-    >
-      {layer != null ? (
-        <span
-          aria-hidden="true"
-          className="h-2.5 w-[2px] rounded-full"
-          style={layerStyle(layer)}
-        />
-      ) : null}
-      {label}
-      <span
-        className={`font-mono text-[10px] transition-colors ${active ? "text-fg-muted" : "text-fg-subtle"}`}
-      >
-        {count}
-      </span>
-    </button>
-  );
+  return <FilterChip tickColor={layer != null ? layerColor(layer) : undefined} {...rest} />;
 }

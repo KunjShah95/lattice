@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { LayerStrip } from "@/components/ui/layer-strip";
+import { Meter } from "@/components/ui/meter";
+import { RollingNumber } from "@/components/ui/rolling-number";
+import { Segmented, type Option } from "@/components/ui/segmented";
+import { Toggle } from "@/components/ui/toggle";
+import { stackLayers } from "@/lib/data";
+import { describeChange, diffPicks, type PickChange } from "@/lib/stack-diff";
 import {
   WORKLOADS,
   recommendStack,
@@ -27,44 +34,6 @@ import {
  * every stack is a shareable link), and the report copies out as Markdown
  * for an ADR or design doc. No accounts, no storage: the URL is the save.
  */
-
-type Option<V extends string> = { value: V; label: string; hint?: string };
-
-function Segmented<V extends string>({
-  label,
-  options,
-  value,
-  onPick,
-}: {
-  label: string;
-  options: Array<Option<V>>;
-  value: V;
-  onPick: (v: V) => void;
-}) {
-  return (
-    <div>
-      <p className="text-[13px] font-medium">{label}</p>
-      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => onPick(o.value)}
-            aria-pressed={value === o.value}
-            title={o.hint}
-            className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-colors ${
-              value === o.value
-                ? "border-accent bg-bg-sunken text-fg"
-                : "border-border text-fg-muted hover:border-border-strong"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const FILTERING: Array<Option<Filtering>> = [
   { value: "none", label: "No filtering", hint: "Pure similarity search" },
@@ -238,43 +207,111 @@ function readInitialCase(): Case {
   };
 }
 
+/**
+ * Which questions a workload actually asks. One definition, read by the form (to
+ * decide what to render) and by `caseToInput` (to decide what to send the engine),
+ * so a question that is hidden can never still be steering the answer.
+ */
+function asks(workload: Workload) {
+  return {
+    retrieval: workload === "rag" || workload === "search",
+    language: workload === "agent" || workload === "chatbot" || workload === "finetuned",
+    durability: workload === "agent" || workload === "voice" || workload === "finetuned",
+    safety:
+      workload === "agent" || workload === "chatbot" || workload === "llm-api" || workload === "voice",
+    latency: workload !== "finetuned",
+  };
+}
+
+/**
+ * The form's state as engine input.
+ *
+ * Pulled out of the component so the same function can price a *hypothetical*
+ * case: `patch` runs it on the case a click is about to produce, to tell the
+ * reader which pick that click moved. Hidden questions are neutralised here, so a
+ * stale answer to a question the workload no longer asks does not leak through.
+ */
+function caseToInput(c: Case): StackInput {
+  const a = asks(c.workload);
+  return {
+    workload: c.workload,
+    queriesPerMonth: Number(c.queries) || 0,
+    documents: a.retrieval ? Number(c.documents) || 0 : 0,
+    openSource: c.openSource,
+    selfHosted: c.selfHosted,
+    avoidLockIn: c.avoidLockIn,
+    costVsPerf: c.costVsPerf,
+    simplicityVsControl: c.selfHosted ? 2 : 0,
+    filtering: a.retrieval ? c.filtering : "none",
+    freshness: a.retrieval ? c.freshness : "static",
+    latency: a.latency ? c.latency : "flexible",
+    language: a.language ? c.language : "any",
+    durability: a.durability ? c.durability : "stateless",
+    safety: a.safety ? c.safety : "none",
+  };
+}
+
+/** Save a string as a file. Browser-only; called from a click handler, never at render. */
+function downloadText(filename: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function StackBuilder() {
   const [c, setC] = useState<Case>(readInitialCase);
-  const patch = (p: Partial<Case>) => setC((prev) => ({ ...prev, ...p }));
-  const [copied, setCopied] = useState<"link" | "report" | "json" | null>(null);
+  const [copied, setCopied] = useState<"link" | "report" | "json" | "download" | null>(null);
+  /**
+   * What the reader's *last answer* did to the stack, or null before they have made
+   * one (and after a Clear, Reset or preset, which replace the case wholesale and
+   * would otherwise report a diff against something the reader never chose).
+   */
+  const [changes, setChanges] = useState<PickChange[] | null>(null);
 
   const { workload } = c;
-  const retrieval = workload === "rag" || workload === "search";
-  const asksLanguage =
-    workload === "agent" || workload === "chatbot" || workload === "finetuned";
-  const asksDurability =
-    workload === "agent" || workload === "voice" || workload === "finetuned";
-  const asksSafety =
-    workload === "agent" || workload === "chatbot" || workload === "llm-api" || workload === "voice";
-  const asksLatency = workload !== "finetuned";
+  const { retrieval, language: asksLanguage, durability: asksDurability, safety: asksSafety, latency: asksLatency } =
+    asks(workload);
 
-  const input: StackInput = useMemo(
-    () => ({
-      workload: c.workload,
-      queriesPerMonth: Number(c.queries) || 0,
-      documents: retrieval ? Number(c.documents) || 0 : 0,
-      openSource: c.openSource,
-      selfHosted: c.selfHosted,
-      avoidLockIn: c.avoidLockIn,
-      costVsPerf: c.costVsPerf,
-      simplicityVsControl: c.selfHosted ? 2 : 0,
-      filtering: retrieval ? c.filtering : "none",
-      freshness: retrieval ? c.freshness : "static",
-      latency: asksLatency ? c.latency : "flexible",
-      language: asksLanguage ? c.language : "any",
-      durability: asksDurability ? c.durability : "stateless",
-      safety: asksSafety ? c.safety : "none",
-    }),
-    [c, retrieval, asksLatency, asksLanguage, asksDurability, asksSafety],
-  );
+  const input: StackInput = useMemo(() => caseToInput(c), [c]);
 
   const result = useMemo(() => recommendStack(input), [input]);
+
+  /**
+   * Apply an answer, and work out what it moved. The "before" is the result already
+   * on screen; only the "after" is a new engine run, so tracking changes costs one
+   * extra recommendation per click rather than two.
+   */
+  function patch(p: Partial<Case>) {
+    const next = { ...c, ...p };
+    setChanges(diffPicks(result.picks, recommendStack(caseToInput(next)).picks));
+    setC(next);
+  }
   const encoded = useMemo(() => encodeStackInput(input), [input]);
+
+  // Pick up the URL after mount, for in-app navigation.
+  //
+  // `readInitialCase` in the state initialiser covers a direct load or a pasted
+  // link. It does not cover arriving from another page of this site — the
+  // `/stack/<workload>` pages link here with a full case in the query — because the
+  // App Router updates `window.location` *after* the new page first renders. The
+  // initialiser then saw the previous URL, built the blank case, and the effect
+  // below wrote that blank case over the link's query: the reader clicked
+  // "adjust this stack" and landed on `?workload=rag&q=0`. A direct load, which
+  // every earlier test used, never showed it.
+  //
+  // Runs after commit, when the URL is current. It must stay *above* the writer:
+  // effects run in order, and the writer would otherwise erase the query before
+  // this had read it.
+  useEffect(() => {
+    const fromUrl = readInitialCase();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from an external system (the URL) after navigation, which the initialiser cannot see
+    setC((prev) => (JSON.stringify(prev) === JSON.stringify(fromUrl) ? prev : fromUrl));
+  }, []);
 
   // The URL is the save: every answer is reflected, so the stack is a link.
   // replaceState, never pushState — answering questions must not spray history.
@@ -284,6 +321,7 @@ export function StackBuilder() {
 
   function applyCase(next: Case) {
     setC(next);
+    setChanges(null);
     setCopied(null);
   }
 
@@ -291,6 +329,7 @@ export function StackBuilder() {
   // neutral so the visitor starts from nothing, not from demo defaults.
   function clearCase() {
     setC((prev) => ({ ...CLEARED_CASE, workload: prev.workload }));
+    setChanges(null);
     setCopied(null);
   }
 
@@ -478,17 +517,13 @@ export function StackBuilder() {
               { v: c.selfHosted, k: "selfHosted", l: "Self-hostable" },
               { v: c.avoidLockIn, k: "avoidLockIn", l: "Avoid vendor lock-in" },
             ].map((t) => (
-              <button
+              <Toggle
                 key={t.l}
-                type="button"
-                onClick={() => patch({ [t.k]: !t.v } as Partial<Case>)}
-                aria-pressed={t.v}
-                className={`rounded-full border px-4 py-1.5 text-[13px] transition-colors ${
-                  t.v ? "border-accent bg-bg-sunken text-fg" : "border-border text-fg-muted"
-                }`}
+                pressed={t.v}
+                onToggle={() => patch({ [t.k]: !t.v } as Partial<Case>)}
               >
-                {t.v ? "☑ " : "☐ "}{t.l}
-              </button>
+                {t.l}
+              </Toggle>
             ))}
           </div>
         </fieldset>
@@ -545,7 +580,57 @@ export function StackBuilder() {
           >
             {copied === "json" ? "✓ JSON copied" : "Copy JSON"}
           </button>
+          {/* The same Markdown as "Copy decision report", as a file: an ADR is a
+              document that gets committed, and a clipboard is a poor place to
+              keep one. Named for the workload so two downloads do not collide. */}
+          <button
+            type="button"
+            onClick={() => {
+              downloadText(`stack-${workload}.md`, stackReportMarkdown(result, reportSource()));
+              setCopied("download");
+              window.setTimeout(() => setCopied(null), 2000);
+            }}
+            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+          >
+            {copied === "download" ? "✓ Downloaded" : "Download .md"}
+          </button>
         </div>
+
+        {/* The shape of the stack before any of the picks: which layers it
+            occupies. A dashed layer is one this workload does not call for. */}
+        <div className="mt-5">
+          <LayerStrip
+            cells={stackLayers.map((s) => ({
+              slug: s.slug,
+              index: s.index,
+              short: s.short,
+              layer: s.layer as number,
+              pick: result.picks.find((p) => p.sectionSlug === s.slug)?.tool ?? null,
+            }))}
+          />
+        </div>
+
+        {/* The edge the live recompute hides: this answer, that pick. Shown only
+            after the reader has answered something, and replaced rather than
+            accumulated, so it always describes the last click. */}
+        {changes ? (
+          <div className="mt-5 border-l-2 border-accent pl-3.5">
+            <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
+              Your last answer changed
+            </p>
+            {changes.length ? (
+              <ul className="mt-1.5 space-y-0.5 text-[13.5px] text-fg">
+                {changes.map((ch) => (
+                  <li key={ch.sectionSlug}>{describeChange(ch)}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1.5 text-[13.5px] text-fg-muted">
+                No pick changed. The same stack still fits.
+              </p>
+            )}
+          </div>
+        ) : null}
 
         <ol className="mt-5 space-y-px overflow-hidden rounded-lg border border-border">
           {result.picks.map((p) => (
@@ -592,7 +677,8 @@ export function StackBuilder() {
           <div>
             <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Estimated cost</p>
             <p className="mt-1 font-serif text-[22px]">
-              ${result.costLow}–${result.costHigh}<span className="text-[13px] text-fg-muted">/mo</span>
+              $<RollingNumber value={result.costLow} />–$<RollingNumber value={result.costHigh} />
+              <span className="text-[13px] text-fg-muted">/mo</span>
             </p>
             <p className="mt-1 text-[11.5px] text-fg-subtle">
               {result.costDrivers.length
@@ -603,7 +689,10 @@ export function StackBuilder() {
           </div>
           <div>
             <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Confidence</p>
-            <p className="mt-1 font-serif text-[22px]">{Math.round(result.confidence * 100)}%</p>
+            <p className="mt-1 flex items-center gap-3 font-serif text-[22px]">
+              <span>{Math.round(result.confidence * 100)}%</span>
+              <Meter value={result.confidence} />
+            </p>
             <p className="mt-1 text-[11.5px] text-fg-subtle">Lower when constraints narrow the field.</p>
           </div>
           <div>

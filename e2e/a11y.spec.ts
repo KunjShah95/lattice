@@ -38,6 +38,11 @@ const ROUTES = [
   { path: "/fix/llm-app-too-slow", why: "a symptom checklist, with HowTo" },
   { path: "/compare", why: "comparison index" },
   { path: "/compare/vector-databases", why: "a comparison table" },
+  { path: "/compare/build", why: "the empty compare builder: picker and examples" },
+  {
+    path: "/compare/build?tools=routing-gateways/litellm,evaluation-observability/langfuse",
+    why: "the compare builder with a cross-layer table",
+  },
   { path: "/blog", why: "essay index" },
   { path: "/blog/evals-are-the-asset", why: "MDX prose with figures" },
   { path: "/glossary", why: "glossary index" },
@@ -47,6 +52,7 @@ const ROUTES = [
   { path: "/inference-serving/vllm/alternatives", why: "an alternatives page" },
   { path: "/stack-builder", why: "the interactive configurator" },
   { path: "/methodology", why: "prose-heavy page" },
+  { path: "/verification", why: "the freshness ledger: meters, grouped chip lists" },
   { path: "/submit", why: "the form" },
 ];
 

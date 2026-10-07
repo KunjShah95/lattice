@@ -182,7 +182,7 @@ export default function SubmitPage() {
         <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
           The form
         </h2>
-        <p className="mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           Copy this into the issue body. The field names and the fence markers
           have to survive editing — the bot reads them, and a renamed field
           arrives empty.
@@ -214,7 +214,7 @@ export default function SubmitPage() {
         <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
           The nine layers
         </h2>
-        <p className="mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           Pick the one you think it belongs in. Guessing is fine and expected —
           the reviewer will disagree, and that disagreement is the useful part.
         </p>
@@ -245,7 +245,7 @@ export default function SubmitPage() {
           {questions.map((item) => (
             <div key={item.q}>
               <dt className="text-[15px] font-medium">{item.q}</dt>
-              <dd className="mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
                 {item.a}
               </dd>
             </div>
@@ -253,7 +253,7 @@ export default function SubmitPage() {
         </dl>
       </section>
 
-      <p className="mt-12 max-w-[62ch] border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 max-w-[62ch] border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
         Corrections to entries that are already here are treated as more urgent
         than new submissions — a wrong licence or a wrong deployment model can
         change an architecture decision. The same issue link works; say which

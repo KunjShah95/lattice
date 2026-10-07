@@ -121,7 +121,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Short answer
           </p>
-          <p className="mt-1.5 text-pretty text-[16px] leading-relaxed text-fg">{s.answer}</p>
+          <p className="editorial-justify mt-1.5 text-pretty text-[16px] leading-relaxed text-fg">{s.answer}</p>
         </div>
 
         <p className="mt-5 font-mono text-[11px] text-fg-subtle">
@@ -152,7 +152,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
                     {c.section.title}
                   </Link>
                 </p>
-                <p className="mt-2 max-w-[62ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">{c.why}</p>
+                <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">{c.why}</p>
 
                 {c.tools.length ? (
                   <ul className="mt-4 space-y-3">
@@ -199,7 +199,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           {questions.slice(1).map((qa) => (
             <div key={qa.question}>
               <dt className="text-[15px] font-medium">{qa.question}</dt>
-              <dd className="mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">{qa.answer}</dd>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">{qa.answer}</dd>
             </div>
           ))}
         </dl>

@@ -166,7 +166,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           When it fails, it fails like{" "}
           <em className="text-fg-subtle not-italic">“{meta.sounds}”</em>
         </h1>
-        <p className="mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Band {meta.roman} is layers{" "}
           {meta.layers.map((l, i) => (
             <span key={l}>
@@ -213,7 +213,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
           Who ends up owning it
         </h2>
-        <p className="mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           A band is a property of the stack; a role is a property of a person.
           They correlate but are not the same question — which is why the count is
           derived rather than asserted.
@@ -258,7 +258,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
                 {category.tools.length} tools
               </span>
             </div>
-            <p className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+            <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
               {category.responsibility}. {category.description}
             </p>
             <ul className="mt-4 space-y-px">
@@ -297,7 +297,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Indexed elsewhere, but serving this band
           </h2>
-          <p className="mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
             The problem is in band {meta.roman} and the tool you need is filed
             under a different layer. These are the crossings, each with the
             reason it belongs here too — a bare cross-reference reads as a
@@ -326,7 +326,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </section>
       ) : null}
 
-      <p className="mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
         Bands are a shortcut, not a taxonomy —{" "}
         <span className="text-fg-muted">
           band {meta.roman} covers {meta.layers.length} of nine layers

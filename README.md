@@ -22,9 +22,10 @@ There are **seven ways in**, because people arrive from different directions:
 | `/stack-builder` | The problem itself — describe the workload, get a recommended stack |
 
 Routes: `/` · `/all` · `/roles` · `/roles/<role>` · `/bands` · `/bands/<band>` ·
-`/stack-builder` · `/stack/<workload>` · `/corrections` · `/<section>` ·
-`/<section>/<tool>` · `/<section>/<tool>/alternatives` · `/compare` ·
-`/compare/<slug>` · `/fix` · `/fix/<slug>` · `/glossary` · `/glossary/<term>` ·
+`/stack-builder` · `/stack/<workload>` · `/corrections` · `/verification` · `/<section>` ·
+`/<section>/<tool>` · `/<section>/<tool>/alternatives` · `/<section>/<tool>/badge.svg` ·
+`/compare` · `/compare/build` · `/compare/<slug>` · `/fix` · `/fix/<slug>` ·
+`/glossary` · `/glossary/<term>` ·
 `/blog` · `/blog/<post>` · `/methodology` · `/submit` · `/feed.xml` ·
 `/llms.txt` · `/llms-full.txt` · `/tools.json` · `/verification.json` ·
 `/search-index.json` · `/sitemap.xml` · `/mcp` · `/mcp.json` · `/api/search`
@@ -328,6 +329,15 @@ src/
     site-footer.tsx
     theme-toggle.tsx        Also exports the pre-paint theme script
     logo.tsx                The mark (L on a 3x3 lattice) + wordmark
+    compare-builder.tsx      Cross-layer comparison: picker, table, relation sentence
+    reading-rail.tsx        Essay contents rail + progress line (client)
+    essay-contents.tsx      The same contents as a <details> below xl (server)
+    ui/                     Shared primitives. Add here before copying markup a third time:
+                            Eyebrow (mono section label), LinkRow (layer-bar list row),
+                            ToolChip / PreviewToolChip, DecisionValve (use/skip pair,
+                            panel or inline), FreshnessMeter / FreshnessStamp,
+                            Segmented, Toggle, Meter, FilterChip, FilterEmptyState,
+                            LayerStrip, RollingNumber, CoverageBars
   content/blog/*.mdx        11 essay bodies + frontmatter
   lib/
     data.ts                 Link-bearing dataset: sections, tools, URLs, blurbs
@@ -337,7 +347,22 @@ src/
     search.ts               Ranking: buildIndex + searchTools, shared by all kinds
     facets.ts               Facet filtering, as pure functions (see Search)
     layer.ts                Stack-depth → colour mapping
+    layer-color.ts          …as a var() reference, so a client component need not
+                            import the dataset to ask for a colour
     roles.ts                The specialisation axis: vocabulary, copy, helpers
+    stacks.ts / stack-url.ts  Stack Builder engine, and its shareable URL codec
+    stack-diff.ts           Which pick an answer moved, matched by section
+    compare-table.ts        Comparison rows, differing-fact count, Markdown export
+    compare-url.ts          `?tools=a/b,c/d` codec, cap of three, plus the examples
+    headings.ts             Essay headings for the contents list, from the same
+                            slugger the rehype plugin stamps ids with
+    rehype-heading-ids.mjs   Compile-time h2/h3 ids, so `#section` links work with
+                            JavaScript off
+    reading-position.ts     Active section + progress, as arithmetic
+    rolling.ts              Rolling-number columns (keys aligned to the ones place)
+    coverage.ts / freshness.ts  Entry counts per layer; the staleness window
+    popup-position.ts       Placement maths for the tool hover card
+    badge.ts                The self-contained verified SVG, and its Markdown form
     dataset.ts              The whole index as one JSON document for agents
     og.tsx                  Open Graph card (Satori-safe subset of CSS)
     jsonld.ts               Structured data helpers

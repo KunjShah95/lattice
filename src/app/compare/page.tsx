@@ -57,11 +57,22 @@ export default function CompareIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           When the list is not the answer.
         </h1>
-        <p className="mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           A directory can tell you what exists. It cannot tell you which of two
           things to pick. These comparisons cover tools that are genuine
           substitutes for one another, and end with a recommendation rather
           than a feature grid.
+        </p>
+        {/* The written pages cover the pairs somebody wrote; this covers the rest. */}
+        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          Not seeing your pair?{" "}
+          <Link
+            href="/compare/build"
+            className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+          >
+            Build your own comparison
+          </Link>{" "}
+          from any three tools, in any layers.
         </p>
       </header>
 
@@ -95,7 +106,7 @@ function ComparisonGroup({
       <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
         {title} · {items.length}
       </h2>
-      <p className="mt-2 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+      <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
         {dek}
       </p>
       <ol className="mt-6 space-y-px">
@@ -116,7 +127,7 @@ function ComparisonGroup({
                 <h3 className="text-balance font-serif text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
                   {c.title}
                 </h3>
-                <p className="mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">
+                <p className="editorial-justify mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">
                   {c.description}
                 </p>
                 <span className="mt-2 font-mono text-[11px] text-fg-subtle">

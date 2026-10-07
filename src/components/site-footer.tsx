@@ -83,6 +83,9 @@ export function SiteFooter() {
                 evidence for the claim methodology makes rather than a way to
                 challenge it. */}
             <FooterLink href="/corrections">Corrections</FooterLink>
+            {/* Beside corrections, which is the history; this is the guard that
+                the history sits behind. */}
+            <FooterLink href="/verification">Freshness ledger</FooterLink>
             {/* Beside methodology rather than under "Corrections" because it is
                 how you challenge a selection, not how you report a broken
                 link — and methodology is what defines the bar it is judged

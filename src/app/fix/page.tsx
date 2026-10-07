@@ -55,7 +55,7 @@ export default function FixIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Start from what is wrong.
         </h1>
-        <p className="mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Nobody opens a directory because they want a vector database. They
           open it because answers are wrong, or slow, or the bill doubled. Pick
           the symptom; each one is an ordered checklist through the stack,

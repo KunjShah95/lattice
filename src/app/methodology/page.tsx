@@ -7,6 +7,8 @@ import { allTools, categories, stackLayers, toolCount } from "@/lib/data";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { posts } from "@/lib/posts";
 import { glossary } from "@/lib/glossary";
+import { CoverageBars } from "@/components/ui/coverage-bars";
+import { extremeLayers, joinNames, layerCoverage } from "@/lib/coverage";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
@@ -49,6 +51,15 @@ const unconfirmedLicences = allTools.filter(
 ).length;
 
 const selfHosted = allTools.filter((t) => t.deployment === "self-hosted").length;
+
+/**
+ * Coverage, derived. The limitation below used to name its thinnest layers by
+ * hand and was wrong by its own dataset — Prompts, at 9, is thinner than Workflows
+ * at 10 — so the sentence and the chart now both read from `lib/coverage`.
+ */
+const coverage = layerCoverage();
+const fullest = extremeLayers(coverage, "fullest");
+const thinnest = extremeLayers(coverage, "thinnest");
 
 export default function MethodologyPage() {
   const pageUrl = `${site.url}/methodology`;
@@ -106,13 +117,13 @@ export default function MethodologyPage() {
 
       {/* ------------------------------------------------------------ 1 */}
       <Section n="01" title="What gets included">
-        <p>
+        <p className="editorial-justify">
           An entry qualifies if it is infrastructure — something a production AI
           system runs on — rather than a product a person uses. That single rule
           is what separates this list from the directories that index
           applications, and it excludes most of what is called an AI tool.
         </p>
-        <p>
+        <p className="editorial-justify">
           Reading material, courses and archives sit outside the stack
           deliberately. They are listed in{" "}
           <Link href="/learning-reference" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
@@ -121,7 +132,7 @@ export default function MethodologyPage() {
           , drawn detached from the stack frame, because a paper about attention is
           not a layer of your system.
         </p>
-        <p>
+        <p className="editorial-justify">
           Tools are <strong>hand-picked, not submitted</strong>. There is no
           submission form that results in an entry. This is a real constraint on
           coverage, and it is the source of most of what follows in{" "}
@@ -131,13 +142,13 @@ export default function MethodologyPage() {
 
       {/* ------------------------------------------------------------ 2 */}
       <Section n="02" title="Why the order is the point">
-        <p>
+        <p className="editorial-justify">
           Sections are ordered as a dependency chain, layer 1 being the substrate
           everything else runs on. You cannot tune weights before you serve them.
           You cannot evaluate what you cannot observe. The order is the argument;
           the categories are a consequence of it.
         </p>
-        <p>
+        <p className="editorial-justify">
           Most directories in this space have the right categories and no order —
           which means they cannot answer the question a reader actually has,
           which is <em>where does this sit relative to what I already run</em>.
@@ -147,12 +158,12 @@ export default function MethodologyPage() {
           </Link>{" "}
           is for.
         </p>
-        <p>
+        <p className="editorial-justify">
           The nine layers also collapse into three bands. This is a convenience
           for the palette, but it is a claim too: most production problems live
           in exactly one band.
         </p>
-        <p>
+        <p className="editorial-justify">
           A second axis cuts across all of it: <Link
             href="/roles"
             className="underline decoration-border-strong underline-offset-4 hover:decoration-accent"
@@ -196,12 +207,12 @@ export default function MethodologyPage() {
 
       {/* ------------------------------------------------------------ 3 */}
       <Section n="03" title="The use-when / skip-when pair">
-        <p>
+        <p className="editorial-justify">
           Every tool carries two sentences, and the second is the one that
           matters. Not a rating, not a star count, not a score out of ten — a
           statement of the condition under which you should pick something else.
         </p>
-        <p>
+        <p className="editorial-justify">
           This is deliberate asymmetry. A directory that only tells you when to
           use something has no reason to tell you the truth about anything else.
           The <em>skip when</em> line is what makes the <em>use when</em> line
@@ -216,7 +227,7 @@ export default function MethodologyPage() {
 
       {/* ------------------------------------------------------------ 4 */}
       <Section n="04" title="The build fails when data goes stale">
-        <p>
+        <p className="editorial-justify">
           Licence, cost and deployment facts rot, and a confident stale figure is
           worse than an absent one — it changes architecture. So this index is
           gated: if any entry&rsquo;s facts were last confirmed more than six months
@@ -224,20 +235,20 @@ export default function MethodologyPage() {
           <strong className="text-fg">throws</strong> and the site does not
           deploy.
         </p>
-        <p>
+        <p className="editorial-justify">
           That is a different class of claim from &ldquo;updated daily&rdquo;, because it is
           enforced rather than asserted, and it produces a receipt — the build
           log. The date on each tool page is the date of a check that
           demonstrably happened.
         </p>
-        <p>
+        <p className="editorial-justify">
           Every one of the {toolCount} entries was last confirmed in{" "}
           <strong className="text-fg">{AS_OF}</strong>.{" "}
           {selfHosted} of them are self-hostable. {unconfirmedLicences === 0
             ? "Every licence is confirmed rather than guessed."
             : `${unconfirmedLicences} licence values could not be confirmed and are recorded as unknown, because a guessed licence is worse than an absent one.`}
         </p>
-        <p>
+        <p className="editorial-justify">
           The receipt is public. Every build writes{" "}
           <a
             href="/verification.json"
@@ -311,10 +322,16 @@ export default function MethodologyPage() {
           </Limitation>
 
           <Limitation title="Coverage is uneven by construction.">
-            Layers with more public writing about them get better entries. The
-            retrieval and agent layers are the best covered; workflow
-            orchestration and guardrails are the thinnest, and are the two places
-            where a vendor&rsquo;s marketing most outruns an independent reading.
+            Layers with more public writing about them get better entries, and an
+            entry count is the crude, mechanical proxy for that. By count,{" "}
+            {joinNames(fullest.map((r) => r.short))}{" "}
+            {fullest.length > 1 ? "are" : "is"} the fullest layer
+            {fullest.length > 1 ? "s" : ""} and{" "}
+            {joinNames(thinnest.map((r) => r.short))}{" "}
+            {thinnest.length > 1 ? "are" : "is"} the thinnest. The thin layers
+            are where a vendor&rsquo;s marketing is most likely to outrun an
+            independent reading; the counts are charted below so this can be
+            checked rather than taken on trust.
           </Limitation>
 
           <Limitation title="Freshness is not the same as accuracy.">
@@ -330,17 +347,31 @@ export default function MethodologyPage() {
             is because the constraints were specific enough to justify it.
           </Limitation>
         </ul>
+
+        {/* The evidence for the coverage limitation. In stack order, not sorted:
+            the order of the layers is the argument and a chart that re-ranked
+            them would be the one place this index ranks something. */}
+        <figure className="mt-8">
+          <figcaption className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            Entries per layer, in stack order
+          </figcaption>
+          <CoverageBars rows={coverage} className="mt-4" />
+          <p className="mt-3 text-[12.5px] leading-relaxed text-fg-subtle">
+            A count of entries, not a measure of quality. Off-stack reading
+            material is excluded.
+          </p>
+        </figure>
       </Section>
 
       {/* ------------------------------------------------------------ 6 */}
       <Section n="06" title="Corrections">
-        <p>
+        <p className="editorial-justify">
           Two kinds of correction are treated as urgent. A wrong licence or a
           wrong deployment model, because either can change an architecture
           decision. A missing tool that has become load-bearing, because the
           index&rsquo;s value is proportional to its coverage of what matters.
         </p>
-        <p>
+        <p className="editorial-justify">
           Slower to change, honestly: the use-when and skip-when lines, because
           those are judgements and re-litigating them on request would make them
           worse. If one is wrong, the argument for why is usually in{" "}
@@ -416,7 +447,7 @@ function Limitation({
   return (
     <li className="border-l-2 border-border-strong pl-4">
       <strong className="block text-[14.5px] font-medium text-fg">{title}</strong>
-      <p className="mt-1 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+      <p className="editorial-justify mt-1 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
         {children}
       </p>
     </li>

@@ -63,7 +63,7 @@ export default function BlogIndexPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           Notes on building AI systems that hold up.
         </h1>
-        <p className="mt-4 max-w-[54ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[54ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           The index tells you what exists. These essays cover the decisions
           behind it — what to reach for first, what looks like an optimisation
           and is actually a rewrite, and where the failure modes live.

@@ -790,6 +790,18 @@
     color: var(--fg-muted);
   }
 
+  /* The article column is wide enough for editorial justification on larger
+     screens. On phones it creates distracting gaps, so keep the natural rag.
+     Direct children only: diagram captions and other embedded UI stay aligned. */
+  @media (min-width: 768px) {
+    .prose-lattice > p,
+    .prose-lattice > blockquote,
+    .editorial-justify {
+      text-align: justify;
+      hyphens: auto;
+    }
+  }
+
   .prose-lattice > * + * {
     margin-top: 1.15em;
   }

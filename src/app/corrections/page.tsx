@@ -111,7 +111,7 @@ export default function CorrectionsPage() {
         <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
           What this index has got wrong.
         </h1>
-        <p className="mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Every change to the {toolCount} entries, in order, generated from the
           commit log rather than kept by hand. An index that says it wants to be
           corrected and then shows no corrections has told you nothing.
@@ -181,7 +181,7 @@ export default function CorrectionsPage() {
           How to read this
         </h2>
         <ul className="mt-4 space-y-3 text-pretty text-[14px] leading-relaxed text-fg-muted">
-          <li>
+          <li className="editorial-justify">
             <span className="text-fg">This is a record, not a score.</span> A
             short log means little has needed fixing, or that this page was added
             late — it is not evidence that the index is right.{" "}
@@ -193,13 +193,13 @@ export default function CorrectionsPage() {
             </Link>{" "}
             says where the index is wrong in ways a commit cannot show.
           </li>
-          <li>
+          <li className="editorial-justify">
             <span className="text-fg">Commit subjects are verbatim.</span>{" "}
             Nothing here is reworded for the reader, because a paraphrased log is a
             second claim about what happened and this page&rsquo;s only value is
             that it is not one.
           </li>
-          <li>
+          <li className="editorial-justify">
             <span className="text-fg">The enforcement is elsewhere.</span>{" "}
             Licence and cost data older than six months fails the build, so a
             deployed copy of{" "}
@@ -209,7 +209,7 @@ export default function CorrectionsPage() {
             is a receipt for a check that actually ran. A changelog can be edited;
             a build that throws cannot.
           </li>
-          <li>
+          <li className="editorial-justify">
             <span className="text-fg">Found something wrong?</span>{" "}
             <Link
               href="/submit"

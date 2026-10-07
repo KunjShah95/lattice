@@ -42,7 +42,7 @@ export function InfoPageHeader({
         >
           {title}
         </h1>
-        <p className="mt-4 max-w-[60ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
           {lede}
         </p>
       </header>
