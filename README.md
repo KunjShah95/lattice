@@ -933,3 +933,11 @@ Strategy and positioning live outside this repo, one directory up:
 | `../strategy/03-launch-and-citation-plan.md` | Blockers first, then the launch sequence, the role axis as a distribution surface, and a 20-query monthly citation log |
 | `../strategy/moodboard.html` | The visual direction, built in the direction it describes. Open in a browser |
 | `../gtm/` | The executable off-site half: checklist status, citation-tracker template, and promo angle scaffolds for newsletter / HN / Reddit |
+
+---
+
+## Case study
+
+The full write-up of Lattice (problem, architecture, trade-offs and results) lives at **[kunjshah.in/projects/lattice](https://kunjshah.in/projects/lattice)**.
+
+Built by [Kunj Shah](https://kunjshah.in), AI engineer.
