@@ -123,7 +123,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // in the bundle.
 const BUDGETS = {
   "/": 162_536,
-  "/stack-builder": 169_536,
+  "/stack-builder": 170_560, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
   "/all": 164_036,
   "/glossary": 161_536,
   "/methodology": 159_536,

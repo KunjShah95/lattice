@@ -218,12 +218,19 @@ test.describe("@e2e /all explorer", () => {
 });
 
 test.describe("@e2e Stack Builder", () => {
-  test("recomputes as you answer, and the URL reproduces it", async ({ page }) => {
+  test("builds on submit, and the URL reproduces it", async ({ page }) => {
     // The URL is the save: there is no account and no storage, so the link is
     // the only way a recommendation survives being sent to someone else.
     await page.goto("/stack-builder");
     await page.getByRole("button", { name: /RAG application/i }).click();
+    // Answering edits a draft. Nothing is built, and nothing is written to the
+    // URL, until the reader submits.
+    await expect(page.getByText("Your stack is drawn here.")).toBeVisible();
+    await expect(page).not.toHaveURL(/workload=/);
+
+    await page.getByRole("button", { name: "Build my stack" }).click();
     await expect(page).toHaveURL(/workload=rag/);
+    await expect(page.getByRole("heading", { name: /Your stack — built/i })).toBeFocused();
 
     // The report is a Markdown export for an ADR, and the clipboard write is the
     // only thing that proves the button is wired to the renderer rather than
@@ -276,13 +283,26 @@ test.describe("@e2e Stack Builder", () => {
   test("says nothing about changes until the reader has answered something", async ({ page }) => {
     // A diff against a case the reader never chose would be a made-up claim.
     await page.goto("/stack-builder?workload=rag&q=500000&docs=10000000");
-    await expect(page.getByText("Your last answer changed")).toHaveCount(0);
+    await expect(page.getByText("Your last build changed")).toHaveCount(0);
+  });
+
+  test("holds an edit as pending until the reader rebuilds", async ({ page }) => {
+    await page.goto("/stack-builder?workload=rag&q=500000&docs=10000000");
+    // A shared link arrives built, so there is nothing to submit yet.
+    await expect(page.getByRole("button", { name: "Update my stack" })).toBeDisabled();
+    await page.getByRole("button", { name: "Open source", exact: false }).first().click();
+    await expect(page.getByText(/1 answer has changed since your last build/)).toBeVisible();
+    // The URL still describes the built stack, not the draft.
+    await expect(page).not.toHaveURL(/oss=1/);
+    await page.getByRole("button", { name: "Update my stack" }).click();
+    await expect(page.getByText("The stack below matches these answers.")).toBeVisible();
   });
 
   test("names the pick a constraint moved, and clears when the case is replaced", async ({ page }) => {
     await page.goto("/stack-builder?workload=rag&q=500000&docs=10000000&filtering=heavy");
     await page.getByRole("button", { name: "Open source", exact: false }).first().click();
-    const note = page.getByText("Your last answer changed");
+    await page.getByRole("button", { name: "Update my stack" }).click();
+    const note = page.getByText("Your last build changed");
     await expect(note).toBeVisible();
     // Either something moved (and is named with an arrow) or the note says so
     // plainly. Both are honest; an empty note is the failure.
@@ -290,7 +310,7 @@ test.describe("@e2e Stack Builder", () => {
     await expect(block).toContainText(/→|now |no longer fits|No pick changed/);
 
     await page.getByRole("button", { name: "Clear", exact: true }).first().click();
-    await expect(page.getByText("Your last answer changed")).toHaveCount(0);
+    await expect(page.getByText("Your last build changed")).toHaveCount(0);
   });
 
   test("shows which layers the stack fills, with the pick behind each", async ({ page }) => {

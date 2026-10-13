@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LayerStrip } from "@/components/ui/layer-strip";
 import { Meter } from "@/components/ui/meter";
 import { RollingNumber } from "@/components/ui/rolling-number";
@@ -29,10 +29,12 @@ import {
 } from "@/lib/stack-url";
 
 /**
- * Stack Builder — a live configurator, not a form. The recommendation
- * recomputes as you answer, the URL always describes the current case (so
- * every stack is a shareable link), and the report copies out as Markdown
- * for an ADR or design doc. No accounts, no storage: the URL is the save.
+ * Stack Builder — answer the questions, then build. Answers edit a draft; the
+ * recommendation is computed when the reader submits ("Build my stack"), so a
+ * half-answered case never flickers a stack the reader did not ask for. The URL
+ * describes the last *built* case (so every stack is a shareable link), and the
+ * report copies out as Markdown for an ADR or design doc. No accounts, no
+ * storage: the URL is the save.
  */
 
 const FILTERING: Array<Option<Filtering>> = [
@@ -187,9 +189,14 @@ const PRESETS: Array<{ label: string; detail: string; state: Case }> = [
  * the Reset button and the preset bases below.
  */
 function readInitialCase(): Case {
-  if (typeof window === "undefined") return CLEARED_CASE;
+  return readUrlCase() ?? CLEARED_CASE;
+}
+
+/** The case a shared link carries, or null when the URL carries none. */
+function readUrlCase(): Case | null {
+  if (typeof window === "undefined") return null;
   const decoded = decodeStackInput(window.location.search);
-  if (!decoded) return CLEARED_CASE;
+  if (!decoded) return null;
   return {
     workload: decoded.workload,
     queries: String(decoded.queriesPerMonth),
@@ -263,35 +270,63 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+/** Engine inputs that differ between two cases — what a rebuild would change. */
+function changedAnswers(a: Case, b: Case): number {
+  const x = caseToInput(a);
+  const y = caseToInput(b);
+  return (Object.keys(x) as Array<keyof StackInput>).filter((k) => x[k] !== y[k]).length;
+}
+
 export function StackBuilder() {
+  /** The draft: what the form shows. Editing it computes nothing. */
   const [c, setC] = useState<Case>(readInitialCase);
+  /**
+   * The last case the reader submitted, or null before the first build. A
+   * shared link counts as submitted — whoever sent it already pressed Build —
+   * so it opens on the stack rather than on an empty results panel.
+   */
+  const [built, setBuilt] = useState<Case | null>(readUrlCase);
   const [copied, setCopied] = useState<"link" | "report" | "json" | "download" | null>(null);
   /**
-   * What the reader's *last answer* did to the stack, or null before they have made
-   * one (and after a Clear, Reset or preset, which replace the case wholesale and
-   * would otherwise report a diff against something the reader never chose).
+   * What the reader's *last build* did to the stack, or null before they have
+   * rebuilt once (and after a Clear, Reset or preset, which replace the draft
+   * wholesale and would otherwise report a diff against something the reader
+   * never chose).
    */
   const [changes, setChanges] = useState<PickChange[] | null>(null);
+  const resultsRef = useRef<HTMLHeadingElement>(null);
 
   const { workload } = c;
   const { retrieval, language: asksLanguage, durability: asksDurability, safety: asksSafety, latency: asksLatency } =
     asks(workload);
 
-  const input: StackInput = useMemo(() => caseToInput(c), [c]);
+  const result = useMemo(() => (built ? recommendStack(caseToInput(built)) : null), [built]);
+  const pending = built ? changedAnswers(c, built) : null;
+  const dirty = built === null || pending! > 0;
 
-  const result = useMemo(() => recommendStack(input), [input]);
+  /** Answers only edit the draft. Nothing is recomputed until the reader builds. */
+  function patch(p: Partial<Case>) {
+    setC((prev) => ({ ...prev, ...p }));
+  }
 
   /**
-   * Apply an answer, and work out what it moved. The "before" is the result already
-   * on screen; only the "after" is a new engine run, so tracking changes costs one
-   * extra recommendation per click rather than two.
+   * Submit the draft. The diff is taken against the stack already on screen, so
+   * the note names exactly what this build moved; the first build has nothing
+   * to diff against and says nothing. Focus moves to the results heading so a
+   * keyboard or screen-reader user lands on what they asked for.
    */
-  function patch(p: Partial<Case>) {
-    const next = { ...c, ...p };
-    setChanges(diffPicks(result.picks, recommendStack(caseToInput(next)).picks));
-    setC(next);
+  function build() {
+    const next = recommendStack(caseToInput(c));
+    setChanges(result ? diffPicks(result.picks, next.picks) : null);
+    setBuilt(c);
+    setCopied(null);
+    requestAnimationFrame(() => {
+      resultsRef.current?.focus({ preventScroll: true });
+      resultsRef.current?.scrollIntoView({ block: "start" });
+    });
   }
-  const encoded = useMemo(() => encodeStackInput(input), [input]);
+
+  const encoded = useMemo(() => (built ? encodeStackInput(caseToInput(built)) : null), [built]);
 
   // Pick up the URL after mount, for in-app navigation.
   //
@@ -299,23 +334,25 @@ export function StackBuilder() {
   // link. It does not cover arriving from another page of this site — the
   // `/stack/<workload>` pages link here with a full case in the query — because the
   // App Router updates `window.location` *after* the new page first renders. The
-  // initialiser then saw the previous URL, built the blank case, and the effect
-  // below wrote that blank case over the link's query: the reader clicked
-  // "adjust this stack" and landed on `?workload=rag&q=0`. A direct load, which
-  // every earlier test used, never showed it.
+  // initialiser then saw the previous URL and built the blank case.
   //
   // Runs after commit, when the URL is current. It must stay *above* the writer:
   // effects run in order, and the writer would otherwise erase the query before
   // this had read it.
   useEffect(() => {
-    const fromUrl = readInitialCase();
+    const fromUrl = readUrlCase();
+    if (!fromUrl) return;
+    const same = (prev: Case | null) => JSON.stringify(prev) === JSON.stringify(fromUrl);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from an external system (the URL) after navigation, which the initialiser cannot see
-    setC((prev) => (JSON.stringify(prev) === JSON.stringify(fromUrl) ? prev : fromUrl));
+    setC((prev) => (same(prev) ? prev : fromUrl));
+    setBuilt((prev) => (same(prev) ? prev : fromUrl));
   }, []);
 
-  // The URL is the save: every answer is reflected, so the stack is a link.
-  // replaceState, never pushState — answering questions must not spray history.
+  // The URL is the save: each build is reflected, so the stack is a link.
+  // replaceState, never pushState — rebuilding must not spray history. Before
+  // the first build there is no stack, so the URL stays bare.
   useEffect(() => {
+    if (!encoded) return;
     window.history.replaceState(null, "", `${window.location.pathname}?${encoded}`);
   }, [encoded]);
 
@@ -352,7 +389,7 @@ export function StackBuilder() {
     c.costVsPerf === 0;
 
   // Read at click time, not render: `window` does not exist on the server.
-  const caseUrl = () => `${window.location.origin}${window.location.pathname}?${encoded}`;
+  const caseUrl = () => `${window.location.origin}${window.location.pathname}?${encoded ?? ""}`;
   const reportSource = () => ({ origin: window.location.origin, caseUrl: caseUrl() });
 
   async function copyText(text: string, which: "link" | "report" | "json") {
@@ -412,6 +449,18 @@ export function StackBuilder() {
         </div>
       </div>
 
+      {/*
+        A real <form>: Enter in a number field submits, and the submit bar below
+        is its default button. Every other control inside is `type="button"`, so
+        picking an answer never submits by accident.
+      */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          build();
+        }}
+        aria-label="Describe your workload"
+      >
       <div className="grid gap-7 rounded-lg border border-border bg-bg-elevated p-5 sm:p-6">
         <fieldset>
           <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
@@ -553,10 +602,69 @@ export function StackBuilder() {
         </fieldset>
       </div>
 
+        {/*
+          The submit bar. Sticky to the bottom of the viewport while the form is
+          on screen, so on a phone the button is reachable from any question
+          without scrolling past the rest of them. Scoped to the form's own box,
+          so it stops following once the results are in view.
+        */}
+        <div className="sticky bottom-0 z-20 -mx-1 mt-4 px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-bg-elevated px-4 py-3 shadow-float">
+            <p className="min-w-0 text-[12.5px] leading-snug text-fg-muted" aria-live="polite">
+              {built === null ? (
+                <>Answer what applies — nothing is required but the workload.</>
+              ) : pending ? (
+                <>
+                  <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-accent" aria-hidden="true" />
+                  {pending} {pending === 1 ? "answer has" : "answers have"} changed since your last build.
+                </>
+              ) : (
+                <>
+                  <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-band-state" aria-hidden="true" />
+                  The stack below matches these answers.
+                </>
+              )}
+            </p>
+            <button
+              type="submit"
+              disabled={!dirty}
+              className="btn-ink group inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-[14px] font-medium disabled:pointer-events-none disabled:opacity-40 sm:w-auto"
+            >
+              {built === null ? "Build my stack" : "Update my stack"}
+              <span aria-hidden="true" className="nudge">→</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      {result === null ? (
+        <section aria-labelledby="stack-empty" className="mt-10">
+          <div className="crop crop-static rounded-xl border border-dashed border-border-strong px-6 py-10 text-center [--crop-inset:-6px]">
+            {/* Nine empty layer slots: the stack, not yet drawn. */}
+            <div aria-hidden="true" className="mx-auto flex w-fit flex-col-reverse gap-1">
+              {stackLayers.map((s) => (
+                <span key={s.slug} className="block h-1.5 w-24 rounded-full border border-dashed border-border-strong" />
+              ))}
+            </div>
+            <h2 id="stack-empty" className="mt-6 font-serif text-[20px] font-medium tracking-[-0.01em]">
+              Your stack is drawn here.
+            </h2>
+            <p className="mx-auto mt-2 max-w-[44ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
+              Pick a workload, answer what applies, then press{" "}
+              <span className="font-medium text-fg">Build my stack</span>. Requests per
+              month sharpens the cost band; everything else narrows the picks.
+            </p>
+          </div>
+        </section>
+      ) : (
       <section aria-live="polite" className="mt-10">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-          Your stack — updates as you answer
-        </p>
+        <h2
+          ref={resultsRef}
+          tabIndex={-1}
+          className="scroll-mt-24 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle outline-none"
+        >
+          Your stack — built from your answers
+        </h2>
         <p className="mt-2 font-serif text-[20px] leading-snug">{result.summary}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
@@ -610,13 +718,13 @@ export function StackBuilder() {
           />
         </div>
 
-        {/* The edge the live recompute hides: this answer, that pick. Shown only
-            after the reader has answered something, and replaced rather than
-            accumulated, so it always describes the last click. */}
+        {/* What the last rebuild moved: these answers, those picks. Shown only
+            after a second build, and replaced rather than accumulated, so it
+            always describes the last press of the button. */}
         {changes ? (
           <div className="mt-5 border-l-2 border-accent pl-3.5">
             <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
-              Your last answer changed
+              Your last build changed
             </p>
             {changes.length ? (
               <ul className="mt-1.5 space-y-0.5 text-[13.5px] text-fg">
@@ -706,6 +814,7 @@ export function StackBuilder() {
           <Link href="/methodology" className="underline underline-offset-4 hover:text-fg">Read the method →</Link>
         </p>
       </section>
+      )}
     </div>
   );
 }
