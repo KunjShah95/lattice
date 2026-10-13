@@ -60,6 +60,18 @@ if (process.env[CHILD]) {
 // is exactly what happened on the first deploy. Env is loaded the same way
 // Next loads it, so `.env.local` counts locally.
 loadEnvConfig(process.cwd(), false);
+
+// Vercel. It sets `VERCEL=1` and the project's production domain in
+// `VERCEL_PROJECT_PRODUCTION_URL` (a bare host, no scheme) on every build, so
+// the site URL can default to that rather than failing a deploy whose origin is
+// already known. An explicit NEXT_PUBLIC_SITE_URL — a custom domain — still
+// wins. Written back into process.env so the `next build` spawned below inlines
+// it into client bundles too.
+const onVercel = process.env.VERCEL === "1";
+if (onVercel && !process.env.NEXT_PUBLIC_SITE_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+  process.env.NEXT_PUBLIC_SITE_URL = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+}
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 if (
   !/^https:\/\//.test(siteUrl) ||
@@ -71,12 +83,21 @@ if (
       `NEXT_PUBLIC_SITE_URL is ${siteUrl ? `"${siteUrl}"` : "unset"}.`,
       "",
       "Set it to the https:// origin the site is served from — in .env.local",
-      "locally, or as a build variable in the Cloudflare dashboard",
-      "(Workers & Pages → lattice → Settings → Build → Variables).",
+      "locally, as a build variable in the Cloudflare dashboard",
+      "(Workers & Pages → lattice → Settings → Build → Variables), or as an",
+      "environment variable in Vercel (Project → Settings → Environment Variables).",
       "Without it every canonical and sitemap URL points at a dead domain.",
     ].join("\n"),
   );
   process.exit(1);
+}
+
+// Vercel deploys `.next` itself; the OpenNext Worker bundle below is only for
+// Cloudflare and would be built for nothing.
+if (onVercel) {
+  console.log(`Vercel build · site URL ${siteUrl}`);
+  run(npm, ["run", "next:build"]);
+  process.exit(0);
 }
 
 // Clear stale output first: OpenNext reads whatever is already in

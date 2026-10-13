@@ -117,30 +117,34 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * `/compare/build` (a new interactive route) is budgeted at 163 KB; it measured
  * 157.7 KB, which is the shared floor plus the picker and the table.
  */
+// +1.5 KB on every route for Vercel Web Analytics (`@vercel/analytics/next`),
+// mounted once in the root layout: a route listener and a beacon queue. The
+// tracking script itself loads from `/_vercel/insights` at runtime and is not
+// in the bundle.
 const BUDGETS = {
-  "/": 161_000,
-  "/stack-builder": 168_000,
-  "/all": 162_500,
-  "/glossary": 160_000,
-  "/methodology": 158_000,
-  "/verification": 158_000,
-  "/submit": 158_000,
-  "/blog": 158_000,
-  "/compare": 158_000,
-  "/compare/build": 163_000, // measured 157.7 KB; headroom left for the picker to grow
-  "/fix": 158_000,
-  "/roles": 158_000,
-  "/bands": 158_000,
-  "/[slug]": 158_500,
-  "/[slug]/[tool]": 159_500,
-  "/[slug]/[tool]/alternatives": 158_000,
-  "/roles/[role]": 158_000,
-  "/bands/[band]": 158_000,
-  "/stack/[workload]": 158_500,
-  "/blog/[slug]": 159_000,
-  "/compare/[slug]": 158_000,
-  "/fix/[slug]": 158_000,
-  "/glossary/[slug]": 158_000,
+  "/": 162_536,
+  "/stack-builder": 169_536,
+  "/all": 164_036,
+  "/glossary": 161_536,
+  "/methodology": 159_536,
+  "/verification": 159_536,
+  "/submit": 159_536,
+  "/blog": 159_536,
+  "/compare": 159_536,
+  "/compare/build": 164_536, // measured 157.7 KB; headroom left for the picker to grow
+  "/fix": 159_536,
+  "/roles": 159_536,
+  "/bands": 159_536,
+  "/[slug]": 160_036,
+  "/[slug]/[tool]": 161_036,
+  "/[slug]/[tool]/alternatives": 159_536,
+  "/roles/[role]": 159_536,
+  "/bands/[band]": 159_536,
+  "/stack/[workload]": 160_036,
+  "/blog/[slug]": 160_536,
+  "/compare/[slug]": 159_536,
+  "/fix/[slug]": 159_536,
+  "/glossary/[slug]": 159_536,
 };
 
 const NEXT = join(root, ".next");

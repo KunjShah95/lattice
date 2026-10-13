@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { SearchProvider } from "@/components/search-provider";
@@ -187,6 +188,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token": "d637537d35244c2b8570042b04f61365"}'
         />
+
+        {/*
+          Vercel Web Analytics. Loads its script from the deployment's own
+          origin (`/_vercel/insights/script.js`), so it only reports when the
+          site is served by Vercel; on Cloudflare the request 404s quietly and
+          the beacon above does the counting. Page views on client-side
+          navigation are tracked by the component's route listener.
+        */}
+        <Analytics />
       </body>
     </html>
   );
