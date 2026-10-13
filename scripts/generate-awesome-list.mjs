@@ -38,15 +38,14 @@ import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import nextEnv from "@next/env";
+import { resolveSiteUrl } from "../src/lib/origin.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // Same env resolution as the build, so the list links to the origin the site
 // is actually served from. Plain `node` does not read .env.local on its own,
 // which is how this once shipped links to a domain the site had left.
 nextEnv.loadEnvConfig(root);
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lattice.kkshah2005.workers.dev"
-).replace(/\/$/, "");
+const siteUrl = resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 /**
  * The dataset, extracted from the TypeScript source.

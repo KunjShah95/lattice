@@ -197,10 +197,25 @@ the authoritative allowlist; it covers the native binaries (`sharp`, Tailwind
 oxide, the platform SWC packages) plus `esbuild` and `workerd`, which the
 OpenNext toolchain needs.
 
+### One canonical domain: `lattice.kunjshah.in`
+
+Every canonical URL, `og:url`, sitemap entry, JSON-LD `@id`, `llms.txt` link and
+awesome-list link resolves against **https://lattice.kunjshah.in**, defined once
+in `src/lib/origin.mjs`. With `NEXT_PUBLIC_SITE_URL` unset — or set to a host the
+site has left (`*.workers.dev`, `*.vercel.app`) — the build uses that origin, so
+no deploy target can publish canonicals at another address. A fork on its own
+domain sets `NEXT_PUBLIC_SITE_URL` and is honoured.
+
+All traffic is routed to it: `next.config.ts` answers any request on a
+`workers.dev` or `vercel.app` host with a **308** to the same path and query on
+`lattice.kunjshah.in`. Vercel *preview* deployments are exempt — they stay
+reachable for review — and send `X-Robots-Tag: noindex` so they never compete
+with the canonical host in search.
+
 ### Branding must be set before a public deploy
 
-`src/lib/site.ts` reads four values from the environment and falls back to
-`.invalid` placeholders. `src/lib/brand.test.ts` fails while any is still a
+`src/lib/site.ts` reads its contact values from the environment and falls back
+to placeholders (the site URL falls back to the canonical domain above). `src/lib/brand.test.ts` fails while any is still a
 placeholder, so `npm run verify` fails locally until they are set, and CI gates
 the check on the `SITE_URL` repository variable:
 

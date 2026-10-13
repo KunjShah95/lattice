@@ -32,6 +32,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import nextEnv from "@next/env";
+import { resolveSiteUrl } from "../src/lib/origin.mjs";
 
 const { loadEnvConfig } = nextEnv;
 
@@ -61,15 +62,16 @@ if (process.env[CHILD]) {
 // Next loads it, so `.env.local` counts locally.
 loadEnvConfig(process.cwd(), false);
 
-// Vercel. It sets `VERCEL=1` and the project's production domain in
-// `VERCEL_PROJECT_PRODUCTION_URL` (a bare host, no scheme) on every build, so
-// the site URL can default to that rather than failing a deploy whose origin is
-// already known. An explicit NEXT_PUBLIC_SITE_URL — a custom domain — still
-// wins. Written back into process.env so the `next build` spawned below inlines
-// it into client bundles too.
+// One origin for every build target. Unset, or set to a host the site has
+// left (workers.dev, *.vercel.app), resolves to https://lattice.kunjshah.in —
+// so a Vercel or Cloudflare build cannot publish canonicals anywhere else.
+// Written back into process.env so the `next build` spawned below inlines the
+// resolved value into client bundles too.
 const onVercel = process.env.VERCEL === "1";
-if (onVercel && !process.env.NEXT_PUBLIC_SITE_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-  process.env.NEXT_PUBLIC_SITE_URL = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+const requested = process.env.NEXT_PUBLIC_SITE_URL;
+process.env.NEXT_PUBLIC_SITE_URL = resolveSiteUrl(requested);
+if (requested && requested.replace(/\/+$/, "") !== process.env.NEXT_PUBLIC_SITE_URL) {
+  console.warn(`NEXT_PUBLIC_SITE_URL "${requested}" is a legacy host; using ${process.env.NEXT_PUBLIC_SITE_URL}.`);
 }
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";

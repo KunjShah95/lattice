@@ -19,6 +19,7 @@
  * `src/lib/brand.test.ts` fails the suite while any of them is still a
  * placeholder, so this cannot ship unnoticed.
  */
+import { resolveSiteUrl } from "@/lib/origin.mjs";
 import { REPO } from "@/lib/submissions.mjs";
 
 const env = process.env;
@@ -63,7 +64,12 @@ export const site = {
    * case. `brand.test.ts` still fails on the placeholder fallback, so this widens
    * what counts as *unconfigured* without widening what ships.
    */
-  url: (env.NEXT_PUBLIC_SITE_URL || "https://lattice.invalid").replace(/\/$/, ""),
+  //
+  // Defaults to the canonical origin (`lib/origin.mjs`) rather than a
+  // placeholder, and folds legacy hosts (workers.dev, vercel.app) onto it, so
+  // no build can publish a canonical anywhere but lattice.kunjshah.in unless a
+  // fork deliberately sets its own domain.
+  url: resolveSiteUrl(env.NEXT_PUBLIC_SITE_URL),
   /** <title> template. %s is replaced per-route. */
   titleTemplate: "%s · Lattice",
   defaultTitle: "Lattice — AI infrastructure tools, ordered by stack layer",

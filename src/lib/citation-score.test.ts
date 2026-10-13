@@ -23,7 +23,7 @@ import { ALL_QUERIES, CLAIMS, CITATION_QUERIES } from "./citation-queries.mjs";
  *     something that does not exist
  */
 
-const SITE = "lattice.kkshah2005.workers.dev";
+const SITE = "lattice.kunjshah.in";
 
 describe("hostOf", () => {
   it("normalises for comparison", () => {
@@ -73,7 +73,7 @@ describe("latticePosition", () => {
   it("matches a subdomain of the site but not a lookalike", () => {
     expect(latticePosition(["https://www." + SITE + "/x"], SITE)).toBe(1);
     // A domain that merely ends with the host's characters must not match.
-    expect(latticePosition(["https://notlattice.kkshah2005.workers.dev.evil.com"], SITE)).toBeNull();
+    expect(latticePosition(["https://notlattice.kunjshah.in.evil.com"], SITE)).toBeNull();
   });
 
   it("tolerates an empty or malformed source list", () => {
@@ -84,9 +84,9 @@ describe("latticePosition", () => {
 
   it("accepts the origin in any of the forms it might be configured", () => {
     for (const form of [
-      "https://lattice.kkshah2005.workers.dev",
-      "lattice.kkshah2005.workers.dev",
-      "https://lattice.kkshah2005.workers.dev/",
+      "https://lattice.kunjshah.in",
+      "lattice.kunjshah.in",
+      "https://lattice.kunjshah.in/",
     ]) {
       expect(latticePosition(["https://example.com", `https://${SITE}/x`], form), form).toBe(2);
     }

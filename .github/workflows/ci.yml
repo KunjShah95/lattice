@@ -103,7 +103,7 @@ jobs:
       # fallback is the live origin so the gate's domain checks still pass.
       - name: Build the Worker bundle
         env:
-          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'https://lattice.kkshah2005.workers.dev' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'https://lattice.kunjshah.in' }}
         run: |
           rm -rf .open-next
           npm run build

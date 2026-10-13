@@ -3,6 +3,7 @@ import path from "node:path";
 import createMDX from "@next/mdx";
 import { allTools } from "./src/lib/data";
 import { glossaryLinkMap } from "./src/lib/glossary";
+import { CANONICAL_ORIGIN } from "./src/lib/origin.mjs";
 
 /**
  * Tool names and glossary terms mentioned in essay prose are linked to their
@@ -34,8 +35,38 @@ const withMDX = createMDX({
   },
 });
 
+/**
+ * Vercel preview deployments (`VERCEL_ENV=preview`) are for reviewing a branch,
+ * not for search. They are left reachable on their `*.vercel.app` address and
+ * marked noindex; every other build folds legacy hosts onto the canonical one.
+ */
+const isPreview = process.env.VERCEL_ENV === "preview";
+
 const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "md", "mdx"],
+
+  /**
+   * All traffic on one host.
+   *
+   * The site has been served from the Cloudflare `workers.dev` subdomain and
+   * from Vercel's `*.vercel.app` aliases. Any request arriving on one of those
+   * is sent to the same path on https://lattice.kunjshah.in with a 308 — the
+   * permanent redirect that search engines treat as "move every signal here",
+   * and that keeps the method and query string intact (a shared Stack Builder
+   * link survives the hop). Matched on the Host header, so requests already on
+   * the canonical host, and localhost, never match.
+   */
+  async redirects() {
+    if (isPreview) return [];
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "(?<legacy>.+\\.(?:workers\\.dev|vercel\\.app))" }],
+        destination: `${CANONICAL_ORIGIN}/:path*`,
+        permanent: true,
+      },
+    ];
+  },
 
   /**
    * llms.txt v2 link relations.
@@ -77,6 +108,11 @@ const nextConfig: NextConfig = {
    */
   async headers() {
     return [
+      // Keep preview deployments out of every index, so they never compete
+      // with the canonical host for the same content.
+      ...(isPreview
+        ? [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }]
+        : []),
       {
         source: "/:path((?!.*\\.).*)",
         headers: [

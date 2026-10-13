@@ -66,6 +66,7 @@ import {
   movement,
   topSources,
 } from "../src/lib/citation-score.mjs";
+import { resolveSiteUrl } from "../src/lib/origin.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -73,9 +74,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = join(root, "..", "gtm");
 
 /** The origin to look for in an answer's sources. Bare host, no scheme. */
-const SITE_HOST = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://lattice.kkshah2005.workers.dev")
-  .replace(/^https?:\/\//, "")
-  .replace(/\/$/, "");
+const SITE_HOST = new URL(resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)).host;
 
 // ------------------------------------------------------------------ args
 

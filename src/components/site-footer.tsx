@@ -36,7 +36,7 @@ export function SiteFooter() {
             </p>
             <ProductHuntBadge className="mt-4" />
             <a
-              href="https://usefulshelf.co/apps/lattice?utm_source=lattice.kkshah2005.workers.dev&utm_medium=referral&utm_campaign=badge&utm_content=light"
+              href="https://usefulshelf.co/apps/lattice?utm_source=lattice.kunjshah.in&utm_medium=referral&utm_campaign=badge&utm_content=light"
               target="_blank"
               rel="noopener"
               className="mt-4 inline-block"
