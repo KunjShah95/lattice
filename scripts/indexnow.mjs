@@ -20,11 +20,13 @@
 
 import { readdirSync, readFileSync } from "node:fs";
 import nextEnv from "@next/env";
+import { resolveSiteUrl } from "../src/lib/origin.mjs";
 
 nextEnv.loadEnvConfig(process.cwd());
 
 const dry = process.argv.includes("--dry") || process.argv.includes("--dry-run");
-const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+// Same resolution as the build: unset or a legacy host means the canonical origin.
+const site = resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 if (!/^https:\/\/[^/]+$/.test(site) || /invalid|your-domain/.test(site)) {
   console.error(`indexnow: NEXT_PUBLIC_SITE_URL is not a real origin (${site || "unset"}).`);
   process.exit(1);

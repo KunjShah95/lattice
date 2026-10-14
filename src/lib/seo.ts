@@ -21,6 +21,7 @@ import type { Category, CostModel, Tool } from "./types";
 export const ids = {
   website: `${site.url}/#website`,
   organization: `${site.url}/#organization`,
+  founder: `${site.url}/#founder`,
 };
 
 /** Licences approved by the OSI. Anything else with source is source-available. */
@@ -271,8 +272,25 @@ export function siteJsonLd() {
       // results: it is raster, square and over the 112px minimum, which the
       // SVG icon is not. Regenerate with `npm run icons:render`.
       logo: `${site.url}/apple-icon.png`,
-      sameAs: [site.contact.x],
+      // The launch, the repo and the awesome-list are the same entity. Without
+      // these, a mention on Product Hunt or GitHub is a string that happens to
+      // read "Lattice"; with them it is evidence about this site.
+      sameAs: [...site.profiles],
+      ...(site.author ? { founder: { "@id": ids.founder } } : {}),
     },
+    ...(site.author
+      ? [
+          {
+            "@type": "Person",
+            "@id": ids.founder,
+            name: site.author.name,
+            ...(site.author.url ? { url: site.author.url } : {}),
+            // The GitHub account the repo lives under: the public trail of the
+            // work behind the byline.
+            sameAs: [`https://github.com/${site.repo.split("/")[3]}`],
+          },
+        ]
+      : []),
   ];
 }
 
@@ -301,7 +319,9 @@ export function absolute(path = "/"): string {
 export function authorNode(): object {
   const a = site.author;
   if (!a) return { "@id": ids.organization };
-  return { "@type": "Person", name: a.name, ...(a.url ? { url: a.url } : {}) };
+  // Same @id as the founder node in `siteJsonLd`, so every essay's author and
+  // the site's founder are one Person in the graph rather than a namesake.
+  return { "@type": "Person", "@id": ids.founder, name: a.name, ...(a.url ? { url: a.url } : {}) };
 }
 
 /** Visible byline text: "Jane Doe" or "Lattice editorial". */

@@ -342,7 +342,7 @@ export default function HomePage() {
             </p>
           </div>
           <a
-            href={`mailto:${site.contact.email}`}
+            href={site.contact.href}
             className="shrink-0 text-[13px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
           >
             Suggest a tool

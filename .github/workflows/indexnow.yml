@@ -1,0 +1,46 @@
+name: IndexNow
+
+# Push every sitemap URL to IndexNow after each successful production deploy.
+#
+# Why: Bing's index backs Copilot and a large share of ChatGPT search, and Bing
+# (with Yandex, Seznam and Naver) accepts IndexNow pushes. On a young domain a
+# new page otherwise waits weeks for a crawl; a push gets it fetched in hours.
+# Google does not take IndexNow — Search Console and the sitemap cover it.
+#
+# Triggered by the deployment status Vercel reports to GitHub, so it runs only
+# once the new build is live (the script fetches the live key file and sitemap
+# and refuses to send if either is missing). Preview deployments are skipped.
+on:
+  deployment_status:
+  workflow_dispatch:
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The script needs only @next/env; skip install scripts and native builds.
+      - name: Install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Submit sitemap to IndexNow
+        env:
+          NEXT_PUBLIC_SITE_URL: https://lattice.kunjshah.in
+        run: node scripts/indexnow.mjs

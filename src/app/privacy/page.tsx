@@ -72,7 +72,7 @@ export default function PrivacyPage() {
       <InfoSection title="Questions">
         <p>
           Privacy questions: <Link href="/contact">Contact</Link> or{" "}
-          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+          <a href={site.contact.href}>{site.contact.label}</a>.
         </p>
       </InfoSection>
     </InfoPageLayout>

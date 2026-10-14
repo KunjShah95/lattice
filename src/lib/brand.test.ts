@@ -29,10 +29,20 @@ describe("branding", () => {
   });
 
   it("has no placeholder contact details", () => {
-    // These ship as real links in the footer.
-    expect(site.copyrightHolder).not.toMatch(/your name/i);
-    expect(site.contact.email).not.toMatch(/^hello@example\./i);
-    expect(site.contact.x).not.toMatch(/yourhandle/i);
+    // These ship as real links in the footer. Unset channels are omitted (X)
+    // or fall back to the issue tracker (email) — never to a dead address.
+    expect(site.copyrightHolder).not.toMatch(/your name|todo/i);
+    if (site.contact.email) expect(site.contact.email).not.toMatch(/example\.|\.invalid|todo@/i);
+    if (site.contact.x) expect(site.contact.x).not.toMatch(/yourhandle|\/todo$/i);
+    expect(site.contact.href).not.toMatch(/example\.|\.invalid/i);
+  });
+
+  it("names the same entity everywhere it is listed", () => {
+    // Organization.sameAs: the launch and the repo must be among them, so a
+    // mention on either accrues to this site's entity.
+    expect(site.profiles).toContain("https://www.producthunt.com/products/lattice-12");
+    expect(site.profiles).toContain(site.repo);
+    for (const url of site.profiles) expect(url.startsWith("https://")).toBe(true);
   });
 
   /**

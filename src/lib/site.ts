@@ -31,7 +31,24 @@ const env = process.env;
  * inconsistency that costs a reader's trust in the whole page.
  */
 const MAINTAINER_NAME =
-  env.NEXT_PUBLIC_AUTHOR_NAME || env.NEXT_PUBLIC_COPYRIGHT_HOLDER || null;
+  env.NEXT_PUBLIC_AUTHOR_NAME || env.NEXT_PUBLIC_COPYRIGHT_HOLDER || "Kunj Shah";
+
+/**
+ * The maintainer's own site. Named in the README ("Built by Kunj Shah") and
+ * home to the project's case study, so it is the page that proves the byline
+ * belongs to a real, accountable person — which is what E-E-A-T, and the
+ * answer engines that lean on it, look for behind an author name.
+ */
+const MAINTAINER_URL = env.NEXT_PUBLIC_AUTHOR_URL || "https://kunjshah.in";
+
+/**
+ * Contact, without placeholders. An unset email used to render as
+ * `todo@example.invalid` on every page — a dead address in the footer of a
+ * site whose pitch is that its facts are checked. Unset, the channel falls
+ * back to the repository's issue tracker, which is real and public.
+ */
+const CONTACT_EMAIL = env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
+const CONTACT_X = env.NEXT_PUBLIC_CONTACT_X?.trim() || null;
 
 /**
  * Public repository, overridable so a fork or a second deployment is not
@@ -84,16 +101,14 @@ export const site = {
   /** Shown in the footer. */
   tagline:
     "A curated index of the infrastructure behind working AI systems, ordered by depth.",
-  copyrightHolder: env.NEXT_PUBLIC_COPYRIGHT_HOLDER ?? "TODO holder",
+  copyrightHolder: env.NEXT_PUBLIC_COPYRIGHT_HOLDER || MAINTAINER_NAME,
   /**
    * The named human who writes and verifies the index. Optional: unset, pages
    * are attributed to the organisation. A named author with a visible update
    * date was common to every page answer engines cited in the category audit,
    * so set this — but never to a name that is not a real, accountable editor.
    */
-  author: env.NEXT_PUBLIC_AUTHOR_NAME
-    ? { name: env.NEXT_PUBLIC_AUTHOR_NAME, url: env.NEXT_PUBLIC_AUTHOR_URL ?? null }
-    : null,
+  author: { name: MAINTAINER_NAME, url: MAINTAINER_URL } as { name: string; url: string | null } | null,
   copyrightYear: new Date().getFullYear(),
   /**
    * Exported separately from `site` because these are identity facts rather than
@@ -104,7 +119,26 @@ export const site = {
   maintainer: MAINTAINER_NAME,
   repo: REPO_URL,
   contact: {
-    email: env.NEXT_PUBLIC_CONTACT_EMAIL ?? "todo@example.invalid",
-    x: env.NEXT_PUBLIC_CONTACT_X ?? "https://x.com/todo",
+    email: CONTACT_EMAIL,
+    x: CONTACT_X,
+    /** Where "contact us" links go: email when configured, else the issue tracker. */
+    href: CONTACT_EMAIL ? `mailto:${CONTACT_EMAIL}` : `${REPO_URL}/issues/new`,
+    /** How that channel is named in running text. */
+    label: CONTACT_EMAIL ?? "GitHub issues",
   },
+  /**
+   * Profiles that are the same entity as this site, for `Organization.sameAs`.
+   *
+   * This is how a search engine — and the answer engines built on its
+   * knowledge graph — learns that the Product Hunt launch, the GitHub repo and
+   * the awesome-list are all *Lattice*, so mentions on any of them accrue to
+   * one entity instead of four unrelated strings. Only pages the project
+   * actually controls belong here.
+   */
+  profiles: [
+    "https://www.producthunt.com/products/lattice-12",
+    REPO_URL,
+    "https://github.com/KunjShah95/awesome-ai-infrastructure",
+    ...(CONTACT_X ? [CONTACT_X] : []),
+  ],
 } as const;

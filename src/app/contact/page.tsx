@@ -103,18 +103,30 @@ export default function ContactPage() {
           People
         </h2>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {site.contact.email ? (
+            <li>
+              <InfoChannel
+                href={site.contact.href}
+                label="Email"
+                detail={site.contact.email}
+              />
+            </li>
+          ) : null}
+          {site.contact.x ? (
+            <li>
+              <InfoChannel
+                href={site.contact.x}
+                label="X / Twitter"
+                detail="Public updates and quick questions"
+                external
+              />
+            </li>
+          ) : null}
           <li>
             <InfoChannel
-              href={`mailto:${site.contact.email}`}
-              label="Email"
-              detail={site.contact.email}
-            />
-          </li>
-          <li>
-            <InfoChannel
-              href={site.contact.x}
-              label="X / Twitter"
-              detail="Public updates and quick questions"
+              href="https://www.producthunt.com/products/lattice-12"
+              label="Product Hunt"
+              detail="Reviews, launch updates and questions"
               external
             />
           </li>

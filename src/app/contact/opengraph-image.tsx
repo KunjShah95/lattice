@@ -24,7 +24,7 @@ export default function OpengraphImage() {
         subtitle="Email, social, and where to report a broken link, challenge an inclusion, or suggest a tool for the index."
         meta="Corrections · Submissions · Operator"
         layer={null}
-        footNote={site.contact.email}
+        footNote={site.contact.label}
         siteName={site.name}
         siteHost={site.url.replace(/^https?:\/\//, "")}
       />

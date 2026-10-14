@@ -594,7 +594,14 @@ describe("authorship and verification", () => {
     expect(node.dateModified).toMatch(/^\d{4}-\d{2}-01$/);
 
     if (site.author) {
-      expect(node.author).toEqual({ "@type": "Person", name: site.author.name });
+      // Carries the founder @id, so every byline is the same Person as the
+      // site's founder node rather than a namesake.
+      expect(node.author).toEqual({
+        "@type": "Person",
+        "@id": ids.founder,
+        name: site.author.name,
+        ...(site.author.url ? { url: site.author.url } : {}),
+      });
       expect(bylineName).toBe(site.author.name);
     } else {
       expect(node.author).toEqual({ "@id": ids.organization });

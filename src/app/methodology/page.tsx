@@ -383,7 +383,7 @@ export default function MethodologyPage() {
         </p>
         <p>
           <a
-            href={`mailto:${site.contact.email}`}
+            href={site.contact.href}
             className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
           >
             Corrections and suggestions

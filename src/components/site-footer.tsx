@@ -123,11 +123,24 @@ export function SiteFooter() {
           </p>
           <p className="font-mono text-[11px] text-fg-subtle">
             <a
-              href={`mailto:${site.contact.email}`}
+              href={site.contact.href}
               className="transition-colors hover:text-fg-muted"
             >
-              {site.contact.email}
+              {site.contact.label}
             </a>
+            <span className="px-2" aria-hidden="true">
+              ·
+            </span>
+            <a
+              href="https://www.producthunt.com/products/lattice-12"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-fg-muted"
+            >
+              Product Hunt
+            </a>
+            {site.contact.x ? (
+              <>
             <span className="px-2" aria-hidden="true">
               ·
             </span>
@@ -139,6 +152,8 @@ export function SiteFooter() {
             >
               X / Twitter
             </a>
+              </>
+            ) : null}
           </p>
         </div>
         <p className="mt-3 font-mono text-[11px] text-fg-subtle">
