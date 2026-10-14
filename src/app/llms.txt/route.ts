@@ -18,6 +18,8 @@ export function GET() {
     "",
     `> ${site.description}`,
     "",
+    site.disambiguation,
+    "",
     `${toolCount} tools across ${categories.length} sections, ${resolvedComparisons.length} comparisons, and ${posts.length} essays.`,
     "Listed tools belong to their respective authors.",
     "",

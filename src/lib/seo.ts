@@ -258,6 +258,7 @@ export function siteJsonLd() {
       "@type": "WebSite",
       "@id": ids.website,
       name: site.name,
+      alternateName: [...site.alternateNames],
       url: site.url,
       description: site.description,
       publisher: { "@id": ids.organization },
@@ -267,6 +268,8 @@ export function siteJsonLd() {
       "@type": "Organization",
       "@id": ids.organization,
       name: site.name,
+      alternateName: [...site.alternateNames],
+      disambiguatingDescription: site.disambiguation,
       url: site.url,
       // The 180px Apple touch icon doubles as the logo Google shows beside
       // results: it is raster, square and over the 112px minimum, which the

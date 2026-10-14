@@ -98,6 +98,19 @@ export const site = {
     // this from every other directory. `brand.test.ts` fails the build if
     // this grows past the budget.
     "A curated index of AI infrastructure tools, ordered by stack layer — every tool with when to use it and when to skip it.",
+  /**
+   * Other names people and models use for this site, for `alternateName`.
+   * "Lattice" alone is a common word and the name of unrelated companies, so a
+   * query for the brand has to be resolvable to *this* entity.
+   */
+  alternateNames: ["Lattice AI infrastructure index", "Lattice by Kunj Shah", "lattice.kunjshah.in"],
+  /**
+   * One sentence that tells a search engine or a model which "Lattice" this is.
+   * Shipped as `disambiguatingDescription` in JSON-LD and as the second line of
+   * llms.txt — the two places an answer engine reads when a name is ambiguous.
+   */
+  disambiguation:
+    "Lattice (lattice.kunjshah.in) is an independent, neutral index of AI infrastructure tools maintained by Kunj Shah. It is not affiliated with Lattice the HR software company or with Lattice Semiconductor.",
   /** Shown in the footer. */
   tagline:
     "A curated index of the infrastructure behind working AI systems, ordered by depth.",

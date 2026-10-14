@@ -85,6 +85,12 @@ export default function robots(): MetadataRoute.Robots {
           "Google-Extended",
           "DuckAssistBot",
           "MistralAI-User",
+          // Fetchers behind Siri/Spotlight answers, Meta AI's live lookups and
+          // Google's non-Search crawls. Covered by `*` already; named so the
+          // group they fall in is explicit rather than inferred.
+          "Applebot",
+          "Meta-ExternalFetcher",
+          "GoogleOther",
         ],
         allow: "/",
         other: { "Content-Signal": CONTENT_SIGNAL },

@@ -26,6 +26,37 @@ type SearchContextValue = {
 
 const SearchContext = createContext<SearchContextValue | null>(null);
 
+
+type EarlyShortcutWindow = Window & {
+  __latticeSearchReady?: boolean;
+  __latticeSearchPending?: boolean;
+  __latticeEarlyKey?: (e: KeyboardEvent) => void;
+};
+
+/**
+ * Inlined in <head> by the root layout, so ⌘K works from the first paint.
+ *
+ * The palette's own listener is attached by React after hydration. On a slow
+ * device or connection that is a visible window in which ⌘K did nothing — or,
+ * worse, fell through to the browser's own Ctrl+K (focus the search bar).
+ * This records the keypress instead, and the provider opens the palette as
+ * soon as it mounts. Pressing it twice before hydration cancels, matching the
+ * toggle the hydrated shortcut has.
+ */
+export const earlyShortcutScript = `
+(function () {
+  function onKey(e) {
+    if (window.__latticeSearchReady) return;
+    if ((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() === 'k') {
+      e.preventDefault();
+      window.__latticeSearchPending = !window.__latticeSearchPending;
+    }
+  }
+  window.__latticeEarlyKey = onKey;
+  window.addEventListener('keydown', onKey, true);
+})();
+`;
+
 /**
  * DOM id for the results list, shared by the input's `aria-controls` and the
  * `<ul>`, and prefixed onto each row's id for `aria-activedescendant`.
@@ -147,6 +178,20 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       document.body.style.overflow = previous;
     };
   }, [open]);
+
+  // Hand-off from `earlyShortcutScript`: a ⌘K pressed while the page was still
+  // hydrating was recorded rather than lost, so honour it now. Also tells the
+  // early listener to stand down, so the two never both handle one keypress.
+  useEffect(() => {
+    const w = window as EarlyShortcutWindow;
+    w.__latticeSearchReady = true;
+    if (w.__latticeEarlyKey) window.removeEventListener("keydown", w.__latticeEarlyKey, true);
+    if (w.__latticeSearchPending) {
+      w.__latticeSearchPending = false;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- replaying a keypress the user made before hydration; the event itself is gone
+      openPalette();
+    }
+  }, [openPalette]);
 
   // Global shortcut.
   useEffect(() => {

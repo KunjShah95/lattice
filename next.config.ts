@@ -108,6 +108,47 @@ const nextConfig: NextConfig = {
    */
   async headers() {
     return [
+      /**
+       * Baseline security headers, on every response.
+       *
+       * These were set by nothing: Cloudflare's `public/_headers` only covers
+       * cache control, and Vercel ignores that file entirely. None of them can
+       * break a page here — there are no iframes to allow, no camera or
+       * location use, and every asset is same-origin or https.
+       *
+       * No Content-Security-Policy yet, deliberately. The theme script, the
+       * JSON-LD blocks and both analytics beacons are inline or third-party,
+       * so a CSP needs nonces threaded through the layout. A wrong CSP breaks
+       * the page for every visitor; a missing one costs a header grade.
+       */
+      {
+        source: "/:path*",
+        headers: [
+          // Two years, the HSTS preload-list minimum. No `includeSubDomains`:
+          // this host is itself a subdomain and has none of its own.
+          { key: "Strict-Transport-Security", value: "max-age=63072000" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+          },
+        ],
+      },
+      /**
+       * Machine-readable documents, readable cross-origin.
+       *
+       * `tools.json`, `mcp.json` and `/api/search` already send this from their
+       * route handlers. These are the rest of the surfaces agents and
+       * browser-based tools fetch: without the header, a fetch from any other
+       * origin (an in-browser agent, a playground, a notebook UI) is refused by
+       * the browser even though the file is public.
+       */
+      {
+        source: "/:file(llms\\.txt|llms-full\\.txt|feed\\.xml|sitemap\\.xml|robots\\.txt|search-index\\.json|verification\\.json)",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
       // Keep preview deployments out of every index, so they never compete
       // with the canonical host for the same content.
       ...(isPreview

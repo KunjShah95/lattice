@@ -3,7 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-import { SearchProvider } from "@/components/search-provider";
+import { SearchProvider, earlyShortcutScript } from "@/components/search-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SpotLight } from "@/components/spot-light";
@@ -127,6 +127,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* Applies the stored/system theme before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Records a ⌘K pressed before hydration; see search-provider. */}
+        <script dangerouslySetInnerHTML={{ __html: earlyShortcutScript }} />
       </head>
       <body className="flex min-h-full flex-col">
         {/*

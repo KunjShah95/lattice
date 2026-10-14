@@ -121,30 +121,33 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // mounted once in the root layout: a route listener and a beacon queue. The
 // tracking script itself loads from `/_vercel/insights` at runtime and is not
 // in the bundle.
+// +1.5 KB on every route for the runtime error boundary (`app/error.tsx`):
+// Next loads the boundary with each page so a throw renders a recoverable
+// page with Retry instead of a blank screen.
 const BUDGETS = {
-  "/": 162_536,
-  "/stack-builder": 170_560, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 164_036,
-  "/glossary": 161_536,
-  "/methodology": 159_536,
-  "/verification": 159_536,
-  "/submit": 159_536,
-  "/blog": 159_536,
-  "/compare": 159_536,
-  "/compare/build": 164_536, // measured 157.7 KB; headroom left for the picker to grow
-  "/fix": 159_536,
-  "/roles": 159_536,
-  "/bands": 159_536,
-  "/[slug]": 160_036,
-  "/[slug]/[tool]": 161_036,
-  "/[slug]/[tool]/alternatives": 159_536,
-  "/roles/[role]": 159_536,
-  "/bands/[band]": 159_536,
-  "/stack/[workload]": 160_036,
-  "/blog/[slug]": 160_536,
-  "/compare/[slug]": 159_536,
-  "/fix/[slug]": 159_536,
-  "/glossary/[slug]": 159_536,
+  "/": 164_072,
+  "/stack-builder": 172_096, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
+  "/all": 165_572,
+  "/glossary": 163_072,
+  "/methodology": 161_072,
+  "/verification": 161_072,
+  "/submit": 161_072,
+  "/blog": 161_072,
+  "/compare": 161_072,
+  "/compare/build": 166_072, // measured 157.7 KB; headroom left for the picker to grow
+  "/fix": 161_072,
+  "/roles": 161_072,
+  "/bands": 161_072,
+  "/[slug]": 161_572,
+  "/[slug]/[tool]": 162_572,
+  "/[slug]/[tool]/alternatives": 161_072,
+  "/roles/[role]": 161_072,
+  "/bands/[band]": 161_072,
+  "/stack/[workload]": 161_572,
+  "/blog/[slug]": 162_072,
+  "/compare/[slug]": 161_072,
+  "/fix/[slug]": 161_072,
+  "/glossary/[slug]": 161_072,
 };
 
 const NEXT = join(root, ".next");
