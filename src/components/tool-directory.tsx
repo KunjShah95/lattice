@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ToolCard } from "./tool-card";
 import { layerColor } from "@/lib/layer";
 import type { Category } from "@/lib/types";
 
@@ -53,63 +54,18 @@ export function ToolDirectory({ categories }: { categories: Category[] }) {
           <ul className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {c.tools.map((t) => (
               <li key={t.slug}>
-                <Link
+                <ToolCard
                   href={`/${c.slug}/${t.slug}`}
-                  data-spot=""
-                  style={{ "--spot": layerColor(c.layer) } as React.CSSProperties}
-                  className="group relative flex h-full items-start gap-3.5 rounded-xl bg-bg-elevated/80 p-4 shadow-ink transition-[box-shadow,transform] duration-300 ease-[var(--ease-out)] hover:-translate-y-0.5 hover:shadow-lift"
-                >
-                  <ToolMonogram name={t.name} layer={c.layer} />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[15px] font-semibold tracking-[-0.01em] transition-colors group-hover:text-accent">
-                        {t.name}
-                      </span>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        className="nudge nudge-up-right shrink-0 text-fg-subtle transition-colors group-hover:text-accent"
-                      >
-                        <path d="M7 17 17 7M9 7h8v8" />
-                      </svg>
-                    </span>
-                    <span className="mt-1 line-clamp-2 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                      {t.blurb}
-                    </span>
-                    <span className="mt-2 block font-mono text-[10.5px] uppercase tracking-[0.1em] text-fg-subtle">
-                      {t.kind}
-                    </span>
-                  </span>
-                </Link>
+                  name={t.name}
+                  layer={c.layer}
+                  blurb={t.blurb}
+                  kind={t.kind}
+                />
               </li>
             ))}
           </ul>
         </section>
       ))}
     </div>
-  );
-}
-
-/**
- * The tile that stands in for a favicon: the tool's initial on a wash of its
- * layer's colour. Shared by the home directory and the /all explorer, so the
- * two grids read as one object.
- */
-export function ToolMonogram({ name, layer }: { name: string; layer: number | null }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg font-mono text-[15px] font-medium text-fg"
-      style={{ backgroundColor: `color-mix(in oklch, ${layerColor(layer)} 18%, var(--bg-elevated))` }}
-    >
-      {name.replace(/[^A-Za-z0-9]/g, "").slice(0, 1).toUpperCase()}
-    </span>
   );
 }

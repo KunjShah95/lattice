@@ -1,4 +1,6 @@
 import { ToolRow } from "./tool-row";
+import { ToolCard } from "./tool-card";
+import { categories } from "@/lib/data";
 import { layerColor, layerStyle } from "@/lib/layer";
 import type { Category } from "@/lib/types";
 
@@ -48,15 +50,27 @@ export function CategorySection({
           </p>
         </header>
 
-        <ul className="space-y-0.5 pb-12">
+        {/* Directory cards, the same as the home page and /all: the whole
+            card opens the tool page. Two to a row, because each carries both
+            halves of the verdict. */}
+        <ul className="grid gap-3 pb-12 sm:grid-cols-2">
           {category.tools.map((tool) => (
-            <ToolRow
-              key={tool.slug}
-              tool={tool}
-              layer={category.layer}
-              categorySlug={category.slug}
-              showDetails
-            />
+            <li key={tool.slug}>
+              <ToolCard
+                variant="full"
+                href={`/${category.slug}/${tool.slug}`}
+                name={tool.name}
+                layer={category.layer}
+                blurb={tool.blurb}
+                kind={tool.kind}
+                license={tool.license}
+                useWhen={tool.useWhen}
+                skipWhen={tool.skipWhen}
+                alsoIn={(tool.secondHomes ?? []).map(
+                  (h) => categories.find((c) => c.slug === h.section)?.short ?? h.section,
+                )}
+              />
+            </li>
           ))}
         </ul>
       </section>

@@ -131,7 +131,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BUDGETS = {
   "/": 165_096,
   "/stack-builder": 173_120, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 166_596,
+  "/all": 167_108, // +0.5 KB: shared ToolCard (compact + full variants) replaces the inline card
   "/glossary": 164_096,
   "/methodology": 162_096,
   "/verification": 162_096,

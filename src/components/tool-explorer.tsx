@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
-import { DecisionValve } from "@/components/ui/decision-valve";
-import { ToolMonogram } from "@/components/tool-directory";
+import { ToolCard } from "@/components/tool-card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterEmptyState } from "@/components/ui/filter-empty-state";
 import { layerColor } from "@/lib/layer";
@@ -317,66 +315,19 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
         <ul className="grid gap-3 sm:grid-cols-2">
           {results.map((t) => (
             <li key={`${t.categorySlug}-${t.slug}`}>
-              <Link
+              <ToolCard
+                variant="full"
                 href={`/${t.categorySlug}/${t.slug}`}
-                data-spot=""
-                style={{ "--spot": layerColor(t.layer) } as React.CSSProperties}
-                className="group relative flex h-full items-start gap-3.5 rounded-xl bg-bg-elevated/80 p-4 shadow-ink transition-[box-shadow,transform] duration-300 ease-[var(--ease-out)] hover:-translate-y-0.5 hover:shadow-lift"
-              >
-                <ToolMonogram name={t.name} layer={t.layer} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-[15px] font-semibold tracking-[-0.01em] transition-colors group-hover:text-accent">
-                      {t.name}
-                    </span>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                      className="nudge nudge-up-right shrink-0 text-fg-subtle transition-colors group-hover:text-accent"
-                    >
-                      <path d="M7 17 17 7M9 7h8v8" />
-                    </svg>
-                  </span>
-                  {/* Kind, licence and section: what kind of thing, under what
-                      terms, and where in the stack. */}
-                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-fg-subtle">
-                    <span>{t.kind}</span>
-                    {t.license ? <span className="normal-case">{t.license}</span> : null}
-                    <span className="inline-flex items-center gap-1.5 normal-case">
-                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: layerColor(t.layer) }} />
-                      {t.categoryShort}
-                    </span>
-                  </span>
-                  <span className="mt-2 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                    {t.blurb}
-                  </span>
-                  {/* Both halves, not the flattering one. `skipWhen` is the claim
-                      no competitor can make (`strategy/02` §2), and a list that
-                      printed only `useWhen` was a directory like any other. */}
-                  <DecisionValve
-                    variant="inline"
-                    className="mt-2.5"
-                    toolName={t.name}
-                    useWhen={t.useWhen}
-                    skipWhen={t.skipWhen}
-                  />
-                  {/* A compact marker, not a second card: the explorer answers
-                      "where does this live" and the honest answer is "here, and
-                      there too". The reason is on the tool page. */}
-                  {t.secondHomes?.length ? (
-                    <span className="mt-2 block font-mono text-[10.5px] text-fg-subtle">
-                      also in {t.secondHomes.join(", ")}
-                    </span>
-                  ) : null}
-                </span>
-              </Link>
+                name={t.name}
+                layer={t.layer}
+                blurb={t.blurb}
+                kind={t.kind}
+                license={t.license}
+                section={t.categoryShort}
+                useWhen={t.useWhen}
+                skipWhen={t.skipWhen}
+                alsoIn={t.secondHomes}
+              />
             </li>
           ))}
         </ul>
