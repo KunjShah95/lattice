@@ -27,7 +27,7 @@ export default function AllToolsPage() {
   const name = "All AI infrastructure tools";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="mx-auto max-w-5xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* Every tool in the index, as an ItemList. This is the one page that
           lists all 112 and the only parent of every tool page, so without it the
           complete set is described nowhere in structured data: a crawler sees

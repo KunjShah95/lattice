@@ -59,14 +59,7 @@ export function ToolDirectory({ categories }: { categories: Category[] }) {
                   style={{ "--spot": layerColor(c.layer) } as React.CSSProperties}
                   className="group relative flex h-full items-start gap-3.5 rounded-xl bg-bg-elevated/80 p-4 shadow-ink transition-[box-shadow,transform] duration-300 ease-[var(--ease-out)] hover:-translate-y-0.5 hover:shadow-lift"
                 >
-                  {/* Monogram tile in the layer's colour. */}
-                  <span
-                    aria-hidden="true"
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg font-mono text-[15px] font-medium text-fg"
-                    style={{ backgroundColor: `color-mix(in oklch, ${layerColor(c.layer)} 18%, var(--bg-elevated))` }}
-                  >
-                    {t.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 1).toUpperCase()}
-                  </span>
+                  <ToolMonogram name={t.name} layer={c.layer} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-2">
                       <span className="truncate text-[15px] font-semibold tracking-[-0.01em] transition-colors group-hover:text-accent">
@@ -101,5 +94,22 @@ export function ToolDirectory({ categories }: { categories: Category[] }) {
         </section>
       ))}
     </div>
+  );
+}
+
+/**
+ * The tile that stands in for a favicon: the tool's initial on a wash of its
+ * layer's colour. Shared by the home directory and the /all explorer, so the
+ * two grids read as one object.
+ */
+export function ToolMonogram({ name, layer }: { name: string; layer: number | null }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg font-mono text-[15px] font-medium text-fg"
+      style={{ backgroundColor: `color-mix(in oklch, ${layerColor(layer)} 18%, var(--bg-elevated))` }}
+    >
+      {name.replace(/[^A-Za-z0-9]/g, "").slice(0, 1).toUpperCase()}
+    </span>
   );
 }

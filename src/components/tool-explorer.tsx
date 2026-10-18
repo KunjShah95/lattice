@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { DecisionValve } from "@/components/ui/decision-valve";
+import { ToolMonogram } from "@/components/tool-directory";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterEmptyState } from "@/components/ui/filter-empty-state";
-import { layerColor, layerStyle } from "@/lib/layer";
+import { layerColor } from "@/lib/layer";
 import { ROLES } from "@/lib/roles";
 import {
   activeFilterCount,
@@ -310,36 +311,50 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
           onReset={clearAll}
         />
       ) : (
-        <ul className="space-y-px">
+        // Directory cards, the same as the home page's: the whole card is the
+        // link to the tool page. The outbound icon this used to carry cannot
+        // nest inside a card link, and the tool page leads with "Visit" anyway.
+        <ul className="grid gap-3 sm:grid-cols-2">
           {results.map((t) => (
             <li key={`${t.categorySlug}-${t.slug}`}>
-              <div className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-3 transition-colors duration-200 hover:bg-bg-sunken sm:py-2.5">
-                <span
-                  aria-hidden="true"
-                  className="mt-1 h-8 w-[3px] shrink-0 rounded-full transition-[width] duration-300 ease-[var(--ease-spring)] group-hover:w-[5px]"
-                  style={layerStyle(t.layer)}
-                />
+              <Link
+                href={`/${t.categorySlug}/${t.slug}`}
+                data-spot=""
+                style={{ "--spot": layerColor(t.layer) } as React.CSSProperties}
+                className="group relative flex h-full items-start gap-3.5 rounded-xl bg-bg-elevated/80 p-4 shadow-ink transition-[box-shadow,transform] duration-300 ease-[var(--ease-out)] hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <ToolMonogram name={t.name} layer={t.layer} />
                 <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <Link
-                      href={`/${t.categorySlug}/${t.slug}`}
-                      className="link-draw truncate text-[14px] font-medium"
-                    >
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="truncate text-[15px] font-semibold tracking-[-0.01em] transition-colors group-hover:text-accent">
                       {t.name}
-                    </Link>
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
-                      {t.kind}
                     </span>
-                    {t.license ? (
-                      <span className="font-mono text-[10px] text-fg-subtle">
-                        {t.license}
-                      </span>
-                    ) : null}
-                    <span className="font-mono text-[11px] text-fg-subtle">
-                      · {t.categoryShort}
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="nudge nudge-up-right shrink-0 text-fg-subtle transition-colors group-hover:text-accent"
+                    >
+                      <path d="M7 17 17 7M9 7h8v8" />
+                    </svg>
+                  </span>
+                  {/* Kind, licence and section: what kind of thing, under what
+                      terms, and where in the stack. */}
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-fg-subtle">
+                    <span>{t.kind}</span>
+                    {t.license ? <span className="normal-case">{t.license}</span> : null}
+                    <span className="inline-flex items-center gap-1.5 normal-case">
+                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: layerColor(t.layer) }} />
+                      {t.categoryShort}
                     </span>
                   </span>
-                  <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                  <span className="mt-2 block text-pretty text-[13px] leading-relaxed text-fg-muted">
                     {t.blurb}
                   </span>
                   {/* Both halves, not the flattering one. `skipWhen` is the claim
@@ -347,34 +362,21 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
                       printed only `useWhen` was a directory like any other. */}
                   <DecisionValve
                     variant="inline"
-                    className="mt-1.5"
+                    className="mt-2.5"
                     toolName={t.name}
                     useWhen={t.useWhen}
                     skipWhen={t.skipWhen}
                   />
-                  {/* A compact marker, not a second list entry: the explorer
-                      answers "where does this live" and the honest answer is
-                      "here, and there too". The reason for the second home is on
-                      the tool page, which has room for it. */}
+                  {/* A compact marker, not a second card: the explorer answers
+                      "where does this live" and the honest answer is "here, and
+                      there too". The reason is on the tool page. */}
                   {t.secondHomes?.length ? (
-                    <span className="mt-1 block font-mono text-[10.5px] text-fg-subtle">
+                    <span className="mt-2 block font-mono text-[10.5px] text-fg-subtle">
                       also in {t.secondHomes.join(", ")}
                     </span>
                   ) : null}
                 </span>
-                <a
-                  href={`https://${t.domain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${t.name} (opens in a new tab)`}
-                  className="press mt-0.5 shrink-0 rounded p-1.5 text-fg-subtle hover:bg-bg hover:text-fg focus-visible:opacity-100 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M7 17 17 7M9 7h8v8" />
-                  </svg>
-                </a>
-              </div>
+              </Link>
             </li>
           ))}
         </ul>
