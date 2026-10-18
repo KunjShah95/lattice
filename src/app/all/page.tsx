@@ -10,7 +10,7 @@ import { CtaBand } from "@/components/marketing";
 export const metadata: Metadata = {
   title: "All AI infrastructure tools",
   description:
-    `Every AI stack tool in the ${site.name} index — ${toolCount} tools ` +
+    `Every AI stack tool in the ${site.name} index: ${toolCount} tools ` +
     `across ${kinds.length} kinds, filterable by section, deployment model, kind and cost.`,
   alternates: { canonical: "/all" },
   // Next does not derive `og:url` from the canonical, and an inherited one
@@ -30,7 +30,7 @@ export default function AllToolsPage() {
     <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* Every tool in the index, as an ItemList. This is the one page that
           lists all 112 and the only parent of every tool page, so without it the
-          complete set is described nowhere in structured data — a crawler sees
+          complete set is described nowhere in structured data: a crawler sees
           112 links it has to follow rather than 112 entries it can read.
           `blurb` is the description, same field the section pages use. */}
       <script

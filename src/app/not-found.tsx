@@ -54,7 +54,7 @@ export default function NotFound() {
 
         <p className="mx-auto mt-5 max-w-[50ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
           It may have moved, or the link that brought you here was out of date.
-          Nothing is broken on your side — the {toolCount}-tool index is still
+          Nothing is broken on your side: the {toolCount}-tool index is still
           where you left it.
         </p>
 

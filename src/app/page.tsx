@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CategorySection } from "@/components/category-section";
+import { ToolDirectory } from "@/components/tool-directory";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
@@ -15,7 +15,7 @@ import { isEarlyAccess } from "@/lib/offer";
 
 /**
  * The headline states the one claim no other directory makes. "AI
- * infrastructure" stays in it — it is the head term this page ranks for — and
+ * infrastructure" stays in it, it is the head term this page ranks for, and
  * the accent lands on "skip", the half of every entry competitors leave out.
  */
 const HEADLINE = ["Every", "AI", "infrastructure", "tool,", "with", "when", "to", "skip", "it."];
@@ -167,7 +167,7 @@ export default function HomePage() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
           <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             {/*
-              Each word rises out of its own mask, staggered. Transform only —
+              Each word rises out of its own mask, staggered. Transform only:
               the glyphs are at full ink from the first frame, so LCP and the
               contrast audit both see the finished headline. The spaces stay as
               text nodes between the masks, so the heading still reads (and
@@ -259,7 +259,7 @@ export default function HomePage() {
       {/* Coverage strip. Labelled as coverage, never as customers: these are
           tools the index maps, not companies that use it. */}
       <section aria-labelledby="covers" className="border-t border-border py-10">
-        <h2 id="covers" className="text-center font-mono text-[10.5px] uppercase tracking-[0.16em] text-fg-subtle">
+        <h2 id="covers" className="text-center text-[17px] font-medium text-fg-muted sm:text-[19px]">
           Maps the tools you are already weighing
         </h2>
         <div className="marquee mt-6" style={{ "--marquee-duration": "80s" } as React.CSSProperties}>
@@ -280,7 +280,6 @@ export default function HomePage() {
       <section aria-labelledby="ways-in" className="border-t border-border py-20">
         <SectionHeading
           id="ways-in"
-          eyebrow="Four ways in"
           title="Start from where you are, not from a category."
           lede="Most people arrive with a workload, a symptom or a shortlist. Each of those has its own door."
         />
@@ -336,19 +335,40 @@ recommend_stack({ workload: "rag" })`}
         </ul>
       </section>
 
-      {/* Symptom entry. Most readers arrive with a problem, not a category —
+      {/* The index as a directory: centred section headings over grids of
+          cards, each card one click from its tool page. */}
+      <section id="all" aria-labelledby="directory" className="scroll-mt-20 border-t border-border py-20">
+        <SectionHeading
+          id="directory"
+          title={`All ${toolCount} tools, by layer.`}
+          lede="Ordered by where each tool sits in a production system, not by how popular it is. Click any card for when to use it, when to skip it, and its alternatives."
+        />
+        <div className="mt-12">
+          <ToolDirectory categories={categories} />
+        </div>
+      </section>
+
+      {/* Symptom entry. Most readers arrive with a problem, not a category,
           and no other index in the category routes by symptom. Each card is
           one click from an ordered checklist through the stack. */}
-      <section aria-labelledby="fix-heading" className="border-t border-border py-12">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 id="fix-heading" className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            Something wrong? Start from the symptom
-          </h2>
-          <Link href="/fix" className="group inline-flex shrink-0 items-center gap-1 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent">
-            All symptoms
-            <span aria-hidden="true" className="nudge inline-block">→</span>
-          </Link>
-        </div>
+      <section aria-labelledby="fix-heading" className="border-t border-border py-20">
+        <SectionHeading
+          id="fix-heading"
+          title="Something wrong? Start from the symptom."
+          lede={
+            <>
+              Each one is an ordered checklist through the stack, cheapest check first.{" "}
+              <Link
+                href="/fix"
+                className="text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent"
+              >
+                See every symptom
+              </Link>
+              .
+            </>
+          }
+        />
+        <div className="mt-12" />
         {/* Cells on a sheet rather than floating cards: one hairline grid,
             shared edges. Hover marks the cell with crop corners and sends the
             arrow toward the page it opens. */}
@@ -382,7 +402,7 @@ recommend_stack({ workload: "rag" })`}
               <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Choosing, not fixing</span>
               <span className="mt-auto flex items-end justify-between gap-3">
                 <span className="text-pretty text-[15px] font-medium leading-snug transition-colors group-hover:text-accent">
-                  Compare tools — including across layers
+                  Compare tools, including across layers
                 </span>
                 <ArrowUpRight />
               </span>
@@ -391,7 +411,7 @@ recommend_stack({ workload: "rag" })`}
         </ul>
       </section>
 
-      {/* Decision path — the index answers "what exists", this answers
+      {/* Decision path: the index answers "what exists", this answers
           "given what I am building, which parts matter". */}
       <section id="start-here" className="scroll-mt-20 border-t border-border py-12">
         <StartHere />
@@ -401,14 +421,13 @@ recommend_stack({ workload: "rag" })`}
           used the Stack Builder or a symptom guide knows what a review would
           add, and is the reader most likely to want one. */}
       <section id="review" aria-labelledby="offer" className="scroll-mt-20 border-t border-border py-20">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col items-center gap-6">
+          <EarlyAccessPill />
           <SectionHeading
             id="offer"
-            eyebrow="For teams shipping AI"
             title="Want an engineer to check your stack?"
             lede="The same rulebook as the index, applied to your system: a written review of every layer, with a cost band and the risk most likely to bite first."
           />
-          <EarlyAccessPill className="shrink-0 self-start md:self-end" />
         </div>
         <div className="mt-12">
           <PricingTiers />
@@ -425,30 +444,15 @@ recommend_stack({ workload: "rag" })`}
         </p>
       </section>
 
-      <section aria-labelledby="home-faq" className="grid gap-10 border-t border-border py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <SectionHeading id="home-faq" eyebrow="Questions" title="The short answers." />
-        <Faq items={HOME_FAQ} />
+      <section aria-labelledby="home-faq" className="border-t border-border py-20">
+        <SectionHeading id="home-faq" title="The short answers." />
+        <div className="mx-auto mt-12 max-w-3xl">
+          <Faq items={HOME_FAQ} />
+        </div>
       </section>
 
       <div className="pb-20">
         <CtaBand />
-      </div>
-
-      {/* The index — the legend for the diagram above. */}
-      <div id="all" className="scroll-mt-20">
-        <div className="mb-8 flex items-baseline gap-3 border-t border-border pt-6">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            The index
-          </h2>
-          <span aria-hidden="true" className="h-px flex-1 bg-border" />
-          <span className="font-mono text-[11px] text-fg-subtle">
-            {categories.length} sections
-          </span>
-        </div>
-
-        {categories.map((category) => (
-          <CategorySection key={category.slug} category={category} />
-        ))}
       </div>
 
       {/* Colophon.
@@ -467,7 +471,7 @@ recommend_stack({ workload: "rag" })`}
             runtimes that serve weights, gateways that route requests, stores
             that hold embeddings, frameworks that run agents, and evals that say
             whether any of it works. Lattice indexes {toolCount} such AI
-            infrastructure tools as one AI stack, ordered by depth —{" "}
+            infrastructure tools as one AI stack, ordered by depth: {" "}
             <Link
               href="/all"
               className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"

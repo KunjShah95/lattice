@@ -14,14 +14,14 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 /**
- * /methodology — what this index claims, how it is checked, and what it
+ * /methodology: what this index claims, how it is checked, and what it
  * gets wrong.
  *
  * This page exists because of a specific and measured behaviour: a stated
  * caveat is a citability signal. It marks a page as non-commodity, and an
  * answer engine that is otherwise summarising nine vendor pages has a reason
  * to name this one instead. The one practitioner who broke through reported
- * the same thing in different words — his note that he does not treat GitHub
+ * the same thing in different words: his note that he does not treat GitHub
  * stars as quality "because they can be inflated" was, by his account, what
  * got him cited where comparable roundups were not.
  *
@@ -38,7 +38,7 @@ import { toJsonLd } from "@/lib/jsonld";
 export const metadata: Metadata = {
   title: "How the index is built",
   description:
-    "How the Lattice index is compiled and checked — the inclusion rules, the six-month build gate on licence and cost data, and an explicit list of what this index gets wrong or leaves out.",
+    "How the Lattice index is compiled and checked: the inclusion rules, the six-month build gate on licence and cost data, and an explicit list of what this index gets wrong or leaves out.",
   alternates: { canonical: "/methodology" },
   // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
   // canonical, and an inherited one points at the home page.
@@ -54,8 +54,8 @@ const selfHosted = allTools.filter((t) => t.deployment === "self-hosted").length
 
 /**
  * Coverage, derived. The limitation below used to name its thinnest layers by
- * hand and was wrong by its own dataset — Prompts, at 9, is thinner than Workflows
- * at 10 — so the sentence and the chart now both read from `lib/coverage`.
+ * hand and was wrong by its own dataset (Prompts, at 9, is thinner than Workflows
+ * at 10), so the sentence and the chart now both read from `lib/coverage`.
  */
 const coverage = layerCoverage();
 const fullest = extremeLayers(coverage, "fullest");
@@ -69,7 +69,7 @@ export default function MethodologyPage() {
       {/* A WebPage, not a CollectionPage: this page is *about* the index and
           lists nothing, so declaring a mainEntity it does not have would be the
           kind of small false claim the index is arguing against.
-          `about: { @id: organization }` is the load-bearing line — it ties the
+          `about: { @id: organization }` is the load-bearing line: it ties the
           methodology to the thing it describes, which is how a reader (or an
           engine) arrives at "this index states its own limits" rather than at a
           page about nothing in particular. */}
@@ -106,7 +106,7 @@ export default function MethodologyPage() {
           <>
             {toolCount} tools across {categories.length} sections,{" "}
             {resolvedComparisons.length} head-to-head comparisons and {posts.length}{" "}
-            essays. The selection, the checks, and — in the last section —{" "}
+            essays. The selection, the checks, and, in the last section, {" "}
             <span className="text-fg">
               the specific ways a reader should distrust this page
             </span>
@@ -118,8 +118,8 @@ export default function MethodologyPage() {
       {/* ------------------------------------------------------------ 1 */}
       <Section n="01" title="What gets included">
         <p className="editorial-justify">
-          An entry qualifies if it is infrastructure — something a production AI
-          system runs on — rather than a product a person uses. That single rule
+          An entry qualifies if it is infrastructure, something a production AI
+          system runs on, rather than a product a person uses. That single rule
           is what separates this list from the directories that index
           applications, and it excludes most of what is called an AI tool.
         </p>
@@ -146,7 +146,7 @@ export default function MethodologyPage() {
           <Link href="/review" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
             stack reviews
           </Link>{" "}
-          — a written assessment of a team&rsquo;s own system — currently free
+a written assessment of a team&rsquo;s own system, currently free
           during early access. A review sells judgement about your system; it
           never changes where a tool sits, how tools are ordered, or what a
           comparison concludes, and vendors cannot book one about their own
@@ -164,7 +164,7 @@ export default function MethodologyPage() {
           the categories are a consequence of it.
         </p>
         <p className="editorial-justify">
-          Most directories in this space have the right categories and no order —
+          Most directories in this space have the right categories and no order,
           which means they cannot answer the question a reader actually has,
           which is <em>where does this sit relative to what I already run</em>.
           That question is what{" "}
@@ -186,7 +186,7 @@ export default function MethodologyPage() {
             specialisation
           </Link>
           . Layers describe where a tool sits; a role describes what a person is
-          accountable for, and those are not the same partition — a platform
+          accountable for, and those are not the same partition: a platform
           engineer owns routing <em>and</em> orchestration <em>and</em> the evals that
           prove the whole thing works, which crosses all three bands. So roles are
           assigned separately, deliberately overlap, and no tool carries more than
@@ -206,7 +206,7 @@ export default function MethodologyPage() {
                 <strong className="font-medium text-fg">
                   Band {band.roman} · {band.title}
                 </strong>{" "}
-                — layers {band.layers.join(", ")}, covering{" "}
+layers {band.layers.join(", ")}, covering{" "}
                 {band.layers
                   .map(
                     (l) =>
@@ -224,7 +224,7 @@ export default function MethodologyPage() {
       <Section n="03" title="The use-when / skip-when pair">
         <p className="editorial-justify">
           Every tool carries two sentences, and the second is the one that
-          matters. Not a rating, not a star count, not a score out of ten — a
+          matters. Not a rating, not a star count, not a score out of ten: a
           statement of the condition under which you should pick something else.
         </p>
         <p className="editorial-justify">
@@ -244,7 +244,7 @@ export default function MethodologyPage() {
       <Section n="04" title="The build fails when data goes stale">
         <p className="editorial-justify">
           Licence, cost and deployment facts rot, and a confident stale figure is
-          worse than an absent one — it changes architecture. So this index is
+          worse than an absent one: it changes architecture. So this index is
           gated: if any entry&rsquo;s facts were last confirmed more than six months
           ago, the build{" "}
           <strong className="text-fg">throws</strong> and the site does not
@@ -252,7 +252,7 @@ export default function MethodologyPage() {
         </p>
         <p className="editorial-justify">
           That is a different class of claim from &ldquo;updated daily&rdquo;, because it is
-          enforced rather than asserted, and it produces a receipt — the build
+          enforced rather than asserted, and it produces a receipt: the build
           log. The date on each tool page is the date of a check that
           demonstrably happened.
         </p>
@@ -271,7 +271,7 @@ export default function MethodologyPage() {
           >
             /verification.json
           </a>{" "}
-          — the rule, the date it was enforced, and each entry&rsquo;s check date
+the rule, the date it was enforced, and each entry&rsquo;s check date
           and the month it expires. Nothing in it is hand-maintained; it is
           generated from the same dataset the guard reads. The dataset itself is
           published as{" "}
@@ -297,7 +297,7 @@ export default function MethodologyPage() {
             2,840. Hand-picking is a reason for that and not an apology for it,
             but the honest consequence is that{" "}
             <strong className="text-fg">whole projects will be missing</strong>{" "}
-            — including good ones. The index is biased toward what is
+including good ones. The index is biased toward what is
             well-documented and English-language-first.
           </Limitation>
 
@@ -403,7 +403,7 @@ export default function MethodologyPage() {
           >
             Corrections and suggestions
           </a>{" "}
-          — and note that a submission only becomes an entry if it clears the
+and note that a submission only becomes an entry if it clears the
           same bar as everything already here.
         </p>
       </Section>

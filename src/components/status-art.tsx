@@ -7,10 +7,10 @@ import { MARK_CELLS } from "@/lib/mark";
  * accent. These pages reuse it rather than an illustration, so even the
  * failure states are drawn in the site's own vocabulary:
  *
- *   - `missing` (404): one inked cell is gone — a dashed outline where the
+ *   - `missing` (404): one inked cell is gone: a dashed outline where the
  *     sheet should be, with crop marks around the gap.
  *   - `fault` (error): every cell is present, but one has been knocked out
- *     of alignment — shifted and turned, outlined in the accent — the way a
+ *     of alignment (shifted and turned, outlined in the accent), the way a
  *     drawing marks the part that failed.
  *
  * Decorative only (`aria-hidden`); the page's heading says what happened.

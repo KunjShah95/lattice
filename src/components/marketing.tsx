@@ -17,40 +17,34 @@ import {
  * The FAQ is `<details>`, which the browser opens and closes on its own.
  */
 
-/** Mono eyebrow + display heading + lede, the opening of every section. */
+/**
+ * Section opening: a centred display heading and an optional lede.
+ *
+ * There is deliberately no eyebrow label above it. The mono ", LABEL" kicker
+ * restated the heading in small type and made every section open twice; the
+ * heading carries the section on its own, large and centred.
+ */
 export function SectionHeading({
-  eyebrow,
   title,
   lede,
   id,
-  align = "left",
+  className = "",
 }: {
-  eyebrow: string;
   title: React.ReactNode;
   lede?: React.ReactNode;
   id?: string;
-  align?: "left" | "center";
+  className?: string;
 }) {
-  const center = align === "center";
   return (
-    <div className={center ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      <p
-        className={`flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.18em] text-fg-subtle ${
-          center ? "justify-center" : ""
-        }`}
-      >
-        <span aria-hidden="true" className="h-px w-5 bg-border-strong" />
-        {eyebrow}
-        {center ? <span aria-hidden="true" className="h-px w-5 bg-border-strong" /> : null}
-      </p>
+    <div className={`mx-auto max-w-3xl text-center ${className}`}>
       <h2
         id={id}
-        className="mt-4 text-balance font-serif text-[28px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[36px]"
+        className="text-balance font-serif text-[32px] font-medium leading-[1.08] tracking-[-0.025em] text-fg sm:text-[46px]"
       >
         {title}
       </h2>
       {lede ? (
-        <p className="mt-4 text-pretty text-[15px] leading-relaxed text-fg-muted sm:text-[16px]">
+        <p className="mx-auto mt-5 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
           {lede}
         </p>
       ) : null}

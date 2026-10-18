@@ -10,7 +10,7 @@
  * ## Free during early access
  *
  * Every tier ships with `price: null`, which renders as "Free during early
- * access". To start charging, set a number here — nothing else changes. The
+ * access". To start charging, set a number here: nothing else changes. The
  * layout is a pricing table from day one so that flip is a data edit, not a
  * redesign, and so early readers see the shape of what they are getting.
  *
@@ -18,7 +18,7 @@
  *
  * `NEXT_PUBLIC_BOOKING_URL` (a Cal.com or Calendly link) is where every
  * "book" button goes. Unset, buttons fall back to the review request section
- * on `/review`, which routes to the contact channel — never a dead link.
+ * on `/review`, which routes to the contact channel: never a dead link.
  */
 import { site } from "@/lib/site";
 

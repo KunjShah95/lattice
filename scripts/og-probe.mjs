@@ -41,7 +41,7 @@ export const el = OgCard(${propsJson});
 // The rule, read off @vercel/og index.node.js:19658, is NOT "more than one
 // child". It is: type === "div" && props.children && typeof children !==
 // "string" && display not in {flex, contents, none}. So a div wrapping a
-// single <Label/> is just as fatal as one wrapping three — which is why the
+// single <Label/> is just as fatal as one wrapping three, which is why the
 // previous version of this card passed: every div that held an element was
 // given display:flex, and every div that held text held a string.
 function findOffenders(node, path, out) {

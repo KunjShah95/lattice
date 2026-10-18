@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from "vitest";
 // The extension is stated rather than left to resolution, matching how
 // `app/signal/route.ts` and `app/mcp/route.ts` import their sibling `.mjs`
-// modules — `moduleResolution: "bundler"` will not map onto it.
+// modules: `moduleResolution: "bundler"` will not map onto it.
 import {
   bucketCount,
   clientKey,
@@ -17,8 +17,8 @@ import {
  *
  * The bug this guards is the one named in `strategy/04-monetisation.md` §7:
  * an unauthenticated POST endpoint where a well-formed flood writes to the
- * metrics the site publishes. The shape validation in `signal.mjs` cannot help —
- * those beacons are perfectly valid — so the ceiling has to be a count, and a
+ * metrics the site publishes. The shape validation in `signal.mjs` cannot help,
+ * those beacons are perfectly valid, so the ceiling has to be a count, and a
  * count is worth testing.
  *
  * The per-isolate caveat is documented at length in the module. What is asserted

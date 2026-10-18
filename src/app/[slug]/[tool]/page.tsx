@@ -58,7 +58,7 @@ const BUILT_AT = new Date();
  * rather than merely searchable.
  *
  * The first segment reuses the `slug` name already used by `app/[slug]`.
- * Next.js requires one name per dynamic position at a given depth — naming
+ * Next.js requires one name per dynamic position at a given depth: naming
  * this one `category` builds cleanly and then 500s at runtime with
  * "different slug names for the same dynamic path".
  */
@@ -90,7 +90,7 @@ export async function generateMetadata({
     alternates: { canonical: `/${category.slug}/${tool.slug}` },
     openGraph: {
       type: "article",
-      title: `${tool.name} — ${category.title}`,
+      title: `${tool.name}: ${category.title}`,
       description: tool.blurb,
       url: `${site.url}/${category.slug}/${tool.slug}`,
     },
@@ -114,7 +114,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   const alternativeTo = getAlternativeTo(categorySlug, toolSlug);
   const secondHomes = getSecondHomes(categorySlug, toolSlug);
 
-  // Comparisons that include this tool — the most valuable links on the page,
+  // Comparisons that include this tool: the most valuable links on the page,
   // because they are the only place a tool appears in a decision context.
   const inComparisons = resolvedComparisons.filter((c) =>
     c.tools.some((t) => t.name === tool.name),
@@ -162,7 +162,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                 { name: site.name, path: "" },
                 { name: category.title, path: `/${category.slug}` },
                 // One role in the trail when the tool has a single owner, all of
-                // them when it does not — a breadcrumb that named one role for a
+                // them when it does not: a breadcrumb that named one role for a
                 // two-role tool would be a small false claim in structured data.
                 ...rolesInOrder(tool.roles).map((r) => ({
                   name: roleTitle(r),
@@ -222,7 +222,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </div>
 
         {/* What it is, as a sentence that names its subject. Answer engines
-            lift passages, not layouts — "Paged-attention inference engine…"
+            lift passages, not layouts: "Paged-attention inference engine…"
             on its own does not say what it is describing. */}
         <p className="editorial-justify mt-6 text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           {toolDefinition(tool, category)}
@@ -240,7 +240,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             It is not metadata: the build throws if any entry is more than six
             months old, so the date on this page is the receipt for a check
             that actually happened. No competitor in this category can show
-            you one — the nearest, ToolDirectory, re-checks every 90 days by
+            you one: the nearest, ToolDirectory, re-checks every 90 days by
             hand. Saying so is the cheapest trust the site can buy. */}
         <dl className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
           {tool.license ? (
@@ -292,13 +292,13 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </div>
         </div>
 
-        {/* The decision pair — the site's whole thesis, per tool.
+        {/* The decision pair: the site's whole thesis, per tool.
 
             Rendered as one object with two states rather than two equal
             cards. Two equal rounded cards read as two features; the reader
             is meant to feel a valve. `use` is the active state and sits in
             full ink; `skip` is the constraint and recedes. Equal weight would
-            imply the two are equally worth knowing, which is false — almost
+            imply the two are equally worth knowing, which is false: almost
             every competitor in this category publishes a "best for" line and
             not one of them publishes the "skip when" half. That second
             sentence is the reason to trust the first. */}
@@ -312,7 +312,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
           <span className="text-fg">{category.responsibility}</span>{" "}
           <span className="text-fg-muted">
-            — that is what this layer of the stack is answerable for. See the
+that is what this layer of the stack is answerable for. See the
             full{" "}
             <Link
               href={`/${category.slug}`}
@@ -325,9 +325,9 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </p>
 
         {/* Second homes. A layer-ordered index that pretends every tool has
-            exactly one layer is convenient and wrong: the tools that span two
-            — an agent runtime whose memory is a vector store, an eval platform
-            whose registry versions prompts — are the ones a reader most needs
+            exactly one layer is convenient and wrong: the tools that span two (
+            an agent runtime whose memory is a vector store, an eval platform
+            whose registry versions prompts), are the ones a reader most needs
             to find from the *other* direction. The reason is shown, because an
             unexplained cross-reference reads as a mistake. */}
         {secondHomes.length ? (
@@ -348,7 +348,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                   />
                   {/* Tracked, because whether anyone follows a second home is the
                       only evidence that the taxonomy's overlaps are the thing
-                      readers actually want — the claim `layer_overlaps` and this
+                      readers actually want: the claim `layer_overlaps` and this
                       field were added to serve. */}
                   <TrackLink
                     href={`/${section.slug}`}
@@ -402,7 +402,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         {/* A badge a README can carry: when this entry's facts were last
             confirmed. A disclosure, not a block, so it costs the page nothing
             for the reader who does not maintain a README. No popularity figure
-            on it, on purpose — see `lib/badge.ts`. */}
+            on it, on purpose: see `lib/badge.ts`. */}
         <details className="mt-6 max-w-md border-l-2 border-border-strong pl-3.5">
           <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle transition-colors hover:text-fg-muted">
             Badge this entry
@@ -450,7 +450,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           <ul className="mt-4 space-y-px">
             {inComparisons.map((c) => (
               <li key={c.slug}>
-                {/* Tracked because this is the exit into the cross-layer wedge —
+                {/* Tracked because this is the exit into the cross-layer wedge:
                     the comparison surface `strategy/02` §4 says no funded
                     competitor can occupy. Whether anyone walks from a tool into
                     one is the only direct evidence the wedge is being used. */}
@@ -486,7 +486,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </section>
       ) : null}
 
-      {/* Alternatives — the peer graph, which is what a reader comparing
+      {/* Alternatives: the peer graph, which is what a reader comparing
           options actually wants next. */}
       {alternatives.length ? (
         <section className="mt-12">
@@ -544,7 +544,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </section>
       ) : null}
 
-      {/* Siblings — the crawl graph that keeps a section connected. */}
+      {/* Siblings: the crawl graph that keeps a section connected. */}
       {siblings.length ? (
         <section className="mt-12">
           <Eyebrow as="h2">Also in {category.short.toLowerCase()}</Eyebrow>

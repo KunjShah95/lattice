@@ -12,7 +12,7 @@ import { site } from "@/lib/site";
 import { absolute } from "@/lib/seo";
 
 /**
- * IBM Plex — a typeface family designed for engineering and technical
+ * IBM Plex: a typeface family designed for engineering and technical
  * documentation. Chosen over the Next.js default specifically because the
  * default is the single loudest "unbranded template" signal available.
  *
@@ -20,13 +20,13 @@ import { absolute } from "@/lib/seo";
  * a separate woff2 the reader downloads, and every family preloaded is
  * bandwidth taken from the HTML and CSS that gate first paint.
  *
- *   - Sans 400/500/600 — 400 is body copy, 500 is labels, and 600 is used by
+ *   - Sans 400/500/600: 400 is body copy, 500 is labels, and 600 is used by
  *     `.prose-lattice h3` and `strong`. Next serves all three from one
  *     variable file, so this is a single 40 KB request.
- *   - Serif 500 only — serif is display type and appears exactly once per
+ *   - Serif 500 only: serif is display type and appears exactly once per
  *     page, on an `h1` or `h2`, always at `font-medium`. 400 and 600 were
  *     never rendered by anything and cost two extra files (~30 KB).
- *   - Mono 400/500 — 400 is inline `code` and the small caps labels, 500 is
+ *   - Mono 400/500: 400 is inline `code` and the small caps labels, 500 is
  *     `.prose-lattice th`. Not preloaded: mono only ever sets 10–12px labels
  *     and code, where the `swap` fallback is invisible, and preloading it
  *     competed with the two faces that actually render the headline.
@@ -42,7 +42,7 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   preload: false,
 });
-/** Serif is reserved for display type — it carries the editorial voice. */
+/** Serif is reserved for display type: it carries the editorial voice. */
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
   subsets: ["latin"],
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   description: site.description,
   // Set here so the root layout is the single place canonicals are declared.
   // Every section, tool, essay and comparison sets its own, but the home page
-  // had none — and the home page is the URL most likely to be indexed under a
+  // had none, and the home page is the URL most likely to be indexed under a
   // variant (tracking params, trailing slash, apex vs www). `alternates` merges
   // rather than replaces, so child routes still override this.
   alternates: { canonical: "/" },
@@ -64,8 +64,8 @@ export const metadata: Metadata = {
    *
    * `openGraph` is inherited wholesale by any page that does not declare its
    * own, and an inherited `og:title` does not track the page's own `<title>`.
-   * Setting it to the site default here meant every top-level page — /compare,
-   * /fix, /all, /glossary, /blog, /roles — shipped an og:title and og:description
+   * Setting it to the site default here meant every top-level page (/compare,
+   * /fix, /all, /glossary, /blog, /roles), shipped an og:title and og:description
    * identical to the home page's, which is the single most-duplicated string
    * pair a site can emit and actively hides a page from the results it is
    * competing for.
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
    *
    * `url` is the exception, and it is why `absolute()` exists in lib/seo.ts.
    * It used to be pinned to `site.url`, which meant six of eight top-level pages
-   * shipped a canonical of their own alongside an `og:url` pointing at `/` — two
+   * shipped a canonical of their own alongside an `og:url` pointing at `/`two
    * tags for the same resource contradicting each other, which is exactly the
    * inconsistency that makes a scrap or an answer engine discount the rest of the
    * metadata. Next does not derive `og:url` from `alternates.canonical`, and
@@ -100,7 +100,7 @@ export const metadata: Metadata = {
  * Next.js already emits `width=device-width, initial-scale=1`, so this is not
  * about the width. `viewportFit: "cover"` lets the sticky header and the
  * glossary's sticky filter bar extend into the notch and rounded corners on
- * hardware that has them — without it iOS letterboxes the page into the safe
+ * hardware that has them: without it iOS letterboxes the page into the safe
  * area and the header sits visibly inset from the screen edge.
  *
  * `themeColor` is what a mobile browser paints behind the page when scrolling
@@ -142,7 +142,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {/*
             Skip link. The header carries nine layer links plus the search and
             the theme toggle, so a keyboard user landing on any page has to tab
-            through all of it before reaching the content — on a section page
+            through all of it before reaching the content: on a section page
             that is a dozen stops before the actual entry.
 
             Visually hidden until focused rather than `display: none`, because a
@@ -169,19 +169,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           A plain server-rendered <script> rather than `next/script` on purpose.
           Every page here is prerendered and served from the edge with a
           one-year `s-maxage`, so a runtime-injected tag never reaches the
-          cached HTML — `afterInteractive` would fire only on client-side
+          cached HTML: `afterInteractive` would fire only on client-side
           navigation and miss every cold cache hit, which is most real
           traffic. Baking the tag into the build puts it in the cached
           document on the very first request.
 
           Keep `type="module"`. Without it IE11 throws on the beacon's modern
           syntax; the error is invisible but the beacons are lost. `async`
-          satisfies `no-sync-scripts` and is safe here — module scripts are
+          satisfies `no-sync-scripts` and is safe here: module scripts are
           deferred by spec anyway, and the beacon has no ordering dependency
           on anything else on the page.
 
           The token in `data-cf-beacon` also scopes collection to this exact
-          hostname — Cloudflare validates it and silently discards beacons
+          hostname: Cloudflare validates it and silently discards beacons
           arriving from any other host.
         */}
         <script

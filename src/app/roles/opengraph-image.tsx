@@ -8,13 +8,13 @@ export const runtime = "nodejs";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-export const alt = "Tools by role — what each engineering specialisation owns";
+export const alt = "Tools by role: what each engineering specialisation owns";
 
 /**
  * Cover image for the role index.
  *
  * Without this file the page inherited the root layout's `openGraph`, so every
- * share of `/roles` carried the home card and the site-wide description — the
+ * share of `/roles` carried the home card and the site-wide description: the
  * two most-repeated strings on the whole site, on the one page whose entire
  * claim is that it is a different cut of the data. A share link that looks
  * identical to the home page is worse than no image, because it looks like the
@@ -34,9 +34,9 @@ export default function OpengraphImage() {
         eyebrow="By specialisation"
         title="Start from what you own."
         // Short on purpose. `clamp` in og.tsx truncates at 128 characters, and
-        // this one was landing just past that and ending in an ellipsis — which
+        // this one was landing just past that and ending in an ellipsis, which
         // reads as a bug on the card even though it is the clamp working.
-        subtitle={`The same ${toolCount} tools cut by role rather than stack layer — what each role owns.`}
+        subtitle={`The same ${toolCount} tools cut by role rather than stack layer: what each role owns.`}
         meta={names}
         layer={null}
         footNote="Roles overlap by design"

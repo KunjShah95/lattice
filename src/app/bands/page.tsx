@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "The three bands of the stack",
   // 195 characters. The three failure phrases are the whole hook and each one
   // is a thing people search, so they are kept and the framing around them cut
-  // — a description that hit the ceiling by dropping "unreliable and unmeasured"
+  //: a description that hit the ceiling by dropping "unreliable and unmeasured"
   // would lose the band III is the interesting one.
   description:
     "Nine stack layers, three bands: compute is slow and expensive, state gives wrong answers, control is unreliable and unmeasured.",
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
  *
  * ## Why this needed a route
  *
- * The bands were already load-bearing and already everywhere — the stack diagram
+ * The bands were already load-bearing and already everywhere: the stack diagram
  * colours by them, `/fix` groups symptoms under them, the layer ramp is built
- * from them, and `layer_overlaps` reports them — but they had no URL. So the one
+ * from them, and `layer_overlaps` reports them, but they had no URL. So the one
  * view a reader cannot reach from a link, cannot cite, and cannot send to a
  * colleague was the axis the rest of the site's vocabulary is built on.
  *
@@ -48,7 +48,7 @@ export default function BandsIndexPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The bands as an ItemList. Each is a collection with its own page, so
-          this is the only parent they have — and without it they are prose to a
+          this is the only parent they have, and without it they are prose to a
           crawler. */}
       <script
         type="application/ld+json"
@@ -78,7 +78,7 @@ export default function BandsIndexPage() {
           Nine layers, three bands.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          The layers are ordered because they are a dependency chain — you cannot
+          The layers are ordered because they are a dependency chain: you cannot
           tune weights before you serve them. But a reader rarely arrives with a
           layer in mind; they arrive with a symptom. And almost every production
           problem lives in one of these three places.
@@ -127,8 +127,8 @@ export default function BandsIndexPage() {
         The collapse is a simplification, and it hides something:{" "}
         <span className="text-fg-muted">band III is five of the nine layers</span>
         , so the band a reader is in does not tell them how much of the stack is
-        involved. That is the honest shape of the data rather than a defect in it
-        — the tooling market has concentrated in control — but it does mean the
+        involved. That is the honest shape of the data rather than a defect in it,
+        the tooling market has concentrated in control, but it does mean the
         bands are a shortcut and not a taxonomy. The{" "}
         <Link
           href="/methodology"

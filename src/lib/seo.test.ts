@@ -19,7 +19,7 @@ import { site } from "./site";
  */
 describe("absolute", () => {
   /**
-   * `og:url` is not derived by Next from `alternates.canonical` — set it once in
+   * `og:url` is not derived by Next from `alternates.canonical`set it once in
    * the root layout and every page inherits the home page's URL, and set nothing
    * and the tag disappears. Either way the two tags for the same resource
    * disagree. So it is computed by hand per page, which makes this function the
@@ -28,7 +28,7 @@ describe("absolute", () => {
    */
   it("gives the origin for the root, with no trailing slash", () => {
     // A trailing slash here would make the home page's og:url differ from its
-    // canonical by one character — the kind of mismatch that is invisible until
+    // canonical by one character: the kind of mismatch that is invisible until
     // it is the reason a scrap treats the two as separate pages.
     expect(absolute()).toBe(site.url);
     expect(absolute("/")).toBe(site.url);
@@ -51,7 +51,7 @@ describe("absolute", () => {
     // this passes; in CI the env var is defined but empty, so it passes only
     // because `site.ts` treats empty as unset and falls back to an https
     // placeholder. Revert that guard from `||` to `??` and this fails on every
-    // push while passing on every machine — which is exactly what it did.
+    // push while passing on every machine, which is exactly what it did.
     //
     // The origin being a placeholder is a separate invariant, asserted once in
     // `brand.test.ts`.

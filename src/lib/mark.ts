@@ -5,7 +5,7 @@
  *
  * Five cells are inked and spell an L; the four that are not are left as
  * registration dots, the way intersections are marked on drafting paper. The
- * corner cell — where the upright meets the base — is the only one in the
+ * corner cell, where the upright meets the base, is the only one in the
  * accent: it is the joint the rest of the letter bears on, which is the site's
  * argument about the substrate in one square.
  */

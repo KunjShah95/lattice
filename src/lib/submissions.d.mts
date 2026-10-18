@@ -2,7 +2,7 @@
  * Types for `submissions.mjs`.
  *
  * The module is plain `.mjs` rather than `.ts` because the triage workflow runs
- * it under bare `node` — no build step, no TypeScript runtime — which is the
+ * it under bare `node` (no build step, no TypeScript runtime), which is the
  * same constraint that shapes `scripts/generate-awesome-list.mjs`.
  *
  * This declaration is what lets the `/submit` page and the tests treat it as a

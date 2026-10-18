@@ -5,7 +5,7 @@
  * when an essay is compiled, and `headings.ts` lists the same headings for the
  * table of contents. A contents link whose `href` does not match the id on its
  * heading is a link that goes nowhere and looks fine in review, so there is one
- * implementation and both import it — they cannot disagree about how to spell a
+ * implementation and both import it: they cannot disagree about how to spell a
  * heading, only about which headings exist, and the browser test checks that.
  *
  * It is a plain `.mjs` with no imports because the compile step loads the plugin by

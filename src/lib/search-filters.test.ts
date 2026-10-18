@@ -22,8 +22,8 @@ import { categories } from "./data";
  * `facets.test.ts`. First, the *shape* is different: `facets.ts` takes a
  * selection object from a React component, this takes a query string, so the
  * parsing is part of the contract and a repeated key has to mean OR rather than
- * last-one-wins. Second, the corpus is mixed — tools and non-tools in one
- * index — and the interesting cases are the ones where a tool-only axis meets
+ * last-one-wins. Second, the corpus is mixed, tools and non-tools in one
+ * index, and the interesting cases are the ones where a tool-only axis meets
  * an entry that has no `facets` at all. Getting those wrong returns a plausible
  * list containing essays that were never filtered, which is worse than an
  * error.
@@ -49,7 +49,7 @@ describe("parseFilterParam", () => {
 
   it("ORs a repeated key rather than letting the last one win", () => {
     // `getAll`, not `get`. With `get`, `?cost=free&cost=usage-based` would
-    // silently become one value and the other would vanish — which looks like
+    // silently become one value and the other would vanish, which looks like
     // the filter working and returns the wrong set.
     expect(parse("cost=free&cost=usage-based")).toEqual(set("free", "usage-based"));
   });
@@ -97,7 +97,7 @@ describe("hasAnyFilter / activeFilterCount", () => {
   });
 });
 
-describe("matchesFilters — tools", () => {
+describe("matchesFilters: tools", () => {
   const pgvector = entries.find((e) => e.name === "pgvector")!;
 
   it("passes everything when nothing is constrained", () => {
@@ -124,7 +124,7 @@ describe("matchesFilters — tools", () => {
 
   it("matches a multi-valued role on either value", () => {
     // A tool tagged for two roles belongs under both, so selecting either must
-    // return it — the same rule `facets.ts` applies in the client explorer.
+    // return it: the same rule `facets.ts` applies in the client explorer.
     const multi = toolEntries().find((e) => (e.facets?.roles.length ?? 0) > 1)!;
     const [first, second] = multi.facets!.roles;
     expect(matchesFilters(multi, { role: set(first) })).toBe(true);
@@ -160,7 +160,7 @@ describe("matchesFilters — tools", () => {
   });
 });
 
-describe("matchesFilters — non-tool entries", () => {
+describe("matchesFilters: non-tool entries", () => {
   const essay = entries.find((e) => e.kind === "essay")!;
   const term = entries.find((e) => e.kind === "glossary")!;
 
@@ -201,7 +201,7 @@ describe("applyFilters over the real corpus", () => {
   });
 
   it("returns nothing for an impossible combination, without throwing", () => {
-    // Reading material is free, so `cost=free` alone does match some of it —
+    // Reading material is free, so `cost=free` alone does match some of it:
     // the combination has to be genuinely contradictory. `reading` entries have
     // `deployment: null`, which no axis ever publishes as a value, so pairing
     // `kind=reading` with a named deployment cannot match anything.
@@ -230,7 +230,7 @@ describe("applyFilters over the real corpus", () => {
 
   it("keys the vocabulary by filter name, not by field name", () => {
     // The caller passes `?role=`, so `acceptedFilterValues` has to say `role`.
-    // Publishing `roles` here — the field name on the entry — is a mismatch
+    // Publishing `roles` here, the field name on the entry, is a mismatch
     // that costs a caller a round trip to discover.
     const vocab = filterVocabulary(entries);
     for (const key of FILTER_KEYS) {

@@ -87,7 +87,7 @@ describe("comparison tables", () => {
     }
   });
 
-  it("leaves no cell blank — a blank cell is a question the reader cannot answer", () => {
+  it("leaves no cell blank: a blank cell is a question the reader cannot answer", () => {
     for (const c of comparisons) {
       for (const row of c.rows) {
         for (const [i, value] of row.values.entries()) {
@@ -179,7 +179,7 @@ describe("cross-layer comparisons", () => {
     }
   });
 
-  it("spans at least two bands — otherwise it is a substitutes page", () => {
+  it("spans at least two bands: otherwise it is a substitutes page", () => {
     for (const c of crossLayer) {
       const bands = new Set(c.tools.map((t) => bandOf(t.layer)));
       expect(bands.size, c.slug).toBeGreaterThanOrEqual(2);

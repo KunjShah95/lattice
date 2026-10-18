@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
  *
  * `/methodology` earns a slot rather than living in the footer, because it is
  * the page a sceptical reader opens to decide whether to believe anything else
- * here — and it is the only route whose subject is the index itself rather than
+ * here, and it is the only route whose subject is the index itself rather than
  * an entry in it. Burying it would be self-defeating.
  */
 /**
@@ -56,7 +56,7 @@ export function DesktopNav() {
           }`}
         >
           {l.label}
-          {/* Underline is a drawn rule, not a pill — matches the rest of the
+          {/* Underline is a drawn rule, not a pill: matches the rest of the
               page's hairline treatment. Inactive links draw a faint rule from
               the left on hover; the active one holds it in the accent. */}
           <span
@@ -75,15 +75,15 @@ export function DesktopNav() {
 
 /**
  * Mobile drawer. The header nav used to be `hidden` below lg, which left
- * phones with no navigation at all — the worst possible state for a site
+ * phones with no navigation at all: the worst possible state for a site
  * whose whole value is browsing by section.
  */
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const isActive = useIsActive();
 
-  // Closing is owned by the events that cause it — the link press and the
-  // Escape key — rather than an effect watching the route. Same principle as
+  // Closing is owned by the events that cause it, the link press and the
+  // Escape key, rather than an effect watching the route. Same principle as
   // the search palette: transient UI state belongs to the interaction that
   // opened it, not to a subscription that fires after render.
   const close = () => setOpen(false);
@@ -116,7 +116,7 @@ export function MobileNav() {
         className="press -mr-1 flex h-10 w-10 items-center justify-center rounded-md text-fg-muted hover:bg-bg-sunken hover:text-fg"
       >
         {/* Three rules that fold into a cross, rather than two icons
-            swapped — the control visibly becomes its own opposite. */}
+            swapped: the control visibly becomes its own opposite. */}
         <span aria-hidden="true" className="relative block h-3 w-4">
           <span
             className={`absolute left-0 h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-[var(--ease-out)] ${
@@ -149,7 +149,7 @@ export function MobileNav() {
           <nav
             id="mobile-nav"
             aria-label="Sections"
-            // Solid, not `bg-bg/95 backdrop-blur-md` — at 95% the blur is
+            // Solid, not `bg-bg/95 backdrop-blur-md`at 95% the blur is
             // invisible, and a backdrop-filter has to be recomputed whenever
             // the content behind it changes. See the note on the site header.
             className="pop-in absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] overflow-y-auto overscroll-contain border-b border-border bg-bg pb-[env(safe-area-inset-bottom)] shadow-float"
@@ -170,7 +170,7 @@ export function MobileNav() {
                     }`}
                   >
                     {/* Sheet numbers, the way a drawing set indexes its
-                        pages — and a fixed-width gutter that keeps every
+                        pages, and a fixed-width gutter that keeps every
                         label on the same left edge. */}
                     <span
                       aria-hidden="true"

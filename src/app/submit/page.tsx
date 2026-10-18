@@ -7,7 +7,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 /**
- * `/submit` — the intake, and the page that has to be honest about it.
+ * `/submit`the intake, and the page that has to be honest about it.
  *
  * There is no server route here, deliberately. A form that POSTs somewhere needs
  * a database, spam protection and a moderation queue before it is trustworthy;
@@ -20,14 +20,14 @@ import { toJsonLd } from "@/lib/jsonld";
  * hand-picked and that there is no submission form resulting in an entry. This
  * page does not contradict that: a submission produces a *draft under review*,
  * never an entry. So the copy below leads with what the reviewer decides, not
- * with what the submitter gets — because the honest answer to "what happens if I
+ * with what the submitter gets, because the honest answer to "what happens if I
  * submit something" is "it might be declined", and a page that hides that is
  * how a submission queue fills with things nobody wanted.
  */
 export const metadata: Metadata = {
   title: "Submit a tool",
   description:
-    "Suggest a tool for the index. A maintainer reviews every submission and decides whether it becomes an entry — most are declined, and the review bar is published.",
+    "Suggest a tool for the index. A maintainer reviews every submission and decides whether it becomes an entry: most are declined, and the review bar is published.",
   alternates: { canonical: "/submit" },
   openGraph: { url: absolute("/submit") },
 };
@@ -120,8 +120,8 @@ export default function SubmitPage() {
         </h2>
         <ul className="mt-3 space-y-2 text-[14.5px] leading-relaxed text-fg-muted">
           <li>
-            Is it <strong className="text-fg">infrastructure</strong> — something
-            a production AI system runs on — rather than an application someone
+            Is it <strong className="text-fg">infrastructure</strong>, something
+            a production AI system runs on, rather than an application someone
             uses? That single test excludes most things called AI tools.
           </li>
           <li>
@@ -184,7 +184,7 @@ export default function SubmitPage() {
         </h2>
         <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           Copy this into the issue body. The field names and the fence markers
-          have to survive editing — the bot reads them, and a renamed field
+          have to survive editing: the bot reads them, and a renamed field
           arrives empty.
         </p>
         {/*
@@ -195,7 +195,7 @@ export default function SubmitPage() {
           few fields of the form.
 
           The `aria-label` names what the scrollable thing *is* rather than
-          repeating the visible heading — a screen reader announcing "The
+          repeating the visible heading: a screen reader announcing "The
           template for opening a submission issue" tells the reader what they
           have landed on when they tab into it.
         */}
@@ -215,7 +215,7 @@ export default function SubmitPage() {
           The nine layers
         </h2>
         <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
-          Pick the one you think it belongs in. Guessing is fine and expected —
+          Pick the one you think it belongs in. Guessing is fine and expected:
           the reviewer will disagree, and that disagreement is the useful part.
         </p>
         <ul className="mt-4 grid gap-px border border-border bg-border sm:grid-cols-2">
@@ -255,7 +255,7 @@ export default function SubmitPage() {
 
       <p className="editorial-justify mt-12 max-w-[62ch] border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
         Corrections to entries that are already here are treated as more urgent
-        than new submissions — a wrong licence or a wrong deployment model can
+        than new submissions: a wrong licence or a wrong deployment model can
         change an architecture decision. The same issue link works; say which
         entry in the notes. The bar is written out on the{" "}
         <Link

@@ -10,7 +10,7 @@
  * caller resolves the colour and passes it in.
  *
  * `facetGroup` / `facetValue` are `data-` attributes and not styling hooks. The
- * accessible name is `${label} ${count}` — "Free 77" — which collides: `free` and
+ * accessible name is `${label} ${count}`"Free 77"which collides: `free` and
  * `free-tier` both start with "Free", so a name-based selector matches two chips
  * and fails in strict mode. The browser tests need to address one facet
  * deterministically, and no role or ARIA attribute distinguishes them without also

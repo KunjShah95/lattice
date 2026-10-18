@@ -8,7 +8,7 @@
  * row in a verdict destroys the wedge. So this table declares no winner. It lays
  * the attributes side by side, marks the rows where the tools *differ* (the only
  * rows a decision can turn on), and stops. "Which is better" needs the reader's
- * constraints, and the page that takes constraints is the Stack Builder — which the
+ * constraints, and the page that takes constraints is the Stack Builder, which the
  * result links to.
  *
  * Pure and dependency-free so the logic is testable without a DOM: the component
@@ -40,7 +40,7 @@ export type CompareRow = {
   values: string[];
   /**
    * `fact` rows are attributes a reader can check; `judgement` rows are the
-   * editorial use/skip lines. Only facts are flagged as differing — two different
+   * editorial use/skip lines. Only facts are flagged as differing: two different
    * sentences are different by construction, and a "differs" marker on them would
    * be noise that teaches the reader to ignore the marker on the rows that matter.
    */
@@ -90,8 +90,8 @@ export type Relation = {
 /**
  * How the chosen tools relate in the stack.
  *
- * Two tools in one section are *usually* substitutes, but not always — a section is
- * a job, not a product category — so the wording is "usually". Tools across layers
+ * Two tools in one section are *usually* substitutes, but not always (a section is
+ * a job, not a product category), so the wording is "usually". Tools across layers
  * are never substitutes, and saying so is the point: it stops a reader treating a
  * gateway and an evaluation platform as rivals because they sit in one table.
  */
@@ -112,7 +112,7 @@ export function relationOf(tools: CompareTool[]): Relation {
   };
 }
 
-/** Number of fact rows that differ — the headline of the comparison. */
+/** Number of fact rows that differ: the headline of the comparison. */
 export function differingFacts(rows: CompareRow[]): number {
   return rows.filter((r) => r.kind === "fact" && r.differs).length;
 }

@@ -29,7 +29,7 @@ import {
 } from "@/lib/stack-url";
 
 /**
- * Stack Builder — answer the questions, then build. Answers edit a draft; the
+ * Stack Builder: answer the questions, then build. Answers edit a draft; the
  * recommendation is computed when the reader submits ("Build my stack"), so a
  * half-answered case never flickers a stack the reader did not ask for. The URL
  * describes the last *built* case (so every stack is a shareable link), and the
@@ -184,7 +184,7 @@ const PRESETS: Array<{ label: string; detail: string; state: Case }> = [
 /**
  * A shared link restores the case. This runs as the state initializer, not
  * in an effect: prerender has no window, so the server gets the blank slate
- * and the client picks up the URL on first render — no cascading re-renders.
+ * and the client picks up the URL on first render: no cascading re-renders.
  * With no query string the builder opens empty; DEFAULT_CASE only feeds
  * the Reset button and the preset bases below.
  */
@@ -270,7 +270,7 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-/** Engine inputs that differ between two cases — what a rebuild would change. */
+/** Engine inputs that differ between two cases: what a rebuild would change. */
 function changedAnswers(a: Case, b: Case): number {
   const x = caseToInput(a);
   const y = caseToInput(b);
@@ -282,7 +282,7 @@ export function StackBuilder() {
   const [c, setC] = useState<Case>(readInitialCase);
   /**
    * The last case the reader submitted, or null before the first build. A
-   * shared link counts as submitted — whoever sent it already pressed Build —
+   * shared link counts as submitted, whoever sent it already pressed Build,
    * so it opens on the stack rather than on an empty results panel.
    */
   const [built, setBuilt] = useState<Case | null>(readUrlCase);
@@ -331,8 +331,8 @@ export function StackBuilder() {
   // Pick up the URL after mount, for in-app navigation.
   //
   // `readInitialCase` in the state initialiser covers a direct load or a pasted
-  // link. It does not cover arriving from another page of this site — the
-  // `/stack/<workload>` pages link here with a full case in the query — because the
+  // link. It does not cover arriving from another page of this site: the
+  // `/stack/<workload>` pages link here with a full case in the query, because the
   // App Router updates `window.location` *after* the new page first renders. The
   // initialiser then saw the previous URL and built the blank case.
   //
@@ -349,7 +349,7 @@ export function StackBuilder() {
   }, []);
 
   // The URL is the save: each build is reflected, so the stack is a link.
-  // replaceState, never pushState — rebuilding must not spray history. Before
+  // replaceState, never pushState: rebuilding must not spray history. Before
   // the first build there is no stack, so the URL stays bare.
   useEffect(() => {
     if (!encoded) return;
@@ -464,7 +464,7 @@ export function StackBuilder() {
       <div className="grid gap-7 rounded-lg border border-border bg-bg-elevated p-5 sm:p-6">
         <fieldset>
           <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            01 — What are you building?
+            01: What are you building?
           </legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {WORKLOADS.map((w) => (
@@ -488,7 +488,7 @@ export function StackBuilder() {
 
         <fieldset>
           <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            02 — Your case
+            02: Your case
           </legend>
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
             <label className="block">
@@ -558,7 +558,7 @@ export function StackBuilder() {
 
         <fieldset>
           <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            03 — Constraints
+            03: Constraints
           </legend>
           <div className="mt-3 flex flex-wrap gap-2">
             {[
@@ -579,7 +579,7 @@ export function StackBuilder() {
 
         <fieldset>
           <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            04 — Priority
+            04: Priority
           </legend>
           <label className="mt-3 block">
             <span className="flex justify-between text-[13px] text-fg-muted">
@@ -612,7 +612,7 @@ export function StackBuilder() {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-bg-elevated px-4 py-3 shadow-float">
             <p className="min-w-0 text-[12.5px] leading-snug text-fg-muted" aria-live="polite">
               {built === null ? (
-                <>Answer what applies — nothing is required but the workload.</>
+                <>Answer what applies: nothing is required but the workload.</>
               ) : pending ? (
                 <>
                   <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-accent" aria-hidden="true" />
@@ -663,7 +663,7 @@ export function StackBuilder() {
           tabIndex={-1}
           className="scroll-mt-24 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle outline-none"
         >
-          Your stack — built from your answers
+          Your stack: built from your answers
         </h2>
         <p className="mt-2 font-serif text-[20px] leading-snug">{result.summary}</p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -790,7 +790,7 @@ export function StackBuilder() {
             </p>
             <p className="mt-1 text-[11.5px] text-fg-subtle">
               {result.costDrivers.length
-                ? `Driven by ${result.costDrivers.join(", ")} — the usage-billed picks.`
+                ? `Driven by ${result.costDrivers.join(", ")}: the usage-billed picks.`
                 : "No usage-billed picks in this stack."}{" "}
               Heuristic band, not a quote.
             </p>

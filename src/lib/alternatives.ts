@@ -7,7 +7,7 @@ import type { Category, Tool } from "@/lib/types";
  * A directory that only lists tools leaves the actual decision unmade, and a
  * tool page that names three alternatives still leaves the reader to assemble
  * the comparison themselves. "Alternatives to X" is, on the available
- * evidence, the query shape with the best citation behaviour in this category —
+ * evidence, the query shape with the best citation behaviour in this category:
  * it is what a reader types after they have already decided to leave something,
  * and it is the query a vendor-authored comparison page is *trying* to win.
  *
@@ -31,18 +31,18 @@ export type AlternativeEntry = {
  * Reusing each alternative's own blurb would be a bug: "Rust vector database
  * with rich filtering payloads" tells you what Qdrant is, not what it is
  * instead of Pinecone. The comparison the reader is actually making is
- * second-order — pgvector vs Qdrant is a different question from pgvector vs
- * Pinecone — so the framing has to be derived from the pair.
+ * second-order, pgvector vs Qdrant is a different question from pgvector vs
+ * Pinecone, so the framing has to be derived from the pair.
  */
 function angleFor(subject: Tool, alt: Tool, sameSection: boolean): string {
   // Same layer: the reader is choosing within a category, so the honest
   // framing is the axis they differ on.
-  if (sameSection) return `Same layer — ${alt.blurb.charAt(0).toLowerCase()}${alt.blurb.slice(1)}`;
+  if (sameSection) return `Same layer: ${alt.blurb.charAt(0).toLowerCase()}${alt.blurb.slice(1)}`;
 
   // Different layers: the question is not "which is better" but "are these
   // substitutes at all", which is almost always no. Saying so is the useful
   // answer and it is the one a cross-category list would hide.
-  return `Different layer (${alt.kind}) — not a drop-in substitute; adjacent to ${subject.kind}`;
+  return `Different layer (${alt.kind}), not a drop-in substitute; adjacent to ${subject.kind}`;
 }
 
 /** Every tool that names `tool` as an alternative, i.e. points *at* it. */
@@ -59,7 +59,7 @@ export function getSubstitutes(categorySlug: string, toolSlug: string): Alternat
   }));
 
   // Tools this one names as alternatives. These are usually the better
-  // answer — they are the ones an editor put on the page deliberately rather
+  // answer: they are the ones an editor put on the page deliberately rather
   // than the ones that happened to point back.
   const outbound = (tool.alternatives ?? [])
     .map((name) => allTools.find((t) => t.name === name))
@@ -109,7 +109,7 @@ export function allAlternativesPages() {
  * Derived, not authored, which is the honest constraint: this is a directory
  * with no sponsorship, so the recommendation can only be assembled from the
  * data it already holds. It says which substitute is closest to the subject on
- * deployment and licence — the two facts that most often decide it — and it
+ * deployment and licence, the two facts that most often decide it, and it
  * refuses to name an overall winner, because without knowing the reader's
  * constraints that claim is not verifiable.
  */
@@ -148,7 +148,7 @@ export function verdictFor(
     `${subs.length} ${subs.length === 1 ? "tool" : "tools"} on this index ${subs.length === 1 ? "is" : "are"} recorded as a substitute for ${subject.name}.`;
 
   const caveat = crossLayer
-    ? ` ${crossLayer} of them sit in a different layer, which means adjacent rather than interchangeable — check the section before treating ${crossLayer === 1 ? "it" : "them"} as a swap.`
+    ? ` ${crossLayer} of them sit in a different layer, which means adjacent rather than interchangeable: check the section before treating ${crossLayer === 1 ? "it" : "them"} as a swap.`
     : ` All of them sit in ${subjectCategory.title}, so the choice is a real one rather than a category change.`;
 
   return `${head}${parts.length ? ` ${parts.join(", and ")}.` : ""}${caveat} There is no overall winner here: which one is right depends on traffic shape, operational budget and how much of ${subject.name} you have already built around.`;

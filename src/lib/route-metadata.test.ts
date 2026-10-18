@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 // The home page is not in this list: it exports no metadata, taking everything
-// from the root layout — which imports `next/font`, so it cannot be evaluated
+// from the root layout, which imports `next/font`, so it cannot be evaluated
 // here. `absolute("/")` is what the layout hands it, and `seo.test.ts` asserts
 // that string; the rendered result is checked against a live server.
 import { metadata as allMetadata } from "@/app/all/page";
@@ -49,7 +49,7 @@ import sitemap from "@/app/sitemap";
  * `generateMetadata` is called with the params the router would pass.
  *
  * The rule that matters most is canonical == og:url. Next does not derive
- * `og:url` from `alternates.canonical` — set it once in the root layout and every
+ * `og:url` from `alternates.canonical`set it once in the root layout and every
  * page inherits the home page's URL, set nothing and the tag vanishes. Either way
  * the two tags for the same resource disagree, and it was checked live before it
  * was checked here: `/roles`, `/all`, `/glossary` and `/blog` each shipped a
@@ -61,7 +61,7 @@ import sitemap from "@/app/sitemap";
 /**
  * Next accepts a string, a `URL`, or a descriptor object; all render absolute.
  * The descriptor form is `{ url }` or the plural `{ urls }`, and this site uses
- * only the singular — the plural branch is handled so a future switch fails a
+ * only the singular: the plural branch is handled so a future switch fails a
  * test rather than reading `undefined`.
  */
 function canonicalOf(m: Metadata): string | null {
@@ -76,7 +76,7 @@ function canonicalOf(m: Metadata): string | null {
 }
 
 /**
- * `openGraph.url` is narrower than `alternates.canonical` — Next types it as
+ * `openGraph.url` is narrower than `alternates.canonical`Next types it as
  * `string | URL`, with no descriptor form. The `String()` fallback is unreachable
  * today; it exists so widening the type later fails here rather than rendering
  * `[object Object]` into a tag nobody checks.
@@ -259,13 +259,13 @@ describe("route metadata, across every route", () => {
  * `/all`, `/blog`, `/glossary`, `/methodology` and `/roles/<id>` had no card and
  * were relying on inheriting the root one. Removing `openGraph.title` from the
  * layout to fix the duplicated `og:title` also dropped that inheritance, and five
- * routes went from *a wrong card* to *no card* — which is worse, because
+ * routes went from *a wrong card* to *no card*, which is worse, because
  * `twitter:summary` renders as a bare text link with no image at all.
  *
  * A card per page is the fix, and this test is what keeps the set honest. It is
  * a filesystem assertion rather than a rendered-metadata one because the
  * `opengraph-image` file convention is resolved by the build, not by
- * `generateMetadata` — nothing in the metadata object records that a card exists.
+ * `generateMetadata`nothing in the metadata object records that a card exists.
  */
 const SEGMENTS_WITH_CARDS = [
   "",
@@ -307,7 +307,7 @@ describe("role index structured data", () => {
    *
    * Asserted against the metadata and vocabulary directly rather than by
    * rendering: `toJsonLd` already has its own escaping suite, and what is worth
-   * pinning here is that every role in `ROLES` appears in the list — the failure
+   * pinning here is that every role in `ROLES` appears in the list: the failure
    * mode is a new role shipping with a card, a page and a sitemap entry, and no
    * listing of it anywhere a machine reads.
    */
@@ -333,7 +333,7 @@ describe("role index structured data", () => {
    * appeared twice, and `/bands` three times.
    *
    * Nothing in the build or in `next build` objects. A duplicate URL in a
-   * sitemap is legal XML, so it shipped silently — it spends crawl budget and
+   * sitemap is legal XML, so it shipped silently: it spends crawl budget and
    * it makes the `lastModified` a crawler honours ambiguous, since two entries
    * for one page can disagree.
    */
@@ -362,15 +362,15 @@ describe("role index structured data", () => {
 /**
  * Index pages and the structured data they owe a crawler.
  *
- * Seven routes — `/all`, `/blog`, `/compare`, `/stack-builder`, `/glossary`,
- * `/methodology`, `/fix` — shipped with no JSON-LD at all while `/roles` and
+ * Seven routes: `/all`, `/blog`, `/compare`, `/stack-builder`, `/glossary`,
+ * `/methodology`, `/fix`shipped with no JSON-LD at all while `/roles` and
  * every section page carried a full graph. Nothing caught it: the pages render,
  * the sitemap lists them, every metadata assertion below passes, and it only
  * shows up in `scripts/audit-seo.mjs` as "JSON-LD: none found" on lines sitting
  * next to four non-HTML endpoints that legitimately have none.
  *
  * Asserted against the source rather than a rendered page, because these graphs
- * are injected as a `<script>` in the component body — `metadata` cannot see
+ * are injected as a `<script>` in the component body: `metadata` cannot see
  * them, and rendering all seven in a unit test is not what this file is for.
  * What matters is that a new index page cannot be added without noticing it
  * owes a collection, so the map below is the assertion surface: a route in it
@@ -412,7 +412,7 @@ describe("index page structured data", () => {
 
   it("declares a collection exactly where the page is a list of sub-pages", () => {
     // The collection itself is built by `collectionPageNodes` in lib/seo.ts, so
-    // the signal in the page is the call plus a `listId` — not a literal
+    // the signal in the page is the call plus a `listId`not a literal
     // `"@type": "ItemList"`, which would mean grepping the shared helper instead
     // of the page and finding it everywhere at once.
     //
@@ -420,7 +420,7 @@ describe("index page structured data", () => {
     // `/corrections` are pages *about* the index and link to no collection,
     // `/stack-builder` is an interactive tool rather than a list, and `/submit` is
     // a form. Declaring a collection on any of them would be a claim the page does
-    // not make — `/corrections` in particular is a `Blog`, whose posts are rows
+    // not make: `/corrections` in particular is a `Blog`, whose posts are rows
     // rather than sub-pages.
     const wrong: string[] = [];
     for (const [segment, expectsList] of INDEX_ROUTES) {
@@ -452,14 +452,14 @@ describe("meta description budget", () => {
    *
    * There was no single rule before this: `brand.test.ts` held the homepage to
    * ~160 characters while `comparisons.test.ts` let comparison pages run to 200,
-   * and nothing covered the tool pages at all — which is where an audit of the
+   * and nothing covered the tool pages at all, which is where an audit of the
    * live site found 130 of 193 over budget with the site "when to skip it"
    * clause truncated away.
    *
    * The 200 ceiling is deliberate rather than 160: several pages are honest
    * sentences that cannot be said in less, and truncating prose to hit a number
    * produces worse copy, not better SEO. What must hold is that the sentence
-   * which carries the page's argument is not the part being cut — asserted in
+   * which carries the page's argument is not the part being cut: asserted in
    * `seo.test.ts` for tool pages, where the hook is generated.
    */
   const CEILING = 200;
@@ -479,7 +479,7 @@ describe("meta description budget", () => {
 describe("title budget", () => {
   /**
    * A title under 25 characters renders as a stub. `/blog` was "Essays · Lattice"
-   * at 16 and `/glossary` "Glossary · Lattice" at 18 — neither says what the page
+   * at 16 and `/glossary` "Glossary · Lattice" at 18: neither says what the page
    * is. The floor exists to catch that class.
    *
    * There is deliberately no matching ceiling. Sixty-four titles run long, and
@@ -497,7 +497,7 @@ describe("title budget", () => {
       // raw value is what every route in this file returns and it is 10
       // characters shorter than what a reader sees. Measuring it raw would fail
       // "Essays on production AI" (23) for a page that actually renders as
-      // "Essays on production AI · Lattice" (33) — so the template is applied
+      // "Essays on production AI · Lattice" (33), so the template is applied
       // here to measure the string a search result shows.
       const raw = r.meta.title;
       if (typeof raw !== "string") continue;
@@ -514,7 +514,7 @@ describe("title budget", () => {
  * Every page making a factual claim names who wrote it and when it was checked.
  *
  * The category audit found a named editor with a visible verification date on
- * every page engines cited — and `/compare`, `/fix` and `/blog` were the only
+ * every page engines cited, and `/compare`, `/fix` and `/blog` were the only
  * families declaring one. The tool pages (112), glossary pages (51) and
  * alternatives pages made up the bulk of the site and had none, which is effort
  * ranked exactly backwards against result.
@@ -561,7 +561,7 @@ describe("authorship and verification", () => {
 
   it("spreads credit() rather than restating author and date by hand", () => {
     // `credit()` exists so the author, publisher and date cannot drift apart
-    // across four page families — which is what happened before it: three
+    // across four page families, which is what happened before it: three
     // families each spelled out a subset of the three fields. A page that
     // hand-rolls `dateModified` here has opted out of that.
     const stray: string[] = [];
@@ -578,12 +578,12 @@ describe("authorship and verification", () => {
 
   it("resolves credit() to a real author node and the dataset's month", () => {
     // The end of the chain. `credit()` must point at a Person when one is
-    // configured and at the organisation otherwise — never a Person named after
+    // configured and at the organisation otherwise: never a Person named after
     // the organisation, which is a false claim in the field engines read.
     //
     // Both branches are asserted rather than just the configured one, because
     // `vitest.config.mts` only forwards the branding variables and
-    // `NEXT_PUBLIC_AUTHOR_NAME` is not among them — so in CI `site.author` is
+    // `NEXT_PUBLIC_AUTHOR_NAME` is not among them, so in CI `site.author` is
     // null and the byline reads "Lattice editorial". `brand.test.ts` is gated
     // off CI for exactly that reason. Asserting the named branch here would
     // mean this file fails on every push and passes on every machine.
@@ -651,7 +651,7 @@ describe("share image coverage", () => {
   it("prerenders every dynamic card instead of rendering it on the Worker", () => {
     // lib/og.tsx reads its fonts from `process.cwd()`, which exists at build
     // time and not on Cloudflare. A dynamic card with no `generateStaticParams`
-    // is rendered on demand there and returns a 500 — 81 of 250 cards did, and
+    // is rendered on demand there and returns a 500: 81 of 250 cards did, and
     // every page still declared its og:image, so nothing else noticed.
     const onDemand = SEGMENTS_WITH_CARDS.filter((segment) => {
       if (!segment.includes("[")) return false;

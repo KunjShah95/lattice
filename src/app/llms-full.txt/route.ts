@@ -14,7 +14,7 @@ import { site } from "@/lib/site";
 import { openness, toolDefinition } from "@/lib/seo";
 
 /**
- * /llms-full.txt — the whole index as one plain-text document.
+ * /llms-full.txt: the whole index as one plain-text document.
  *
  * /llms.txt is the table of contents; this is the book. An agent asked "which
  * inference runtime should I use" can read every tool's use/skip guidance,
@@ -24,12 +24,12 @@ import { openness, toolDefinition } from "@/lib/seo";
  */
 export function GET() {
   const lines: string[] = [
-    `# ${site.name} — full index`,
+    `# ${site.name}: full index`,
     "",
     `> ${site.description}`,
     "",
     `${toolCount} tools across ${categories.length} sections. Facts verified ${AS_OF}.`,
-    `Source: ${site.url} — cite tool pages as ${site.url}/<section>/<tool>.`,
+    `Source: ${site.url}: cite tool pages as ${site.url}/<section>/<tool>.`,
     "Listed tools belong to their respective authors.",
     "",
     "## Policies",
@@ -115,7 +115,7 @@ export function GET() {
         "",
         ...entries.map(
           (e) =>
-            `- ${e.tool.name} — also indexed in ${e.tool.category.title} (${site.url}/${e.tool.category.slug}/${e.tool.slug}): ${e.because}`,
+            `- ${e.tool.name}: also indexed in ${e.tool.category.title} (${site.url}/${e.tool.category.slug}/${e.tool.slug}): ${e.because}`,
         ),
         "",
       );
@@ -139,7 +139,7 @@ export function GET() {
       "",
       ...owned.map(
         (t) =>
-          `- ${t.name} — ${site.url}/${t.category.slug}/${t.slug} (${t.category.title})`,
+          `- ${t.name}: ${site.url}/${t.category.slug}/${t.slug} (${t.category.title})`,
       ),
       "",
     );
@@ -178,7 +178,7 @@ export function GET() {
   "Three of them have no equivalent in this document, because they are inverse lookups or",
   "compositions rather than lists:",
   "",
-  "- `layer_overlaps` answers \"where does agent memory live\" — each layer, and the tools",
+  "- `layer_overlaps` answers \"where does agent memory live\"each layer, and the tools",
   "  that serve it without being indexed there.",
   "- `diagnose_symptom` takes a problem rather than a tool name and returns the ordered",
   "  cheapest-first checklist.",
@@ -194,7 +194,7 @@ export function GET() {
   "gives the four shapes. Every document ends with the canonical page URL to cite.",
   "",
   `Without an MCP client, ${site.url}/api/search takes the same ranked search as a query`,
-  "string and the same facets as query parameters — layer, section, role, kind, deployment,",
+  "string and the same facets as query parameters: layer, section, role, kind, deployment,",
   "cost. Repeat a key to OR within it; the axes AND together.",
   "",
 );
@@ -216,7 +216,7 @@ lines.push("## Glossary", "");
   lines.push("## Essays", "");
   for (const post of posts) {
     lines.push(
-      `- [${post.meta.title}](${site.url}/blog/${post.meta.slug}) (${post.meta.date}) — ${post.meta.description}`,
+      `- [${post.meta.title}](${site.url}/blog/${post.meta.slug}) (${post.meta.date}): ${post.meta.description}`,
     );
   }
   lines.push("");

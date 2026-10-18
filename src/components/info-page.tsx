@@ -5,7 +5,7 @@ import { PageHero } from "./page-hero";
  * Breadcrumb and header shared by every page that is *about* the index rather
  * than an entry in it: the trust pages, `/methodology` and `/submit`. One
  * component so the eyebrow, title scale and lede measure cannot drift apart
- * page by page — they had, by a few pixels each, before this existed.
+ * page by page: they had, by a few pixels each, before this existed.
  */
 export function InfoPageHeader({
   breadcrumb,
@@ -70,7 +70,7 @@ export function InfoSection({
   );
 }
 
-/** Bordered channel row — pattern borrowed from footer.design / designeer.xyz contact blocks. */
+/** Bordered channel row: pattern borrowed from footer.design / designeer.xyz contact blocks. */
 export function InfoChannel({
   href,
   label,

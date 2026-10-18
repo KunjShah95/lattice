@@ -127,7 +127,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         The next step, in the reader's terms.
 
         An essay here is an argument, and the strongest moment to act is the
-        moment it finishes — which is exactly when the page previously offered
+        moment it finishes, which is exactly when the page previously offered
         nothing but more essays. `meta.sections` was already resolved above and
         used only in the header breadcrumb, so the reader had to scroll back up
         to act on what they had just been convinced of.
@@ -175,7 +175,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         </section>
       ) : null}
 
-      {/* Related essays — the internal backlink graph. */}
+      {/* Related essays: the internal backlink graph. */}
       {related.length ? (
         <nav aria-label="Related essays" className="mt-12 border-t border-border pt-8">
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">

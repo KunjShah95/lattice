@@ -11,7 +11,7 @@ const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
  * reader does not notice changing. The roll is the cue that *this number moved
  * because of the thing you just touched*.
  *
- * CSS only — no state, no effect, no animation library. Each digit is a column of
+ * CSS only: no state, no effect, no animation library. Each digit is a column of
  * 0–9 translated to its value; changing the prop changes the transform and the
  * browser interpolates it. `globals.css` already turns transitions off under
  * `prefers-reduced-motion`, so a reader who asked for no motion gets the number

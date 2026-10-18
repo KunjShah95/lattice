@@ -51,7 +51,7 @@ describe("headingsOf", () => {
     const md = "## A\n\n### Same\n\n## Same\n";
     expect(headingsOf(md)).toEqual([
       { id: "a", text: "A" },
-      // The h3 took `same`, so the h2 is `same-1` — exactly what the plugin stamps.
+      // The h3 took `same`, so the h2 is `same-1`exactly what the plugin stamps.
       { id: "same-1", text: "Same" },
     ]);
   });
@@ -149,7 +149,7 @@ describe("rehypeHeadingIds", () => {
 
   /**
    * The contract this whole feature rests on: the id the plugin stamps on a heading
-   * is the id the contents list links to. Same function, same order — checked here
+   * is the id the contents list links to. Same function, same order: checked here
    * against real essay Markdown by building the heading nodes the compiler would.
    */
   it("agrees with the contents list on every id in every real essay", () => {

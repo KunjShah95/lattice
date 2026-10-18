@@ -14,7 +14,7 @@ import { toJsonLd } from "@/lib/jsonld";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "How to reach the maintainers of the Lattice index — email, social, and where to report corrections or suggest tools.",
+    "How to reach the maintainers of the Lattice index: email, social, and where to report corrections or suggest tools.",
   alternates: { canonical: "/contact" },
   openGraph: { url: absolute("/contact") },
 };
@@ -73,7 +73,7 @@ export default function ContactPage() {
       lede={
         <>
           Questions about an entry, a broken link, or how something is classified
-          belong on the public record — not in a private inbox that nobody else can
+          belong on the public record, not in a private inbox that nobody else can
           verify.
         </>
       }
@@ -81,7 +81,7 @@ export default function ContactPage() {
       <MaintainerNote>
         This index is maintained by{" "}
         {site.maintainer ?? site.copyrightHolder}. Email is read by a person,
-        not a queue — a correction that arrives by email is verified and published
+        not a queue: a correction that arrives by email is verified and published
         through the <Link href="/corrections">corrections log</Link> like any
         other, so a reply asking &ldquo;was this fixed?&rdquo; can be answered with a
         link rather than a recollection. Anything about a specific entry is fastest
@@ -142,7 +142,7 @@ export default function ContactPage() {
             <InfoChannel
               href={LICENCE_ISSUE_URL}
               label="Report a wrong licence"
-              detail="Prefilled GitHub issue — link the source"
+              detail="Prefilled GitHub issue: link the source"
               external
             />
           </li>
@@ -165,13 +165,13 @@ export default function ContactPage() {
         </p>
         <ul>
           <li>
-            <a href="/sitemap.xml">/sitemap.xml</a> — every indexable URL
+            <a href="/sitemap.xml">/sitemap.xml</a>: every indexable URL
           </li>
           <li>
-            <a href="/llms.txt">/llms.txt</a> — task-keyed index for models
+            <a href="/llms.txt">/llms.txt</a>: task-keyed index for models
           </li>
           <li>
-            <a href="/mcp.json">/mcp.json</a> — MCP discovery document
+            <a href="/mcp.json">/mcp.json</a>: MCP discovery document
           </li>
         </ul>
         <p>

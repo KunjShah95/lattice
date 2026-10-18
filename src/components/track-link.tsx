@@ -11,15 +11,15 @@ import { useCallback, type ReactNode } from "react";
  * `strategy/04-monetisation.md` §7 lists two metrics that are not answerable from
  * what the site currently records:
  *
- * - *"Alternatives-page entry"* — `02-unique-selling-points.md` §5 calls
+ * - *"Alternatives-page entry"*: `02-unique-selling-points.md` §5 calls
  *   alternatives pages the single biggest lever for a directory, so whether
  *   anyone walks into one is the most important navigation fact here.
- * - *"Comparison-page exits to `/compare/*`"* — whether the cross-layer wedge is
+ * - *"Comparison-page exits to `/compare/*`"*, whether the cross-layer wedge is
  *   actually being used, which is the claim no funded competitor can occupy.
  *
  * Both need the **source → destination** edge, not just the fact that a page was
  * viewed. Cloudflare logs a `Referer` for every request already, so the data
- * exists — it just cannot be queried from the repository, and correlating referers
+ * exists: it just cannot be queried from the repository, and correlating referers
  * across two sites (this one and the one that linked here) is guesswork.
  *
  * ## Why a beacon rather than a redirect route
@@ -29,7 +29,7 @@ import { useCallback, type ReactNode } from "react";
  * turns every internal link into a non-canonical URL for a crawler to resolve.
  * Navigation is the one interaction that must not be made slower.
  *
- * `sendBeacon` is the right tool because it is designed for exactly this — it
+ * `sendBeacon` is the right tool because it is designed for exactly this: it
  * survives the page unloading, and a failed beacon costs nothing because nobody is
  * waiting.
  *
@@ -41,7 +41,7 @@ import { useCallback, type ReactNode } from "react";
  * **Both ends are required, and that is the whole point.** The first version sent
  * `location.pathname` under the key `to`, which recorded the page you were on and
  * dropped where you went. That silently turns "a comparison link was rendered"
- * into "the wedge is being used" — `kind: "compare"` looked like a comparison exit
+ * into "the wedge is being used"`kind: "compare"` looked like a comparison exit
  * in the log while carrying no evidence anyone reached a comparison page. It
  * survived a status-only smoke test, which cannot see payload contents, and it
  * survived review, because the `href` is right there in the surrounding markup.
@@ -49,7 +49,7 @@ import { useCallback, type ReactNode } from "react";
  * caught it.
  *
  * Not sent: referrer, user agent, anything identifying, anything cross-site. There
- * is no session and no cookie, so the log cannot be joined into a profile — which
+ * is no session and no cookie, so the log cannot be joined into a profile, which
  * is what makes it safe to keep indefinitely and possible to publish. The
  * alternative to collecting this is a third-party analytics script, which would
  * collect strictly more and send it elsewhere.
@@ -86,7 +86,7 @@ export function TrackLink({
   const onClick = useCallback(() => {
     try {
       // `from` is read from `location`, because it is the page the click happened
-      // on — the one thing the href cannot tell us.
+      // on: the one thing the href cannot tell us.
       //
       // `to` is resolved against the origin rather than passed through, so the
       // destination is always a bare path. The validator rejects anything not
@@ -95,7 +95,7 @@ export function TrackLink({
       //
       // Both ends, because the record is an edge. The first version sent only
       // `location.pathname` under the key `to`, which recorded where a reader
-      // already was and dropped where they went — so `kind: "compare"` looked
+      // already was and dropped where they went, so `kind: "compare"` looked
       // like a comparison exit while proving only that a comparison link existed.
       const to = new URL(href, location.origin).pathname;
 

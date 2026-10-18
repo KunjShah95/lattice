@@ -17,7 +17,7 @@ import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Stack review — an engineer's second opinion on your AI stack",
+  title: "Stack review: an engineer's second opinion on your AI stack",
   description:
     "Send your AI system's design and get a written, layer-by-layer review: what to keep, what to swap, what it costs, where it breaks. Free during early access.",
   alternates: { canonical: "/review" },
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 /**
  * Where a request goes when no scheduler is configured. Email when set, with
  * the subject and the questions pre-filled so a request arrives complete;
- * otherwise a GitHub issue, which is public — the copy says so.
+ * otherwise a GitHub issue, which is public: the copy says so.
  */
 function requestHref(): { href: string; viaEmail: boolean } {
   const subject = "Stack review request";
@@ -61,7 +61,7 @@ const STEPS = [
   {
     n: "02",
     title: "Every layer gets checked",
-    body: "Inference, routing, retrieval, agents, guardrails, evals — each against the same use/skip criteria the index publishes.",
+    body: "Inference, routing, retrieval, agents, guardrails, evals: each against the same use/skip criteria the index publishes.",
   },
   {
     n: "03",
@@ -123,9 +123,9 @@ export default function ReviewPage() {
             A second opinion on your AI stack, from the engineer who mapped all of it.
           </h1>
           <p className="mx-auto mt-6 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
-            Send what you are building. Get back a written, layer-by-layer review —
-            what to keep, what to swap, what it will cost and where it will break —
-            from the maintainer of a {toolCount}-tool index that publishes when{" "}
+            Send what you are building. Get back a written, layer-by-layer review
+            (what to keep, what to swap, what it will cost and where it will
+            break) from the maintainer of a {toolCount}-tool index that publishes when{" "}
             <em>not</em> to use each one.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
@@ -151,7 +151,7 @@ export default function ReviewPage() {
         <p className="mx-auto -mt-2 max-w-3xl rounded-xl border border-border bg-bg-elevated/70 px-5 py-4 text-center text-pretty text-[13.5px] leading-relaxed text-fg-muted">
           <span className="font-medium text-fg">What a review is not:</span> it never changes
           where a tool sits in the index, a ranking or a comparison verdict, and vendors cannot
-          book one about their own product. You are paying for judgement about your system — the
+          book one about their own product. You are paying for judgement about your system: the
           index stays free and neutral.{" "}
           <Link
             href="/methodology"
@@ -163,16 +163,15 @@ export default function ReviewPage() {
         </p>
 
         {/* ── What you receive ──────────────────────────────────────── */}
-        <section aria-labelledby="deliverable" className="grid gap-10 py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14">
+        <section aria-labelledby="deliverable" className="py-20">
           <SectionHeading
             id="deliverable"
-            eyebrow="What you get"
             title="A decision document, not a call you have to take notes on."
             lede="Every review is written down, dated and yours to keep. Each recommendation carries the trade-off behind it, so the reasoning survives the person who read it."
           />
           {/* An excerpt in the shape a review arrives in. Labelled as an
               example; it is not a client's review. */}
-          <figure className="crop crop-static relative rounded-2xl bg-bg-elevated p-6 shadow-lift [--crop-inset:-8px] sm:p-7">
+          <figure className="crop crop-static relative mx-auto mt-12 max-w-2xl rounded-2xl bg-bg-elevated p-6 shadow-lift [--crop-inset:-8px] sm:p-7">
             <figcaption className="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">
               <span>Example excerpt</span>
               <span>RAG support assistant · 400k req/mo</span>
@@ -203,7 +202,7 @@ export default function ReviewPage() {
 
         {/* ── How it works ──────────────────────────────────────────── */}
         <section aria-labelledby="how" className="border-t border-border py-20">
-          <SectionHeading id="how" eyebrow="How it works" title="Three steps, no meetings required." />
+          <SectionHeading id="how" title="Three steps, no meetings required." />
           <ol className="mt-12 grid gap-4 md:grid-cols-3">
             {STEPS.map((s) => (
               <li
@@ -223,8 +222,6 @@ export default function ReviewPage() {
         <section id="pricing" aria-labelledby="pricing-h" className="scroll-mt-24 border-t border-border py-20">
           <SectionHeading
             id="pricing-h"
-            align="center"
-            eyebrow="Options"
             title={isEarlyAccess ? "Pick a depth. All three are free right now." : "Pick a depth."}
             lede={
               isEarlyAccess
@@ -241,7 +238,6 @@ export default function ReviewPage() {
         <section aria-labelledby="proof" className="border-t border-border py-20">
           <SectionHeading
             id="proof"
-            eyebrow="Why this reviewer"
             title="The review uses the same rulebook the index publishes."
             lede="You can read the criteria before you book. Every tool's use-when and skip-when, every comparison verdict and every correction are public."
           />
@@ -263,7 +259,7 @@ export default function ReviewPage() {
               </div>
             ))}
           </dl>
-          <p className="mt-6 text-[13.5px] text-fg-muted">
+          <p className="mt-6 text-center text-[13.5px] text-fg-muted">
             Reviewed by {site.maintainer ?? "the maintainer"}
             {site.author?.url ? (
               <>
@@ -280,21 +276,22 @@ export default function ReviewPage() {
         </section>
 
         {/* ── FAQ ───────────────────────────────────────────────────── */}
-        <section aria-labelledby="faq" className="grid gap-10 border-t border-border py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-          <SectionHeading id="faq" eyebrow="Questions" title="Before you book." />
-          <Faq />
+        <section aria-labelledby="faq" className="border-t border-border py-20">
+          <SectionHeading id="faq" title="Before you book." />
+          <div className="mx-auto mt-12 max-w-3xl">
+            <Faq />
+          </div>
         </section>
 
         {/* ── Request (the fallback when no scheduler is configured) ── */}
         <section id="request" aria-labelledby="request-h" className="scroll-mt-24 border-t border-border py-20">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div className="flex flex-col items-center gap-8">
             <SectionHeading
               id="request-h"
-              eyebrow="Request a review"
               title="Start with four answers."
               lede="What you are building, rough traffic, the tools in play, and what worries you most. That is enough for a useful first pass."
             />
-            <div className="flex flex-col gap-2 lg:items-end">
+            <div className="flex flex-col items-center gap-2">
               {bookingIsExternal ? (
                 <BookButton>Pick a time</BookButton>
               ) : (
@@ -308,7 +305,7 @@ export default function ReviewPage() {
                 </a>
               )}
               {!bookingIsExternal && !req.viaEmail ? (
-                <p className="max-w-[36ch] text-[12px] leading-relaxed text-fg-subtle lg:text-right">
+                <p className="max-w-[44ch] text-center text-[12px] leading-relaxed text-fg-subtle">
                   GitHub issues are public. Leave out anything you would not post publicly, or use{" "}
                   <Link href="/contact" className="underline underline-offset-4 hover:text-fg">
                     another channel

@@ -13,9 +13,9 @@ export const contentType = "image/png";
  * Cover image for a symptom page.
  *
  * These pages declared `twitter: { card: "summary_large_image" }` with no
- * image behind it, so every share of "why is my LLM app slow" — the query this
+ * image behind it, so every share of "why is my LLM app slow" (the query this
  * route exists to answer, and the one a reader pastes into a channel rather
- * than a browser — rendered as a bare text card. The same defect the tool and
+ * than a browser), rendered as a bare text card. The same defect the tool and
  * alternatives cards were added for, on the segment added after them.
  *
  * `generateStaticParams` mirrors the page's, so a symptom can never gain a page
@@ -32,7 +32,7 @@ type FixRouteParams = { params: Promise<{ slug: string }> };
  * The first sentence of the short answer.
  *
  * A card subtitle is two lines. The full answer is 40–75 words, so it truncates
- * mid-clause and ends in an ellipsis — which reads as a broken render rather
+ * mid-clause and ends in an ellipsis, which reads as a broken render rather
  * than as brevity. The first sentence stands on its own; the rest is the
  * elaboration the page is one click away for.
  */
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: FixRouteParams) {
   const { slug } = await params;
   const s = getSymptom(slug);
   if (!s) return { alt: "Symptom checklist" };
-  return { alt: `${s.title} — ${s.checks.length} checks, layer by layer` };
+  return { alt: `${s.title}: ${s.checks.length} checks, layer by layer` };
 }
 
 export default async function Image({ params }: FixRouteParams) {
@@ -57,7 +57,7 @@ export default async function Image({ params }: FixRouteParams) {
 
   // The first check is the one worth sharing. A symptom card that led with the
   // layer count would be a number nobody asked for; led with the first move, it
-  // is the reason a reader clicks — and every vendor card for this query leads
+  // is the reason a reader clicks, and every vendor card for this query leads
   // with their own product name instead.
   const first = s.checks[0];
 

@@ -5,14 +5,14 @@ import { OG_FONTS, OG_SIZE } from "./og";
  * The share-card fonts.
  *
  * `OG_FONTS` degrades to an empty array when the font files cannot be read, so
- * that evaluating `lib/og.tsx` on Cloudflare — where there is no filesystem —
+ * that evaluating `lib/og.tsx` on Cloudflare, where there is no filesystem,
  * does not take the whole module graph down with it. That was the actual bug: a
  * bare top-level `await Promise.all([readFile(...)])` rejects on the Worker, and
  * every HTML route in the app 500'd, while the cards it exists to serve stayed
  * fine because they are prerendered.
  *
  * The cost of that safety is an empty `OG_FONTS` is also what a *build-time*
- * font failure looks like — and satori would render the cards in a fallback face
+ * font failure looks like, and satori would render the cards in a fallback face
  * and ship them. These tests are what stop that being silent. They run under
  * Node, where the files are present, so a missing font is a failure here rather
  * than an Arial card on LinkedIn.
@@ -38,7 +38,7 @@ describe("OG_FONTS", () => {
     //
     // Two distinct weights across three faces: serif and mono are 500, sans is
     // 600. The *names and weights together* are what matter, so the pair is
-    // asserted — asserting distinctness alone would have passed a fourth face at
+    // asserted: asserting distinctness alone would have passed a fourth face at
     // an unexpected weight.
     expect(OG_FONTS.map((f) => [f.name, f.weight])).toEqual([
       ["Plex Serif", 500],
@@ -48,7 +48,7 @@ describe("OG_FONTS", () => {
   });
 
   it("is the only place a font is declared, so the count cannot drift", () => {
-    // A fourth face has to be added deliberately, with its subset regenerated —
+    // A fourth face has to be added deliberately, with its subset regenerated:
     // see the header note in `lib/og.tsx`. Asserting the length is what makes
     // adding one a test failure rather than a silent bundle-size change.
     expect(OG_FONTS).toHaveLength(3);

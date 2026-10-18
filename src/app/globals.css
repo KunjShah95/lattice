@@ -24,13 +24,13 @@
   /* Three bands, not nine colours.
      The nine layers collapse into three families: where compute happens,
      where state lives, where behaviour is decided. A nine-step hue ramp is a
-     rainbow, and a rainbow is decoration — nobody holds nine colours in
+     rainbow, and a rainbow is decoration: nobody holds nine colours in
      working memory, so the ramp stops encoding order and becomes ornament.
      Three families are information, and the band a reader is in is the
      question they arrived with.
 
      Depth still varies inside a band (the substrate stop is the deepest),
-     so order is never lost entirely — it just stops being the main signal. */
+     so order is never lost entirely: it just stops being the main signal. */
   --band-compute: oklch(0.62 0.13 72);
   --band-state:    oklch(0.58 0.10 143);
   --band-control:  oklch(0.53 0.11 248);
@@ -81,7 +81,7 @@
     0 2px 4px oklch(0.2 0 0 / 0.04),
     0 12px 24px -6px oklch(0.2 0 0 / 0.12),
     0 32px 64px -16px oklch(0.2 0 0 / 0.18);
-  /* The 1px light edge on the top of a filled button — the detail that
+  /* The 1px light edge on the top of a filled button: the detail that
      makes ink look pressed into the page rather than printed on it. */
   --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.16);
 
@@ -175,14 +175,14 @@
     font-family: var(--font-sans);
   }
 
-  /* Drafting grid rather than a soft glow — the page should read as a working
+  /* Drafting grid rather than a soft glow: the page should read as a working
      surface with structure, not a marketing backdrop.
 
      Painted on a fixed pseudo-element rather than on `body` with
      `background-attachment: fixed`. The two are visually identical, but not
      computationally: a fixed attachment on the scrolling body has to be
      re-rastered against the viewport on every scroll frame, and that raster
-     work runs on the main thread — the same thread INP is measured on. A
+     work runs on the main thread: the same thread INP is measured on. A
      `position: fixed` element is promoted to its own composited layer,
      rastered once, and re-used as the page scrolls, so the grid goes from a
      per-frame cost to a one-off.
@@ -234,8 +234,8 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Mono only ever sets counts, ordinals and labels — figures that sit in
-     columns — so it is always tabular. A "1" that is narrower than an "8"
+  /* Mono only ever sets counts, ordinals and labels, figures that sit in
+     columns, so it is always tabular. A "1" that is narrower than an "8"
      makes a column of counts look ragged. */
   .font-mono {
     font-variant-numeric: tabular-nums slashed-zero;
@@ -250,7 +250,7 @@
 
 @layer utilities {
   /* The header nav scrolls horizontally when space is tight. The scrollbar
-     itself is noise there — the cut-off item is the affordance. */
+     itself is noise there: the cut-off item is the affordance. */
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -310,7 +310,7 @@
     opacity: 0.1;
   }
 
-  /* Spans the stack — dashed, the way a section line is dashed when it
+  /* Spans the stack: dashed, the way a section line is dashed when it
      indicates something that is not part of the material. */
   .hatch-span::after {
     background-image: repeating-linear-gradient(
@@ -337,7 +337,7 @@
   /* --- Crop marks -----------------------------------------------------
      The print-shop registration corners that tell a pressman where a sheet
      is trimmed. On hover they close in on the element, so the interactive
-     surface is "selected" the way a draughtsman would mark it — a drafting
+     surface is "selected" the way a draughtsman would mark it: a drafting
      convention doing the job a generic glow or lift usually does.
 
      Eight one-pixel gradients on a single pseudo-element: two strokes per
@@ -387,7 +387,7 @@
 
   /* --- Drawn underline ------------------------------------------------
      The rule is drawn left-to-right on hover rather than toggled, and
-     retracts to the right on leave — the pen continues in the direction it
+     retracts to the right on leave: the pen continues in the direction it
      was travelling instead of rewinding. */
   .link-draw {
     background-image: linear-gradient(currentColor, currentColor);
@@ -452,7 +452,7 @@
   /* A wash of the surface's own colour, following the pointer.
      `--spot` is set per row (a layer or a band). Without it, the accent
      is the fallback so unmarked controls still answer the cursor.
-     Only painted for a fine pointer — a stuck :hover after a tap would
+     Only painted for a fine pointer: a stuck :hover after a tap would
      leave a phone with a permanent glow. */
   [data-spot] {
     --mx: 50%;
@@ -476,7 +476,7 @@
   }
 
   /* Type stays above the wash. Absolute fills (layer tint, hatch) are
-     left alone — forcing them to `relative` would collapse the diagram. */
+     left alone: forcing them to `relative` would collapse the diagram. */
   [data-spot] > :not(.absolute) {
     position: relative;
     z-index: 2;
@@ -740,7 +740,7 @@
   }
 
   /* --- Skeleton -------------------------------------------------------
-     A sheen that crosses the block once a second and a bit — slow enough
+     A sheen that crosses the block once a second and a bit: slow enough
      to read as "working", not "broken". */
   .skeleton {
     position: relative;
@@ -941,9 +941,9 @@
 
 /* ------------------------------------------------------------------
    Marketing surfaces (/, /review)
-   The conversion pages borrow the detailing of modern landing pages —
+   The conversion pages borrow the detailing of modern landing pages (
    a dot field that fades out, a light that travels a card's edge, a
-   spotlight panel — but keep the drafting vocabulary: hairlines, mono
+   spotlight panel), but keep the drafting vocabulary: hairlines, mono
    labels, crop marks. Nothing here is used on the index pages.
    ------------------------------------------------------------------ */
 
@@ -1026,7 +1026,7 @@
   }
 
   /* A light that travels the card's border. A conic gradient on a padded
-     pseudo-element, masked to the 1px ring — the card's own background is
+     pseudo-element, masked to the 1px ring: the card's own background is
      untouched, so text contrast is whatever the card says it is. */
   .border-beam {
     position: relative;
@@ -1126,7 +1126,7 @@
   }
 
   /* The sheen and pulse are ambient motion with no end state worth
-     showing — remove them rather than freeze them mid-sweep. */
+     showing: remove them rather than freeze them mid-sweep. */
   .skeleton::after,
   .pulse-dot::after,
   .border-beam::after {

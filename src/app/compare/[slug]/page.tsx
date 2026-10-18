@@ -215,7 +215,7 @@ export default async function ComparisonPage({
           `min-w-[640px]` means a phone always scrolls this, so the wrapper
           carries the affordance (`sm:hidden`) rather than leaving the reader
           to discover a hidden column. The first column sticks, so a row's
-          dimension label stays visible while it is read across — without that,
+          dimension label stays visible while it is read across: without that,
           the sticky-header problem is that you cannot tell which row you are
           on after scrolling right. */}
       <div className="overflow-x-auto">
@@ -285,7 +285,7 @@ export default async function ComparisonPage({
         These are editorial judgements, not benchmarks: Lattice has not run
         these tools head to head, and no cell uses GitHub stars or vendor
         benchmark claims as evidence. Licence and cost facts are re-checked on
-        a schedule the build enforces —{" "}
+        a schedule the build enforces: {" "}
         <a href="/verification.json" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
           the receipt is public
         </a>
@@ -377,7 +377,7 @@ export default async function ComparisonPage({
   );
 }
 
-/** "Layer 02 · Band I Compute" — where a column sits, for cross-layer pages. */
+/** "Layer 02 · Band I Compute"where a column sits, for cross-layer pages. */
 function stackPosition(layer: number | null): string {
   const band = BANDS.find((b) => b.id === bandOf(layer));
   const ordinal = `Layer ${String(layer ?? 0).padStart(2, "0")}`;

@@ -20,7 +20,7 @@ import { ReviewCta } from "@/components/marketing";
  *
  * The role's own question and the "skip when" halves are the two things here
  * that do not exist anywhere else in the index, and they are the reason to
- * build the page at all — a directory listing with a job title on it is what
+ * build the page at all: a directory listing with a job title on it is what
  * every competitor already does.
  */
 export function generateStaticParams() {
@@ -36,19 +36,19 @@ export async function generateMetadata({
 
   const tools = toolsByRole(meta.id);
   const names = tools.slice(0, 5).map((t) => t.name);
-  // "In order" would be a promise the page does not keep — the list is grouped by
+  // "In order" would be a promise the page does not keep: the list is grouped by
   // section, not ranked. A title that overstates what the page answers is the one
   // thing this site cannot afford, given the whole argument is about not
   // claiming more than the data supports.
   return {
-    title: `${meta.title} tools — ${tools.length}, with when to skip each (${meta.short})`,
+    title: `${meta.title} tools: ${tools.length}, with when to skip each (${meta.short})`,
     description:
       // "owns" over "is accountable for", and a tighter tail: the five names are
       // the variable part, so every word spent on framing is multiplied by six
       // pages. The widest role ran to 233 characters, past the point a search
       // result renders. The hook survives, which is what mattered.
       `${tools.length} tools a ${meta.title.toLowerCase()} engineer owns: ` +
-      `${names.join(", ")} and more — with when to use it, when to skip it, ` +
+      `${names.join(", ")} and more: with when to use it, when to skip it, ` +
       `and where it sits.`,
     alternates: { canonical: `/roles/${meta.id}` },
     // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
@@ -65,7 +65,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
   const tools = toolsByRole(meta.id);
   const pageUrl = `${site.url}/roles/${meta.id}`;
 
-  // Sections in stack order, off-stack last — the same order the stack diagram
+  // Sections in stack order, off-stack last: the same order the stack diagram
   // uses, so a reader moving between the two views keeps their bearings.
   const bySection = new Map<string, typeof tools>();
   for (const tool of tools) {
@@ -225,7 +225,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
           </h2>
           <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
             These are part of what you own and part of what someone else owns.
-            That overlap is where the interesting arguments happen — who decides
+            That overlap is where the interesting arguments happen, who decides
             the eval threshold, who carries the pager.
           </p>
           <ul className="mt-4 flex flex-wrap gap-2">

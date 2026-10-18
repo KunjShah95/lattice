@@ -1,6 +1,6 @@
 /**
  * Maps a stack depth to its colour stop in the ramp defined in globals.css.
- * Kept as a plain CSS-var reference so light/dark switching stays free —
+ * Kept as a plain CSS-var reference so light/dark switching stays free:
  * the browser resolves `--layer-N` per theme without any JS.
  *
  * Lives in its own module, with no imports, because `lib/layer.ts` imports the whole

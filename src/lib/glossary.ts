@@ -7,7 +7,7 @@
  *
  * `aliases` exist so auto-linking works on the phrase a reader would actually
  * type, not only on the canonical heading. `tools` are names in the dataset,
- * resolved at build time — a typo fails the build rather than rendering a link
+ * resolved at build time: a typo fails the build rather than rendering a link
  * to nowhere.
  */
 
@@ -16,7 +16,7 @@ export type GlossaryTerm = {
   term: string;
   /** One sentence. The thing you would tell someone in a corridor. */
   definition: string;
-  /** What it implies for a decision — the part an index should carry. */
+  /** What it implies for a decision: the part an index should carry. */
   detail: string;
   /** Stack layer this belongs to, for colour and grouping. Null if cross-cutting. */
   layer: number | null;
@@ -57,7 +57,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Adding new sequences to a batch as others finish, rather than waiting for the whole batch to complete.",
     detail:
-      "It exploits the fact that sequence lengths vary wildly within a batch — waiting for the longest wastes most of the slot. Under steady, low-concurrency traffic there is never enough in flight to fill a batch, so this buys you nothing. That traffic-shape dependency is the biggest single factor in picking a runtime.",
+      "It exploits the fact that sequence lengths vary wildly within a batch: waiting for the longest wastes most of the slot. Under steady, low-concurrency traffic there is never enough in flight to fill a batch, so this buys you nothing. That traffic-shape dependency is the biggest single factor in picking a runtime.",
     layer: 1,
     tools: ["vLLM", "SGLang"],
     see: ["time-to-first-token", "throughput"],
@@ -68,7 +68,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Reusing the KV cache for a prompt prefix that has already been processed, instead of recomputing it.",
     detail:
-      "If a large share of your requests begin with the same few hundred tokens — a long system prompt, a cached document, a shared tool schema — this is worth more than every other optimisation combined. If your prompts are short and unrelated, neither vLLM's automatic prefix caching nor SGLang's RadixAttention will do much. It also makes a stable system prompt dramatically cheaper than a per-request one.",
+      "If a large share of your requests begin with the same few hundred tokens (a long system prompt, a cached document, a shared tool schema), this is worth more than every other optimisation combined. If your prompts are short and unrelated, neither vLLM's automatic prefix caching nor SGLang's RadixAttention will do much. It also makes a stable system prompt dramatically cheaper than a per-request one.",
     layer: 1,
     tools: ["SGLang", "vLLM"],
     see: ["kv-cache", "prompt-caching"],
@@ -79,7 +79,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Storing and computing model weights in fewer bits than they were trained in, to trade accuracy for memory and speed.",
     detail:
-      "8-bit is nearly free in quality; 4-bit usually is not, and the method matters more than the bit count — AWQ and GPTQ are perceptually better than naive rounding at the same width. FP8 is the easier win on recent NVIDIA hardware. Quantisation changes your throughput numbers but not your architectural decisions, so do it after you have chosen a runtime, not before.",
+      "8-bit is nearly free in quality; 4-bit usually is not, and the method matters more than the bit count: AWQ and GPTQ are perceptually better than naive rounding at the same width. FP8 is the easier win on recent NVIDIA hardware. Quantisation changes your throughput numbers but not your architectural decisions, so do it after you have chosen a runtime, not before.",
     layer: 1,
     tools: ["llama.cpp", "Marlin", "TensorRT-LLM"],
     see: ["distillation"],
@@ -100,7 +100,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Using a small draft model to propose several tokens at once, which a large model then verifies in a single pass.",
     detail:
-      "It is exact — the output distribution is unchanged — and speeds up decoding where it is bottlenecked on memory bandwidth rather than compute. The gain depends on the draft model agreeing with the target, so it helps most for predictable text and least for genuinely creative work. Worth trying when you have already exhausted batching and quantisation.",
+      "It is exact, the output distribution is unchanged, and speeds up decoding where it is bottlenecked on memory bandwidth rather than compute. The gain depends on the draft model agreeing with the target, so it helps most for predictable text and least for genuinely creative work. Worth trying when you have already exhausted batching and quantisation.",
     layer: 1,
     see: ["kv-cache", "continuous-batching"],
   },
@@ -122,7 +122,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Throughput is tokens per second across the whole deployment; latency is how long one request takes. They trade directly against each other.",
     detail:
-      "Batching raises throughput by making each request slower, so the two cannot be optimised independently. What you want depends entirely on traffic shape: an interactive product needs bounded latency under whatever concurrency arrives, a batch job wants total tokens cheap. Benchmark on a concurrency sweep and plot both — never single-stream latency, which will point you at the wrong runtime.",
+      "Batching raises throughput by making each request slower, so the two cannot be optimised independently. What you want depends entirely on traffic shape: an interactive product needs bounded latency under whatever concurrency arrives, a batch job wants total tokens cheap. Benchmark on a concurrency sweep and plot both: never single-stream latency, which will point you at the wrong runtime.",
     layer: 1,
     see: ["time-to-first-token", "continuous-batching"],
     aliases: ["throughput vs latency"],
@@ -133,7 +133,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Masking the token space during generation so the output can only be a valid instance of a schema, grammar or regex.",
     detail:
-      "Unlike asking a model politely for JSON, this cannot be violated — there is no way to emit a token that would break the grammar. The trade is that constraining generation can make a model look worse at reasoning than it is, so never benchmark reasoning through it. Reach for it when downstream code cannot tolerate malformed output; use validation-and-retry when ergonomics matter more.",
+      "Unlike asking a model politely for JSON, this cannot be violated: there is no way to emit a token that would break the grammar. The trade is that constraining generation can make a model look worse at reasoning than it is, so never benchmark reasoning through it. Reach for it when downstream code cannot tolerate malformed output; use validation-and-retry when ergonomics matter more.",
     layer: 1,
     tools: ["Outlines", "Guidance"],
     see: ["schema-enforcement"],
@@ -158,7 +158,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A layer that chooses which model answers a given request, from signals known before the model is called.",
     detail:
-      "The workable signals are explicit task identity, user tier, and deterministic input properties. The signal that does not work is a subjective read of how hard the prompt looks — that is where the escalation trap begins, where failures cluster on genuinely hard requests and you pay twice for exactly the cases the big model was needed for.",
+      "The workable signals are explicit task identity, user tier, and deterministic input properties. The signal that does not work is a subjective read of how hard the prompt looks: that is where the escalation trap begins, where failures cluster on genuinely hard requests and you pay twice for exactly the cases the big model was needed for.",
     layer: 2,
     tools: ["LiteLLM", "RouteLLM", "Martian"],
     see: ["escalation-trap", "semantic-cache"],
@@ -169,7 +169,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Routing cheap-first and retrying on a bigger model when the answer looks bad, which usually costs more than routing correctly up front.",
     detail:
-      "Three reasons it fails: the cheap model cannot judge its own output, failures cluster on hard cases so escalation doubles cost precisely where it was needed, and one provider hiccup away from a retry storm. It only works when a failure is externally observable — a schema check, a downstream test — in which case it is not a vibe but a validated retry.",
+      "Three reasons it fails: the cheap model cannot judge its own output, failures cluster on hard cases so escalation doubles cost precisely where it was needed, and one provider hiccup away from a retry storm. It only works when a failure is externally observable (a schema check, a downstream test), in which case it is not a vibe but a validated retry.",
     layer: 2,
     see: ["model-router", "circuit-breaker"],
   },
@@ -200,7 +200,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A discount providers apply when a request repeats a prefix they have already processed.",
     detail:
-      "Completely separate from prefix caching in your own runtime: this is a billing discount, that is a computation saving. The practical consequence is that a large, stable system prompt is far cheaper than one rebuilt per request — which makes prompt structure a cost decision, not just a readability one.",
+      "Completely separate from prefix caching in your own runtime: this is a billing discount, that is a computation saving. The practical consequence is that a large, stable system prompt is far cheaper than one rebuilt per request, which makes prompt structure a cost decision, not just a readability one.",
     layer: 2,
     see: ["prefix-caching", "cost-per-outcome"],
   },
@@ -212,7 +212,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A vector representation of text such that semantically similar inputs land near each other.",
     detail:
-      "The same model must produce embeddings for documents and queries, or the space is meaningless. The failure mode to know about: embeddings are bad at exact tokens — part numbers, error codes, names — because `ERR-4421` and `ERR-4412` really are nearly the same thing. Users type exact tokens constantly.",
+      "The same model must produce embeddings for documents and queries, or the space is meaningless. The failure mode to know about: embeddings are bad at exact tokens (part numbers, error codes, names), because `ERR-4421` and `ERR-4412` really are nearly the same thing. Users type exact tokens constantly.",
     layer: 3,
     see: ["hybrid-search", "vector-index", "chunking"],
   },
@@ -222,7 +222,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Splitting documents into retrievable pieces, which is where RAG quality is mostly won and lost.",
     detail:
-      "Fixed token count with overlap is close to the worst reasonable option: it cuts through sentences, tables and arguments. Chunk on structure — headings, paragraphs, table rows — and carry the heading path in the chunk metadata so retrieved text has its own context. Then check the number that correlates most with answer quality: how many chunks you actually feed the model. Fifty is almost always worse than five.",
+      "Fixed token count with overlap is close to the worst reasonable option: it cuts through sentences, tables and arguments. Chunk on structure (headings, paragraphs, table rows), and carry the heading path in the chunk metadata so retrieved text has its own context. Then check the number that correlates most with answer quality: how many chunks you actually feed the model. Fifty is almost always worse than five.",
     layer: 3,
     tools: ["Unstructured", "Docling"],
     see: ["embedding", "reranking", "context-window"],
@@ -244,7 +244,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Re-scoring retrieved candidates with a slower, more accurate model before the generator sees them.",
     detail:
-      "Bi-encoders embed query and document independently — that is what makes them fast enough to search millions of vectors, and also why they judge relevance poorly. A cross-encoder sees both at once and is far better, but far too slow for the whole corpus. So: cheap retrieval for fifty candidates, cross-encoder for the best five. The highest-leverage addition to an existing RAG system, and the cheapest to try.",
+      "Bi-encoders embed query and document independently: that is what makes them fast enough to search millions of vectors, and also why they judge relevance poorly. A cross-encoder sees both at once and is far better, but far too slow for the whole corpus. So: cheap retrieval for fifty candidates, cross-encoder for the best five. The highest-leverage addition to an existing RAG system, and the cheapest to try.",
     layer: 3,
     tools: ["Rerankers", "Jina AI"],
     see: ["hybrid-search", "recall-at-k"],
@@ -263,7 +263,7 @@ export const glossary: GlossaryTerm[] = [
     slug: "vector-index",
     term: "Vector index",
     definition:
-      "An approximate structure — usually HNSW or an IVF variant — that finds nearest neighbours without scanning every vector.",
+      "An approximate structure, usually HNSW or an IVF variant, that finds nearest neighbours without scanning every vector.",
     detail:
       "Approximate means a recall/latency trade controlled by a build parameter, which is why you should benchmark recall against a brute-force scan on your own data rather than trusting a published figure. If your corpus is under a few million vectors, brute force is often fast enough and exactly correct.",
     layer: 3,
@@ -283,7 +283,7 @@ export const glossary: GlossaryTerm[] = [
     slug: "context-window",
     term: "Context window",
     definition:
-      "The number of tokens a model can consider at once — a ceiling on what you can send, not a target for what you should.",
+      "The number of tokens a model can consider at once: a ceiling on what you can send, not a target for what you should.",
     detail:
       "Long contexts degrade silently rather than gracefully. Models reliably answer from the beginning and end of a long document and perform near chance on the middle. A 50k-token context is therefore a few thousand tokens of reliable signal plus a large quantity that is present, billed, and largely ignored.",
     layer: 3,
@@ -319,7 +319,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Aligning a model to human preferences without an explicit reward model, by optimising on chosen-versus-rejected pairs.",
     detail:
-      "Removes the reward-model training step and its instabilities, which is why it largely replaced RLHF in practice. It needs preference data, which is expensive to produce well — and is where most projects quietly stall.",
+      "Removes the reward-model training step and its instabilities, which is why it largely replaced RLHF in practice. It needs preference data, which is expensive to produce well, and is where most projects quietly stall.",
     layer: 4,
     tools: ["TRL"],
     see: ["sft", "rlhf", "grpo"],
@@ -338,7 +338,7 @@ export const glossary: GlossaryTerm[] = [
     slug: "grpo",
     term: "GRPO",
     definition:
-      "Group relative policy optimisation — a reinforcement-learning method that compares a group of sampled answers rather than learning a separate reward model.",
+      "Group relative policy optimisation: a reinforcement-learning method that compares a group of sampled answers rather than learning a separate reward model.",
     detail:
       "Useful when you have a verifiable reward, a checker or a test, rather than human preference. It sidesteps reward-model training, which is the expensive and fragile part, and is why it shows up in reasoning-model post-training.",
     layer: 4,
@@ -375,7 +375,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A model emitting a structured request to call a function, which your code executes and returns the result of.",
     detail:
-      "The mechanism almost all agent systems are built on. The security consequence is that a tool call is model output with the same failure modes as anything else the model produces — including injection arriving via retrieved content or a tool's own error message. Treat arguments as untrusted input.",
+      "The mechanism almost all agent systems are built on. The security consequence is that a tool call is model output with the same failure modes as anything else the model produces, including injection arriving via retrieved content or a tool's own error message. Treat arguments as untrusted input.",
     layer: 5,
     tools: ["OpenAI Agents SDK", "Claude Agent SDK"],
     see: ["prompt-injection", "agent-loop"],
@@ -418,7 +418,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A workflow engine that checkpoints progress so work resumes after a crash, rather than restarting from nothing.",
     detail:
-      "Long, multi-step, partially-completed work full of slow external calls is exactly what these engines were built for, and agent loops are a textbook use case. It solves durability — not idempotency. If the process dies between two side effects, replay will repeat the first unless you designed for it.",
+      "Long, multi-step, partially-completed work full of slow external calls is exactly what these engines were built for, and agent loops are a textbook use case. It solves durability, not idempotency. If the process dies between two side effects, replay will repeat the first unless you designed for it.",
     layer: 6,
     tools: ["Temporal", "Inngest", "DBOS"],
     see: ["idempotency-key", "agent-loop"],
@@ -509,7 +509,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A small, curated set of real cases, with expected behaviour written down, used to tell whether a change helped.",
     detail:
-      "Twenty examples taken from real production traffic beats a thousand invented ones, because twenty real failures contain more information about your actual distribution. A golden set that is never updated becomes a benchmark you have overfitted to — you will improve your score and ship a regression.",
+      "Twenty examples taken from real production traffic beats a thousand invented ones, because twenty real failures contain more information about your actual distribution. A golden set that is never updated becomes a benchmark you have overfitted to: you will improve your score and ship a regression.",
     layer: 9,
     tools: ["Braintrust", "DeepEval"],
     see: ["llm-as-judge", "eval-gate"],
@@ -520,7 +520,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Using a model to score output against a written rubric, in place of a human.",
     detail:
-      "It works, with two caveats that are frequently ignored. Position bias: the same rubric graded with the answer and the reference in swapped order produces different scores, so randomise it. And the judge must be stronger than what it is judging — a weak judge grading a strong model measures the judge.",
+      "It works, with two caveats that are frequently ignored. Position bias: the same rubric graded with the answer and the reference in swapped order produces different scores, so randomise it. And the judge must be stronger than what it is judging: a weak judge grading a strong model measures the judge.",
     layer: 9,
     tools: ["Braintrust", "Arize Phoenix"],
     see: ["golden-set", "eval-gate"],
@@ -531,7 +531,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "A check in CI that blocks a merge when a change makes a scored dimension worse.",
     detail:
-      "The thing that makes evals an asset rather than a dashboard. Without it you can still debug with traces; you just cannot tell whether anything you changed helped. Put it in CI on every commit and let it fail — a failing eval is the system telling you something true.",
+      "The thing that makes evals an asset rather than a dashboard. Without it you can still debug with traces; you just cannot tell whether anything you changed helped. Put it in CI on every commit and let it fail: a failing eval is the system telling you something true.",
     layer: 9,
     tools: ["promptfoo"],
     see: ["golden-set", "llm-as-judge", "shadow-traffic"],
@@ -542,7 +542,7 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Replaying a sample of production requests against a candidate model without serving the answers.",
     detail:
-      "The only way to get a real answer to 'is the new model better' before you switch, and much cheaper than finding out from users. The limitation is that it measures agreement, not satisfaction — you still need an outcome signal.",
+      "The only way to get a real answer to 'is the new model better' before you switch, and much cheaper than finding out from users. The limitation is that it measures agreement, not satisfaction: you still need an outcome signal.",
     layer: 9,
     see: ["eval-gate", "model-router"],
   },

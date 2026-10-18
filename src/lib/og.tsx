@@ -10,7 +10,7 @@
  *    so it picks the one that holds up on both.
  * 2. Satori supports a subset of CSS. `gap` is unreliable, so spacing is done
  *    with margins on siblings. There is no `grid`, no `lineClamp` and no
- *    `text-overflow` — anything that would truncate on the live site is
+ *    `text-overflow`anything that would truncate on the live site is
  *    truncated here in JS, which is what `clamp` is for. **Any div with more
  *    than one child must declare `display: flex`, `display: contents` or
  *    `display: none`**, or the render throws at build time.
@@ -22,7 +22,7 @@
  *    reading them inside the handler would put ~187 KB of disk I/O in front of
  *    every share-card render.
  * 5. One card, three shapes. A section card, a tool card and the home card are
- *    not the same layout wearing different text — see `variant` below. The
+ *    not the same layout wearing different text: see `variant` below. The
  *    strata rail and the use/skip valve only appear where they carry
  *    information, because a share card is the one place the site's thesis can
  *    reach someone who never opens it.
@@ -39,7 +39,7 @@ import { MARK_CELLS } from "@/components/logo";
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /**
- * The three faces, read once at module scope — they do not vary per request, and
+ * The three faces, read once at module scope: they do not vary per request, and
  * reading them inside the handler would put ~187 KB of disk I/O in front of every
  * share-card render.
  *
@@ -49,16 +49,16 @@ export const OG_SIZE = { width: 1200, height: 630 };
  * await that rejects takes the **whole module graph** down with it. On
  * Cloudflare there is no filesystem, so the moment this module was evaluated by
  * the Worker the read threw `ENOENT` and every route that touches it returned
- * 500 — not the share cards, which are prerendered, but ordinary HTML pages,
+ * 500, not the share cards, which are prerendered, but ordinary HTML pages,
  * because `og.tsx` ends up in the shared chunk.
  *
  * That is the worst possible shape for the bug: the cards it exists to serve
  * were fine, and everything it did not serve was broken. It also made
- * `wrangler dev` useless as an oracle — every HTML route 500'd locally for the
+ * `wrangler dev` useless as an oracle: every HTML route 500'd locally for the
  * same reason, so no React-rendering change could be verified before deploying.
  *
  * So the read degrades instead of throwing. `OG_FONTS` is empty when the files
- * are unreachable, and Satori falls back — which is harmless at runtime because
+ * are unreachable, and Satori falls back, which is harmless at runtime because
  * every card is prerendered at build time, where the read succeeds.
  *
  * ## Why it is still caught if the fonts go missing at build time
@@ -77,7 +77,7 @@ async function readOgFonts() {
     ]);
     return { plexSans, plexSerif, plexMono };
   } catch {
-    // No filesystem — the Worker. See the note above.
+    // No filesystem: the Worker. See the note above.
     return { plexSans: null, plexSerif: null, plexMono: null };
   }
 }
@@ -89,7 +89,7 @@ const { plexSans, plexSerif, plexMono } = await readOgFonts();
  * and silently substitutes its own fallback face when a request asks for one it
  * was not given, so asking for 400 here would put Arial back on the card.
  *
- * Empty on a runtime with no filesystem, which is intended — see above.
+ * Empty on a runtime with no filesystem, which is intended: see above.
  */
 type OgFont = {
   name: string;
@@ -102,7 +102,7 @@ type OgFont = {
  * Built by spreading rather than by `filter(Boolean)` after construction.
  *
  * The filter version needed a hand-written type predicate, and it was subtly
- * wrong — `readFile` resolves to a `Buffer` whose `ArrayBuffer` view is not
+ * wrong: `readFile` resolves to a `Buffer` whose `ArrayBuffer` view is not
  * `SharedArrayBuffer`, so the predicate widened `data` and every one of the 18
  * `opengraph-image.tsx` call sites failed to type-check. Spreading conditional
  * elements infers correctly without a predicate at all.
@@ -134,7 +134,7 @@ const C = {
 /**
  * The three bands from globals.css, not the nine layer stops.
  *
- * The nine-stop ramp was retired on the live site — nine hues is a rainbow,
+ * The nine-stop ramp was retired on the live site: nine hues is a rainbow,
  * and a rainbow is decoration. A card inherits that reasoning or it does not.
  */
 const BAND_HEX = {
@@ -175,7 +175,7 @@ const BAND_LABEL: Record<Band, string> = {
  *
  * Exported so the route files can put the band in the eyebrow and the depth in
  * the badge. Those are two different facts and stating both in the eyebrow was
- * saying the same thing twice — "LAYER 03" above the title and "LAYER 03 / 09"
+ * saying the same thing twice: "LAYER 03" above the title and "LAYER 03 / 09"
  * in the masthead, with the band appearing nowhere until the strata rail.
  */
 export function bandLabel(layer: number | null): string {
@@ -201,7 +201,7 @@ function clamp(text: string, max: number): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max - 1);
   const lastSpace = cut.lastIndexOf(" ");
-  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.—-]+$/, "")}…`;
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.-]+$/, "")}…`;
 }
 
 /**
@@ -220,7 +220,7 @@ function titleSize(title: string): number {
 /**
  * The mark from components/logo.tsx, drawn with divs rather than inline SVG.
  * Satori's SVG support is real but partial, and nine squares are not worth a
- * rendering edge case — `position: absolute` is supported everywhere and
+ * rendering edge case: `position: absolute` is supported everywhere and
  * always behaves.
  *
  * `joint` colours the corner cell. On a layered card it takes the band tint,
@@ -282,7 +282,7 @@ function Label({
 }
 
 /**
- * The strata rail — nine bands, surface-first, with the current one ringed.
+ * The strata rail: nine bands, surface-first, with the current one ringed.
  *
  * This is the site's signature device and the reason a share card here can
  * carry something a directory's card never could: where this page sits
@@ -295,8 +295,8 @@ function Label({
  *            ink and ringed in the tint; the rest are stubs.
  *   catalog  the home card. Nothing is current, so all nine are shown at full
  *            height in their band colour with the band gaps left visible. This
- *            is the whole product in one image — nine layers, three bands,
- *            ordered — and it is the reason the index is legible as a map
+ *            is the whole product in one image (nine layers, three bands,
+ *            ordered), and it is the reason the index is legible as a map
  *            rather than a list.
  */
 function Strata({
@@ -333,13 +333,13 @@ function Strata({
                   alignItems: "center",
                   justifyContent: "center",
                   backgroundColor: catalog ? c : on ? c : C.faint,
-                  // Ringed in the mark, not the band colour — a ring the same
+                  // Ringed in the mark, not the band colour: a ring the same
                   // hue as the fill it surrounds is invisible, which is exactly
                   // what the first pass did. This matches the live site, where
                   // the current layer is ringed in the accent.
                   border: on ? `2px solid ${C.accent}` : "none",
                   // In catalog mode every band is present, so the weights are
-                  // modulated slightly rather than left identical — the eye
+                  // modulated slightly rather than left identical: the eye
                   // reads nine things, which is the intent.
                   opacity: catalog ? (band.id === "compute" ? 0.72 : band.id === "state" ? 0.86 : 1) : 1,
                 }}
@@ -370,7 +370,7 @@ function Rule({ width = 1072, color = C.border }: { width?: number; color?: stri
  * The use/skip valve.
  *
  * On a live tool page these two sentences are the site's whole thesis, set as
- * two equal cards. On a card they cannot be cards — there is no room and a
+ * two equal cards. On a card they cannot be cards: there is no room and a
  * card implies a component. Two stacked lines with the labels pushed to the
  * margin reads as the argument it is, and it is the one thing here no vendor
  * can put on their own share image without it being an advertisement.
@@ -383,7 +383,7 @@ const VALVE_LABEL_W = 128;
  *
  * Without it a flex item keeps `min-width: auto` and simply grows past the card
  * instead of wrapping, so the longest sentence in the dataset ran off the right
- * edge and was clipped by the frame. `clamp` cannot help — it truncates, and a
+ * edge and was clipped by the frame. `clamp` cannot help: it truncates, and a
  * good sentence cut at "…" is worse than one wrapped onto a second line.
  *
  * 1136 is the right edge of the padded box (1200 - 64); minus the 128px label
@@ -407,7 +407,7 @@ const VALVE_CHARS_PER_LINE = 78;
  *
  * Satori will not do this reliably. Given `width`, `maxWidth`, or neither, a
  * string inside a `flexDirection: row` parent is measured at max-content and
- * laid out on one line — which is how Distill's `useWhen` reached x=1159 on a
+ * laid out on one line, which is how Distill's `useWhen` reached x=1159 on a
  * 1200px card while every width property on the element said otherwise.
  * `check-og-bounds.py` found it across 235 cards.
  *
@@ -536,7 +536,7 @@ export function OgCard({
   const band = bandOf(layer);
   const tint = bandHex(band);
 
-  // The strata rail only means something when there is a "current" layer —
+  // The strata rail only means something when there is a "current" layer:
   // except on the home card, where nothing is current and showing the whole
   // catalogue is the point.
   const showStrata =
@@ -544,7 +544,7 @@ export function OgCard({
     (layer != null && (variant === "section" || variant === "tool"));
 
   // Off-stack material and the non-layer routes have no depth to badge, so the
-  // badge is omitted rather than rendered as an empty stub — a rule that means
+  // badge is omitted rather than rendered as an empty stub: a rule that means
   // nothing is worse than no rule.
   const badge =
     layer == null
@@ -724,7 +724,7 @@ export function OgCard({
  * section card answers "where is this page", the home card answers "what is
  * this site", and the honest answer is a drawing of the stack.
  *
- * So the right half is a section elevation — the nine layers drawn top-down
+ * So the right half is a section elevation: the nine layers drawn top-down
  * from the surface to the substrate, the way a cross-section of a building is,
  * with a dimension bracket marking each band. Every label is the real section
  * title and every bracket the real band boundary; nothing on the card is

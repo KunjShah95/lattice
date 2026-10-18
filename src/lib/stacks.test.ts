@@ -5,7 +5,7 @@ import { allTools, categories, getToolByName } from "./data";
 const sectionOf = (toolName: string) =>
   allTools.find((t) => t.name === toolName)?.category.slug;
 
-describe("recommendStack — genuine subsystem search", () => {
+describe("recommendStack: genuine subsystem search", () => {
   it("covers every workload with the workload's own sections", () => {
     for (const w of WORKLOADS) {
       const r = recommendStack({ workload: w.id, queriesPerMonth: 100_000 });
@@ -26,7 +26,7 @@ describe("recommendStack — genuine subsystem search", () => {
       const r = recommendStack({ workload: w.id, queriesPerMonth: 500_000, documents: 5_000_000 });
       for (const p of r.picks) {
         expect(names.has(p.tool)).toBe(true);
-        if (p.alternative !== "—") expect(names.has(p.alternative)).toBe(true);
+        if (p.alternative !== "–") expect(names.has(p.alternative)).toBe(true);
       }
     }
   });
@@ -59,7 +59,7 @@ describe("recommendStack — genuine subsystem search", () => {
     expect(smallPick).not.toBe(largePick);
   });
 
-  it("is deterministic — same input, same stack", () => {
+  it("is deterministic: same input, same stack", () => {
     const a = recommendStack({ workload: "rag", queriesPerMonth: 500_000, documents: 10_000_000 });
     const b = recommendStack({ workload: "rag", queriesPerMonth: 500_000, documents: 10_000_000 });
     expect(a).toEqual(b);

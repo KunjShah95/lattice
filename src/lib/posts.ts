@@ -10,7 +10,7 @@ export type PostMeta = {
   /** ISO date. */
   date: string;
   readingTime: string;
-  /** Stack layers the post speaks to — drives the accent rule. */
+  /** Stack layers the post speaks to: drives the accent rule. */
   layers: number[];
   /** Category slugs linked from the post. */
   sections: string[];
@@ -38,7 +38,7 @@ import Ctor11, { meta as m11 } from "@/content/blog/observability-is-not-logging
 
 /**
  * Every essay is registered here. MDX cannot be glob-imported at build time
- * with static params, so the list is explicit — which also means a new post
+ * with static params, so the list is explicit, which also means a new post
  * cannot be added without deciding where it belongs.
  */
 const registry: Array<[PostMeta, ComponentType<Record<string, unknown>>]> = [

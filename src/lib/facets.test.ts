@@ -20,7 +20,7 @@ import { ROLES } from "./roles";
  * OR within a group, AND across groups, and counts drawn from the pool that
  * excludes the group being counted. Those three together are what make a
  * faceted list trustworthy, and all three are easy to get subtly wrong in a way
- * that still looks correct on screen — a count that reflects the current
+ * that still looks correct on screen: a count that reflects the current
  * selection is the classic one, because it renders as a plausible number.
  *
  * These run against the real dataset wherever possible, so a change to the role
@@ -59,7 +59,7 @@ describe("inGroup", () => {
 
   it("ORs within the roles group", () => {
     // The reader asking "Platform OR Infra" wants the union, not the
-    // intersection — a tool belonging to either is part of what their job uses.
+    // intersection: a tool belonging to either is part of what their job uses.
     const r = row({ name: "Fly Machines", roles: ["ML Platform", "AI Infrastructure"] });
     expect(inGroup(r, "roles", new Set(["ML Platform"]))).toBe(true);
     expect(inGroup(r, "roles", new Set(["AI Infrastructure"]))).toBe(true);
@@ -109,11 +109,11 @@ describe("poolFor", () => {
 
   it("excludes the group being counted, so counts reflect what picking would yield", () => {
     // Selecting Platform and then reading the Data count must show how many
-    // results Platform+Data would give — not zero, and not the unfiltered total.
+    // results Platform+Data would give, not zero, and not the unfiltered total.
     // With the roles group skipped, the pool is everything the *other* filters
     // allow: all three rows, since no other filter is active. The counts then
     // come from exploding roles across that pool, which is the standard
-    // behaviour — C is legitimately offered as a Data option, because picking
+    // behaviour: C is legitimately offered as a Data option, because picking
     // it would yield C.
     const selection = { roles: new Set(["ML Platform"]) };
     expect(poolFor(rows, selection, "roles").map((r) => r.name)).toEqual([
@@ -347,7 +347,7 @@ describe("against the real dataset", () => {
   });
 
   it("lets every role be selected to a non-empty result", () => {
-    // A role whose selection returns nothing is a dead filter — the chip looks
+    // A role whose selection returns nothing is a dead filter: the chip looks
     // interactive and does nothing.
     for (const role of ROLES) {
       const n = poolFor(rows, { roles: new Set([role.title]) }, "section").length;

@@ -1,7 +1,7 @@
 import { buildSearchEntries } from "@/lib/search-entries";
 
 /**
- * /search-index.json — the palette's corpus, fetched the first time the
+ * /search-index.json: the palette's corpus, fetched the first time the
  * reader opens search rather than inlined into every page.
  *
  * Prerendered at build time. It reads no request data, so `force-static` just
@@ -11,7 +11,7 @@ import { buildSearchEntries } from "@/lib/search-entries";
  *
  * `s-maxage=31536000` matches every other prerendered response on this site.
  * The filename is not hashed, so a browser holding a copy revalidates rather
- * than serving it blindly — which is the correct trade for a file this size
+ * than serving it blindly, which is the correct trade for a file this size
  * that most visitors never request at all.
  */
 export const dynamic = "force-static";

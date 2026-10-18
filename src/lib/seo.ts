@@ -101,7 +101,7 @@ export function listNames(names: string[]): string {
  * The tool page's `<meta name="description">`.
  *
  * This used to append the blurb and then close with "When to use it, when to
- * skip it, licence and alternatives." — and because the blurb runs long, that
+ * skip it, licence and alternatives."and because the blurb runs long, that
  * closing clause fell past the ~160-character point where a search engine stops
  * rendering, on 130 of 193 tool pages. The differentiator was being cut off on
  * two-thirds of the index, which is the worst possible place to lose it: the
@@ -109,7 +109,7 @@ export function listNames(names: string[]): string {
  * links.
  *
  * So the blurb is out and the hook leads. Nothing is actually lost by dropping
- * it — the same sentence already appears in three other places a reader or an
+ * it: the same sentence already appears in three other places a reader or an
  * engine will hit: the JSON-LD `WebPage.description`, the visible lead paragraph
  * (`toolDefinition`), and the `ItemList` entry for this tool on `/all`. It was
  * only ever duplicated in the one field with a hard ceiling.
@@ -305,7 +305,7 @@ export const datasetModified = `${AS_OF}-01`;
  *
  * Next does not derive `og:url` from `alternates.canonical`. Left unset, the tag
  * is omitted entirely; set once in the root layout, it is inherited by every page
- * and points all of them at the home page — which puts `og:url` and `canonical`
+ * and points all of them at the home page, which puts `og:url` and `canonical`
  * in direct contradiction on every route that has its own path. Both failure
  * modes are worse than just spelling the URL out per page, and this keeps that
  * spelling in one place so it cannot drift from `site.url`.
@@ -316,7 +316,7 @@ export function absolute(path = "/"): string {
 
 /**
  * JSON-LD author: the named editor when one is configured, otherwise the
- * organisation. Never a Person named after the organisation — that is a
+ * organisation. Never a Person named after the organisation: that is a
  * false claim in the field engines read for authorship.
  */
 export function authorNode(): object {
@@ -334,7 +334,7 @@ export const bylineName = site.author?.name ?? `${site.name} editorial`;
  * Authorship and verification fields for a page that is not an Article.
  *
  * A named editor with a visible update date was on every page answer engines
- * cited in the category audit — and `/compare`, `/fix` and `/blog`, the three
+ * cited in the category audit, and `/compare`, `/fix` and `/blog`, the three
  * families that carry it, were the only ones declaring an author. The tool,
  * glossary and alternatives pages were the larger sets and declared none, which
  * is the wrong way round: most of the site was doing the harder half of the work
@@ -342,7 +342,7 @@ export const bylineName = site.author?.name ?? `${site.name} editorial`;
  *
  * `dateModified` is deliberately the dataset's verification month rather than
  * the build time. A definition does not expire and a licence does, and the whole
- * freshness argument on this site rests on the date meaning something — so a
+ * freshness argument on this site rests on the date meaning something, so a
  * field that said "rebuilt 4 minutes ago" would be the one place the claim
  * quietly stopped being true.
  *
@@ -376,8 +376,8 @@ export function breadcrumbNode(
 /**
  * Wrap nodes in a single JSON-LD document.
  *
- * `undefined` is dropped rather than rejected: a node built conditionally — an
- * ItemList only where the page actually has a collection to list — is written
+ * `undefined` is dropped rather than rejected: a node built conditionally, an
+ * ItemList only where the page actually has a collection to list, is written
  * as `items?.length ? { ... } : undefined`, and filtering here is what lets that
  * read as one expression. A `null` in `@graph` is a parse error for a consumer
  * even though `JSON.stringify` writes it happily, so it never leaves here.
@@ -393,8 +393,8 @@ export type ListEntry = { name: string; url: string; description?: string };
  * An index page: a CollectionPage whose reason for existing is the set of pages
  * it links to.
  *
- * Seven routes are exactly this shape — `/all`, `/blog`, `/compare`,
- * `/stack-builder`, `/glossary`, `/methodology`, `/fix` — and all seven shipped
+ * Seven routes are exactly this shape: `/all`, `/blog`, `/compare`,
+ * `/stack-builder`, `/glossary`, `/methodology`, `/fix`and all seven shipped
  * with no structured data at all, while `/roles` and every section page carried
  * a full graph. The failure was silent in every way that matters: the pages
  * render, the sitemap lists them, `route-metadata.test.ts` passes, and the audit
@@ -403,7 +403,7 @@ export type ListEntry = { name: string; url: string; description?: string };
  * sub-pages it is the only parent of become reachable only by following a
  * rendered link.
  *
- * `items` may be omitted for an index whose argument is not a set of pages —
+ * `items` may be omitted for an index whose argument is not a set of pages:
  * `/methodology` is a page *about* the index and lists nothing, so declaring a
  * mainEntity it does not have would be the kind of small false claim this site
  * exists to avoid. Those pages still get the WebPage node and the breadcrumb.

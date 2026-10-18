@@ -5,7 +5,7 @@
  *
  * `/methodology` §06 describes how corrections are handled. Nothing recorded that
  * they happened. So the claim "we publish our limits and fix what we get wrong"
- * was a promise with no evidence behind it — and stated uncertainty only earns
+ * was a promise with no evidence behind it, and stated uncertainty only earns
  * citations when the uncertainty is visibly *acted on*.
  *
  * Deriving the page from `git log` means it cannot drift from what actually
@@ -14,7 +14,7 @@
  *
  * ## What counts as a correction
  *
- * Commits that touch `src/lib/attributes.ts` or `src/lib/data.ts` — the two files
+ * Commits that touch `src/lib/attributes.ts` or `src/lib/data.ts`the two files
  * that hold what a tool *is* and what it *is for*. Those are the edits where a
  * licence, a cost, a layer or a skip-when sentence can change, and they are
  * exactly the claims the build's freshness guard is about.
@@ -97,7 +97,7 @@ function readLog() {
    *
    * `--name-only` separates records with a blank line, and git emits a leading
    * one, so splitting and zipping against the metadata list silently shifts every
-   * entry by one — the first version did exactly that and reported an empty file
+   * entry by one: the first version did exactly that and reported an empty file
    * list for two commits out of eight. Prefixing each record with the SHA makes
    * the join explicit, which is what removes the dependency on ordering.
    */
@@ -108,17 +108,17 @@ function readLog() {
     // Both markers, in that order: the record separator has to be *in the
     // format*, not merely used to split. Without it git runs every record
     // together, the split returns one blob, and the parse succeeds with eight
-    // entries and no files — which is exactly what it did.
+    // entries and no files, which is exactly what it did.
     `--format=${RECORD}${FIELD}%H`,
     ...PATHS,
   ]).split(RECORD)) {
     // The record is `<marker><sha>` on its own line, then a blank line, then the
-    // file list. Files come *after* the SHA — which is the second time this
+    // file list. Files come *after* the SHA, which is the second time this
     // parsing has assumed otherwise, and the empty `touched` arrays it produced
     // were the only symptom.
     // No leading comma here: the SHA *is* the first line. An earlier version
     // skipped it, so `shaLine` was the blank separator line, `sha` was always
-    // empty, and the map stayed empty — silently, with the right number of
+    // empty, and the map stayed empty: silently, with the right number of
     // entries and no files on any of them.
     const [shaLine, ...rest] = record.replace(/^\u001f/, "").split("\n");
     const sha = (shaLine ?? "").trim();
@@ -147,7 +147,10 @@ function parse() {
       // The commit subject verbatim. Not trimmed or re-titled: a paraphrased log
       // is a second claim about what happened, and this page's whole value is
       // that it is not one.
-      title: subject,
+      // One exception to "verbatim": em dashes. The site uses none in its
+      // copy, so a subject's spaced em dash is rendered as ": " (and a bare one as a
+      // hyphen). The words are untouched.
+      title: subject.replace(/\s*\u2014\s*/g, ": ").replace(/\u2014/g, "-"),
       hash: sha.slice(0, 7),
       url: `https://github.com/KunjShah95/lattice/commit/${sha}`,
       touched: [...new Set(files.map(labelFor))].sort(),
@@ -156,7 +159,7 @@ function parse() {
 
 function module(entries) {
   return `/**
- * GENERATED — do not edit. Run \`npm run generate\` to rebuild.
+ * GENERATED: do not edit. Run \`npm run generate\` to rebuild.
  *
  * The corrections log for \`/corrections\`, derived from git history over
  * \`src/lib/attributes.ts\` and \`src/lib/data.ts\`. See
@@ -185,7 +188,7 @@ export const corrections: Correction[] = ${JSON.stringify(entries, null, 2)};
  * Build, or verify.
  *
  * `--check` regenerates in memory and compares, so a dataset edit that was
- * committed without regenerating fails the build — the same contract
+ * committed without regenerating fails the build: the same contract
  * `generate-awesome-list.mjs --check` and `build-essay-text.mjs --check` have.
  *
  * A repository with no git history (a shallow CI clone, an exported tarball)

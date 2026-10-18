@@ -15,7 +15,7 @@ import { placePopup, type Placement } from "@/lib/popup-position";
 /**
  * A link with a hover/focus preview card.
  *
- * Borrowed mechanic: Aceternity's Link Preview and Tooltip Card — show what is on
+ * Borrowed mechanic: Aceternity's Link Preview and Tooltip Card: show what is on
  * the other side of a link without leaving the page. The aesthetic is not
  * borrowed (no spotlight, no gradient border, no spring); the card is a plain
  * bordered box in the site's own tokens.
@@ -33,7 +33,7 @@ import { placePopup, type Placement } from "@/lib/popup-position";
  * - *Hoverable:* the card is a descendant of the trigger's wrapper and bridges
  *   the gap with padding, so the pointer can travel onto it without a
  *   `mouseleave` firing in between.
- * - *Persistent:* it stays until the pointer leaves, focus leaves, or Escape —
+ * - *Persistent:* it stays until the pointer leaves, focus leaves, or Escape:
  *   never on a timer once open.
  *
  * ## It is progressive enhancement, not the content
@@ -41,7 +41,7 @@ import { placePopup, type Placement } from "@/lib/popup-position";
  * The preview is supplementary: the same facts are on the destination page, and
  * on touch there is no hover, so none of it is the only route to anything. The
  * card is always in the DOM and `aria-describedby` points at it, so a screen
- * reader announces it as the link's description whether or not it is visible —
+ * reader announces it as the link's description whether or not it is visible:
  * `visibility: hidden` content still contributes to an accessible description.
  *
  * ## Why it takes `tick` rather than a layer
@@ -64,7 +64,7 @@ export function PreviewLink({
 }: {
   href: string;
   className: string;
-  /** Rendered before the label — the layer tick. Server-built, so it costs no client code. */
+  /** Rendered before the label: the layer tick. Server-built, so it costs no client code. */
   tick?: ReactNode;
   /** The card's body. Server-rendered and passed through; this component never reads it. */
   preview: ReactNode;

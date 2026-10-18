@@ -1,6 +1,6 @@
 /**
  * Deployment model. This is the constraint that decides most real
- * adoptions — whether a tool can run inside your own network is a
+ * adoptions, whether a tool can run inside your own network is a
  * compliance question before it is a technical one.
  */
 export type Deployment = "self-hosted" | "managed" | "saas";
@@ -31,7 +31,7 @@ export type CostModel =
   | "subscription";
 
 /**
- * Engineering specialisation — the thing you are accountable for, not the
+ * Engineering specialisation: the thing you are accountable for, not the
  * level you are at. Vocabulary and rationale live in `roles.ts`.
  */
 export type Role = "platform" | "serving" | "data" | "applied" | "production";
@@ -108,7 +108,7 @@ export type Tool = {
    * W&B runs training experiments and scores LLM outputs; Letta's memory *is* an
    * embedding store with an agent API on top; Vellum versions prompts and grades
    * chains. Forcing each of those into one section is how a layer-ordered index
-   * ends up quietly lying about where a tool sits — the reader finds it in the
+   * ends up quietly lying about where a tool sits: the reader finds it in the
    * one place it does not matter to them and concludes the index is wrong.
    *
    * `because` is required and rendered. The reason is the whole payload: a bare
@@ -117,7 +117,7 @@ export type Tool = {
    *
    * This is not the same as a `crosscutting` *section*. Evals span the stack as
    * a category of tool; a second home says one tool has two jobs. Capped at two
-   * by the build guard, for the same reason roles are — see `data.ts`.
+   * by the build guard, for the same reason roles are: see `data.ts`.
    */
   secondHomes?: SecondHome[];
 
@@ -140,7 +140,7 @@ export type Tool = {
 export type LayerRole = "layer" | "crosscutting" | "offstack";
 
 export type Category = {
-  /** Ordinal rendered in the section header. "—" for off-stack sections. */
+  /** Ordinal rendered in the section header. "–" for off-stack sections. */
   index: string;
   slug: string;
   title: string;

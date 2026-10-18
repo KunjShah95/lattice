@@ -21,7 +21,7 @@ function readTheme(): "light" | "dark" {
 
 /**
  * The active theme is a class on <html>, so it lives outside React.
- * Both icons render and CSS picks one via the `dark` variant — that keeps the
+ * Both icons render and CSS picks one via the `dark` variant: that keeps the
  * server and client markup identical, so there is no hydration mismatch and
  * no state to synchronise.
  */
@@ -32,7 +32,7 @@ export function ThemeToggle() {
     try {
       localStorage.setItem("theme", next);
     } catch {
-      /* storage unavailable — theme still applies for this session */
+      /* storage unavailable: theme still applies for this session */
     }
   }
 
@@ -47,7 +47,7 @@ export function ThemeToggle() {
       // class, so the toggle keeps holding no React state.
       className="press grid h-9 w-9 place-items-center rounded-md text-fg-muted hover:bg-bg-sunken hover:text-fg [&>svg]:col-start-1 [&>svg]:row-start-1 [&>svg]:transition-[translate,scale,rotate,opacity] [&>svg]:duration-500 [&>svg]:ease-[var(--ease-spring)]"
     >
-      {/* Shown in light mode — offers the switch to dark. */}
+      {/* Shown in light mode: offers the switch to dark. */}
       <svg
         width="15"
         height="15"
@@ -63,7 +63,7 @@ export function ThemeToggle() {
         <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
       </svg>
 
-      {/* Shown in dark mode — offers the switch to light. */}
+      {/* Shown in dark mode: offers the switch to light. */}
       <svg
         width="15"
         height="15"

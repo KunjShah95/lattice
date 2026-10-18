@@ -8,7 +8,7 @@ import { ReviewCta } from "@/components/marketing";
 export const metadata: Metadata = {
   title: "AI stack builder",
   description:
-    "Describe your AI system and get a recommended stack of AI infrastructure tools — gateway, retrieval, inference, evals — as a shareable link with cost band, confidence and tradeoffs.",
+    "Describe your AI system and get a recommended stack of AI infrastructure tools (gateway, retrieval, inference, evals), as a shareable link with cost band, confidence and tradeoffs.",
   alternates: { canonical: "/stack-builder" },
   // Next does not derive `og:url` from the canonical, and an inherited one
   // points at the home page. See `absolute()` in lib/seo.ts.
@@ -24,8 +24,8 @@ export default function StackBuilderPage() {
       {/* WebApplication, not CollectionPage. This is the one route on the site
           that is a tool rather than a list, so it gets the type that says so:
           a thing a reader operates, free, in a browser, with no install.
-          `applicationCategory` is UtilitiesApplication — closest schema.org
-          offers for "not an editor, not a game" — and the tool count is stated
+          `applicationCategory` is UtilitiesApplication: closest schema.org
+          offers for "not an editor, not a game"and the tool count is stated
           because it is the honest bound on what the output can draw from. */}
       <script
         type="application/ld+json"
@@ -64,7 +64,7 @@ export default function StackBuilderPage() {
           Build my AI stack.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          Describe your case — or start from a real one below — then press{" "}
+          Describe your case, or start from a real one below, then press{" "}
           <span className="text-fg">Build my stack</span>. Every build becomes a
           shareable link, and the decision copies out as a report. Drawn from the 112 tools already in
           the index; estimates are heuristic bands, not vendor quotes.

@@ -5,14 +5,14 @@ export type Option<V extends string> = { value: V; label: string; hint?: string 
  *
  * Lived inside `stack-builder.tsx`, where six questions use it. Extracted because
  * the compare builder and the role lens need the same control, and a second copy
- * would drift from the first in exactly the details that matter here — the
+ * would drift from the first in exactly the details that matter here: the
  * `aria-pressed` state, the group label, and the focus ring.
  *
  * Buttons with `aria-pressed`, not radios: the group is a filter the reader can
  * flip back and forth, there is no form submission, and a native radio group would
  * need arrow-key handling that a row of buttons gets from Tab for free.
  *
- * No hooks, no browser APIs — a plain function of its props, so it works inside a
+ * No hooks, no browser APIs: a plain function of its props, so it works inside a
  * client component without adding anything to a server route's bundle.
  */
 export function Segmented<V extends string>({

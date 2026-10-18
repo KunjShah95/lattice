@@ -1,12 +1,12 @@
 // `.mjs` in the specifier, not left to resolution. `moduleResolution: "bundler"`
-// will not map `@/lib/signal` onto `signal.mjs`, so the extension is stated —
+// will not map `@/lib/signal` onto `signal.mjs`, so the extension is stated:
 // which is also how `app/mcp/route.ts` and `app/submit/page.tsx` import their
 // sibling `.mjs` modules.
 import { allowedEvents, MAX_SIGNAL_BYTES, parseSignal } from "@/lib/signal.mjs";
 import { isRateLimited } from "@/lib/rate-limit.mjs";
 
 /**
- * `/signal` — receives navigation beacons and writes one structured line per click.
+ * `/signal`receives navigation beacons and writes one structured line per click.
  *
  * ## Why the Worker logs rather than a database
  *
@@ -27,20 +27,20 @@ import { isRateLimited } from "@/lib/rate-limit.mjs";
  * 1. **A closed vocabulary of events.** `event` must be one of four. An arbitrary
  *    string in a log is a log-injection vector and an analytics-poisoning one.
  * 2. **A path shape, not a path value.** `to` must start with `/` and must not
- *    start with `//` — which would make the value usable as an open redirect the
+ *    start with `//`which would make the value usable as an open redirect the
  *    moment anything renders it back as a link.
  * 3. **A size cap.** 512 bytes is more than the payload needs and less than a
  *    request body worth allocating memory for.
  *
  * Those three bound the cost of *one* request. A fourth, in `rate-limit.mjs`,
- * bounds the number of them — because a flood of perfectly well-formed beacons
+ * bounds the number of them, because a flood of perfectly well-formed beacons
  * is the actual attack here: it does not have to be malformed to be harmful, it
  * only has to be repeated.
  *
  * ## 204 for rejections, 200 for accepted
  *
  * A rejection is a malformed beacon, which is noise, and a 4xx would be visible
- * as failed requests in the analytics this route exists to produce — so a rejected
+ * as failed requests in the analytics this route exists to produce, so a rejected
  * beacon answers 204 and says nothing at all. Not telling anyone is deliberate.
  *
  * An *accepted* beacon answers 200 with the edge it recorded. That is the change
@@ -48,7 +48,7 @@ import { isRateLimited } from "@/lib/rate-limit.mjs";
  * the route untestable: with every case returning the same status and an empty
  * body, the only way to assert "this one was counted and that one was discarded"
  * was to scrape the Worker's stdout, which is a subprocess's buffered pipe and
- * fails intermittently — and did, here, in a way that looked like a product bug.
+ * fails intermittently, and did, here, in a way that looked like a product bug.
  *
  * Both statuses are 2xx, so neither pollutes request analytics. `sendBeacon` does
  * not read a response, so nothing about the client changes. And the body is only
@@ -57,7 +57,7 @@ import { isRateLimited } from "@/lib/rate-limit.mjs";
  */
 export const dynamic = "force-dynamic";
 
-/** No `runtime` export, matching every other text route — see `app/mcp/route.ts`. */
+/** No `runtime` export, matching every other text route: see `app/mcp/route.ts`. */
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
   }
 
   if (!parsed) {
-    // Rejected, and deliberately silent — see above. A rejected beacon is a
+    // Rejected, and deliberately silent: see above. A rejected beacon is a
     // malformed beacon, which is noise, and logging it would let anyone who finds
     // this endpoint fill the log with their own junk.
     return new Response(null, { status: 204, headers: CORS });

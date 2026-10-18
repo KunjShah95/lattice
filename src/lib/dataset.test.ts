@@ -52,7 +52,7 @@ describe("buildDataset", () => {
   it("publishes second homes with a resolvable section and layer", () => {
     // `layer` is the field an agent filters on and it is single-valued, so
     // without this the taxonomy's overlaps are invisible to the machine
-    // reader — which is the whole audience for tools.json.
+    // reader, which is the whole audience for tools.json.
     const known = new Set(d.sections.map((s) => s.slug));
     for (const t of d.tools) {
       for (const home of t.alsoIn) {

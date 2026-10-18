@@ -15,7 +15,7 @@ import { layerStyle } from "@/lib/layer";
 export type DiagramNode = {
   id: string;
   label: string;
-  /** Optional second line — a role, a technology, a caveat. */
+  /** Optional second line: a role, a technology, a caveat. */
   sub?: string;
   /** Stack depth, drives the node's identity rule. Null = off-stack/neutral. */
   layer?: number | null;
@@ -101,7 +101,7 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
           Horizontal scroll below `sm`, not a scaled-down diagram.
 
           The viewBox is a fixed 960 units wide, so `w-full` alone means a
-          375px phone renders the whole figure at 39% scale — 13px labels land
+          375px phone renders the whole figure at 39% scale: 13px labels land
           at roughly 5px, and 10.5px sub-labels at 4px. That is not a diagram
           any more, it is a grey rectangle. Pinning a `min-w` keeps the type at
           its authored size and lets the reader pan, which is the behaviour they
@@ -149,7 +149,7 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
             let anchor: "start" | "middle" | "end" = "middle";
 
             if (sameCol || (overlaps && goesDown)) {
-              // Drop straight down — either within a column, or into a
+              // Drop straight down: either within a column, or into a
               // directly-below node. Keeps side-effects legible.
               const downward = goesDown;
               const y1 = downward ? a.y + a.h : a.y;
@@ -266,7 +266,7 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
               className="flex gap-2 text-pretty text-[13px] leading-relaxed text-fg-muted"
             >
               <span aria-hidden="true" className="text-fg-subtle">
-                —
+
               </span>
               {note}
             </p>

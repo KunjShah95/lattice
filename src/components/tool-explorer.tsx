@@ -47,7 +47,7 @@ type GroupKey = FacetKey;
  * Filterable view of the whole index.
  *
  * Filtering runs on the client because the entire dataset is small enough to
- * send in one payload — ~113 rows is a few kilobytes — so there is no round
+ * send in one payload, ~113 rows is a few kilobytes, so there is no round
  * trip per keystroke and no loading state. Past a few hundred entries this
  * should move to a server-side search index.
  *
@@ -61,7 +61,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
    * `popstate` is handled by the effect below rather than by re-running it.
    *
    * Read in a client component rather than from a `searchParams` prop because
-   * `/all` is prerendered — awaiting `searchParams` would make it dynamic and
+   * `/all` is prerendered: awaiting `searchParams` would make it dynamic and
    * trade a static page for one that can only be rendered per request.
    */
   const [query, setQuery] = useState(() =>
@@ -173,7 +173,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
    * `replaceState` rather than `pushState`, deliberately: typing a filter should
    * not fill the back button with one entry per keystroke, which is the
    * behaviour a reader would describe as "the back button is broken". The cost
-   * is that Back leaves `/all` rather than undoing the last chip — and the
+   * is that Back leaves `/all` rather than undoing the last chip, and the
    * alternative is worse, so this is the trade.
    *
    * A no-op when the URL already says this, so the first render does not push a
@@ -213,7 +213,7 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
               }}
               placeholder="Filter by name, description or use-case…"
               aria-label="Filter tools"
-              // A soft accent halo on focus in place of the browser ring — the
+              // A soft accent halo on focus in place of the browser ring: the
               // field is already outlined, so a second hard outline doubles it.
               className="h-10 w-full rounded-lg border border-border bg-bg-elevated pl-8 pr-9 text-[14px] shadow-ink outline-none transition-[box-shadow,border-color] duration-200 placeholder:text-fg-subtle focus:border-border-strong focus:shadow-[0_0_0_4px_var(--selection)] focus-visible:outline-none sm:h-9 sm:text-[13.5px]"
             />
@@ -383,13 +383,13 @@ export function ToolExplorer({ tools }: { tools: ToolEntry[] }) {
   );
 }
 
-// The filtering logic — `valueOf`, `inGroup`, `matchesQuery`, the pool and the
-// facet counts — now lives in `@/lib/facets`, where it can be tested without a
+// The filtering logic: `valueOf`, `inGroup`, `matchesQuery`, the pool and the
+// facet counts: now lives in `@/lib/facets`, where it can be tested without a
 // DOM. This component keeps only the wiring and the markup.
 
 /**
  * One facet axis. On a phone it is a single swipeable rail rather than a
- * wrapped block — five axes wrapping to three lines each pushed the first
+ * wrapped block: five axes wrapping to three lines each pushed the first
  * result below the fold of a 390px screen, under a sticky bar. From `sm` up
  * there is room to wrap, so it does.
  */

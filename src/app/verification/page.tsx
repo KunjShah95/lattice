@@ -19,7 +19,7 @@ import { site } from "@/lib/site";
 import { buildVerificationReport, groupByCheck } from "@/lib/verification";
 
 export const metadata: Metadata = {
-  title: "Freshness ledger — what the build refuses to ship stale",
+  title: "Freshness ledger: what the build refuses to ship stale",
   description:
     "Licence, cost and deployment data older than six months fails the build. Every entry's check date, how much of its window is left, and the month it expires.",
   alternates: { canonical: "/verification" },
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 /**
  * The build date, fixed once. This page and `/verification.json` describe the
- * same instant — the one the guard in `data.ts` actually ran — so both read the
+ * same instant: the one the guard in `data.ts` actually ran, so both read the
  * clock at build time and neither at request time.
  */
 const BUILT_AT = new Date();
@@ -49,7 +49,7 @@ const BUILT_AT = new Date();
  * ## Why grouped, and why no count in the headline
  *
  * Almost every entry shares one check month, so a table of 112 rows is 112 copies
- * of one fact. Grouping shows the distribution — how much goes stale at once —
+ * of one fact. Grouping shows the distribution, how much goes stale at once,
  * which is the thing a sceptical reader wants to know. And the headline leads with
  * the claim, not a tool count: `strategy/02` §"What to refuse" lists a hero stat
  * as the opening move that makes a directory read as small.

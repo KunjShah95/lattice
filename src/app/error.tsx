@@ -7,7 +7,7 @@ import { StatusArt } from "@/components/status-art";
 /**
  * Runtime error boundary for every page under the root layout.
  *
- * Nearly every route is prerendered, so this is rare — it catches a client
+ * Nearly every route is prerendered, so this is rare: it catches a client
  * component that throws (the explorer, the Stack Builder) or a dynamic route
  * whose render fails. Rendered inside the layout, so the header, footer and
  * theme survive and the reader keeps their bearings.

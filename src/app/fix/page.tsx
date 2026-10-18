@@ -25,7 +25,7 @@ export default function FixIndexPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The symptoms as an ItemList. These five pages are the ones phrased the
-          way people actually type — "why is my LLM app slow" — and each carries
+          way people actually type: "why is my LLM app slow"and each carries
           HowTo + FAQPage. This index is their only parent, and it described none
           of them. `description` is the symptom's own summary, the same line the
           page leads with. */}

@@ -6,8 +6,8 @@ import { TrackLink, type TrackEvent } from "@/components/track-link";
 /**
  * A list row that is a link: a layer-coloured bar, a title, a sentence.
  *
- * This is the shape every "what to read next" list on a tool page used —
- * comparisons, essays, alternatives — written out five times with the same
+ * This is the shape every "what to read next" list on a tool page used (
+ * comparisons, essays, alternatives), written out five times with the same
  * twelve classes. The bar is the site's identity device (the layer ramp), so the
  * row takes the colour of the layer it belongs to rather than a generic accent.
  *

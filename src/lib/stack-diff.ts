@@ -6,7 +6,7 @@ import type { StackPick } from "./stacks";
  * The builder recomputes live, which is the right behaviour and a quiet one: flip
  * "self-hostable" and a vector store changes three screens down, and the reader
  * sees a different name with no idea which answer moved it. The reasons are already
- * in each pick's "why"; what was missing is the *edge* — this answer, that pick.
+ * in each pick's "why"; what was missing is the *edge*: this answer, that pick.
  *
  * Matched by section, not by position or by tool name: a layer can gain or lose a
  * pick (a constraint that rules out every candidate), and the same tool can appear

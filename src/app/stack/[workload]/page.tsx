@@ -20,18 +20,18 @@ import { ReviewCta } from "@/components/marketing";
  *
  * ## Why these exist
  *
- * The Stack Builder is a client-side tool. Its output — the recommendation —
+ * The Stack Builder is a client-side tool. Its output, the recommendation,
  * is not indexable, not citable, and not reachable for a model that has not run
  * the questionnaire. Seven workloads, each enumerable at build time, so they
  * get prerendered pages: a reader searching "RAG application stack" lands on a
  * decision record rather than a blank form, and an agent gets the same answer
- * from `recommend_stack` on `/mcp` — the URL is the same one the page links to.
+ * from `recommend_stack` on `/mcp`the URL is the same one the page links to.
  *
  * ## The default case is stated, not assumed
  *
  * The engine's recommendation depends on the case the caller describes, and a
  * static page describes none. So it says so: the picks here are the median case
- * — 100k requests a month, no special constraints — and the page links to the
+ * (100k requests a month, no special constraints), and the page links to the
  * builder with the workload preselected so the reader can change it. Anything
  * less honest makes these pages look like answers rather than starting points.
  */
@@ -50,7 +50,7 @@ export async function generateMetadata({
   if (!meta) return { title: "Not found" };
 
   return {
-    title: `${meta.label} stack — what to run, and when to skip it`,
+    title: `${meta.label} stack: what to run, and when to skip it`,
     description:
       `The default-case stack for a ${meta.label.toLowerCase()}: one pick per ` +
       `layer, each with its reason and its own skip-when, at a heuristic cost ` +
@@ -70,7 +70,7 @@ export default async function StackWorkloadPage({
   const result = recommendStack({ workload: meta.id as Workload, ...DEFAULT_CASE });
   const pageUrl = `${site.url}/stack/${meta.id}`;
   const builderPath = `/stack-builder?${encodeStackInput({ workload: meta.id as Workload, ...DEFAULT_CASE })}`;
-  // Built here, at prerender, against the canonical origin — so a report
+  // Built here, at prerender, against the canonical origin, so a report
   // copied from any preview deployment still links to the real site.
   const reportSource = { origin: site.url, caseUrl: `${site.url}${builderPath}` };
 
@@ -139,8 +139,8 @@ export default async function StackWorkloadPage({
           A {meta.label.toLowerCase()} stack.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          {result.summary}. At the default case — 100k requests a month, no
-          further constraints — drawn from the 112 tools already in the index.
+          {result.summary}. At the default case (100k requests a month, no
+          further constraints), drawn from the 112 tools already in the index.
           Each pick is a tool whose own skip-when is stated, because a stack
           built on tools it does not know how to overcommit to is a guess.
         </p>
@@ -152,7 +152,7 @@ export default async function StackWorkloadPage({
           >
             Describe your case
           </Link>{" "}
-          to change it — the recommendation recomputes, and anything it assumes
+          to change it: the recommendation recomputes, and anything it assumes
           comes back in the answer rather than staying silent.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
@@ -182,7 +182,7 @@ export default async function StackWorkloadPage({
                     href={p.url}
                     className="transition-colors hover:text-accent"
                   >
-                    {p.section} — {p.tool}
+                    {p.section}: {p.tool}
                   </Link>
                 </h3>
                 <span className={`font-mono text-[11px] uppercase tracking-[0.1em] ${fitClass(p.fitLabel)}`}>
@@ -201,7 +201,7 @@ export default async function StackWorkloadPage({
                 <span className="text-fg-muted">Watch out: </span>
                 {p.watchOut}
               </p>
-              {p.alternative !== "—" && p.switchWhen ? (
+              {p.alternative !== "–" && p.switchWhen ? (
                 <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
                   <span className="text-fg-subtle">Consider </span>
                   {p.alternative}
@@ -224,7 +224,7 @@ export default async function StackWorkloadPage({
               Estimated cost
             </dt>
             <dd className="mt-1 text-pretty leading-relaxed text-fg-muted">
-              ${result.costLow}–${result.costHigh} per month — a heuristic band
+              ${result.costLow}–${result.costHigh} per month: a heuristic band
               from query volume, not a vendor quote.
             </dd>
           </div>
@@ -233,7 +233,7 @@ export default async function StackWorkloadPage({
               Confidence
             </dt>
             <dd className="mt-1 text-pretty leading-relaxed text-fg-muted">
-              {Math.round(result.confidence * 100)}% — lower when constraints
+              {Math.round(result.confidence * 100)}%: lower when constraints
               narrow the field.
             </dd>
           </div>
@@ -258,7 +258,7 @@ export default async function StackWorkloadPage({
         A starting point, not a prescription. The recommendation at the default
         case is what the engine would tell a stranger with your workload; the
         recommendation at *your* case is what it tells you once it knows the
-        constraints. The Stack Builder holds both —{" "}
+        constraints. The Stack Builder holds both: {" "}
         <Link
           href={builderPath}
           className="text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"

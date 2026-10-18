@@ -6,7 +6,7 @@ import { ROLE_IDS, roleTitle } from "./roles";
  * Build a tool entry from a compact tuple so the dataset stays readable.
  * Tuple shape: [name, host, blurb]
  *
- * `host` is a full path where a bare domain would be wrong — GitHub entries
+ * `host` is a full path where a bare domain would be wrong: GitHub entries
  * need `owner/repo`, otherwise they all resolve to the site homepage.
  *
  * Classification facts (kind, deployment, licence, language, cost, and the
@@ -254,7 +254,7 @@ export const categories: Category[] = [
     ],
   },
   {
-    index: "—",
+    index: "–",
     slug: "learning-reference",
     title: "Learning & Reference",
     short: "Reading",
@@ -298,7 +298,7 @@ export const toolCount = allTools.length;
 
 /**
  * Build-time guard. Duplicate slugs inside a category produce colliding React
- * keys and duplicate search rows, and neither shows up as a type error — so
+ * keys and duplicate search rows, and neither shows up as a type error, so
  * fail loudly here instead. This runs at module load, i.e. during the build.
  */
 for (const category of categories) {
@@ -314,13 +314,13 @@ for (const category of categories) {
   }
 }
 
-// Ordinals must be unique too — they are used as identity in the stack diagram.
+// Ordinals must be unique too: they are used as identity in the stack diagram.
 {
   const indexes = new Set<string>();
   for (const category of categories) {
     if (indexes.has(category.index)) {
       throw new Error(
-        `Duplicate category index "${category.index}" — section ordinals must be unique.`,
+        `Duplicate category index "${category.index}"section ordinals must be unique.`,
       );
     }
     indexes.add(category.index);
@@ -348,7 +348,7 @@ for (const tool of allTools) {
  * curated taxonomy, which is worse than a missing feature.
  *
  * The cap matters more than it did for roles. Three second homes is the same
- * failure in a new place — the cross-reference stops distinguishing anything and
+ * failure in a new place: the cross-reference stops distinguishing anything and
  * the axis becomes decoration. Two is already generous: it covers the genuine
  * cases (a tool that both trains and grades, or that is both an agent runtime
  * and a memory store) without letting "spans everything" become the default
@@ -365,7 +365,7 @@ for (const tool of allTools) {
     if (homes.length > MAX_SECOND_HOMES) {
       throw new Error(
         `Tool "${entry.name}" has ${homes.length} second homes ` +
-          `(${homes.map((h) => h.section).join(", ")}). ${MAX_SECOND_HOMES} is the cap — ` +
+          `(${homes.map((h) => h.section).join(", ")}). ${MAX_SECOND_HOMES} is the cap: ` +
           `a tool that belongs in three sections has no home, which is a taxonomy problem.`,
       );
     }
@@ -384,7 +384,7 @@ for (const tool of allTools) {
       if (home.section === entry.category.slug) {
         throw new Error(
           `Tool "${entry.name}" lists its own section "${home.section}" as a second home. ` +
-            `Drop it — that is its home, not a second one.`,
+            `Drop it: that is its home, not a second one.`,
         );
       }
       // Off-stack is reading material. A tool with a second home there is
@@ -414,7 +414,7 @@ for (const tool of allTools) {
         );
       }
       // A full stop, because the field is rendered as a sentence in its own
-      // right — matching `blurb`, which carries its own punctuation for the
+      // right: matching `blurb`, which carries its own punctuation for the
       // same reason. Enforced here as well as in the test so a new entry fails
       // at build rather than reading as a typo.
       if (!because.endsWith(".")) {
@@ -457,7 +457,7 @@ for (const tool of allTools) {
     const { roles } = entry;
     if (!roles.length) {
       throw new Error(
-        `Tool "${entry.name}" has no roles. Add them in src/lib/attributes.ts — ` +
+        `Tool "${entry.name}" has no roles. Add them in src/lib/attributes.ts: ` +
           `a tool with no role is invisible on /roles.`,
       );
     }
@@ -466,7 +466,7 @@ for (const tool of allTools) {
     if (roles.length > 2) {
       throw new Error(
         `Tool "${entry.name}" has ${roles.length} roles (${roles.join(", ")}). ` +
-          `Two is the cap — drop one or split the tool out.`,
+          `Two is the cap: drop one or split the tool out.`,
       );
     }
     for (const r of roles) {
@@ -491,7 +491,7 @@ for (const tool of allTools) {
     if (!covered.has(r)) {
       throw new Error(
         `Role "${r}" exists in roles.ts but no tool carries it. Tag a tool with ` +
-          `it or delete the role — an empty section reads as an oversight.`,
+          `it or delete the role: an empty section reads as an oversight.`,
       );
     }
   }
@@ -523,13 +523,13 @@ export const AS_OF_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 // Every `asOf`, per-tool override or inherited, must be a real month. This runs
 // before the staleness guard because a malformed date parses to `Invalid Date`,
 // every comparison against it is false, and the guard below would read an
-// unparseable entry as *not* stale — the one failure mode where a typo silently
+// unparseable entry as *not* stale: the one failure mode where a typo silently
 // disables the check instead of failing loudly.
 {
   const malformed = allTools.filter((t) => !AS_OF_PATTERN.test(t.asOf));
   if (malformed.length) {
     throw new Error(
-      `Malformed asOf for ${malformed.length} tool(s) — expected YYYY-MM: ` +
+      `Malformed asOf for ${malformed.length} tool(s): expected YYYY-MM: ` +
         `${malformed
           .slice(0, 8)
           .map((t) => `${t.name}="${t.asOf}"`)
@@ -595,7 +595,7 @@ export function getTool(categorySlug: string, toolSlug: string) {
 
 /**
  * Siblings in the same section, excluding the tool itself. Used for the
- * "other tools in this section" block on a tool page — internal links that
+ * "other tools in this section" block on a tool page: internal links that
  * would not exist without a per-tool URL.
  */
 export const getSiblingTools = (categorySlug: string, toolSlug: string) =>
@@ -604,7 +604,7 @@ export const getSiblingTools = (categorySlug: string, toolSlug: string) =>
 /**
  * Distinct values for a faceted attribute, with counts, ordered by count.
  * These replaced the old `tag` vocabulary, which had 45 uncontrolled values
- * mixing kinds, vendors and topics — filtering by it returned noise.
+ * mixing kinds, vendors and topics: filtering by it returned noise.
  */
 function facet<T extends string>(pick: (t: Tool) => T | null) {
   const counts = new Map<T, number>();
@@ -632,7 +632,7 @@ export const selfHostedCount = allTools.filter(
  * Tools per role, with counts.
  *
  * Membership-based, not primary-based: a tool tagged for two roles is counted
- * under both, so these numbers do not sum to `toolCount`. That is intended — the
+ * under both, so these numbers do not sum to `toolCount`. That is intended: the
  * count beside a role is "how many tools you would look at", and a platform
  * engineer genuinely does look at the eval tools.
  */
@@ -662,7 +662,7 @@ export function getAlternatives(categorySlug: string, toolSlug: string) {
  * Returned as tool/section pairs rather than bare slugs because a second home
  * has to be rendered with that section's title *and* its layer colour, and
  * because the reverse lookup below needs to know which section a declaration
- * points at. Sections that no longer exist are dropped rather than thrown —
+ * points at. Sections that no longer exist are dropped rather than thrown:
  * the build guard above already refuses to ship one, so anything filtered here
  * is a tool edited without rebuilding the guard.
  */
@@ -682,7 +682,7 @@ export function getSecondHomes(categorySlug: string, toolSlug: string) {
  * Every tool that names `sectionSlug` as one of its second homes.
  *
  * This is the direction that matters for the taxonomy. Without it, a second
- * home is a footnote on the tool's own page — visible only to someone who
+ * home is a footnote on the tool's own page: visible only to someone who
  * already found the tool in its home section. With it, the layer the tool
  * *also* serves can show it, which is what turns "Letta is in Agents" into
  * "agent memory shows up in both Agents and Retrieval", which is the actual

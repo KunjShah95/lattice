@@ -12,9 +12,9 @@ export { layerColor };
  * The nine layers collapse into three families, which is what makes the
  * palette information rather than ornament:
  *
- *   I  compute  — 01 inference, 02 routing.       failure: slow or expensive
- *   II state    — 03 retrieval, 04 fine-tuning.   failure: wrong answers
- *   III control — 05–09 agents through evals.    failure: unreliable
+ *   I  compute: 01 inference, 02 routing.       failure: slow or expensive
+ *   II state: 03 retrieval, 04 fine-tuning.   failure: wrong answers
+ *   III control: 05–09 agents through evals.    failure: unreliable
  *
  * A reader almost always arrives with a symptom rather than a layer, and
  * the band is the shortest path from "it is slow" to the two sections

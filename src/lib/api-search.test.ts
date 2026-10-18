@@ -4,9 +4,9 @@ import { site } from "@/lib/site";
 
 /**
  * `/api/search` is the crawler-facing query surface: plain HTTPS for agents
- * without an MCP client. The contract pinned here is small — a 400 with
+ * without an MCP client. The contract pinned here is small: a 400 with
  * usage when `q` is absent, absolute canonical URLs on every hit, and a
- * bounded page — because the ranking itself already has a suite in
+ * bounded page, because the ranking itself already has a suite in
  * `search.test.ts` and re-asserting it here would couple the two.
  */
 function get(url: string): Response {
@@ -104,7 +104,7 @@ describe("/api/search facets", () => {
   it("ANDs across axes", async () => {
     // Two axes that genuinely intersect. Every runtime in the index is both free
     // and self-hosted, so `kind=runtime&cost=free` returns exactly `kind=runtime`
-    // — a test asserting "fewer" would fail, and one asserting "equal" would pass
+    //: a test asserting "fewer" would fail, and one asserting "equal" would pass
     // without proving the AND happens at all. Platforms split across both
     // deployment models, so the intersection is a strict subset.
     const both = await body(
@@ -135,7 +135,7 @@ describe("/api/search facets", () => {
 
   it("filters by layer", async () => {
     // Browsed rather than queried. `layer` is the one axis that reaches
-    // non-tool entries too, because every entry carries a layer — an essay
+    // non-tool entries too, because every entry carries a layer: an essay
     // tagged layer 1 is genuinely about that layer. So this asserts the tools
     // land in the right section rather than that every hit does, which is the
     // stronger and more honest claim.

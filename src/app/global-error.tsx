@@ -7,7 +7,7 @@
  * components are available (Next's docs: global-error renders its own
  * document). So everything is inline: the lattice from `app/error.tsx` as a
  * 3×3 grid with the last cell knocked loose, the paper/ink tokens for both OS
- * colour schemes, and a faint dot field. Kept deliberately compact — this
+ * colour schemes, and a faint dot field. Kept deliberately compact: this
  * file ships with every route, and almost nobody will ever see it.
  */
 const CSS = `:root{--b:#fbfbfa;--f:#16161a;--m:#66666e;--s:#97979f;--l:#d0d0ca;--a:#c4401f}

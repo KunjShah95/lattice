@@ -37,7 +37,7 @@ type EarlyShortcutWindow = Window & {
  * Inlined in <head> by the root layout, so ⌘K works from the first paint.
  *
  * The palette's own listener is attached by React after hydration. On a slow
- * device or connection that is a visible window in which ⌘K did nothing — or,
+ * device or connection that is a visible window in which ⌘K did nothing, or,
  * worse, fell through to the browser's own Ctrl+K (focus the search bar).
  * This records the keypress instead, and the provider opens the palette as
  * soon as it mounts. Pressing it twice before hydration cancels, matching the
@@ -62,7 +62,7 @@ export const earlyShortcutScript = `
  * `<ul>`, and prefixed onto each row's id for `aria-activedescendant`.
  *
  * A constant rather than `useId()` because the value has to be a valid CSS-safe
- * token in an `id`, and React's generated ids contain colons — which are legal
+ * token in an `id`, and React's generated ids contain colons, which are legal
  * in HTML5 but need escaping in any `querySelector`. There is one palette in the
  * document, so a fixed id cannot collide.
  */
@@ -107,7 +107,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
    * The result list is derived from a deferred copy of the query.
    *
    * Every keystroke is a discrete interaction, and INP is measured per
-   * interaction — so the render that a keystroke triggers is counted against it.
+   * interaction, so the render that a keystroke triggers is counted against it.
    * Scoring the corpus is sub-millisecond, but reconciling the resulting rows
    * is not, and the browse case renders the entire index. Deferring lets the
    * input's own state land and paint at normal priority while the list catches
@@ -151,7 +151,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       .catch(() => setLoadFailed(true));
   }, [entries, loadFailed]);
 
-  // Reset the query as part of opening, not in an effect — this keeps the
+  // Reset the query as part of opening, not in an effect: this keeps the
   // palette's transient state owned by the event that causes it.
   const openPalette = useCallback(() => {
     setQuery("");
@@ -200,7 +200,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         event.preventDefault();
         // Toggle through the same two entry points the buttons use, rather
         // than setOpen directly. The shortcut has to trigger the corpus fetch
-        // too — going straight to setOpen opened an empty palette.
+        // too: going straight to setOpen opened an empty palette.
         if (open) closePalette();
         else openPalette();
         return;
@@ -223,7 +223,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const go = useCallback(
     (entry: SearchEntry) => {
       closePalette();
-      // Every hit has an internal route — tools, essays and comparisons are
+      // Every hit has an internal route: tools, essays and comparisons are
       // all on this site. The external site stays a secondary action on the
       // row, so the palette never dumps the reader out to a third party.
       router.push(entry.href);
@@ -282,7 +282,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 placeholder="Search tools, guides, comparisons…"
                 aria-label="Search tools, guides and comparisons"
                 // The combobox half of the pattern. Focus never leaves this
-                // input — the arrow keys move a highlight rather than focus —
+                // input, the arrow keys move a highlight rather than focus,
                 // so `aria-activedescendant` is the only thing that tells a
                 // screen reader which row is current. Without it the keyboard
                 // navigation this palette has always had was purely visual.
@@ -305,7 +305,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             {/*
               A real listbox, not a `<ul>` of buttons.
 
-              Keyboard navigation here moves `active` and styles the row — a
+              Keyboard navigation here moves `active` and styles the row: a
               visual highlight and nothing more. A screen-reader user arrowing
               through the list is told nothing about which row moved, because
               there is no selected state to announce and the input keeps focus
@@ -316,12 +316,12 @@ export function SearchProvider({ children }: { children: ReactNode }) {
               The three non-result states moved out of the list on purpose: a
               listbox may only contain options, and "Loading index…" is a status,
               not one. Rendering it as a `<li>` is also what made it match
-              `getByRole("listitem")` in the browser tests — the placeholder row
+              `getByRole("listitem")` in the browser tests: the placeholder row
               read as a result.
             */}
             {loading ? (
-              // Skeleton rows in the shape of the results they stand in for —
-              // swatch, name, kind pill, section — so nothing jumps when the
+              // Skeleton rows in the shape of the results they stand in for (
+              // swatch, name, kind pill, section), so nothing jumps when the
               // corpus lands. The status text stays for screen readers.
               <div role="status" className="p-1.5">
                 <span className="sr-only">Loading index…</span>
@@ -357,7 +357,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 <p className="mx-auto mt-1.5 max-w-[34ch] text-pretty text-[12.5px] leading-relaxed text-fg-muted">
                   {loadFailed
                     ? "The index could not be fetched. Every tool is still one click away:"
-                    : "Try the problem instead of the product — “slow”, “cost”, “hallucination” — or browse:"}
+                    : "Try the problem instead of the product (“slow”, “cost”, “hallucination”), or browse:"}
                 </p>
                 <div className="mt-4 flex justify-center gap-2">
                   <Link href="/all" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-lg px-3 text-[12.5px] font-medium">
@@ -386,8 +386,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                       // `onMouseEnter`, not `onMouseMove`. `mousemove` fires on
                       // every pixel of travel within the row, not once on entry,
                       // so sweeping the cursor down the list scheduled a
-                      // `setActive` — and therefore a full re-render of the
-                      // results, plus the `scrollIntoView` effect below it —
+                      // `setActive`and therefore a full re-render of the
+                      // results, plus the `scrollIntoView` effect below it:
                       // dozens of times per second. The intent is "highlight the
                       // row under the cursor", which is exactly what `mouseenter`
                       // means; the extra events were pure main-thread cost on the
@@ -412,7 +412,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                           {/*
                             The corpus mixes five flavours (tools, essays, fix
                             guides, comparisons, alternatives) and the category
-                            line alone does not always say which is which — a
+                            line alone does not always say which is which: a
                             fix guide reads like an essay. The pill names the
                             kind so a reader can tell before navigating.
                           */}
@@ -514,7 +514,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
  * The `⌘K` hint is `hidden sm:inline` because it is a lie on a phone: there
  * is no keyboard shortcut to advertise, and the width it costs is the width
  * that makes the control too small to tap. The label collapses for the same
- * reason — at 375px the header already holds the wordmark, a theme toggle and
+ * reason: at 375px the header already holds the wordmark, a theme toggle and
  * a menu button, and a text button between them does not fit.
  */
 export function SearchTrigger({
@@ -536,7 +536,7 @@ export function SearchTrigger({
         The corpus is 176 entries and about 55 KB raw, which the layout comment
         is explicit about not shipping to readers who never search. So it cannot
         be fetched eagerly on load. But measured on this machine, the first open
-        cost ~109ms against ~40ms once the corpus was resident — the fetch, not
+        cost ~109ms against ~40ms once the corpus was resident: the fetch, not
         the render, is the cold path, and it sits directly on the one click the
         palette exists to serve.
 

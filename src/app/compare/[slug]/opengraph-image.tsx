@@ -11,7 +11,7 @@ export const contentType = "image/png";
 /**
  * Prerendered at build time, mirroring the page's own params. On the Worker
  * there is no filesystem behind `process.cwd()`, so the font reads in
- * lib/og.tsx fail and an on-demand render returns a 500 — which is what every
+ * lib/og.tsx fail and an on-demand render returns a 500, which is what every
  * card in this segment did in production before this existed.
  */
 export function generateStaticParams() {
@@ -27,7 +27,7 @@ function shortVerdict(verdict: string): string {
   const firstSentence = verdict.split(/(?<=\.)\s/)[0] ?? verdict;
   const capped =
     firstSentence.length > 190
-      ? `${firstSentence.slice(0, 187).replace(/[\s,;:—-]+$/, "")}…`
+      ? `${firstSentence.slice(0, 187).replace(/[\s,;:-]+$/, "")}…`
       : firstSentence;
   return capped;
 }

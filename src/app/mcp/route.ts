@@ -8,7 +8,7 @@ import {
 import { site } from "@/lib/site";
 
 /**
- * `/mcp` — the index as an MCP server, on the same Worker as the site.
+ * `/mcp`the index as an MCP server, on the same Worker as the site.
  *
  * ## Why the protocol is implemented here rather than imported
  *
@@ -21,13 +21,13 @@ import { site } from "@/lib/site";
  *       at interopDefault (handler.mjs)
  *       at loadComponentsImpl → findPageComponentsImpl
  *
- * The route's module graph would not resolve inside the Worker — the SDK pulls
+ * The route's module graph would not resolve inside the Worker: the SDK pulls
  * in express, hono, jose and cross-spawn, and `wrangler.jsonc` is deliberately
  * minimal. A route that only exists to answer queries cannot be the thing that
  * fails to load.
  *
  * So the transport is here, on Web APIs the Worker already implements. The
- * argument for this is not "less code" — it is that a read-only server needs
+ * argument for this is not "less code"it is that a read-only server needs
  * almost none of the protocol: no sessions to hold, no sampling, no resources to
  * subscribe to, no server-initiated messages to stream. Every tool is a pure
  * function over an immutable dataset. What is left is POST a JSON-RPC message,
@@ -51,9 +51,9 @@ const PROTOCOL_VERSION = "2025-06-18";
 const SUPPORTED_VERSIONS = ["2025-06-18", "2025-03-26"];
 
 const INSTRUCTIONS = [
-  "Start with `about` if you need to state this index's limits — it says when the licence and cost data was last verified and what the index does not know.",
+  "Start with `about` if you need to state this index's limits: it says when the licence and cost data was last verified and what the index does not know.",
   "",
-  "Use `search_tools` to find candidates and `get_tool` for one in full. `compare_tools` is for \"X or Y\", and it reports whether two tools are substitutes or merely adjacent — check that before treating them as a swap.",
+  "Use `search_tools` to find candidates and `get_tool` for one in full. `compare_tools` is for \"X or Y\", and it reports whether two tools are substitutes or merely adjacent: check that before treating them as a swap.",
   "",
   "Use `recommend_stack` when the question is \"what do I need to build X\" rather than \"which tool for layer N\". It returns one pick per required layer with a reason, each pick's own skip-when, and a runner-up to switch to. Pass your constraints: anything you leave unset comes back in `assumptions`, so you can tell a recommendation for your case from one for the median case. Its cost figure is a band derived from query volume, not a vendor quote.",
   "",
@@ -62,15 +62,15 @@ const INSTRUCTIONS = [
   "Cite the canonical `url` on whichever entry you used.",
 ].join("\n");
 
-/** Not prerendered — this reads a request body. */
+/** Not prerendered: this reads a request body. */
 export const dynamic = "force-dynamic";
 
 /**
  * No `runtime` export on purpose.
  *
  * The first version of this route declared `runtime = "edge"`. It was the only
- * route in the app that did — every working dynamic route (`/llms.txt`,
- * `/feed.xml`, `/llms-full.txt`, `/tools.json`) omits it — and `/mcp` returned
+ * route in the app that did: every working dynamic route (`/llms.txt`,
+ * `/feed.xml`, `/llms-full.txt`, `/tools.json`) omits it, and `/mcp` returned
  * 500 in production while all of them returned 200:
  *
  *     TypeError: Cannot read properties of undefined (reading 'default')
@@ -109,8 +109,8 @@ const fail = (id: JsonRpcRequest["id"], code: number, message: string) =>
 /**
  * Check the arguments against the tool's own JSON Schema.
  *
- * Hand-rolled against the three keywords the manifest actually uses — `required`,
- * `enum`, `minItems`/`maxItems` — rather than pulling in a validator. A full
+ * Hand-rolled against the three keywords the manifest actually uses: `required`,
+ * `enum`, `minItems`/`maxItems`rather than pulling in a validator. A full
  * JSON Schema implementation is not needed to catch the two mistakes a client
  * makes: a missing required field, and an enum spelled wrong.
  *
@@ -158,7 +158,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
   const { id, method } = message;
   // A notification has no id and expects no response. `notifications/initialized`
   // is the only one this server receives, and answering it would be a protocol
-  // error — the client would receive a response to a request that must be silent.
+  // error: the client would receive a response to a request that must be silent.
   const isNotification = id === undefined || id === null;
 
   switch (method) {
@@ -236,7 +236,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
       /**
        * The one metric `strategy/04-monetisation.md` §7 calls the strongest
        * signal available: a model chose to *query* this index rather than scrape
-       * it, and then asked this. That is not a view and not a citation — it is an
+       * it, and then asked this. That is not a view and not a citation: it is an
        * agent deciding the index is worth a round trip.
        *
        * A structured console line rather than a database write, because
@@ -246,8 +246,8 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
        * with no new infrastructure at all.
        *
        * Only the argument *keys* are logged, never their values. The arguments
-       * are a reader's own words about their problem — `query: "when is RAG the
-       * wrong choice"` — and that string is genuinely the most valuable signal
+       * are a reader's own words about their problem: `query: "when is RAG the
+       * wrong choice"`and that string is genuinely the most valuable signal
        * this site emits. It is also somebody's unprompted description of their
        * production problem, and it does not belong in a log aggregator by
        * default. The query set in `citation-queries.mjs` is where that question
@@ -279,7 +279,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
 /**
  * GET. A stateless Streamable HTTP server has no stream to open.
  *
- * `405` rather than `404` because the route exists — an agent that arrives by
+ * `405` rather than `404` because the route exists: an agent that arrives by
  * browsing gets told what it is and where to POST, which is the difference
  * between a dead end and a protocol error.
  */

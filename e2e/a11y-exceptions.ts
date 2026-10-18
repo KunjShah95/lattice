@@ -4,7 +4,7 @@
  * ## Why an allowlist at all
  *
  * `a11y.spec.ts` runs axe against every route family and fails on any violation.
- * The first run reported **499 `color-contrast` failures on `/all` alone** — a
+ * The first run reported **499 `color-contrast` failures on `/all` alone**: a
  * real WCAG AA defect, not a false positive: `--fg-subtle` is the site's most
  * used text colour (every metadata line, count, eyebrow and label) and it
  * measures 2.89:1 in light and 3.35:1 in dark against its own background,
@@ -17,8 +17,8 @@
  * than through weight and size. Reaching 4.5:1 means dropping to roughly
  * `#6b6b73`, which stops reading as "quiet metadata" at all.
  *
- * So rather than deleting the check — which would leave 499 failures invisible
- * again — the known defect is written down here and enforced as a **ratchet**.
+ * So rather than deleting the check, which would leave 499 failures invisible
+ * again, the known defect is written down here and enforced as a **ratchet**.
  *
  * ## What the ratchet does
  *
@@ -28,12 +28,12 @@
  *    and declaring victory does not pass.
  * 3. Every id here must not have got worse. `worstContrast` is a floor: pass if
  *    the measured ratio is **at least** this good, fail if it dropped. That is
- *    what makes the list safe to leave in place — it can only be removed by
+ *    what makes the list safe to leave in place: it can only be removed by
  *    actually fixing the colour, never by waiting for the problem to worsen.
  *
  * ## To actually fix it
  *
- * Raise `--fg-subtle` in both palettes in `src/app/globals.css` — and, because
+ * Raise `--fg-subtle` in both palettes in `src/app/globals.css`and, because
  * Satori does not read CSS custom properties, in `src/lib/og.tsx` too, or the
  * share cards drift from the site. Then delete the entry here. The suite will
  * tell you it is safe: without the entry, an occurrence fails rather than
@@ -67,7 +67,7 @@ export const A11Y_EXCEPTIONS: A11yException[] = [
     //   2.89:1  `--fg-subtle` at 14px on white (the header's "Search" label)
     //   3.35:1  `--fg-subtle` in dark, on `--bg-elevated`
     // The floor is the worst measurement across the whole sweep, not the first
-    // page that happened to fail — an earlier draft recorded 2.8 and the ratchet
+    // page that happened to fail: an earlier draft recorded 2.8 and the ratchet
     // immediately caught the real figure on `/`.
     worstContrast: 2.5,
   },

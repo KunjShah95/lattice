@@ -2,7 +2,7 @@
  * The zero-result state of a filter UI.
  *
  * A dead end is the worst outcome of a filter, so this names exactly what is
- * narrowing the list and lets each constraint be dropped on its own — usually one
+ * narrowing the list and lets each constraint be dropped on its own: usually one
  * chip is the culprit, and resetting all of them throws away the rest of the
  * reader's intent.
  *

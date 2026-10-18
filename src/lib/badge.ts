@@ -5,14 +5,14 @@
  * Borrowed from the README-badge idea (shieldcn on designeer.xyz) and made to do
  * the one thing this index can say that a stars badge cannot: *how recently a
  * human checked the licence and cost*. It carries no popularity figure on
- * purpose — `strategy/02` refuses a ranking by traffic, and a badge is the most
+ * purpose: `strategy/02` refuses a ranking by traffic, and a badge is the most
  * copied artefact the site will ever produce.
  *
  * ## It must not become a tracking or monetised surface
  *
  * `strategy/04` §4 forbids a monetised URL in any machine-readable route, and a
  * badge is fetched by every README that embeds it. So the SVG is self-contained
- * — no `<image>`, no external font, no link — and the route behind it sets no
+ *: no `<image>`, no external font, no link, and the route behind it sets no
  * cookie and reads no header. `badge.test.ts` pins the self-containment.
  *
  * Pure, with text measured by a fixed advance rather than a font: the badge has to
@@ -77,7 +77,7 @@ export function verifiedBadge(asOf: string): string {
  * The Markdown a README pastes in: the badge, linked to the entry it describes.
  *
  * Both URLs are bare canonical paths. No query string and no parameter, which is
- * the same rule `neutrality.test.ts` holds the citation feed to — an embed that
+ * the same rule `neutrality.test.ts` holds the citation feed to: an embed that
  * every README copies is the last place a referral parameter should be able to
  * appear by accident.
  */

@@ -20,7 +20,7 @@
  * No ranking. Nothing here sorts by stars, traffic, or how many people name a
  * tool as an alternative, and no result is truncated by "relevance score". The
  * index sells nothing and the tiebreaker claim (`alternatives.ts`) depends on it,
- * so popularity would have to be a field the server knows and refuses to use —
+ * so popularity would have to be a field the server knows and refuses to use:
  * which is exactly why it is not in the dataset at all. Results come back in
  * stack order, substrate first, because that is the order the site argues for.
  *
@@ -115,7 +115,7 @@ const result = (tool: Tool & { category: (typeof allTools)[number]["category"] }
  *
  * `get_tool` rather than a slice of `search_tools`, because the two things a
  * reader wants that a search result cannot give are the *substitutes* and the
- * *second homes* — and both of those are edges, so they need the whole graph.
+ * *second homes*, and both of those are edges, so they need the whole graph.
  */
 function fullResult(tool: Tool, sectionSlug: string, toolSlug: string) {
   // `allTools` entries already carry `.category`; a bare `Tool` does not, which
@@ -160,7 +160,7 @@ export type SearchArgs = {
  * Faceted search.
  *
  * Substring matching over the fields a reader would actually type, which is the
- * same rule as the on-page explorer — deliberately, so a tool found here and a
+ * same rule as the on-page explorer: deliberately, so a tool found here and a
  * tool found there are found by the same logic. Second-home sections are
  * searched too, so "guardrails" finds a gateway whose guardrails are a second
  * home rather than only the tools that live in the guardrails section.
@@ -240,7 +240,7 @@ export function getTool(args: { name: string; section?: string }) {
   if (!byName) {
     return {
       error: `No tool named "${args.name}".`,
-      hint: "Names are display names — \"pgvector\", \"Weights & Biases\". Use search_tools to find one.",
+      hint: "Names are display names: \"pgvector\", \"Weights & Biases\". Use search_tools to find one.",
     };
   }
   return fullResult(byName, byName.category.slug, byName.slug);
@@ -252,7 +252,7 @@ export type CompareRow = {
   tool: string;
   section: string;
   layer: number | null;
-  /** "Same section" or "different section" — the reader's real question. */
+  /** "Same section" or "different section"the reader's real question. */
   relationship: "substitutes" | "adjacent";
   useWhen: string;
   skipWhen: string;
@@ -268,7 +268,7 @@ export type CompareRow = {
  * The important field is `relationship`, and the distinction is the one
  * `alternatives.ts` exists to make: two tools in the same section are
  * substitutes and you pick one; two tools in different sections are adjacent, and
- * the reader's real question is whether they are substitutes *at all* — which is
+ * the reader's real question is whether they are substitutes *at all*, which is
  * usually no. A cross-category list that hid that would send someone looking for
  * a replacement and hand them a different layer.
  *
@@ -360,7 +360,7 @@ export function listComparisons() {
  * Start from a symptom rather than a tool name.
  *
  * A reader who does not know which layer is broken cannot pick a layer, and the
- * layer is this index's primary structure — so the symptom routes are the entry
+ * layer is this index's primary structure, so the symptom routes are the entry
  * point, not a secondary page. Same data as `/fix`, ordered rather than
  * browsable.
  */
@@ -402,7 +402,7 @@ export function diagnose(args: { symptom: string }) {
       .filter((c) => bandOf(c.layer) === hit.band)
       .map((c) => ({ section: c.title, responsibility: c.responsibility })),
     /**
-     * Cheapest-first, not by layer — that ordering is the whole point of the
+     * Cheapest-first, not by layer: that ordering is the whole point of the
      * page, and preserving it here is what stops a model from reordering the
      * checklist by layer number and recommending the expensive fix first.
      */
@@ -450,7 +450,7 @@ export function define(args: { term: string }) {
  * now it had no machine affordance at all: nine MCP tools, and every one of
  * them about tools, layers, comparisons or terms. A model asked "what do I need
  * to build a RAG pipeline" could read the whole dataset and assemble an answer
- * from the components — which is precisely what `stacks.ts` already does, from
+ * from the components, which is precisely what `stacks.ts` already does, from
  * the same dataset, deterministically.
  *
  * ## The constraints matter and are passed through, not summarised
@@ -471,7 +471,7 @@ export function define(args: { term: string }) {
  * Public entry point, accepting a partial input.
  *
  * The engine's own `StackInput` requires `queriesPerMonth`, which is correct for
- * the browser form — it always has a value. An MCP caller who sends only
+ * the browser form: it always has a value. An MCP caller who sends only
  * `workload` must not be rejected for it, because "what do I need for a RAG
  * pipeline" is the question the tool exists to answer and the volume is a
  * refinement. So the argument is widened here and the omission is reported in
@@ -502,13 +502,13 @@ export function recommendStack(args: Partial<StackInput> & { workload: StackInpu
       fit: p.fitLabel,
       why: p.why,
       watchOut: p.watchOut,
-      ...(p.alternative !== "—" && p.switchWhen
+      ...(p.alternative !== "–" && p.switchWhen
         ? { alternative: p.alternative, switchWhen: p.switchWhen }
         : {}),
       ...(p.matches.length ? { satisfies: p.matches } : {}),
       // `picks[].url` is a site-relative path on the page, because the browser
       // renders it as a `next/link` href. Here it has to be absolute, or a model
-      // that follows it has no origin to resolve against — and an answer whose
+      // that follows it has no origin to resolve against, and an answer whose
       // citations do not resolve is not citable.
       url: `${site.url}${p.url}`,
     })),
@@ -536,16 +536,16 @@ function defaultAssumptions(input: StackInput): string[] {
   if (!input.queriesPerMonth) out.push("queriesPerMonth: unset, treated as a small workload");
   if (!input.documents) out.push("documents: unset, treated as a small corpus");
   if (!input.latency || input.latency === "flexible") {
-    out.push('latency: unset or "flexible" — the cheapest option was preferred');
+    out.push('latency: unset or "flexible"the cheapest option was preferred');
   }
   if (!input.safety || input.safety === "none") {
-    out.push('safety: unset or "none" — no guardrail was recommended on this basis');
+    out.push('safety: unset or "none"no guardrail was recommended on this basis');
   }
   if (!input.durability || input.durability === "stateless") {
-    out.push('durability: unset or "stateless" — no durable execution layer was required');
+    out.push('durability: unset or "stateless"no durable execution layer was required');
   }
   if (!input.language || input.language === "any") {
-    out.push('language: unset or "any" — no language constraint was applied');
+    out.push('language: unset or "any"no language constraint was applied');
   }
   return out;
 }
@@ -555,7 +555,7 @@ function defaultAssumptions(input: StackInput): string[] {
  *
  * Stated because `strategy/02-unique-selling-points.md` §3 says the caveat is
  * the reliably citable signal, and because an MCP server that hides its
- * staleness is worse than no server — a model will repeat the number it read six
+ * staleness is worse than no server: a model will repeat the number it read six
  * months ago as current.
  */
 export function about() {
@@ -595,8 +595,8 @@ export function about() {
  * The cross-layer view: for each layer, the tools that serve it without living
  * there.
  *
- * The one question this index is uniquely able to answer — "where does agent
- * memory actually live?" — is an inverse index lookup, and it is not reachable
+ * The one question this index is uniquely able to answer: "where does agent
+ * memory actually live?"is an inverse index lookup, and it is not reachable
  * by searching the tool list forward.
  */
 export function layerOverlaps() {
@@ -624,7 +624,7 @@ export function layerOverlaps() {
  * decision with a cause. The first version of `/mcp` imported
  * `@modelcontextprotocol/sdk` for the transport and `zod` for the schemas; the
  * route then returned a 500 in production while `/` returned 200, and the cause
- * was `interopDefault: undefined.default` at module-evaluation time — the SDK's
+ * was `interopDefault: undefined.default` at module-evaluation time: the SDK's
  * dependency graph (express, hono, jose, cross-spawn) did not resolve inside the
  * Worker.
  *
@@ -734,7 +734,7 @@ export const TOOL_MANIFEST = [
   {
     name: "layer_overlaps",
     description:
-      "For each layer, the tools that serve it without being indexed there. This is the only way to answer \"where does agent memory live\" — it is an inverse lookup and is not reachable by searching the tool list forward.",
+      "For each layer, the tools that serve it without being indexed there. This is the only way to answer \"where does agent memory live\"it is an inverse lookup and is not reachable by searching the tool list forward.",
     inputSchema: { type: "object", properties: {} },
     run: async () => layerOverlaps(),
   },
@@ -755,7 +755,7 @@ export const TOOL_MANIFEST = [
   {
     name: "list_comparisons",
     description:
-      "The hand-written cross-layer comparisons — the surface no funded competitor builds, because a vendor will not publish how its gateway compares to its evaluation platform.",
+      "The hand-written cross-layer comparisons: the surface no funded competitor builds, because a vendor will not publish how its gateway compares to its evaluation platform.",
     inputSchema: { type: "object", properties: {} },
     run: async () => listComparisons(),
   },
@@ -776,7 +776,7 @@ export const TOOL_MANIFEST = [
   {
     name: "recommend_stack",
     description:
-      "Recommend a whole stack for a described workload — the same engine the Stack Builder page runs. Returns one pick per required layer with a reason, the pick's own skip-when, and a runner-up to switch to. State your constraints: anything left unset is returned in `assumptions`, so you can tell a recommendation for your case from one for the median case.",
+      "Recommend a whole stack for a described workload: the same engine the Stack Builder page runs. Returns one pick per required layer with a reason, the pick's own skip-when, and a runner-up to switch to. State your constraints: anything left unset is returned in `assumptions`, so you can tell a recommendation for your case from one for the median case.",
     inputSchema: {
       type: "object",
       properties: {
@@ -856,7 +856,7 @@ export const TOOL_DESCRIPTIONS = TOOL_MANIFEST.map((t) => ({
  * ## Why resources, when there are already nine tools
  *
  * A tool call is a *question*. Every essay, comparison, symptom guide and
- * glossary term on this site is not a question — it is a document that exists
+ * glossary term on this site is not a question: it is a document that exists
  * because someone asked a question once, and the answer is the whole thing
  * rather than a field in a JSON payload. Making a model `search_tools` for an
  * essay, then `get_tool` for each tool it names, then reassemble the argument
@@ -984,7 +984,7 @@ export function readResource(uri: string | undefined): ResourceContent | { error
  * The document behind a URI, as Markdown.
  *
  * Rendered from the same objects the pages render from, so a resource and its
- * page cannot disagree — the same argument `llms-full.txt` makes, and the reason
+ * page cannot disagree: the same argument `llms-full.txt` makes, and the reason
  * this is a renderer rather than a set of stored files. Every document ends with
  * its canonical page URL, because a model that reads a resource and cannot cite
  * it will paraphrase it instead, which is the outcome this index is trying to
@@ -992,7 +992,7 @@ export function readResource(uri: string | undefined): ResourceContent | { error
  */
 function resourceText(uri: string): string {
   // `text://lattice/essay/<slug>` splits to ["text:", "", "lattice", "essay",
-  // "<slug>"] — the empty component after the scheme is why this is indexed
+  // "<slug>"]: the empty component after the scheme is why this is indexed
   // rather than pattern-matched, and getting it wrong returns "" for every
   // resource, which looks like a missing file rather than a bad parse.
   const parts = uri.split("/");
@@ -1013,7 +1013,7 @@ function resourceText(uri: string): string {
     const post = posts.find((p) => p.meta.slug === slug);
     const body = essayBodies[post?.meta.slug ?? ""];
     if (!post) return "";
-    // `essayBodies` is a build-time projection of the MDX source — the essays are
+    // `essayBodies` is a build-time projection of the MDX source: the essays are
     // compiled to React components at import time, so the prose is not reachable
     // from the component. `scripts/build-essay-text.mjs` writes it and
     // `npm run generate:check` fails if it drifts from the MDX, so a reworded
@@ -1037,7 +1037,7 @@ function resourceText(uri: string): string {
       "",
       c.intro,
       "",
-      ...c.tools.map((t) => `- **${t.name}** — ${t.angle}`),
+      ...c.tools.map((t) => `- **${t.name}**: ${t.angle}`),
       "",
       "| | " + c.tools.map((t) => t.name).join(" | ") + " |",
       "| --- | " + c.tools.map(() => "---").join(" | ") + " |",

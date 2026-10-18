@@ -35,7 +35,7 @@ import { site } from "./site";
  * a browser:
  *
  *   1. Nothing here ranks by popularity. A ranking leak into an API is invisible
- *      on a page — the reader cannot tell that results were ordered by stars —
+ *      on a page, the reader cannot tell that results were ordered by stars,
  *      but a model given an ordered list will repeat the order as a
  *      recommendation, and that is the one claim the site sells.
  *   2. `skipWhen` travels with every tool. An API that returns only `useWhen` is
@@ -48,7 +48,7 @@ describe("the tool manifest", () => {
   it("is the single source of the client's view of each tool", () => {
     // `TOOL_DESCRIPTIONS` is what `tools/list` returns and `TOOL_MANIFEST` is
     // what `tools/call` dispatches. They are derived from one table, so this
-    // asserts the derivation rather than a hand-kept pair — the failure mode
+    // asserts the derivation rather than a hand-kept pair: the failure mode
     // this replaced was two lists drifting, and a tool in one and not the other
     // silently stops existing for MCP clients.
     expect(TOOL_DESCRIPTIONS.map((t) => t.name)).toEqual(TOOL_MANIFEST.map((t) => t.name));
@@ -81,7 +81,7 @@ describe("the tool manifest", () => {
     // has no way to satisfy it.
     //
     // Deliberately *not* asserted: that every tool with arguments marks
-    // something required. `search_tools` is all-optional by design — an empty
+    // something required. `search_tools` is all-optional by design: an empty
     // query is a legitimate "list me layer 7", and requiring one would push a
     // model to invent a query string.
     for (const t of TOOL_MANIFEST) {
@@ -175,7 +175,7 @@ describe("search_tools", () => {
 
   it("matches a layer a tool only reaches as a second home", () => {
     // "Where does agent memory live" is the question this server exists to
-    // answer, and it is an inverse lookup — Letta is indexed in 05, not 03.
+    // answer, and it is an inverse lookup: Letta is indexed in 05, not 03.
     const hits = searchTools({ query: "agent memory" });
     expect(hits.some((h) => h.name === "Letta")).toBe(true);
   });
@@ -211,7 +211,7 @@ describe("search_tools", () => {
 
   it("finds a tool by a word that is only in its description", () => {
     // "kubernetes" is in Envoy AI Gateway's blurb and in no other field. This
-    // is the substring match doing its job — a term genuinely absent from every
+    // is the substring match doing its job: a term genuinely absent from every
     // field is covered separately below.
     const hits = searchTools({ query: "kubernetes" });
     expect(hits.map((h) => h.name)).toContain("Envoy AI Gateway");
@@ -372,7 +372,7 @@ describe("layer_overlaps", () => {
 
 describe("diagnose_symptom", () => {
   it("matches the words a reader uses, not a tool name", () => {
-    // The /fix labels are how the symptom is described to a human — "Agent
+    // The /fix labels are how the symptom is described to a human: "Agent
     // keeps failing", not "evaluate your agent framework".
     const r = diagnose({ symptom: "agent keeps failing" }) as Record<string, unknown>;
     expect(r.title).toBeTruthy();
@@ -452,7 +452,7 @@ describe("about", () => {
 describe("nothing here ranks by popularity", () => {
   it("no result shape carries a popularity field to sort on", () => {
     // The dataset has no stars, no traffic and no score, so there is nothing for
-    // a future edit to sort by — and nothing for a reader to accuse it of
+    // a future edit to sort by, and nothing for a reader to accuse it of
     // sorting by. Asserted on the shapes so adding such a field fails here.
     const shapes = [
       ...searchTools({ limit: 50 }),

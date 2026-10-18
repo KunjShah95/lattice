@@ -12,7 +12,7 @@ import { ReviewCta } from "@/components/marketing";
 export const metadata: Metadata = {
   title: "Compare any AI infrastructure tools side by side",
   description:
-    "Pick up to three tools from any layers of the stack and see where they differ — licence, deployment, cost, and when each is the wrong choice. No winner is declared.",
+    "Pick up to three tools from any layers of the stack and see where they differ: licence, deployment, cost, and when each is the wrong choice. No winner is declared.",
   alternates: { canonical: "/compare/build" },
   // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
   // canonical, and an inherited one points at the home page.
@@ -44,7 +44,7 @@ const pool: CompareTool[] = allTools.map((t) => ({
 }));
 
 /**
- * /compare/build — an interactive cross-layer comparison.
+ * /compare/build: an interactive cross-layer comparison.
  *
  * `strategy/02` §4: the surface no funded competitor can occupy is the comparison
  * across layers, because every vendor sells one of the options. The hand-written

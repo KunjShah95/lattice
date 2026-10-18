@@ -29,7 +29,7 @@ export function LogoMark({ className = "" }: { className?: string }) {
             cy={y + CELL / 2}
             r="0.8"
             fill="currentColor"
-            // Registration dots swell on hover, rippling out from the joint —
+            // Registration dots swell on hover, rippling out from the joint:
             // the mark "plots" the rest of its lattice. Only reacts inside a
             // `.group` (the header link); everywhere else it is static.
             className="opacity-40 [transform-box:fill-box] [transform-origin:center] transition-[translate,scale,rotate,opacity] duration-300 ease-[var(--ease-spring)] group-hover:scale-[1.9] group-hover:opacity-70"

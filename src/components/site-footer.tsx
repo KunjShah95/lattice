@@ -10,7 +10,7 @@ import { site } from "@/lib/site";
  *
  * Every top-level page is listed here. The footer is the only place a reader
  * can reach everything without using the header, so a route that exists but is
- * not linked from here is effectively invisible to anyone not already on it —
+ * not linked from here is effectively invisible to anyone not already on it:
  * which is how the glossary ended up reachable only by typing the URL.
  *
  * Columns are grouped by what a reader is looking for, not by internal type:
@@ -89,7 +89,7 @@ export function SiteFooter() {
             <FooterLink href="/verification">Freshness ledger</FooterLink>
             {/* Beside methodology rather than under "Corrections" because it is
                 how you challenge a selection, not how you report a broken
-                link — and methodology is what defines the bar it is judged
+                link, and methodology is what defines the bar it is judged
                 against. */}
             <FooterLink href="/submit">Submit a tool</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>

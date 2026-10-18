@@ -62,7 +62,7 @@ export const SUBMISSION_LABEL = "submission";
  */
 export const ISSUE_TEMPLATE = `<!--
   Lattice submission. Everything below is read by a bot that drafts a pull
-  request — you will not see the pull request yourself, a human reviews it.
+  request: you will not see the pull request yourself, a human reviews it.
 
   Edit the values between the fences. Keep the fence markers and the field
   names exactly as they are; if you change a field name, that field arrives
@@ -110,7 +110,7 @@ Leave as "none" if the project is closed source.
 ### One sentence: why it belongs on this index at all
 
 \`\`\`
-Not "it's a great tool" — what does a production system *run on* because of it?
+Not "it's a great tool"what does a production system *run on* because of it?
 \`\`\`
 
 ### Use it when
@@ -132,7 +132,7 @@ one a reader can act on; an entry without one is a link.
 
 \`\`\`
 Pricing that changes often, a licence that is unusual, a deployment that is
-self-hosted in name only — whatever is not obvious from the links above.
+self-hosted in name only: whatever is not obvious from the links above.
 \`\`\`
 `;
 
@@ -252,7 +252,7 @@ function contentWords(text) {
  *
  * Three passes, cheapest first:
  *
- *   1. exact heading, case- and whitespace-insensitive — the common case
+ *   1. exact heading, case- and whitespace-insensitive: the common case
  *   2. contains every content word of the canonical heading
  *   3. shares a content word with it
  *
@@ -328,7 +328,7 @@ export function repoSlug(url) {
  * The display name of a section, from its index, slug or title.
  *
  * Submitters paste the option straight out of the form, so the value arrives as
- * `"07 Guardrails & Safety"` — index, space, title — and also as the bare title,
+ * `"07 Guardrails & Safety"` (index, space, title), and also as the bare title,
  * the bare slug, or the title with a stray number typed first. All of those are
  * unambiguous to a person, so all of them resolve. Anything else is null, and
  * null means unresolved rather than best-guess: a wrong layer produces a
@@ -404,7 +404,7 @@ export function factsFromRepo(repo, { archived = false, pushedAt = null } = {}) 
 
   // Deployment is the one classification the API answers. A public repository
   // with releases is something you can run yourself, whatever the vendor's
-  // marketing says about its cloud — and "whatever the marketing says" is
+  // marketing says about its cloud, and "whatever the marketing says" is
   // exactly why it is derived rather than copied from the README.
   const selfHosted = repo.has_releases === true || repo.releases_url ? true : null;
 
@@ -438,12 +438,12 @@ export function draftEntry(submission, facts, { slug, existingNames = [] } = {})
   const submittedName = submission.values.name.trim();
 
   const judge = [
-    `**Assigned to:** \`${layer ? `${layer.index} ${layer.title}` : "— unresolved —"}\``,
+    `**Assigned to:** \`${layer ? `${layer.index} ${layer.title}` : "unresolved, "}\``,
     layer
       ? ""
       : "> The proposed layer did not resolve to one of the nine. Pick one before merging, or close this with a note on why the tool does not belong on the index.",
     "",
-    "**Filled from the GitHub API** (facts — verify, do not rewrite):",
+    "**Filled from the GitHub API** (facts: verify, do not rewrite):",
     `- Licence: ${facts.license ? `\`${facts.license}\`` : "*could not confirm*"}`,
     `- Language: ${facts.language ? `\`${facts.language}\`` : "*could not confirm*"}`,
     `- Self-hostable: ${facts.deployment === true ? "yes, public releases" : facts.deployment === false ? "no public releases" : "*could not confirm*"}`,
@@ -456,7 +456,7 @@ export function draftEntry(submission, facts, { slug, existingNames = [] } = {})
     "- `roles`. Nobody is accountable for a tool nobody owns.",
     "- Whether the submitted use/skip lines survive review. They are the submitter's claim, quoted below, not the index's.",
     "",
-    "**Submitted use/skip — proposed, unverified:**",
+    "**Submitted use/skip: proposed, unverified:**",
     `> use: ${submission.values.useWhen}`,
     `> skip: ${submission.values.skipWhen}`,
     submission.values.notes ? `> notes: ${submission.values.notes}` : "",
@@ -469,7 +469,7 @@ export function draftEntry(submission, facts, { slug, existingNames = [] } = {})
     `// ${submittedName}`,
     `// Submitted: https://github.com/${REPO}/issues (via /submit)`,
     `// Blurb below is DRAFTED, not written. Rewrite it to what this thing is`,
-    `// in one sentence — a blurb is not a tagline and not a feature list.`,
+    `// in one sentence: a blurb is not a tagline and not a feature list.`,
     `t(${JSON.stringify(submittedName)}, ${JSON.stringify(hostOf(submission.values.homepage))}, ${JSON.stringify(`TODO: one-sentence definition of ${submittedName}.`)}),`,
   ].join("\n");
 
@@ -497,7 +497,7 @@ export function draftEntry(submission, facts, { slug, existingNames = [] } = {})
     /**
      * Whether this draft could be merged as it stands.
      *
-     * Always false for a fresh draft, and that is the point — see
+     * Always false for a fresh draft, and that is the point: see
      * `isMergeable`. Exposed as a field so the PR body can carry the marker
      * without recomputing, and derived from the same predicate the gate uses so
      * the two cannot disagree.
@@ -511,7 +511,7 @@ export function draftEntry(submission, facts, { slug, existingNames = [] } = {})
  *
  * A draft is mergeable when it names a section, is not a duplicate, and contains
  * no `TODO` anywhere in the entry it proposes. The TODO test is on the *blocks*,
- * not the submission, because that is what a reviewer edits on the branch — and
+ * not the submission, because that is what a reviewer edits on the branch, and
  * it is what makes the gate a check rather than a claim: a reviewer who fills the
  * fields in satisfies this without doing anything else.
  *
@@ -528,7 +528,7 @@ export function isMergeable({ section, duplicates, dataBlock, attrBlock }) {
  *
  * `blocked` is what the bot writes, always, because a draft always has fields a
  * person has to fill in. `draft` is what a reviewer writes after filling them in
- * — which is confusingly named, so the gate accepts neither as "ready": it
+ *, which is confusingly named, so the gate accepts neither as "ready": it
  * requires an explicit `ready`, and anything else fails. A missing or garbled
  * marker must fail closed, or the gate is bypassed by a typo.
  */

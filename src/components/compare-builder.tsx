@@ -15,13 +15,13 @@ import { COMPARE_EXAMPLES, decodeCompare, encodeCompare, MAX_COMPARE } from "@/l
 import { layerColor } from "@/lib/layer-color";
 
 /**
- * Compare Builder — pick up to three tools from *any* layers and see them side by
+ * Compare Builder: pick up to three tools from *any* layers and see them side by
  * side.
  *
  * Why this exists: `/compare/<slug>` pages are hand-written, narrow, and end in a
  * recommendation. `strategy/02` §4 says the surface no funded competitor can occupy
- * is the cross-layer one — "here is how your gateway compares to your evaluation
- * platform" — and there are 112 tools, so far more pairs than anyone will write by
+ * is the cross-layer one: "here is how your gateway compares to your evaluation
+ * platform"and there are 112 tools, so far more pairs than anyone will write by
  * hand. This lets the reader pose the comparison themselves, and says plainly when
  * the tools are not substitutes.
  *
@@ -29,7 +29,7 @@ import { layerColor } from "@/lib/layer-color";
  * that takes constraints is the Stack Builder, which the result links to.
  *
  * State is the URL, as everywhere else on this site: no account, no storage.
- * Everything below is a pure function of the selected ids — the logic is in
+ * Everything below is a pure function of the selected ids: the logic is in
  * `lib/compare-table` and `lib/compare-url`, where vitest can reach it.
  */
 

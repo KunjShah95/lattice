@@ -14,7 +14,7 @@
 #
 # Scoped to /_next/static/ on purpose. The HTML and the JSON/XML routes are
 # served by the Worker rather than from this directory, and their caching is
-# already correct — pages are `s-maxage=31536000` against a CDN that is
+# already correct: pages are `s-maxage=31536000` against a CDN that is
 # expected to revalidate them. Widening this to /* would make the un-hashed
 # files here (favicon.ico, the verification .html) immutable too, which is not
 # true of them.

@@ -2,14 +2,14 @@ import { allTools, getTool } from "@/lib/data";
 import { verifiedBadge } from "@/lib/badge";
 
 /**
- * /<section>/<tool>/badge.svg — the "verified" badge for one entry.
+ * /<section>/<tool>/badge.svg: the "verified" badge for one entry.
  *
  * Prerendered for every tool, like every other route family here: the Worker has
  * no disk and no reason to compute a constant string per request. The badge shows
  * the entry's own `asOf`, so re-verifying an entry updates every README that
  * embeds it on the next deploy.
  *
- * Deliberately sets nothing but a content type and a cache lifetime — no cookie,
+ * Deliberately sets nothing but a content type and a cache lifetime: no cookie,
  * no `Set-Cookie`, no header read. A badge is fetched by every page that embeds
  * it, which makes it the highest-volume URL this site could ever serve and the
  * worst place for anything that identifies a reader. See `lib/badge.ts`.

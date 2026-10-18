@@ -7,7 +7,7 @@ import { activeIndex, scrollProgress } from "@/lib/reading-position";
 /**
  * The essay's contents as a rail in the right margin, with a reading-progress line.
  *
- * Borrowed mechanic: Aceternity's Tracing Beam — a line that tracks your scroll down
+ * Borrowed mechanic: Aceternity's Tracing Beam: a line that tracks your scroll down
  * a long page. Not borrowed: the beam itself. There is no glow, no gradient and no
  * spring; the "beam" is a one-pixel rule that fills as you read, in the same ink as
  * every other rule on the site, and the thing it tracks is *which section you are
@@ -23,7 +23,7 @@ import { activeIndex, scrollProgress } from "@/lib/reading-position";
  *
  * Hidden below `xl`; `EssayContents` serves the narrower screens. The rail hangs off
  * the right of the article column rather than reflowing the page, so the essay's
- * measure — the line length that makes it readable — is untouched by it.
+ * measure, the line length that makes it readable, is untouched by it.
  *
  * ## Why scroll position, not IntersectionObserver
  *
@@ -45,8 +45,8 @@ import { activeIndex, scrollProgress } from "@/lib/reading-position";
  * `scroll-padding-top: 6rem` (96px) in `globals.css`, so a contents link puts its
  * heading at 96px; a line at or above that would leave the section you just clicked
  * un-highlighted and the previous one lit. An earlier version added its own
- * `scroll-margin-top` on top of that padding, which landed headings at 176px —
- * past this line — and was caught by the browser test, not by reading the code.
+ * `scroll-margin-top` on top of that padding, which landed headings at 176px,
+ * past this line, and was caught by the browser test, not by reading the code.
  */
 const READING_LINE = 120;
 

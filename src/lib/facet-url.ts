@@ -14,8 +14,8 @@
  *
  * That module parses the query surface's flat `?cost=free&cost=usage-based`
  * form, where each axis is a set and only tools carry the tool-only facets. This
- * one round-trips a `FacetSelection` — nested, section-aware, with an
- * `expanded` UI map that must *not* travel — and it is used by a React
+ * one round-trips a `FacetSelection`nested, section-aware, with an
+ * `expanded` UI map that must *not* travel, and it is used by a React
  * component on mount. Different job, different shape; sharing the key names is
  * the only thing they should have in common, and that is asserted below.
  *
@@ -31,7 +31,7 @@ import { FACET_GROUPS, type FacetKey, type FacetSelection } from "./facets";
  * Query keys, one per facet group plus the section.
  *
  * Spelled the same as the `/api/search` parameters so a reader who learns one
- * surface has learned the other — and so a link can be moved between them with
+ * surface has learned the other, and so a link can be moved between them with
  * a change of path.
  */
 export const FACET_KEYS: Record<FacetKey, string> = {
@@ -52,7 +52,7 @@ export const EMPTY_SELECTION: FacetSelection = { section: null };
  *
  * Tolerant by design: an unknown group, an unknown value or a hand-edited URL all
  * produce a selection the UI can render rather than an error. The values are not
- * checked against a vocabulary here — `facetOptions` only emits options that
+ * checked against a vocabulary here: `facetOptions` only emits options that
  * exist, so an unknown value simply selects nothing visible. That is the right
  * failure: a stale link showing the unfiltered list beats a crash, and it still
  * shows a non-empty `?` that tells the reader something was meant.

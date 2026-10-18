@@ -38,7 +38,7 @@ const MAX_PATH = 200;
  * A code-point loop rather than a regex character class, and that is not a style
  * preference. A class has to be spelled as an escaped byte range, and every way
  * of spelling it has at some point landed in this repository as the literal
- * bytes — which is why the read tool refused this file as binary. Literal control
+ * bytes, which is why the read tool refused this file as binary. Literal control
  * characters in source make every diff unreviewable and get silently rewritten by
  * anything that normalises encoding. This version has nothing to normalise.
  *
@@ -60,7 +60,7 @@ function hasControlChars(value) {
  * produce. Null means "do not log, do not tell anyone".
  *
  * Both `from` and `to` are **required**. The first version sent only the current
- * page, under the key `to` — so the log recorded where a reader already was and
+ * page, under the key `to`so the log recorded where a reader already was and
  * never where they went. `kind: "compare"` then read as a comparison exit while
  * carrying no evidence that anyone reached a comparison page, and the metric
  * would have reported the wedge being used on the strength of a link existing.

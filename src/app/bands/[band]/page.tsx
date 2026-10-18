@@ -47,7 +47,7 @@ export async function generateMetadata({
   const layers = bandLayers(meta.id);
   const tools = layers.reduce((n, c) => n + c.tools.length, 0);
   return {
-    title: `Band ${meta.roman} · ${meta.title} — ${tools} tools for when it is ${meta.sounds}`,
+    title: `Band ${meta.roman} · ${meta.title}: ${tools} tools for when it is ${meta.sounds}`,
     description:
       `Layers ${meta.layers.join(" and ")} of the AI stack: ${tools} tools, ` +
       `grouped by what each is accountable for. Use it when the failure sounds like ` +
@@ -214,7 +214,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </h2>
         <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
           A band is a property of the stack; a role is a property of a person.
-          They correlate but are not the same question — which is why the count is
+          They correlate but are not the same question, which is why the count is
           derived rather than asserted.
         </p>
         <ul className="mt-4 flex flex-wrap gap-2">
@@ -290,7 +290,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
 
       {/* The crossings. Only rendered when there are any, because an empty
           "also reaches this band" block reads as a broken lookup rather than an
-          honest absence — and `layer_overlaps` reports the same crossings. */}
+          honest absence, and `layer_overlaps` reports the same crossings. */}
       {crossings.length ? (
         <section className="mt-12 border-t border-border pt-8">
           <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
@@ -299,7 +299,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
             The problem is in band {meta.roman} and the tool you need is filed
             under a different layer. These are the crossings, each with the
-            reason it belongs here too — a bare cross-reference reads as a
+            reason it belongs here too: a bare cross-reference reads as a
             mistake, so the reason is the whole payload.
           </p>
           <ul className="mt-5 space-y-px">
@@ -326,7 +326,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
       ) : null}
 
       <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
-        Bands are a shortcut, not a taxonomy —{" "}
+        Bands are a shortcut, not a taxonomy: {" "}
         <span className="text-fg-muted">
           band {meta.roman} covers {meta.layers.length} of nine layers
         </span>

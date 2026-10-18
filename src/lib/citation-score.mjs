@@ -62,8 +62,8 @@ export function topSources(sources, n = 3) {
  *
  * The coercion is deliberately two-step. `Number("")` is `0` and `Number(null)`
  * is `0`, both of which are finite, so a single `.map(Number).filter(isFinite)`
- * would turn a blank position column — which is what an uncited query writes to
- * the CSV — into a citation at position 0, the best possible position, pulling
+ * would turn a blank position column, which is what an uncited query writes to
+ * the CSV, into a citation at position 0, the best possible position, pulling
  * every median it appears in down by one. A tracker that reports "position 0" is
  * worse than one that reports nothing.
  */
@@ -121,7 +121,7 @@ export function claimSummary(rows, claimIds) {
  *
  * A query with an empty `target` is a missing page, not a weak ranking, and the
  * fix is writing copy rather than improving something that already exists. The
- * tracker reports these separately for exactly that reason — lumping them in with
+ * tracker reports these separately for exactly that reason: lumping them in with
  * "not cited" produces a to-do list of things to rewrite, when the actual gap is
  * a thing that does not exist yet.
  */

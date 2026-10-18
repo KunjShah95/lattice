@@ -35,7 +35,7 @@ export default function BlogIndexPage() {
       {/* The essays as an ItemList. The per-post pages each carry Article
           JSON-LD, but nothing joined them: this is the only page that says
           which essays exist, and it links out by rendered <a> alone otherwise.
-          `dek` is the description — the same one each post's own metadata
+          `dek` is the description: the same one each post's own metadata
           uses, so the two cannot disagree. */}
       <script
         type="application/ld+json"
@@ -66,7 +66,7 @@ export default function BlogIndexPage() {
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The index tells you what exists. These essays cover the decisions
-          behind it — what to reach for first, what looks like an optimisation
+          behind it: what to reach for first, what looks like an optimisation
           and is actually a rewrite, and where the failure modes live.
         </p>
       </header>

@@ -21,7 +21,7 @@ import { allAlternativesPages } from "@/lib/alternatives";
 import { ReviewCta } from "@/components/marketing";
 
 /**
- * `/<section>/<tool>/alternatives` — the substitutes graph as a page.
+ * `/<section>/<tool>/alternatives`the substitutes graph as a page.
  *
  * This is the highest-leverage unbuilt surface in the category, and the reason
  * is specific rather than sentimental.
@@ -29,8 +29,8 @@ import { ReviewCta } from "@/components/marketing";
  * A vendor can publish "alternatives to X" for their own product, because X is
  * losing to them. What no vendor can publish is an honest alternatives page for
  * a competitor, including the line "this one is not actually a substitute". A
- * page that says so — where the cross-layer entries are marked adjacent rather
- * than interchangeable — cannot be produced by anyone with a commercial
+ * page that says so, where the cross-layer entries are marked adjacent rather
+ * than interchangeable, cannot be produced by anyone with a commercial
  * interest in the answer. That is the whole product, and it is why the graph
  * here is bidirectional rather than curated toward a conclusion.
  *
@@ -63,7 +63,7 @@ export async function generateMetadata({
     title: `${entry.name} alternatives (${AS_OF.slice(0, 4)}): ${subs.length} substitutes compared`,
     description:
       `${subs.length} recorded substitutes for ${entry.name}, with what each one is ` +
-      `for and when it is not a real swap. Compared on layer, deployment and licence — ` +
+      `for and when it is not a real swap. Compared on layer, deployment and licence: ` +
       `plus when to skip each one.`,
     alternates: { canonical: `/${category.slug}/${entry.slug}/alternatives` },
     openGraph: {
@@ -199,7 +199,7 @@ export default async function AlternativesPage({
       </header>
 
       {/* The verdict. Placed above the list because the question asked is the
-          question answered — a reader who only reads this paragraph should
+          question answered: a reader who only reads this paragraph should
           still have something usable. */}
       <section className="mt-8 border-t border-border pt-6">
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
@@ -318,7 +318,7 @@ export default async function AlternativesPage({
           </div>
           <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
             These appear in the same graph but sit in a different layer. They solve a
-            neighbouring problem, not this one — including them in a shortlist is the
+            neighbouring problem, not this one, including them in a shortlist is the
             most common mistake made when migrating off {entry.name}.
           </p>
 
@@ -360,7 +360,7 @@ export default async function AlternativesPage({
         <Link href="/methodology" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
           How this index is compiled
         </Link>{" "}
-        — including where it is wrong.
+including where it is wrong.
       </p>
       <ReviewCta context="Deciding whether to switch? A review weighs the move against your traffic, team and stack." />
     </div>

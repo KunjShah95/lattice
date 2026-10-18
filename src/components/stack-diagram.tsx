@@ -7,14 +7,14 @@ import { maxCategoryCount, offStack, stackLayers } from "@/lib/data";
  * bands ordered substrate-first, each sized by how many tools sit in it,
  * each linking to its section. The index below the fold is the legend.
  *
- * The nine bands are grouped into three — Compute, State, Control — because
+ * The nine bands are grouped into three (Compute, State, Control), because
  * nine hues is a rainbow and a reader cannot hold a rainbow in working
  * memory. Three is a number they can, and the group a layer belongs to is
  * the shortest path from a symptom ("it is slow", "the answers are wrong")
  * to the two sections worth reading. The grouping is stated rather than
  * implied, so the palette does work instead of decorating.
  *
- * Off-stack material is deliberately rendered outside the stack frame —
+ * Off-stack material is deliberately rendered outside the stack frame:
  * reading material is not a layer, and pretending otherwise is the kind of
  * small dishonesty that makes a directory feel like marketing.
  */
@@ -41,7 +41,7 @@ export function StackDiagram() {
         A plain div, not `role="list"`.
 
         It carried `role="list"` with the label "AI system layers, ordered surface
-        first", but its children are the three band `<section>`s — not
+        first", but its children are the three band `<section>`s, not
         `listitem`s. axe reports it as `aria-required-children`, and it was a real
         defect rather than a pedantic one: a list whose children are not list items
         announces as a list and then offers a screen-reader user nothing to move
@@ -49,11 +49,11 @@ export function StackDiagram() {
 
         The list semantics belong on each band's `<ul>` below, where the children
         genuinely are list items, and each is labelled with its band so the
-        announcement is *better* than one flat list was — the reader hears which
+        announcement is *better* than one flat list was: the reader hears which
         family of layers they have moved into.
       */}
       {/* The frame is a drawing, so it carries permanent crop corners just
-          outside its edge — the same marks a row picks up on hover, at rest. */}
+          outside its edge: the same marks a row picks up on hover, at rest. */}
       <div className="crop crop-static relative rounded-xl bg-bg-elevated/70 p-1.5 shadow-ink [--crop-inset:-7px] [--crop:10px]">
         {bandOrder.map((band) => (
           <section key={band.id} className="mb-1 last:mb-0">
@@ -149,7 +149,7 @@ export function StackDiagram() {
                             </span>
                           </span>
                           {/* The responsibility line is the reason to click, so
-                              it stays — but two lines on a 390px screen pushed
+                              it stays, but two lines on a 390px screen pushed
                               the tool count out of view entirely. One line
                               below `sm` keeps the row scannable and the count
                               legible; the full sentence is on the section
@@ -159,7 +159,7 @@ export function StackDiagram() {
                           </span>
                         </span>
 
-                        {/* Density meter — width is the tool count, so the shape
+                        {/* Density meter: width is the tool count, so the shape
                             of the ecosystem is legible before you read a word.
                             The count is always shown; only the meter bar drops
                             below `sm`, where it would be too thin to read. */}
@@ -190,7 +190,7 @@ export function StackDiagram() {
           <span aria-hidden="true" className="h-px flex-1 bg-border" />
         </div>
 
-        {/* Title block — the box in the corner of every engineering sheet
+        {/* Title block: the box in the corner of every engineering sheet
             that says what the drawing is, how it is scaled and which way up
             it reads. Here it is the legend for the two encodings above. */}
         <dl className="mx-1.5 mb-1 mt-2 hidden grid-cols-3 sm:grid overflow-hidden rounded-md border border-border font-mono text-[9.5px] uppercase tracking-[0.12em] text-fg-subtle">

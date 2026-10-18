@@ -63,7 +63,7 @@ export default function ReturnsPage() {
         <p>
           If you purchased a product or service from a vendor listed in the index,
           that transaction is with the vendor. Use their returns policy and support
-          channels — this site cannot refund a purchase it was not party to.
+          channels: this site cannot refund a purchase it was not party to.
         </p>
       </InfoSection>
 

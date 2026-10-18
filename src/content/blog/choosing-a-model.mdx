@@ -3,7 +3,7 @@ export const meta = {
   title: "Choosing a model is a routing problem",
   description:
     "Why 'which model is best' is the wrong question, how to build a routing policy you can defend, and why escalating on failure is a trap.",
-  dek: "There is no best model. There is a best model for a task, at a quality bar, within a latency and cost budget — and that decision is a routing policy, not a benchmark.",
+  dek: "There is no best model. There is a best model for a task, at a quality bar, within a latency and cost budget, and that decision is a routing policy, not a benchmark.",
   date: "2026-09-10",
   readingTime: "8 min",
   layers: [2],
@@ -17,7 +17,7 @@ roughly the same quality, and unable to say why.
 
 The underlying mistake is treating model choice as a selection problem. You
 pick one, you wire it in, you are done. It is a *routing* problem, because
-your traffic is not one task — it is a distribution of tasks with different
+your traffic is not one task: it is a distribution of tasks with different
 difficulty, different latency requirements and different tolerances for error.
 
 ## The escalation trap
@@ -27,13 +27,13 @@ looks bad. It is wrong more often than it works, for three reasons.
 
 **You cannot tell whether the answer is bad.** The model that produced the
 answer is a poor judge of its own output, and a cheap model judging a big
-model's work is worse still. Without an external signal — a validator, a
-schema check, a downstream test — "looks bad" is a vibe.
+model's work is worse still. Without an external signal (a validator, a
+schema check, a downstream test), "looks bad" is a vibe.
 
 **Failures cluster on hard cases.** The requests a small model gets wrong are
 not random; they are the genuinely hard ones. So escalation does not rescue the
-weak case, it just pays twice for it. You have saved nothing on the easy 90% —
-you already served those — and you have *doubled* the cost of the hard 10%.
+weak case, it just pays twice for it. You have saved nothing on the easy 90%,
+you already served those, and you have *doubled* the cost of the hard 10%.
 
 **The retry loop is where the spend goes.** A policy that escalates on failure
 is one provider hiccup away from a retry storm against your most expensive
@@ -43,8 +43,8 @@ model, with your most expensive model, on the requests most likely to time out.
 
 Policies that work route on signals that exist before the model is called:
 
-**Explicit task identity.** If your system has named operations — classify,
-extract, summarise, rewrite, reason — route on the operation. This is the
+**Explicit task identity.** If your system has named operations (classify,
+extract, summarise, rewrite, reason), route on the operation. This is the
 cleanest signal available and most teams already have it implicitly in their
 code structure. It requires no classifier and no guessing.
 
@@ -57,7 +57,7 @@ are knowable before inference and correlate with difficulty more reliably than
 anything you can infer from the text itself.
 
 **An explicit difficulty classifier.** A small model that scores input
-difficulty before you route. This works, and it is the right structure — the
+difficulty before you route. This works, and it is the right structure: the
 point is that the classifier makes an up-front decision rather than judging
 output after the fact. RouteLLM and commercial routers are built this way.
 
@@ -86,7 +86,7 @@ Two legitimate reasons to escalate on failure exist, and both are narrow:
 
 - **Validated output.** If a schema or test gates the result, a failure is
   *observable* and a retry is *justified*. This is the exception that proves
-  the rule — it works because you have an external signal. [Structured
+  the rule: it works because you have an external signal. [Structured
   output](/blog/prompt-or-finetune) is what makes this cheap.
 - **Human in the loop.** Where a person sees the failure, escalation is a UX
   decision rather than an optimisation, and cost is much less sensitive.
@@ -112,7 +112,7 @@ bill within the first year.
 2. Assign each to the cheapest model that clears your quality bar on a real
    eval set.
 3. Put a gateway in front and move the routing decision into it.
-4. Measure cost per successful outcome, not cost per request — see
+4. Measure cost per successful outcome, not cost per request: see
    [the cost model](/blog/the-cost-model).
 
 The [Routing & Gateways](/routing-gateways) section covers the tooling, and

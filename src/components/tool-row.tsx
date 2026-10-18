@@ -3,7 +3,7 @@ import type { Tool } from "@/lib/types";
 import { layerColor, layerStyle } from "@/lib/layer";
 
 /**
- * One tool in a list. Hairline-separated rather than boxed — the reference
+ * One tool in a list. Hairline-separated rather than boxed: the reference
  * pattern that keeps a long index scannable instead of card-heavy.
  *
  * No favicon: a third-party icon service on every row is both a privacy
@@ -37,7 +37,7 @@ export function ToolRow({
         style={{ "--spot": layerColor(layer) } as React.CSSProperties}
         className="group relative -mx-2 flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-bg-sunken"
       >
-        {/* The swatch thickens on hover — the row "takes" its layer colour
+        {/* The swatch thickens on hover: the row "takes" its layer colour
             rather than the whole row lighting up. */}
         <span
           aria-hidden="true"

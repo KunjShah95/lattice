@@ -2,7 +2,7 @@ export const meta = {
   slug: "agents-need-a-durable-host",
   title: "Agents need a durable host",
   description:
-    "An agent loop is easy. Surviving a deploy mid-loop, a provider timeout, or a runaway token spend is the engineering — and it belongs in the host, not the prompt.",
+    "An agent loop is easy. Surviving a deploy mid-loop, a provider timeout, or a runaway token spend is the engineering, and it belongs in the host, not the prompt.",
   dek: "The loop is a weekend project. The part where it keeps working at three in the morning is the actual product, and almost nobody budgets for it.",
   date: "2026-09-20",
   readingTime: "8 min",
@@ -38,7 +38,7 @@ by being interrupted.
 
 **A provider timeout.** A tool call takes ninety seconds. The HTTP client times
 out at thirty. The model is told the tool failed and helpfully tries something
-else, or reports failure, or worse — retries a non-idempotent call.
+else, or reports failure, or worse: retries a non-idempotent call.
 
 **Runaway spend.** A loop that is not converging has no natural end. Without an
 external ceiling it will spend until the credit card objects, and the model's
@@ -46,7 +46,7 @@ own judgement that it is "still working" is not a budget.
 
 **A context that outgrows itself.** Long loops accumulate. Eventually the
 context is mostly stale tool output from step three, and the model's attention
-to the actual task degrades badly. Nothing signals this — it just gets worse
+to the actual task degrades badly. Nothing signals this: it just gets worse
 quietly.
 
 ## Put the limits in the host
@@ -92,7 +92,7 @@ your tools with this property wherever you can, and pass an idempotency key
 where you cannot.
 
 **Durable execution.** Run the loop inside an engine that checkpoints after
-each step — [Temporal](https://temporal.io), [Inngest](https://inngest.com),
+each step: [Temporal](https://temporal.io), [Inngest](https://inngest.com),
 [Trigger.dev](https://trigger.dev), [Restate](https://restate.dev). The
 execution log becomes the source of truth, and a crash becomes a resume rather
 than a loss. This is what a workflow engine was built for, and agent loops are
@@ -115,7 +115,7 @@ first and last few turns keeps a long loop coherent.
 re-read by the model on every subsequent turn. Store the full result, put a
 summary plus a handle in the context, and let the model fetch detail if it
 needs it. This is the same insight as the retrieval lesson in
-[fixing ranking](/blog/fix-the-ranking-not-the-prompt) — more context is not
+[fixing ranking](/blog/fix-the-ranking-not-the-prompt): more context is not
 more information.
 
 ## Where to start
@@ -126,7 +126,7 @@ in this order:
 1. A turn and token ceiling enforced in code, not in the prompt.
 2. Structured logging of every step, so you can see what the loop was thinking.
 3. Idempotency keys on every side-effecting tool.
-4. A real answer to "what happens if the process dies here?" — which, if you
+4. A real answer to "what happens if the process dies here?"which, if you
    cannot answer it today, is the actual work.
 
 Then look at the [Workflow Orchestration](/workflow-orchestration) section for

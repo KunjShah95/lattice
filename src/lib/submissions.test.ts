@@ -23,7 +23,7 @@ import {
  * variation is tolerated, a missing value is reported rather than defaulted.
  *
  * The second thing is the fact/judgement split. If the bot starts filling in
- * `cost` or picking the layer, these tests are what should fail — because that
+ * `cost` or picking the layer, these tests are what should fail, because that
  * change turns the pipeline into the vote-count directory the site argues
  * against.
  */
@@ -32,7 +32,7 @@ import {
  * Parse and assert a submission is complete.
  *
  * Narrowing here rather than at each call site, because a test that drafts from
- * a half-filled form is testing the wrong thing — the failure would show up as a
+ * a half-filled form is testing the wrong thing: the failure would show up as a
  * confusing assertion about `TODO` strings rather than as "the fixture is
  * incomplete".
  */

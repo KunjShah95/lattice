@@ -74,7 +74,7 @@ export default function RolesIndexPage() {
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The stack diagram answers <em>where things sit</em>; this answers{" "}
           <em>what you are accountable for</em>. Each specialisation lists the
-          tools that role actually owns, grouped by the layer they live in — so
+          tools that role actually owns, grouped by the layer they live in, so
           you can see both at once, and see which cross-layer tools (the gateway,
           the eval harness, the orchestrator) land in more than one column.
         </p>
@@ -116,7 +116,7 @@ export default function RolesIndexPage() {
 
       <p className="editorial-justify mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
         Roles are assigned by what the tool is <em>for</em>, not by who vendors
-        it, and a tool can belong to two — an eval framework really is part of
+        it, and a tool can belong to two: an eval framework really is part of
         what a platform engineer owns and part of what an applied engineer owns.
         That makes these counts overlap by{" "}
         <span className="text-fg-muted">

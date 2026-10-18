@@ -7,7 +7,7 @@
  * orthogonal question "of the entries that matched, which ones are the shape I
  * asked for". Split because the ranking function is shared by the palette, the
  * MCP server and `/api/search`, while the filters are only ever applied on the
- * query surface — putting them in `search.ts` would put a concept the palette
+ * query surface: putting them in `search.ts` would put a concept the palette
  * never uses next to the tiers, and the palette already does this filtering
  * better in `facets.ts` against the whole dataset.
  *
@@ -17,13 +17,13 @@
  * rows. This is a query string: `?cost=free&cost=usage-based` is a set, and it
  * has to survive a URL. So each filter here is a *set of accepted values*,
  * `undefined` meaning "no constraint on this axis", and the semantics are
- * AND across axes, OR within one — the same rule, arrived at from the other
+ * AND across axes, OR within one: the same rule, arrived at from the other
  * direction.
  *
  * ## What happens to a non-tool entry
  *
  * Essays, symptom guides, comparisons and alternatives pages have no
- * `kind`, `deployment` or `cost` — they are not tools. Applying `cost=free`
+ * `kind`, `deployment` or `cost`they are not tools. Applying `cost=free`
  * therefore *excludes* them rather than letting them through unfiltered, because
  * "free tools that also explain evals" is not what the query asked for. The
  * exception is `layer` and `section`, which every entry has, because those
@@ -46,7 +46,7 @@ export type SearchFacets = {
   section: string;
   /** Stack depth. Present on every entry, not just tools. */
   layer: number | null;
-  /** Role *ids*, not display names — this is a machine surface. */
+  /** Role *ids*, not display names: this is a machine surface. */
   roles: readonly string[];
   kind: string;
   deployment: string | null;
@@ -92,7 +92,7 @@ export function activeFilterCount(filters: EntryFilters): number {
  *
  * `getAll` rather than `get` so `?cost=free&cost=usage-based` means the OR a
  * reader expects rather than the last one winning. An empty or whitespace-only
- * value collapses to "no constraint" — `?cost=` is a hand-edited URL, and the
+ * value collapses to "no constraint"`?cost=` is a hand-edited URL, and the
  * useful behaviour is to ignore the filter rather than return nothing.
  */
 export function parseFilterParam(params: URLSearchParams, key: string): Set<string> | undefined {
@@ -117,7 +117,7 @@ export function parseFilters(params: URLSearchParams): EntryFilters {
  * Does one entry satisfy every constrained axis?
  *
  * `layer` and `section` read off the entry itself, because every entry has
- * them. The rest read off `facets`, which only tool entries carry — hence the
+ * them. The rest read off `facets`, which only tool entries carry: hence the
  * "unconstrained means pass" guard above each one. A constrained axis with no
  * facets to test against is a filter that cannot match, and returning `true`
  * there would silently ignore the caller's constraint, which is the exact
@@ -170,7 +170,7 @@ export function matchesFilters(entry: SearchEntry, filters: EntryFilters): boole
  *
  * Published so `/api/search` can echo the legal values back to a caller who
  * guessed wrong, and so a test can assert the filter vocabulary against the
- * dataset instead of against a hand-copied list — which is how the role
+ * dataset instead of against a hand-copied list, which is how the role
  * validator in `roles.test.ts` was found to be checking five ids when the
  * vocabulary had six.
  */
@@ -193,7 +193,7 @@ export function filterVocabulary(entries: readonly SearchEntry[]) {
     section.add(f.section);
   }
 
-  // Keyed by the *filter* names, not by the field names on the entry — so the
+  // Keyed by the *filter* names, not by the field names on the entry, so the
   // vocabulary a caller reads back is spelled exactly as the query parameter
   // they would pass it under. Publishing `roles` here while the parameter is
   // `role` is the kind of small mismatch that costs a caller a round trip.

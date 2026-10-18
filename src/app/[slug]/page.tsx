@@ -43,8 +43,8 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const siblings = categories.filter((c) => c.slug !== slug);
   // Tools whose home is another layer but which declare this one too. Without
   // this block, a second home is only visible from the tool's own page, so a
-  // reader who arrives at the layer where the tool actually matters — agent
-  // memory under Retrieval, a prompt registry under Prompt Engineering — never
+  // reader who arrives at the layer where the tool actually matters (agent
+  // memory under Retrieval, a prompt registry under Prompt Engineering), never
   // learns it is here.
   const alsoHere = getSecondHomeTools(slug);
   const position = categories.findIndex((c) => c.slug === slug);
@@ -98,8 +98,8 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
 
       <CategorySection category={category} headingLevel="h1" />
 
-      {/* The layer page states a responsibility claim about the whole stack —
-          what belongs here and what does not — which is a claim about the
+      {/* The layer page states a responsibility claim about the whole stack,
+          what belongs here and what does not, which is a claim about the
           index, not about a tool. It gets the same attribution the tool pages
           do. Placed after the section rather than inside it because
           `CategorySection` is shared with the home page, where one byline for
@@ -111,7 +111,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
       />
 
       {/* Also here from another layer. Same content as the tool page's "Also
-          belongs in", reached from the other end — which is the direction that
+          belongs in", reached from the other end, which is the direction that
           was missing. The swatch is the tool's *home* layer, so the pair reads
           as "this layer, and that one" rather than a second list of tools that
           look native here. */}
@@ -130,7 +130,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
               <li key={`${tool.category.slug}-${tool.slug}`}>
                 {/* Tracked, but the reverse direction of the tool page's
                     "Also belongs in". Taken together the two counts say whether
-                    the crossing is being read from either end — a field that is
+                    the crossing is being read from either end: a field that is
                     only ever read in one direction is a field nobody needed. */}
                 <TrackLink
                   href={`/${tool.category.slug}/${tool.slug}`}

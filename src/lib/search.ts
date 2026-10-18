@@ -1,6 +1,6 @@
 /**
  * What a search hit is. Tools are the bulk of the index, but the essays and
- * the comparisons are where the site's actual argument lives — a query for
+ * the comparisons are where the site's actual argument lives: a query for
  * "evals" that only returns tools is hiding the best answer on the site.
  */
 export type SearchKind = "tool" | "essay" | "comparison" | "glossary";
@@ -24,7 +24,7 @@ export type SearchEntry = {
   categoryTitle: string;
   /** Stack depth for the accent. Null renders muted. */
   categoryLayer: number | null;
-  /** Internal route — every hit has one, so the palette always navigates. */
+  /** Internal route: every hit has one, so the palette always navigates. */
   href: string;
   /** Present on tools only: the tool's own site, opened in a new tab. */
   external?: string;
@@ -35,15 +35,15 @@ export type SearchEntry = {
    * Tools only: the specialisations this tool belongs to, as display strings.
    *
    * Flattened into `haystack` so "platform" and "infra" both find the right
-   * tools, which is the whole reason for the axis — a reader arrives knowing
+   * tools, which is the whole reason for the axis: a reader arrives knowing
    * their job, not the name of the thing they need.
    */
   roles?: string[];
   /**
    * Tools only: display titles of the sections this tool also serves.
    *
-   * Matched the same way roles are — declared fields rather than incidental
-   * prose — so typing a layer name finds the tools that reach it even when that
+   * Matched the same way roles are, declared fields rather than incidental
+   * prose, so typing a layer name finds the tools that reach it even when that
    * layer is not where they are indexed.
    */
   alsoIn?: string[];
@@ -52,7 +52,7 @@ export type SearchEntry = {
    *
    * See `search-filters.ts` for why these are a nested object rather than more
    * top-level fields: `tag` is a display label set on essays too, so a filter
-   * reading `kind` off it would match prose. Absence is load-bearing — it is
+   * reading `kind` off it would match prose. Absence is load-bearing: it is
    * what lets a filter on a tool-only axis exclude an essay rather than let it
    * through unfiltered.
    */
@@ -102,7 +102,7 @@ const TIER = {
    * tier because a role is a declared field rather than incidental prose, and
    * because a fuzzy scan cannot find it: the span gate rejects "platform" against
    * a blurb where the letters happen to appear scattered, which is most of them.
-   * Still below every phrase match — typing "data" should not outrank a tool
+   * Still below every phrase match: typing "data" should not outrank a tool
    * whose description says it.
    */
   roleWord: 22_000,
@@ -150,7 +150,7 @@ export function buildIndex(entries: SearchableTool[]): IndexedTool[] {
 }
 
 /**
- * Subsequence match in a single pass over the haystack — O(len(haystack)),
+ * Subsequence match in a single pass over the haystack: O(len(haystack)),
  * not the O(m·n) restart-per-character scan this replaces.
  *
  * Returns 0 unless every query character appears in order *and* the span it
@@ -180,7 +180,7 @@ function fuzzyScore(haystack: string, q: string): number {
 }
 
 function scoreTerm(it: IndexedTool, q: string): number {
-  // Within a band, shorter names win — "TRL" before "TensorRT-LLM".
+  // Within a band, shorter names win: "TRL" before "TensorRT-LLM".
   const brevity = Math.min(it.name.length, 999);
 
   if (it.name === q) return TIER.exactName;
@@ -193,7 +193,7 @@ function scoreTerm(it: IndexedTool, q: string): number {
   if (it.category.includes(q)) return TIER.categoryPhrase;
   if (it.tag && it.tag.includes(q)) return TIER.tagPhrase;
   // Word-prefix, so "infra" finds "AI Infrastructure" and "prod" does not
-  // silently match "Production & Governance" — that would make a typo look like
+  // silently match "Production & Governance"that would make a typo look like
   // a confident result.
   if (it.roles.some((r) => r.split(/\s+/).some((w) => w.startsWith(q))))
     return TIER.roleWord - brevity;

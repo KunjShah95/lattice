@@ -2,14 +2,14 @@ import { categories, getToolsForCategory } from "./data";
 import type { Tool } from "./types";
 
 /**
- * Stack Builder decision engine — dataset-driven, no tool names hardcoded.
+ * Stack Builder decision engine: dataset-driven, no tool names hardcoded.
  *
  * The engine searches the real dataset (`data.ts`): for each required
  * section it scores EVERY tool in that section with one generic function
  * (constraints + cost/priority prefs + scale signals + keyword affinity
  * against the tool's own blurb/useWhen text) and picks the top scorer.
  * Adding, removing or reclassifying a tool in the dataset changes
- * recommendations automatically — nothing here names a product.
+ * recommendations automatically: nothing here names a product.
  *
  * The only editorial layer is the workload profile: which stack sections a
  * workload needs and which keywords describe it. That is user-declared
@@ -51,7 +51,7 @@ export type StackInput = {
   freshness?: Freshness;
   /** How fast an answer must come back. */
   latency?: Latency;
-  /** Language the team ships in — matched against each tool's real `language`. */
+  /** Language the team ships in: matched against each tool's real `language`. */
   language?: StackLanguage;
   /** Agent/workflows: how long work must survive. */
   durability?: Durability;
@@ -66,7 +66,7 @@ export type StackPick = {
   toolSlug: string;
   url: string;
   fit: number;
-  /** Qualitative band for the fit score — numbers stay inside the engine. */
+  /** Qualitative band for the fit score: numbers stay inside the engine. */
   fitLabel: "Best fit" | "Strong fit" | "Workable" | "Stretch";
   why: string;
   /** The tool's own skip-when: the concrete failure mode to watch for. */
@@ -82,7 +82,7 @@ export type StackResult = {
   picks: StackPick[];
   costLow: number;
   costHigh: number;
-  /** Picks billed by usage or subscription — what actually moves the band. */
+  /** Picks billed by usage or subscription: what actually moves the band. */
   costDrivers: string[];
   confidence: number;
   risk: string;
@@ -93,7 +93,7 @@ type WorkloadProfile = {
   id: Workload;
   label: string;
   detail: string;
-  /** Stack sections this workload needs, substrate first. Slugs only — no tools. */
+  /** Stack sections this workload needs, substrate first. Slugs only: no tools. */
   sections: string[];
   /** Affinity keywords matched against each tool's own prose. */
   keywords: string[];
@@ -198,7 +198,7 @@ const OPEN_LICENSES = new Set([
   "Elastic-License-2.0",
 ]);
 
-/** Generic scale signals read off a tool's own prose — same list for every section. */
+/** Generic scale signals read off a tool's own prose: same list for every section. */
 const PROTOTYPE_WORDS = ["prototyp", "afternoon", "desktop", "notebook", "experiment", "local model"];
 const SCALE_WORDS = ["scale", "throughput", "concurren", "production", "multi-gpu", "billion", "volume", "bursty"];
 
@@ -232,7 +232,7 @@ function fitLabelFor(fit: number): StackPick["fitLabel"] {
 }
 
 /**
- * The single generic scorer. Every tool in a section passes through this —
+ * The single generic scorer. Every tool in a section passes through this:
  * no per-tool branches, no named exceptions. Corpus size only matters for
  * retrieval sections, where it shifts preference from zero-ops options
  * toward purpose-built stores via generic signals (see below).
@@ -257,14 +257,14 @@ function scoreTool(tool: Tool, input: Required<StackInput>, profile: WorkloadPro
   if (huge && tool.deployment === "self-hosted") score += 0.2;
 
   // Retrieval corpora: large collections favour purpose-built stores over
-  // zero-ops starting points. Expressed generically — tools whose own prose
+  // zero-ops starting points. Expressed generically: tools whose own prose
   // says they stop scaling lose ground as document count grows.
   if (isRetrieval && input.documents >= 3_000_000) {
     if (/prototype|side feature|afternoon/i.test(text)) score -= 1.6;
     if (/at scale|billion|workload/i.test(text)) score += 0.9;
   }
 
-  // Soft preferences — same weights for every section.
+  // Soft preferences: same weights for every section.
   if (tool.cost === "free" || tool.cost === "free-tier") score += -input.costVsPerf * 0.35;
   else score += input.costVsPerf * 0.3;
   if (tool.deployment === "self-hosted") score += input.simplicityVsControl * 0.4;
@@ -298,7 +298,7 @@ function scoreTool(tool: Tool, input: Required<StackInput>, profile: WorkloadPro
   return clamp(Math.round(score * 10) / 10, 3, 9.8);
 }
 
-/** Hard-constraint filter — generic, identical for every section. */
+/** Hard-constraint filter: generic, identical for every section. */
 function passesConstraints(tool: Tool, input: Required<StackInput>): boolean {
   if (input.selfHosted && tool.deployment !== "self-hosted") return false;
   if (input.openSource && !isOpen(tool.license)) return false;
@@ -307,7 +307,7 @@ function passesConstraints(tool: Tool, input: Required<StackInput>): boolean {
 
 /**
  * Risk is composed from the shape of the recommended stack (which sections
- * and deployments it contains) plus the user's own answers — never from
+ * and deployments it contains) plus the user's own answers: never from
  * named products.
  */
 function composeRisk(result: StackPick[], input: Required<StackInput>): string {
@@ -316,14 +316,14 @@ function composeRisk(result: StackPick[], input: Required<StackInput>): string {
   if (slugs.has("retrieval-vector-stores")) {
     parts.push(
       input.filtering === "heavy"
-        ? "Filtering is load-bearing here — validate filtered recall against a query set before migrating, because most disappointing retrieval is a ranking problem wearing a database costume."
-        : "Retrieval quality decides the outcome — most failures are ranking or chunking failures, not model failures. Build the eval set before tuning anything.",
+        ? "Filtering is load-bearing here: validate filtered recall against a query set before migrating, because most disappointing retrieval is a ranking problem wearing a database costume."
+        : "Retrieval quality decides the outcome: most failures are ranking or chunking failures, not model failures. Build the eval set before tuning anything.",
     );
   }
   if (slugs.has("agent-frameworks") || slugs.has("workflow-orchestration")) {
     parts.push(
       input.durability === "hours"
-        ? "Hour-long work means the engine fixes durability, not idempotency — side-effecting tool calls still need idempotency keys, and a process restart mid-loop is the most common way agents cause real damage."
+        ? "Hour-long work means the engine fixes durability, not idempotency: side-effecting tool calls still need idempotency keys, and a process restart mid-loop is the most common way agents cause real damage."
         : "An agent loop that cannot survive a deploy will eventually cause real damage. Durability and tool permissions are the controls, not the prompt.",
     );
   }
@@ -333,13 +333,13 @@ function composeRisk(result: StackPick[], input: Required<StackInput>): string {
   if (input.safety !== "none") {
     parts.push(
       input.safety === "pii"
-        ? "PII is a data-flow problem — detect and redact before the model ever sees it, not after it answers."
+        ? "PII is a data-flow problem: detect and redact before the model ever sees it, not after it answers."
         : "A guardrail without an eval is a guess about which failures matter. Write the eval that found the failure, then the guardrail that blocks it.",
     );
   }
   if (input.workload === "voice") {
     parts.push(
-      "Lattice has no dedicated voice layer — inference latency and streaming orchestration dominate, and this pick is a starting proxy, not a verdict.",
+      "Lattice has no dedicated voice layer: inference latency and streaming orchestration dominate, and this pick is a starting proxy, not a verdict.",
     );
   }
   if (!parts.length) {
@@ -352,7 +352,7 @@ function composeRisk(result: StackPick[], input: Required<StackInput>): string {
 
 /**
  * Heuristic monthly band from query volume and the recommended stack's own
- * cost models — no vendor prices. Labelled estimate, not a quote. Drivers
+ * cost models: no vendor prices. Labelled estimate, not a quote. Drivers
  * name the usage-billed picks that move the top of the band, so the reader
  * can see where money would actually go.
  */
@@ -419,7 +419,7 @@ function normalize(raw: StackInput): Required<StackInput> {
 
 /**
  * Which of the user's stated requirements a winning pick genuinely
- * satisfies — checked against the tool's real attributes and prose, so
+ * satisfies: checked against the tool's real attributes and prose, so
  * every chip is earned, not decorated.
  */
 function matchChips(tool: Tool, input: Required<StackInput>, sectionSlug: string): string[] {
@@ -483,7 +483,7 @@ export function recommendStack(raw: StackInput): StackResult {
 
   // The stack responds to the case: guardrails join when safety is stated,
   // durable execution joins when work outlives a request. Both slot in ahead
-  // of observability, which stays last — the thing that watches the rest.
+  // of observability, which stays last: the thing that watches the rest.
   const sections = [...profile.sections];
   const beforeEvals = (slug: string) => {
     if (sections.includes(slug)) return;
@@ -517,7 +517,7 @@ export function recommendStack(raw: StackInput): StackResult {
       fitLabel: fitLabelFor(winner.fit),
       why: winner.tool.useWhen,
       watchOut: winner.tool.skipWhen,
-      alternative: runner ? runner.tool.name : "—",
+      alternative: runner ? runner.tool.name : "–",
       switchWhen: runner ? lowerFirst(runner.tool.useWhen) : null,
       matches: matchChips(winner.tool, input, sectionSlug),
     });

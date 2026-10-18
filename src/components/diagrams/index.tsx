@@ -54,7 +54,7 @@ const ragPipeline: DiagramSpec = {
     { from: "rerank", to: "gen" },
   ],
   notes: [
-    "Vector search alone loses exact identifiers — part numbers, error codes, names. Hybrid retrieval gets them back.",
+    "Vector search alone loses exact identifiers: part numbers, error codes, names. Hybrid retrieval gets them back.",
     "Reranking is the highest-leverage addition to an existing RAG system, and the cheapest one to try.",
   ],
 };

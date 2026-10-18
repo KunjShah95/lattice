@@ -2,7 +2,7 @@ export const meta = {
   slug: "prompt-or-finetune",
   title: "Prompt, or fine-tune?",
   description:
-    "Fine-tuning is a manufacturing step, not a debugging step. A decision framework for when prompting has genuinely plateaued — and when the real problem is retrieval.",
+    "Fine-tuning is a manufacturing step, not a debugging step. A decision framework for when prompting has genuinely plateaued, and when the real problem is retrieval.",
   dek: "Almost every 'the model does not know this' problem is a retrieval problem wearing a hat. Here is how to tell the difference before you spend a week on a training run.",
   date: "2026-09-18",
   readingTime: "7 min",
@@ -33,7 +33,7 @@ a description of what you want, and tell it what to do in the ambiguous case
 rather than only what to do in the clear case. Most "the model won't follow the
 format" problems are one missing example.
 
-If you have done both of those and it still fails, move on — you have probably
+If you have done both of those and it still fails, move on: you have probably
 hit the edge of what prompting gets you, and the next lever is
 [retrieval](/blog/fix-the-ranking-not-the-prompt) or a tool, not training.
 
@@ -44,7 +44,7 @@ in a way you can maintain. You will be encoding a fact into weights, where it
 cannot be updated, audited or removed.
 
 The correct instrument for supplying knowledge is supplying knowledge. If the
-fact is in your corpus, the problem is retrieval — wrong chunk, wrong embed,
+fact is in your corpus, the problem is retrieval: wrong chunk, wrong embed,
 wrong query. If it is not in your corpus, no fine-tune will help either.
 
 There is a narrow case where fine-tuning genuinely beats retrieval: the model
@@ -61,7 +61,7 @@ expensive model, train the small one against them.
 
 This is the best-understood reason to fine-tune, because you have a reference
 and the training signal is mechanical. It is also where the tooling in
-[Fine-tuning & Training](/fine-tuning) is genuinely good —
+[Fine-tuning & Training](/fine-tuning) is genuinely good:
 [Unsloth](https://unsloth.ai) in particular has moved the memory and time
 cost of LoRA down far enough to make this practical on a single GPU.
 
@@ -75,8 +75,8 @@ There is one more category, and it is the one people mean when they say
 production scale, for a behaviour you have already locked down**. Distillation,
 at that point, is the mechanism.
 
-Full-parameter fine-tuning — continued pretraining, DPO on preference pairs,
-RLHF — is for organisations that have the data, the cluster, and a reason no
+Full-parameter fine-tuning (continued pretraining, DPO on preference pairs,
+RLHF), is for organisations that have the data, the cluster, and a reason no
 API vendor will build their custom model. It is a genuine capability and it is
 genuinely out of reach for almost everyone reading this.
 
@@ -95,6 +95,6 @@ Work down this list and stop at the first yes:
 
 Steps four matters more than people give it credit for. Without an eval set,
 steps one through three have no stopping condition, and "the prompt isn't
-working" becomes an assertion you cannot check. Build the harness first — see
-[evals are the asset](/blog/evals-are-the-asset) — and this decision takes
+working" becomes an assertion you cannot check. Build the harness first, see
+[evals are the asset](/blog/evals-are-the-asset), and this decision takes
 about twenty minutes instead of a quarter.

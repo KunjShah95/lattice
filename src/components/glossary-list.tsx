@@ -116,7 +116,7 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
             The layer rail lives *inside* the `<dt>`, not beside the group.
 
             HTML allows a `div` wrapper inside a `dl` to group one `dt`/`dd` pair,
-            and that wrapper may contain nothing else — axe reports
+            and that wrapper may contain nothing else: axe reports
             `definition-list` and `dlitem` (102 nodes: both elements of every one
             of the 51 terms) when it does. The rail used to be a sibling of that
             wrapper, which is what broke it.

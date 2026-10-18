@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 /**
- * One button that copies a prepared string. The text is built by the caller —
- * on a static page, at build time — so this component knows nothing about
+ * One button that copies a prepared string. The text is built by the caller (
+ * on a static page, at build time), so this component knows nothing about
  * what it copies and can sit on a server-rendered page as the only client
  * island.
  */
@@ -15,7 +15,7 @@ export function CopyButton({
 }: {
   /**
    * The string, or a function that builds it. A function is for text that depends
-   * on the browser — a URL with the current origin and query — which does not exist
+   * on the browser, a URL with the current origin and query, which does not exist
    * at render on the server. It runs at click time, never during render.
    */
   text: string | (() => string);

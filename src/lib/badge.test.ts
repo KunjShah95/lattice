@@ -24,7 +24,7 @@ describe("badgeSvg", () => {
 
   it("is a single self-contained image: no external reference of any kind", () => {
     // A README badge is fetched by every page that embeds it, so anything that
-    // makes the SVG load something else — an image, a font, a link, a script —
+    // makes the SVG load something else (an image, a font, a link, a script),
     // turns the badge into a tracking surface. `strategy/04` §4.
     expect(svg).not.toMatch(/<image\b/i);
     expect(svg).not.toMatch(/<script\b/i);
@@ -71,7 +71,7 @@ describe("badgeMarkdown", () => {
     );
   });
 
-  it("uses bare canonical paths — no query string, no tracking parameter", () => {
+  it("uses bare canonical paths: no query string, no tracking parameter", () => {
     expect(md).not.toMatch(/[?&](utm_|ref|aff)=/i);
     expect(md).not.toContain("?");
   });

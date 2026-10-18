@@ -5,14 +5,14 @@
  *
  * Commit `a446032` cut main-thread work the interactions Cloudflare flagged, by
  * hand, across the palette and the explorer. That work is worth keeping only if
- * something notices when it comes back — and nothing did. `next build` prints
+ * something notices when it comes back, and nothing did. `next build` prints
  * route sizes and nothing asserts on them, so a component that re-inlines the
  * whole dataset into the RSC payload, or a dependency that arrives with a large
  * transitive tree, ships as a build that "passed".
  *
  * The failure this repo actually had is the clearest argument for it: the search
- * corpus used to be inlined into every route's payload — ~42 KB of JSON in the
- * HTML of a page whose own markup was 16 KB — and it took reading the code to
+ * corpus used to be inlined into every route's payload, ~42 KB of JSON in the
+ * HTML of a page whose own markup was 16 KB, and it took reading the code to
  * find, not a build to fail.
  *
  * ## What it measures
@@ -30,7 +30,7 @@
  * Measuring from the build rather than from a browser is what makes this usable
  * as a gate: no server, no Lighthouse run, and the same answer on every machine.
  * The trade is that it counts what a route *references*, which is close to but
- * not identical with what it downloads — a chunk shared with another route is
+ * not identical with what it downloads: a chunk shared with another route is
  * counted in full for both. That biases the number upward, which is the safe
  * direction for a ceiling.
  *
@@ -40,7 +40,7 @@
  * ## The framework floor, and why every ceiling here is above 150 KB
  *
  * **127 KB of every figure below is React 19 and the Next App Router runtime.**
- * That number is the `shared` column and no change in this repository moves it —
+ * That number is the `shared` column and no change in this repository moves it:
  * the only ways to move it are a different framework or a different rendering
  * strategy. So the ceilings are set against the *total*, which means the useful
  * signal is the `route` column: 25 KB on a page, 28 KB on the homepage, 33 KB on
@@ -51,7 +51,7 @@
  *
  * Set from the current build, rounded up by under 3%, so the gate fails on a
  * *regression* and not on the measurement. Lower them by hand once a real
- * improvement lands — a budget that is only ever loosened by a comment is not a
+ * improvement lands: a budget that is only ever loosened by a comment is not a
  * budget.
  */
 
@@ -71,7 +71,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * The list is the static routes plus the dynamic *segment templates*. Concrete
  * prerendered paths like `/inference-serving/vllm` share one build artefact with
  * every other tool page, so budgeting them separately would be sixteen copies of
- * one number — and the thing worth watching is the template's shared chunk.
+ * one number, and the thing worth watching is the template's shared chunk.
  *
  * Raised by 1 KB (2 KB on `/all`) for the UI detailing pass: the search
  * palette's skeleton rows, its designed empty and failure states and keyboard
@@ -79,8 +79,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * in the layout's client components, so they land on every route (+0.9 KB
  * gzip). `/all` additionally gained an empty state that lists each live
  * constraint as its own removable chip (+0.9 KB). Everything else in that pass
- * — crop marks, drawn underlines, entrances, skeleton sheen, header elevation
- * — is CSS and costs no JS at all.
+ * (crop marks, drawn underlines, entrances, skeleton sheen, header elevation
+ *), is CSS and costs no JS at all.
  *
  * Raised by 0.5 KB on four routes after that: `/[slug]` and `/[slug]/[tool]`
  * for the layer-coloured spotlight on tool rows (`spot-light.tsx`, +0.1 KB),
@@ -93,7 +93,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * second line and its mark). That line is the claim no competitor makes
  * (`strategy/02` §2), so it is not the kind of cost to trade away. The rest of the
  * freshness work (`FreshnessMeter`, `/verification`) is server-rendered and adds
- * no client JS; `/verification` is budgeted at the shared floor to prove it — and
+ * no client JS; `/verification` is budgeted at the shared floor to prove it, and
  * the budget did prove it: an early `ToolChip` imported the preview client
  * component, which put its chunk on `/verification` too (+0.7 KB) until the two
  * were split into separate modules.
@@ -158,7 +158,7 @@ const NEXT = join(root, ".next");
 
 if (!existsSync(join(NEXT, "build-manifest.json"))) {
   console.error(
-    "No .next/build-manifest.json. Run `npm run next:build` first — the budget is\n" +
+    "No .next/build-manifest.json. Run `npm run next:build` first: the budget is\n" +
       "measured from the build output, not from a dev server.",
   );
   process.exit(1);
@@ -187,7 +187,7 @@ const SHARED = manifest.rootMainFiles ?? [];
  *
  * Deduplication is not tidiness. The route's reference manifest *also* lists the
  * shared chunks its client components import, so adding the two lists counts
- * React and the App Router runtime twice — which is how a first draft reported
+ * React and the App Router runtime twice, which is how a first draft reported
  * every route at ~152 KB when the real figure is nearer 60.
  */
 function routeChunks(route) {
@@ -218,7 +218,7 @@ for (const [route, ceiling] of Object.entries(BUDGETS)) {
   if (!chunks) {
     // A route in the budget that no longer exists is itself worth knowing: the
     // budget would otherwise keep "guarding" a page that was renamed or deleted.
-    failures.push(`${route} — in the budget, but no build output for it`);
+    failures.push(`${route}: in the budget, but no build output for it`);
     continue;
   }
 
@@ -229,7 +229,7 @@ for (const [route, ceiling] of Object.entries(BUDGETS)) {
     route,
     shared: sharedOnly,
     // Named `own` rather than `route`, because the row already uses `route` for
-    // the path — and a duplicate key silently made the path a number.
+    // the path, and a duplicate key silently made the path a number.
     own: total - sharedOnly,
     total,
     ceiling,
@@ -237,7 +237,7 @@ for (const [route, ceiling] of Object.entries(BUDGETS)) {
   });
   if (!ok) {
     failures.push(
-      `${route} — ${format(total)} over a ${format(ceiling)} budget (+${format(total - ceiling)})`,
+      `${route}: ${format(total)} over a ${format(ceiling)} budget (+${format(total - ceiling)})`,
     );
   }
 }
@@ -247,7 +247,7 @@ function format(n) {
 }
 
 const width = Math.max(...rows.map((r) => r.route.length), 12);
-console.log(`\nClient bundle budget — gzip, first load\n`);
+console.log(`\nClient bundle budget: gzip, first load\n`);
 console.log(
   `${"route".padEnd(width)}  ${"shared".padStart(9)}  ${"route".padStart(9)}  ${"total".padStart(9)}  ${"budget".padStart(9)}`,
 );
@@ -265,8 +265,8 @@ if (failures.length) {
       "",
       ...failures.map((f) => `  - ${f}`),
       "",
-      "Either the change is justified — then raise the ceiling in",
-      "scripts/check-bundle-budget.mjs with a note saying why — or it is not, and",
+      "Either the change is justified, then raise the ceiling in",
+      "scripts/check-bundle-budget.mjs with a note saying why, or it is not, and",
       "the fix is to move work out of the client bundle rather than to accept it.",
     ].join("\n"),
   );

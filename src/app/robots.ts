@@ -5,8 +5,8 @@ import { site } from "@/lib/site";
  * Crawler policy: everything public is crawlable by every bot, including AI
  * training crawlers.
  *
- * This used to split bots by purpose — retrieval bots allowed, training bots
- * (GPTBot, ClaudeBot, CCBot and company) disallowed — on the reasoning that
+ * This used to split bots by purpose (retrieval bots allowed, training bots
+ * (GPTBot, ClaudeBot, CCBot and company) disallowed), on the reasoning that
  * training on the index without attribution costs something real. The site
  * owner has decided the other way: maximum AI visibility everywhere, and
  * training inclusion is part of that. If that decision ever flips, the split
@@ -18,7 +18,7 @@ import { site } from "@/lib/site";
  * Amazonbot, Diffbot) only feed datasets.
  *
  * THE PART THAT ACTUALLY MATTERS: robots.txt is not the whole story. A bot
- * allowed here and blocked at the CDN — or simply not allow-listed by IP — is
+ * allowed here and blocked at the CDN, or simply not allow-listed by IP, is
  * invisible in every dashboard and loses citations permanently. Audit your
  * Cloudflare WAF rules and server logs for 403/429 responses by user-agent
  * before trusting this file. The two layers have to agree, and a mismatch is
@@ -32,13 +32,13 @@ import { site } from "@/lib/site";
  *
  * `Content-Signal` states what a crawler may do with a page *after* fetching it,
  * which `Allow`/`Disallow` cannot express: they only answer "may you fetch this".
- * It is repeated on all three groups rather than only `*` on purpose — REP matches
+ * It is repeated on all three groups rather than only `*` on purpose: REP matches
  * the most specific group and ignores the rest, so a `Content-Signal` under `*`
  * alone would never reach GPTBot, which matches the training group above.
  *
  * Every value is `yes`, and that is not a default leaking through: it is the owner
  * decision above, restated in the vocabulary that has since been standardised for
- * it. Omission is the thing that would be ambiguous — a directive states a
+ * it. Omission is the thing that would be ambiguous: a directive states a
  * preference, and absence states nothing at all.
  *
  * Honest about its weight: no major crawler has committed to honouring this line
@@ -55,7 +55,7 @@ import { site } from "@/lib/site";
  * Stated usage permissions, emitted on every rule group below.
  *
  * A shared constant rather than three literals, because the groups differ only in
- * which agents they name — the position on downstream use is one decision about
+ * which agents they name: the position on downstream use is one decision about
  * the whole site, and writing it three times is how two of them drift apart while
  * the file still reads as though it holds a single policy.
  *
@@ -69,7 +69,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        // AI retrieval and search — these decide whether the site appears in
+        // AI retrieval and search: these decide whether the site appears in
         // an AI answer at all.
         userAgent: [
           "OAI-SearchBot",
@@ -96,7 +96,7 @@ export default function robots(): MetadataRoute.Robots {
         other: { "Content-Signal": CONTENT_SIGNAL },
       },
       {
-        // AI training and dataset crawlers — explicitly allowed per the owner
+        // AI training and dataset crawlers: explicitly allowed per the owner
         // decision above: everything public here may be crawled for any
         // purpose, training included.
         userAgent: [

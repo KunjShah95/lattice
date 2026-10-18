@@ -10,7 +10,7 @@ import { CtaBand } from "@/components/marketing";
 export const metadata: Metadata = {
   title: "AI tool comparisons",
   description:
-    "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes — gateway vs evals, retrieval vs fine-tuning — each ending in a recommendation.",
+    "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes (gateway vs evals, retrieval vs fine-tuning), each ending in a recommendation.",
   alternates: { canonical: "/compare" },
   // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
   // canonical, and an inherited one points at the home page.
@@ -27,8 +27,8 @@ export default function CompareIndexPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The comparisons as an ItemList, with each one described by its verdict
-          rather than its intro. The verdict is the answer — it is what the page
-          exists to give — and on the page itself it is further down, after the
+          rather than its intro. The verdict is the answer, it is what the page
+          exists to give, and on the page itself it is further down, after the
           case for both sides. A crawler reading only this list gets the
           conclusion. */}
       <script

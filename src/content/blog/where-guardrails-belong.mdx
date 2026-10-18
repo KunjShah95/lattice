@@ -30,7 +30,7 @@ application code. That way it cannot be bypassed by a code path someone forgot,
 and it can be tuned centrally when a new attack class appears.
 
 **Output filtering sits behind the model.** It catches what the model produced
-when the model was not asked to produce it — leaked system prompts, generated
+when the model was not asked to produce it: leaked system prompts, generated
 PII, content policy violations. It is fundamentally a classifier, and it is
 unavoidably a probabilistic control. A 1% false-negative rate on a filter that
 sees a million requests a day is ten thousand leaks.
@@ -48,7 +48,7 @@ something you would rather it did not.
 The single highest-value safety change most teams can make: apply the same
 suspicion to tool arguments as they apply to user input.
 
-A tool call is model output. It has the same failure modes — injection, error
+A tool call is model output. It has the same failure modes: injection, error
 messages containing instructions, a model persuaded by retrieved content to
 pass a hostile argument. If your tools trust their arguments because "the model
 asked nicely", you have moved your attack surface, not removed it.
@@ -63,7 +63,7 @@ until someone adds them.
 range check on a deletion is cheaper. Anything that crosses a trust boundary
 should be re-derived from authoritative state, not taken from the model's
 claim. If the model says "delete order 1234", look up order 1234 and check that
-the current user may delete it — do not trust the model to have checked.
+the current user may delete it: do not trust the model to have checked.
 
 **Separate read from write.** A read-only tool that returns data cannot destroy
 anything, and the model can be allowed to call it freely. Write tools should be

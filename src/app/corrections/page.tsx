@@ -8,7 +8,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Corrections — what this index has got wrong",
+  title: "Corrections: what this index has got wrong",
   description:
     "Every change to the entries, generated from the commit log rather than maintained by hand. What was corrected, when, and which claim it touched.",
   alternates: { canonical: "/corrections" },
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
  *
  * That matters for a specific reason the strategy doc names: stated uncertainty is
  * the one reliably citable signal, because the practitioner who broke through in
- * the category audit got cited for a caveat — "I do not cite GitHub stars as
- * quality because they can be inflated" — and not for a list. A caveat only
+ * the category audit got cited for a caveat: "I do not cite GitHub stars as
+ * quality because they can be inflated"and not for a list. A caveat only
  * earns that if it is visibly acted on. A corrections page with entries on it is
  * the evidence; a prose promise in `/methodology` §06 is not.
  *
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
  * From `git log` over `attributes.ts` and `data.ts`, by
  * `scripts/build-corrections-log.mjs`. A hand-maintained corrections page is a
  * list somebody has to remember to append to, and it goes stale the moment
- * someone forgets — at which point it is worse than absent, because it looks like
+ * someone forgets: at which point it is worse than absent, because it looks like
  * evidence. Derived, it cannot disagree with what happened, and
  * `npm run generate:check` fails the build if the two drift.
  *
@@ -65,7 +65,7 @@ export default function CorrectionsPage() {
               {
                 // A `Blog` is the closest honest type: a dated, ordered list of
                 // authored entries. `CollectionPage` would imply these are
-                // sub-pages with their own URLs, and they are not — they are rows.
+                // sub-pages with their own URLs, and they are not: they are rows.
                 "@type": "Blog",
                 "@id": pageUrl,
                 url: pageUrl,
@@ -121,7 +121,7 @@ export default function CorrectionsPage() {
       {corrections.length === 0 ? (
         <p className="mt-10 border-t border-border pt-6 text-[14px] text-fg-subtle">
           No entries have been corrected yet. That is a statement about this page
-          having been added after the fact, not about the index being right —{" "}
+          having been added after the fact, not about the index being right: {" "}
           <Link
             href="/methodology"
             className="text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
@@ -184,7 +184,7 @@ export default function CorrectionsPage() {
           <li className="editorial-justify">
             <span className="text-fg">This is a record, not a score.</span> A
             short log means little has needed fixing, or that this page was added
-            late — it is not evidence that the index is right.{" "}
+            late: it is not evidence that the index is right.{" "}
             <Link
               href="/methodology"
               className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"

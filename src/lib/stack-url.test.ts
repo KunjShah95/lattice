@@ -44,8 +44,8 @@ describe("stack URL state", () => {
 
   /**
    * `/api/search` reserves `q` for the text query, and this encoder already uses
-   * `q` for `queriesPerMonth`. The two namespaces never meet — they are different
-   * routes — but a reader or an agent copying a builder URL onto the search
+   * `q` for `queriesPerMonth`. The two namespaces never meet, they are different
+   * routes, but a reader or an agent copying a builder URL onto the search
    * endpoint would get a silent, wrong result rather than an error, so it is
    * pinned here where the collision is visible.
    */
@@ -80,9 +80,9 @@ describe("stack decision report", () => {
       filtering: "heavy",
     });
     const md = stackReportMarkdown(result);
-    expect(md).toContain(`# Stack recommendation — ${result.summary}`);
+    expect(md).toContain(`# Stack recommendation: ${result.summary}`);
     for (const p of result.picks) {
-      expect(md).toContain(`${p.section} — ${p.tool}`);
+      expect(md).toContain(`${p.section}: ${p.tool}`);
       expect(md).toContain(p.watchOut);
     }
     expect(md).toContain(`$${result.costLow}–$${result.costHigh}/mo`);

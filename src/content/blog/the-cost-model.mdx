@@ -25,7 +25,7 @@ A bill tells you that you spent forty thousand dollars. It does not tell you
 which feature spent it, which customer incurred it, or whether that customer
 got anything useful in return.
 
-Attribution is not primarily a finance exercise — it is a prerequisite for
+Attribution is not primarily a finance exercise: it is a prerequisite for
 every cost decision you will make afterwards. Without it, "reduce costs" has no
 actionable interpretation, because the cheapest 20% of your traffic might be
 generating all of your revenue.
@@ -38,7 +38,7 @@ every log line. Retrofitting this means touching every call site, so it is
 worth doing early even though it is invisible on the dashboard.
 
 **Every response records what it cost.** Tokens in, tokens out, cache status,
-which model answered, and how long it took. Not per provider — per logical
+which model answered, and how long it took. Not per provider: per logical
 operation, so that a five-hop agent loop is one line item rather than five.
 
 ## The metric that actually matters
@@ -62,8 +62,8 @@ Ranked by how much they typically move the number:
 **Retries and wasted generations.** Any system that regenerates on a
 disappointing result pays twice for one answer. If you validate and retry
 aggressively, you are running two models per user request and should budget
-accordingly. Structured output eliminates most of this — see
-[structured output](/blog/prompt-or-finetune) — but where retries remain,
+accordingly. Structured output eliminates most of this, see
+[structured output](/blog/prompt-or-finetune), but where retries remain,
 count them.
 
 **Over-long context.** Covered in
@@ -74,7 +74,7 @@ nothing, and this is the single most common finding on a first audit.
 **The wrong model for the task.** If a classification step is running on a
 flagship model, that is usually an oversight from prototyping rather than a
 decision. Routing the easy cases down is worth more than every prompt
-optimisation combined — see [choosing a model](/blog/choosing-an-inference-runtime).
+optimisation combined: see [choosing a model](/blog/choosing-an-inference-runtime).
 
 **Cache misses on stable prefixes.** If you have a long system prompt that
 changes per request, you are paying full input cost every time. Splitting the
@@ -102,7 +102,7 @@ cost real money and rarely changes a decision.
 ## Measure before and after, or do not bother
 
 Every one of these changes quality in some cases. Without a quality baseline
-you are trading accuracy for margin without knowing the exchange rate — and
+you are trading accuracy for margin without knowing the exchange rate, and
 that is how cost work ends up being reversed six months later by an engineer
 who cannot reproduce the original problem.
 

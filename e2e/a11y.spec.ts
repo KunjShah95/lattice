@@ -8,7 +8,7 @@ import { A11Y_EXCEPTIONS, EXCEPTION_IDS } from "./a11y-exceptions";
  *
  * ## What this does and does not prove
  *
- * axe catches roughly a third of real accessibility problems — the mechanical
+ * axe catches roughly a third of real accessibility problems: the mechanical
  * ones: missing labels, contrast, heading order, landmark structure, names on
  * controls. It does not catch whether the palette is *usable* with a keyboard,
  * whether focus is where the reader thinks it is, or whether the thing is
@@ -21,7 +21,7 @@ import { A11Y_EXCEPTIONS, EXCEPTION_IDS } from "./a11y-exceptions";
  * ## Why the route list is explicit
  *
  * A route list built by globbing would quietly miss the families that only exist
- * as dynamic segments — and those are most of the site. Explicit is also the only
+ * as dynamic segments, and those are most of the site. Explicit is also the only
  * way to notice when a new route family ships with no a11y coverage, which is
  * the same reasoning as `route-metadata.test.ts`'s segment map.
  */
@@ -70,7 +70,7 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
  * Fail on anything not in the documented exception list, and *ratchet* the ones
  * that are.
  *
- * The naive version of this — assert an empty violations array — cannot be used
+ * The naive version of this, assert an empty violations array, cannot be used
  * on this site, because axe legitimately reports 499 `color-contrast` failures
  * for a real palette defect. Ignoring `color-contrast` outright would be the
  * usual mistake: it is then the one rule that can never fire again, on a site
@@ -84,14 +84,14 @@ async function violations(page: Page, path: string, why: string) {
   const results = (await new AxeBuilder({ page })
     .withTags(TAGS)
     .analyze()) as unknown as AxeResults;
-  check(results, `${path} — ${why}`);
+  check(results, `${path}: ${why}`);
 }
 
 /**
  * The assertion, split out so the same rules apply to the aggregate checks.
  *
  * Returns the worst contrast seen, because the ratchet is a floor and each route
- * measures differently — asserting every route independently against one number
+ * measures differently: asserting every route independently against one number
  * would fail on the routes where the violation happens not to appear at all.
  */
 function check(results: AxeResults, label: string): number {
@@ -109,7 +109,7 @@ function check(results: AxeResults, label: string): number {
 
   expect(
       unexpected,
-      `${label} — undocumented violations:\n${JSON.stringify(unexpected, null, 2)}`,
+      `${label}: undocumented violations:\n${JSON.stringify(unexpected, null, 2)}`,
     ).toEqual([]);
 
   // A listed exception that stopped occurring is a pass *and* a signal: someone
@@ -118,14 +118,14 @@ function check(results: AxeResults, label: string): number {
     const found = violations.find((v) => v.id === exception.id);
     expect(
       found,
-      `${label} — "${exception.id}" is allowlisted but did not occur here. ` +
+      `${label}: "${exception.id}" is allowlisted but did not occur here. ` +
         `If it has been fixed, delete it from e2e/a11y-exceptions.ts.`,
     ).toBeDefined();
 
     const worst = worstRatio(found!);
     expect(
       worst,
-      `${label} — "${exception.id}" got worse (${worst.toFixed(2)}:1, floor ` +
+      `${label}: "${exception.id}" got worse (${worst.toFixed(2)}:1, floor ` +
         `${exception.worstContrast}:1). ${exception.reason}`,
     ).toBeGreaterThanOrEqual(exception.worstContrast);
   }
@@ -141,7 +141,7 @@ function check(results: AxeResults, label: string): number {
  * The worst contrast ratio in a violation.
  *
  * axe reports the measured ratio inside the human-readable failure summary, so
- * it is parsed out rather than recomputed — recomputing would mean walking the
+ * it is parsed out rather than recomputed: recomputing would mean walking the
  * DOM and reading computed colours, which duplicates axe and can disagree with
  * it. Returns `Infinity` for a violation with no ratio in the summary, which is
  * what keeps the ratchet from failing on an unrelated rule someone allowlists.
@@ -169,7 +169,7 @@ test.describe("@a11y in both themes", () => {
   /**
    * The dark palette is a hand-maintained set of hex values in `globals.css` and
    * a second hand-maintained set in `lib/og.tsx`. Nothing checks that either one
-   * holds contrast — `layer.test.ts` checks that the two agree on which colour
+   * holds contrast: `layer.test.ts` checks that the two agree on which colour
    * belongs to which layer, which is a different claim.
    *
    * The theme is a class on `<html>` applied pre-paint, so it can be set before the
@@ -182,7 +182,7 @@ test.describe("@a11y in both themes", () => {
    * Flip the theme and wait for a *painted* frame.
    *
    * axe reads computed colours, and a class flip that has not repainted yet
-   * produces a phantom reading — the first sweep of this suite reported a 1.19:1
+   * produces a phantom reading: the first sweep of this suite reported a 1.19:1
    * link that exists in neither theme, which would have set the ratchet floor
    * below any real value.
    */
@@ -224,8 +224,8 @@ test.describe("@a11y in both themes", () => {
 test.describe("@a11y landmarks and headings", () => {
   /**
    * axe checks heading *order* within a page but not that there is exactly one
-   * `h1`. Two `h1`s is a real screen-reader problem — the page announces its
-   * title twice — and it is not a violation in the spec.
+   * `h1`. Two `h1`s is a real screen-reader problem, the page announces its
+   * title twice, and it is not a violation in the spec.
    */
   test("every route has exactly one h1", async ({ page }) => {
     for (const { path } of ROUTES) {
@@ -250,7 +250,7 @@ test.describe("@a11y landmarks and headings", () => {
 
   test("the 404 page has no violations either", async ({ page }) => {
     // Not in the route list because it is not linked, and it is the page a reader
-    // reaches from a typo or a stale link — which is exactly the moment they need
+    // reaches from a typo or a stale link, which is exactly the moment they need
     // it to work.
     await page.goto("/this-route-does-not-exist");
     await expect(page.locator("body")).toContainText(/not found|lattice/i);

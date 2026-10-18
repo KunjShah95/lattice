@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
-export const alt = "Methodology — how the index is compiled, and what it gets wrong";
+export const alt = "Methodology: how the index is compiled, and what it gets wrong";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -15,7 +15,7 @@ export const contentType = "image/png";
  * Deliberately the only card whose footer carries the verification date rather
  * than a navigational hint. This is the page a sceptical reader opens to decide
  * whether to believe anything else on the site, so "when was this checked" is
- * the most useful thing that can sit in that slot — and putting it there is the
+ * the most useful thing that can sit in that slot, and putting it there is the
  * card making the same argument the page does.
  */
 export default function OpengraphImage() {

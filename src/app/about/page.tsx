@@ -51,7 +51,7 @@ export default function AboutPage() {
         <p>{site.description}</p>
         <p>
           The ordering is the argument: stack depth first, popularity second. Most
-          directories in this space list the right categories with no order — which
+          directories in this space list the right categories with no order, which
           cannot answer where a tool sits relative to what you already run.
         </p>
       </InfoSection>

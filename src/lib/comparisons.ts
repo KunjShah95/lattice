@@ -8,7 +8,7 @@ import type { Category } from "./types";
  *
  * A directory that only lists tools leaves the actual decision unmade. These
  * entries exist to answer the question a reader arrived with: "which of these
- * do I pick?" Each one is deliberately narrow — tools that are genuinely
+ * do I pick?" Each one is deliberately narrow: tools that are genuinely
  * substitutes for one another, not a broad category survey.
  *
  * Tool metadata is pulled from `data.ts` by name so a comparison can never
@@ -62,7 +62,7 @@ export const comparisons: Comparison[] = [
     kind: "substitutes",
     title: "vLLM vs SGLang vs TGI vs llama.cpp",
     description:
-      "The four open inference runtimes compared on prefix reuse, hardware floor, structured output and operational complexity — with a recommendation for each traffic shape.",
+      "The four open inference runtimes compared on prefix reuse, hardware floor, structured output and operational complexity: with a recommendation for each traffic shape.",
     intro:
       "These are not really competitors; they are answers to four different questions. The mistake is picking on model support alone, because the thing that actually determines throughput is your traffic shape.",
     tools: [
@@ -80,7 +80,7 @@ export const comparisons: Comparison[] = [
       ] },
       { dimension: "Prefix caching", values: [
         "Automatic prefix caching",
-        "RadixAttention — strongest on long shared prefixes",
+        "RadixAttention: strongest on long shared prefixes",
         "Supported, less heavily optimised",
         "KV cache reuse, not prefix-aware by default",
       ] },
@@ -88,7 +88,7 @@ export const comparisons: Comparison[] = [
         "One CUDA GPU",
         "One CUDA GPU",
         "Multi-GPU, designed for it",
-        "None — CPU is the default path",
+        "None: CPU is the default path",
       ] },
       { dimension: "Quantised formats", values: [
         "AWQ, GPTQ, FP8",
@@ -105,7 +105,7 @@ export const comparisons: Comparison[] = [
       { dimension: "Where it loses", values: [
         "Prefix-shared workloads, where SGLang wins",
         "Small teams wanting the least moving parts",
-        "Single-GPU deployments — overkill",
+        "Single-GPU deployments: overkill",
         "Maximum concurrent throughput",
       ] },
     ],
@@ -113,7 +113,7 @@ export const comparisons: Comparison[] = [
       "Start with vLLM. Benchmark SGLang against it if more than a few hundred requests share a long system prompt, because prefix reuse compounds and the gap is not marginal. Use llama.cpp when the constraint is hardware rather than throughput. Reach for TGI only when you specifically need multi-GPU tensor parallelism inside an existing Hugging Face setup.",
     rules: [
       "Bursty traffic is what makes continuous batching pay. Steady low-concurrency traffic is better served by a managed API.",
-      "Never benchmark on single-stream latency — it measures the wrong thing and will point you at the wrong runtime.",
+      "Never benchmark on single-stream latency: it measures the wrong thing and will point you at the wrong runtime.",
       "Two GPUs running two replicas behind a load balancer usually beats one GPU running a sharded model.",
     ],
     sections: ["inference-serving"],
@@ -167,7 +167,7 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "If you cannot send traces outside your infrastructure, self-host Langfuse and stop deliberating. Otherwise pick on evaluation rather than tracing, because tracing is table stakes and evaluation is what you will actually rely on. Whatever you choose, make sure traces carry the full request and response — that is the input to every future decision.",
+      "If you cannot send traces outside your infrastructure, self-host Langfuse and stop deliberating. Otherwise pick on evaluation rather than tracing, because tracing is table stakes and evaluation is what you will actually rely on. Whatever you choose, make sure traces carry the full request and response: that is the input to every future decision.",
     rules: [
       "Tracing answers 'what happened'. Only evaluation answers 'is this better'. Buying one and expecting the other is the common mistake.",
       "Check that model names, versions and per-hop latency are captured, or your cost and regression analysis will be wrong.",
@@ -192,7 +192,7 @@ export const comparisons: Comparison[] = [
     ],
     rows: [
       { dimension: "Operational burden", values: [
-        "None — you already run Postgres",
+        "None: you already run Postgres",
         "Low, single binary",
         "None",
         "None",
@@ -204,7 +204,7 @@ export const comparisons: Comparison[] = [
         "Limited",
       ] },
       { dimension: "Filtering", values: [
-        "SQL — very capable",
+        "SQL: very capable",
         "Strong, purpose-built payloads",
         "Strong",
         "Basic metadata filters",
@@ -223,10 +223,10 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Start on pgvector unless you have a specific reason not to. It removes a whole class of consistency problem, and if your retrieval is joining against rows you already have — users, permissions, tenancy — the relational model is simply the right one. Move to Qdrant or Pinecone when vector search stops being a side feature and starts being the workload.",
+      "Start on pgvector unless you have a specific reason not to. It removes a whole class of consistency problem, and if your retrieval is joining against rows you already have (users, permissions, tenancy), the relational model is simply the right one. Move to Qdrant or Pinecone when vector search stops being a side feature and starts being the workload.",
     rules: [
       "If you need to filter by something that lives in your main database, a join beats a denormalised copy you have to keep in sync.",
-      "Pure vector search fails on exact tokens — part numbers, error codes, names. Use hybrid retrieval or accept that class of miss.",
+      "Pure vector search fails on exact tokens: part numbers, error codes, names. Use hybrid retrieval or accept that class of miss.",
       "Validate recall against a query set before migrating. Most disappointing retrieval is a chunking or embedding problem, not a database problem.",
     ],
     sections: ["retrieval-vector-stores"],
@@ -237,7 +237,7 @@ export const comparisons: Comparison[] = [
     kind: "substitutes",
     title: "Temporal vs Inngest vs Trigger.dev vs Restate",
     description:
-      "Durable execution engines compared on language, replay model and whether they fit inside your existing deployment — the layer that decides whether an agent survives a deploy.",
+      "Durable execution engines compared on language, replay model and whether they fit inside your existing deployment: the layer that decides whether an agent survives a deploy.",
     intro:
       "All four exist to solve the same problem: work that spans minutes or hours, across process restarts, without writing a state machine by hand. They differ on where that state lives.",
     tools: [
@@ -260,8 +260,8 @@ export const comparisons: Comparison[] = [
         "Single log per invocation",
       ] },
       { dimension: "Self-host required", values: [
-        "Usually — or use Temporal Cloud",
-        "No — cloud is the default path",
+        "Usually, or use Temporal Cloud",
+        "No: cloud is the default path",
         "No",
         "No",
       ] },
@@ -322,7 +322,7 @@ export const comparisons: Comparison[] = [
         "Via the data plane",
       ] },
       { dimension: "Routing logic", values: [
-        "Yours — config plus code",
+        "Yours: config plus code",
         "Policy engine, mostly declarative",
         "Simple rules at the edge",
         "Yours, expressed as Envoy config",
@@ -351,7 +351,7 @@ export const comparisons: Comparison[] = [
     description:
       "Three ways to get a schema-valid response from a model, compared on reliability, portability and whether the guarantee is real.",
     intro:
-      "Asking a model for JSON is not the same as getting JSON. These three approaches differ in whether they give you a guarantee or a tendency — and that difference decides whether you can retry safely.",
+      "Asking a model for JSON is not the same as getting JSON. These three approaches differ in whether they give you a guarantee or a tendency, and that difference decides whether you can retry safely.",
     tools: [
       { name: "Instructor", angle: "Schema validation, extraction and repair, in code." },
       { name: "Guidance", angle: "Constrained decoding, control flow interleaved." },
@@ -360,7 +360,7 @@ export const comparisons: Comparison[] = [
     rows: [
       { dimension: "Guarantee", values: [
         "Validated, with typed retry",
-        "Token-level constraint — cannot be violated",
+        "Token-level constraint: cannot be violated",
         "Token-level constraint, schema or grammar",
       ] },
       { dimension: "Works across providers", values: [
@@ -374,7 +374,7 @@ export const comparisons: Comparison[] = [
         "Yes",
       ] },
       { dimension: "Handles messy extraction", values: [
-        "Yes — its main use case",
+        "Yes: its main use case",
         "Awkward",
         "Awkward",
       ] },
@@ -390,7 +390,7 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Use a library like Instructor for extraction work: validation, typed retry and partial streaming are worth more than an absolute guarantee. Reach for true constrained decoding — Guidance or Outlines — when downstream code cannot tolerate a malformed response at all, because there the guarantee is worth the reduced flexibility. Treat a provider's JSON mode as a convenience rather than a contract, and validate regardless.",
+      "Use a library like Instructor for extraction work: validation, typed retry and partial streaming are worth more than an absolute guarantee. Reach for true constrained decoding, Guidance or Outlines, when downstream code cannot tolerate a malformed response at all, because there the guarantee is worth the reduced flexibility. Treat a provider's JSON mode as a convenience rather than a contract, and validate regardless.",
     rules: [
       "Validate in code regardless of what the provider promises. Modes get relaxed without notice.",
       "Design the schema before the prompt. A schema that reflects how you will consume the data produces better extractions.",
@@ -411,7 +411,7 @@ export const comparisons: Comparison[] = [
     description:
       "A gateway, a guardrail layer and an eval suite compete for the same first week of work. What each catches, what each misses, and the order to adopt them in.",
     intro:
-      "These three never appear on the same vendor comparison page, because no vendor sells all three. They do appear on the same backlog. Each catches a different failure, sits in a different place in the request, and costs something different to adopt — so the real question is order, not choice.",
+      "These three never appear on the same vendor comparison page, because no vendor sells all three. They do appear on the same backlog. Each catches a different failure, sits in a different place in the request, and costs something different to adopt, so the real question is order, not choice.",
     tools: [
       { name: "LiteLLM", angle: "Decides which model serves a request." },
       { name: "Guardrails AI", angle: "Decides whether a response may leave." },
@@ -441,7 +441,7 @@ export const comparisons: Comparison[] = [
       { dimension: "Cost to adopt", values: [
         "A proxy and a config file; one more network hop",
         "A validator per rule; added latency on every response",
-        "A labelled dataset — the examples are the expensive part, not the tool",
+        "A labelled dataset: the examples are the expensive part, not the tool",
       ] },
       { dimension: "Adopt first when", values: [
         "You call more than one provider, or spend is already a line item",
@@ -450,7 +450,7 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "For most teams, evals first. A gateway makes calls cheaper and more reliable, and guardrails make individual responses safer, but neither tells you whether the system is getting better — and every later change to routing, prompts or retrieval needs that answer to be judged at all. Put the gateway in early if you already run more than one provider, because retrofitting a proxy into every call site is tedious. Add guardrails for the specific failures your evals surface, not the ones you imagine.",
+      "For most teams, evals first. A gateway makes calls cheaper and more reliable, and guardrails make individual responses safer, but neither tells you whether the system is getting better, and every later change to routing, prompts or retrieval needs that answer to be judged at all. Put the gateway in early if you already run more than one provider, because retrofitting a proxy into every call site is tedious. Add guardrails for the specific failures your evals surface, not the ones you imagine.",
     rules: [
       "A guardrail without an eval is a guess about which failures matter. Write the eval that found the failure, then the guardrail that blocks it.",
       "Route on measured quality, not on price alone. A cheaper model that fails your eval set is not cheaper.",
@@ -475,7 +475,7 @@ export const comparisons: Comparison[] = [
     rows: [
       { dimension: "What it changes", values: [
         "The context available at question time",
-        "The weights — the model's default behaviour",
+        "The weights: the model's default behaviour",
         "The instructions and examples it is given",
       ] },
       { dimension: "Fixes", values: [
@@ -485,7 +485,7 @@ export const comparisons: Comparison[] = [
       ] },
       { dimension: "Does not fix", values: [
         "A model that ignores the context it is given",
-        "Missing knowledge — weights are a poor database",
+        "Missing knowledge: weights are a poor database",
         "Facts the model has never seen",
       ] },
       { dimension: "Needs from you", values: [
@@ -494,9 +494,9 @@ export const comparisons: Comparison[] = [
         "Labelled examples and a metric that scores them",
       ] },
       { dimension: "Cost of being wrong", values: [
-        "Low — re-index and retry",
-        "High — a training run, and a model you now have to serve",
-        "Low — prompts are text and revert cleanly",
+        "Low: re-index and retry",
+        "High: a training run, and a model you now have to serve",
+        "Low: prompts are text and revert cleanly",
       ] },
       { dimension: "Adopt first when", values: [
         "The right facts are absent or out of date",
@@ -505,7 +505,7 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Diagnose before choosing. If the right fact was never in the context, that is a retrieval problem and no amount of prompting or training fixes it. If the fact was there and the model ignored or misused it, optimise the prompt first, because it is cheap to try and cheap to undo. Fine-tune last, for narrow and stable tasks where prompting has measurably plateaued — it is the only one of the three that leaves you with a new artefact to serve and retrain.",
+      "Diagnose before choosing. If the right fact was never in the context, that is a retrieval problem and no amount of prompting or training fixes it. If the fact was there and the model ignored or misused it, optimise the prompt first, because it is cheap to try and cheap to undo. Fine-tune last, for narrow and stable tasks where prompting has measurably plateaued: it is the only one of the three that leaves you with a new artefact to serve and retrain.",
     rules: [
       "Read the retrieved context before touching the prompt. Most “the model is wrong” bugs are “the ranking is wrong” bugs.",
       "Fine-tuning teaches behaviour, not facts. If the answer changes monthly, it belongs in retrieval.",
@@ -519,9 +519,9 @@ export const comparisons: Comparison[] = [
     kind: "cross-layer",
     title: "Self-hosting vs routing vs measuring: cutting inference cost",
     description:
-      "Three ways to lower an inference bill — run the model yourself, send easy queries to a smaller model, or measure where spend goes — compared on savings and risk.",
+      "Three ways to lower an inference bill (run the model yourself, send easy queries to a smaller model, or measure where spend goes), compared on savings and risk.",
     intro:
-      "Inference cost can be attacked at the substrate, in the router, or by first finding out where it goes. Teams usually start with the most expensive of the three — standing up their own GPUs — when the cheapest would have told them it was unnecessary.",
+      "Inference cost can be attacked at the substrate, in the router, or by first finding out where it goes. Teams usually start with the most expensive of the three, standing up their own GPUs, when the cheapest would have told them it was unnecessary.",
     tools: [
       { name: "vLLM", angle: "Pay for GPU-hours instead of tokens." },
       { name: "RouteLLM", angle: "Send easy queries to a cheaper model." },
@@ -539,13 +539,13 @@ export const comparisons: Comparison[] = [
         "Spend is concentrated somewhere you have not looked",
       ] },
       { dimension: "Loses money when", values: [
-        "Utilisation is low — idle GPUs still bill by the hour",
+        "Utilisation is low: idle GPUs still bill by the hour",
         "The router misjudges hard queries and answers degrade",
-        "Never on its own — it saves nothing until you act on it",
+        "Never on its own: it saves nothing until you act on it",
       ] },
       { dimension: "Quality risk", values: [
         "None if you serve the same model; real if you downsize to fit",
-        "Direct — this is a quality-for-cost trade by design",
+        "Direct: this is a quality-for-cost trade by design",
         "None",
       ] },
       { dimension: "Operational cost", values: [
@@ -560,10 +560,10 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Measure first. Per-request cost attribution is the cheapest of the three and the only one with no quality risk, and it often shows a few features or prompts dominating spend — which a shorter prompt can fix without new infrastructure. Route next, but only once an eval can tell you what the cheaper model loses. Self-host last, when measured and sustained utilisation makes GPU-hours cheaper than tokens; below that line it raises the bill.",
+      "Measure first. Per-request cost attribution is the cheapest of the three and the only one with no quality risk, and it often shows a few features or prompts dominating spend, which a shorter prompt can fix without new infrastructure. Route next, but only once an eval can tell you what the cheaper model loses. Self-host last, when measured and sustained utilisation makes GPU-hours cheaper than tokens; below that line it raises the bill.",
     rules: [
       "Cost per token is not cost per answer. A cheaper model that needs two retries is the expensive one.",
-      "Compare self-hosting against the price you actually pay, at the utilisation you actually have — not at peak.",
+      "Compare self-hosting against the price you actually pay, at the utilisation you actually have, not at peak.",
       "A router without an eval is a cost cut with an unknown quality bill attached.",
     ],
     sections: ["inference-serving", "routing-gateways", "evaluation-observability"],
@@ -574,9 +574,9 @@ export const comparisons: Comparison[] = [
     kind: "substitutes",
     title: "LangChain vs LlamaIndex vs Pydantic AI vs OpenAI Agents SDK",
     description:
-      "Agent frameworks compared on retrieval depth, type safety, surface area and ecosystem — with a recommendation for data-heavy, schema-heavy and minimal-loop teams.",
+      "Agent frameworks compared on retrieval depth, type safety, surface area and ecosystem: with a recommendation for data-heavy, schema-heavy and minimal-loop teams.",
     intro:
-      "These four are the frameworks teams actually shortlist once they move past a script in a notebook. The split is not Python versus TypeScript — it is whether retrieval, types or a thin loop is the centre of the problem.",
+      "These four are the frameworks teams actually shortlist once they move past a script in a notebook. The split is not Python versus TypeScript: it is whether retrieval, types or a thin loop is the centre of the problem.",
     tools: [
       { name: "LangChain", angle: "Widest integrations, largest surface." },
       { name: "LlamaIndex", angle: "Retrieval and indexing as the main event." },
@@ -585,22 +585,22 @@ export const comparisons: Comparison[] = [
     ],
     rows: [
       { dimension: "Best for", values: [
-        "Breadth — many providers, tools and patterns already wired",
+        "Breadth: many providers, tools and patterns already wired",
         "RAG-heavy apps where data connectors matter",
         "Agents where bad tool args are the main failure mode",
         "A legible loop without adopting a whole platform",
       ] },
       { dimension: "Retrieval built in", values: [
         "Via integrations, not the core abstraction",
-        "First-class — indexes, parsers and query engines",
+        "First-class: indexes, parsers and query engines",
         "Via your own retrieval layer",
         "Bring your own context",
       ] },
       { dimension: "Type safety", values: [
         "Optional, varies by module",
-        "Moderate — Python-first data models",
-        "Strong — Pydantic models end to end",
-        "Moderate — typed runners and tools",
+        "Moderate: Python-first data models",
+        "Strong: Pydantic models end to end",
+        "Moderate: typed runners and tools",
       ] },
       { dimension: "Multi-agent patterns", values: [
         "Graphs, crews and handoffs via ecosystem",
@@ -609,10 +609,10 @@ export const comparisons: Comparison[] = [
         "Handoffs as a first-class primitive",
       ] },
       { dimension: "Operational surface", values: [
-        "Large — many moving parts to learn",
-        "Medium — data stack plus agent layer",
-        "Small core — you own orchestration",
-        "Smallest — intentionally minimal API",
+        "Large: many moving parts to learn",
+        "Medium: data stack plus agent layer",
+        "Small core: you own orchestration",
+        "Smallest: intentionally minimal API",
       ] },
       { dimension: "Where it loses", values: [
         "Teams that want a thin, readable core",
@@ -622,9 +622,9 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Choose on the shape of the job. LlamaIndex when retrieval and connectors are the product; Pydantic AI when schema-safe tool calls are the risk; OpenAI Agents SDK when you want a small loop with handoffs and guardrails built in; LangChain when you need the widest integration surface and will pay the abstraction tax. Whichever you pick, run the loop on a durable host and trace every tool call — no framework replaces those.",
+      "Choose on the shape of the job. LlamaIndex when retrieval and connectors are the product; Pydantic AI when schema-safe tool calls are the risk; OpenAI Agents SDK when you want a small loop with handoffs and guardrails built in; LangChain when you need the widest integration surface and will pay the abstraction tax. Whichever you pick, run the loop on a durable host and trace every tool call: no framework replaces those.",
     rules: [
-      "A framework orchestrates calls inside one process. It does not make long runs survive a deploy — that is a workflow engine's job.",
+      "A framework orchestrates calls inside one process. It does not make long runs survive a deploy: that is a workflow engine's job.",
       "Fewer tools beats a longer system prompt. Narrow the agent before you add another integration.",
       "If you cannot trace a failing run step by step, you are debugging prose instead of the call that went wrong.",
     ],
@@ -636,7 +636,7 @@ export const comparisons: Comparison[] = [
     kind: "substitutes",
     title: "NeMo Guardrails vs Guardrails AI vs Presidio vs Invariant",
     description:
-      "Safety layers compared on input rails, output validation, PII handling and whether they run inline or as a separate service — with a recommendation by compliance shape.",
+      "Safety layers compared on input rails, output validation, PII handling and whether they run inline or as a separate service: with a recommendation by compliance shape.",
     intro:
       "These four are not interchangeable filters. Some constrain dialogue flow, some validate structured output, some detect PII in text, and some enforce policy in the request path. Teams that bolt one on without naming the failure mode usually discover they still leak data in traces.",
     tools: [
@@ -653,10 +653,10 @@ export const comparisons: Comparison[] = [
         "Inline enforcement with minimal latency tax",
       ] },
       { dimension: "Input vs output", values: [
-        "Both — flow and topical rails",
+        "Both: flow and topical rails",
         "Mostly output validation",
         "Mostly input (and logs) before models",
-        "Both — request and response hooks",
+        "Both: request and response hooks",
       ] },
       { dimension: "Self-hostable", values: [
         "Yes",
@@ -668,7 +668,7 @@ export const comparisons: Comparison[] = [
         "Yes",
         "Yes",
         "Yes",
-        "Partial — check licence for your use",
+        "Partial: check licence for your use",
       ] },
       { dimension: "Where it loses", values: [
         "Heavy if you only need a schema check",
@@ -678,7 +678,7 @@ export const comparisons: Comparison[] = [
       ] },
     ],
     verdict:
-      "Start with the failure you have seen. Presidio when PII in prompts or logs is the incident; Guardrails AI when bad JSON or schema violations are the incident; NeMo when the model keeps drifting off-topic across turns; Invariant when you need policy enforced on every hop with code reviewable rules. Whatever you pick, redact before traces land in a third-party observability tool — guardrails on the model do not fix logging.",
+      "Start with the failure you have seen. Presidio when PII in prompts or logs is the incident; Guardrails AI when bad JSON or schema violations are the incident; NeMo when the model keeps drifting off-topic across turns; Invariant when you need policy enforced on every hop with code reviewable rules. Whatever you pick, redact before traces land in a third-party observability tool: guardrails on the model do not fix logging.",
     rules: [
       "Guardrails belong at the gateway when every provider must see the same policy; they belong in the app when policy is task-specific.",
       "PII detection on the way in is cheaper than explaining a breach on the way out.",

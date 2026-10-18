@@ -4,7 +4,7 @@
  * Why a crawler rather than reading the source: the SEO layer here is derived
  * from `data.ts` and rendered per route, so the only way to know what a crawler
  * actually receives is to fetch it. This reads the deployed HTML, which is also
- * the only place three of the checks below can be observed at all — `og:url`
+ * the only place three of the checks below can be observed at all: `og:url`
  * disagreement, JSON-LD parse failures and duplicate titles are invisible in the
  * component tree and obvious in the response.
  *
@@ -74,7 +74,7 @@ const text = (html, re) => [...html.matchAll(re)].map((m) => m[1].trim());
 
 /**
  * Lengths are measured as the reader sees them. The HTML carries `&amp;`
- * where the title has `&`, which inflates naive string lengths — one page
+ * where the title has `&`, which inflates naive string lengths: one page
  * measured 64 characters escaped against a true 60, failing a budget it
  * meets. Only the five entities Next emits need decoding.
  */

@@ -104,10 +104,10 @@ export function freshnessOf(asOf: string, now: Date, windowMonths: number): Fres
  * The meter as cells: one per month the build still accepts the entry.
  *
  * `windowMonths + 1` cells, not `windowMonths`, because the guard accepts ages
- * 0 through `window` inclusive — a six-month window is seven good months. Cells
+ * 0 through `window` inclusive: a six-month window is seven good months. Cells
  * *drain* as the entry ages (full the month it is checked, one cell left in its
  * last accepted month, none once expired) rather than fill, so a freshly checked
- * entry looks full and an entry in its last month does not look empty — an empty
+ * entry looks full and an entry in its last month does not look empty: an empty
  * bar would read as already expired, which is a different and worse claim.
  */
 export function meterCells(f: Freshness): { total: number; filled: number } {

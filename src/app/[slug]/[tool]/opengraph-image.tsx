@@ -14,8 +14,8 @@ export const contentType = "image/png";
  * segment*: `app/[slug]/opengraph-image.tsx` covers `/<section>` and nothing
  * below it. Without a card at this level, all 112 tool pages declared
  * `twitter:card: "summary_large_image"` with no image behind it, so every share
- * of a tool link — the site's most shareable unit, since a tool page is what
- * somebody actually sends to a colleague — rendered as a bare text card.
+ * of a tool link (the site's most shareable unit, since a tool page is what
+ * somebody actually sends to a colleague), rendered as a bare text card.
  *
  * `generateStaticParams` matches the page's, so the set of generated images can
  * never drift from the set of pages: a tool added without an image, or an image
@@ -39,7 +39,7 @@ type ToolRouteParams = { params: Promise<{ slug: string; tool: string }> };
 export async function generateMetadata({ params }: ToolRouteParams) {
   const { slug, tool } = await params;
   const found = getTool(slug, tool);
-  return { alt: found ? `${found.tool.name} — ${found.category.title}` : "Tool cover" };
+  return { alt: found ? `${found.tool.name}: ${found.category.title}` : "Tool cover" };
 }
 
 export default async function Image({ params }: ToolRouteParams) {
@@ -64,7 +64,7 @@ export default async function Image({ params }: ToolRouteParams) {
    *
    * A tool page is the most shareable unit here, and every vendor that sells
    * one puts their own card on it. What a neutral index can put on it instead
-   * is the decision pair — when to use it, and when to walk away — which is the
+   * is the decision pair (when to use it, and when to walk away), which is the
    * half nobody else publishes and the reason a reader who sees the card in a
    * channel has been given something a vendor's card cannot give them.
    *

@@ -12,7 +12,7 @@ import type {
 
 /**
  * Shareable Stack Builder state. The questionnaire serialises into the URL
- * query string, so a recommendation is a link — sendable, bookmarkable, and
+ * query string, so a recommendation is a link: sendable, bookmarkable, and
  * re-renderable server-side without any account or storage.
  *
  * Keys are short on purpose; values are the same literals the engine takes.
@@ -46,7 +46,7 @@ export function encodeStackInput(input: StackInput): string {
 
 /**
  * Parse a query string back into engine input. Unknown or malformed values
- * fall back to defaults rather than throwing — a hand-edited URL degrades
+ * fall back to defaults rather than throwing: a hand-edited URL degrades
  * to a nearby valid case, never a 500.
  */
 export function decodeStackInput(search: string): Omit<Required<StackInput>, "simplicityVsControl"> | null {
@@ -78,7 +78,7 @@ export function decodeStackInput(search: string): Omit<Required<StackInput>, "si
 /**
  * Where an exported report came from. Optional because the report is built
  * on the server too, and a relative `/section/tool` path pasted into an ADR
- * points nowhere — so links are emitted only when the caller knows the origin,
+ * points nowhere, so links are emitted only when the caller knows the origin,
  * never guessed.
  */
 export type StackReportSource = {
@@ -91,11 +91,11 @@ export type StackReportSource = {
 /**
  * The decision report: the whole recommendation as Markdown, ready to paste
  * into an ADR, a PR description or a design doc. Every claim in it already
- * appears on screen — this is an export format, not new content.
+ * appears on screen: this is an export format, not new content.
  */
 export function stackReportMarkdown(result: StackResult, source?: StackReportSource): string {
   const lines = [
-    `# Stack recommendation — ${result.summary}`,
+    `# Stack recommendation: ${result.summary}`,
     ``,
     `Recommended with the Lattice Stack Builder. Cost bands are heuristics from query volume, not vendor quotes.`,
     ``,
@@ -105,13 +105,13 @@ export function stackReportMarkdown(result: StackResult, source?: StackReportSou
     lines.push(``);
   }
   for (const p of result.picks) {
-    lines.push(`## ${p.section} — ${p.tool} (${p.fitLabel})`);
+    lines.push(`## ${p.section}: ${p.tool} (${p.fitLabel})`);
     lines.push(``);
     if (source) lines.push(`- Lattice entry: ${source.origin}${p.url}`);
     lines.push(`- Why for this case: ${p.why}`);
     lines.push(`- Watch out: ${p.watchOut}`);
-    if (p.alternative !== "—" && p.switchWhen) {
-      lines.push(`- Alternative: ${p.alternative} — consider it when ${p.switchWhen}.`);
+    if (p.alternative !== "–" && p.switchWhen) {
+      lines.push(`- Alternative: ${p.alternative}: consider it when ${p.switchWhen}.`);
     }
     if (p.matches.length) lines.push(`- Satisfies: ${p.matches.join(", ")}`);
     lines.push(``);
@@ -129,7 +129,7 @@ export function stackReportMarkdown(result: StackResult, source?: StackReportSou
   lines.push(``);
   lines.push(`## Confidence`);
   lines.push(``);
-  lines.push(`${Math.round(result.confidence * 100)}% — lower when constraints narrow the field.`);
+  lines.push(`${Math.round(result.confidence * 100)}%: lower when constraints narrow the field.`);
   lines.push(``);
   return lines.join("\n");
 }

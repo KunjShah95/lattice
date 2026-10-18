@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
-export const alt = `Corrections — ${corrections.length} changes to the entries, generated from the commit log`;
+export const alt = `Corrections: ${corrections.length} changes to the entries, generated from the commit log`;
 
 export const size = OG_SIZE;
 export const contentType = "image/png";

@@ -149,7 +149,7 @@ export default async function GlossaryTermPage({
 
         {/* A definition does not expire the way a licence or a price does, so
             the stamp says the entry was last reviewed rather than implying the
-            fact is perishable. Reviews still happen — the build gate is what
+            fact is perishable. Reviews still happen: the build gate is what
             produces this date. */}
         <Byline fact="Entry last reviewed" date={AS_OF} className="mt-4" />
 

@@ -5,7 +5,7 @@ import Link from "next/link";
  * pages: a dot field and a soft wash behind, a mono eyebrow in a pill, a
  * display title, a lede, then actions and a meta row.
  *
- * `wash` tints the background with a page's own colour — a section or tool
+ * `wash` tints the background with a page's own colour: a section or tool
  * page passes its layer colour, so the hero says where in the stack the reader
  * is before they read a word. The decoration sits inside the header box (no
  * negative insets), so it can never push the page wider than the viewport.
