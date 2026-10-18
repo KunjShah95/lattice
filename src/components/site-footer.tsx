@@ -78,6 +78,7 @@ export function SiteFooter() {
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/bands">By band</FooterLink>
+            <FooterLink href="/review">Stack review</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
             {/* Next to methodology rather than under "Submit", because it is the
                 evidence for the claim methodology makes rather than a way to

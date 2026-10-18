@@ -138,6 +138,21 @@ export default function MethodologyPage() {
           coverage, and it is the source of most of what follows in{" "}
           <em>Where this index is wrong</em>.
         </p>
+        {/* Required by strategy/04 §3 and §6: once anything is offered, this
+            section names what is offered and what is not for sale. */}
+        <p className="editorial-justify">
+          <strong>What is offered, and what is not for sale.</strong> The
+          maintainer offers{" "}
+          <Link href="/review" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
+            stack reviews
+          </Link>{" "}
+          — a written assessment of a team&rsquo;s own system — currently free
+          during early access. A review sells judgement about your system; it
+          never changes where a tool sits, how tools are ordered, or what a
+          comparison concludes, and vendors cannot book one about their own
+          product. Placement, rankings and verdicts are not for sale, and there
+          are no affiliate links in the index or its data files.
+        </p>
       </Section>
 
       {/* ------------------------------------------------------------ 2 */}

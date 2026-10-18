@@ -54,6 +54,7 @@ const ROUTES = [
   { path: "/methodology", why: "prose-heavy page" },
   { path: "/verification", why: "the freshness ledger: meters, grouped chip lists" },
   { path: "/submit", why: "the form" },
+  { path: "/review", why: "the offer page: pricing tiers, FAQ, CTA band" },
 ];
 
 /**

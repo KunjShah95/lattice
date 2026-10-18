@@ -39,6 +39,7 @@ import {
   toolMetaDescription,
   toolQuestions,
 } from "@/lib/seo";
+import { ReviewCta } from "@/components/marketing";
 
 /**
  * The build date, fixed once per build. The freshness meter shows the entry's
@@ -562,6 +563,8 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </ul>
         </section>
       ) : null}
+
+      <ReviewCta context={`Weighing ${tool.name} for a production stack? Get it checked against the rest of your system.`} />
     </div>
   );
 }

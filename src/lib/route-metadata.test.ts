@@ -394,6 +394,7 @@ const INDEX_ROUTES: Array<[string, boolean]> = [
   ["contact", false],
   ["privacy", false],
   ["returns", false],
+  ["review", false],
 ];
 
 describe("index page structured data", () => {

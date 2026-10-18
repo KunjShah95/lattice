@@ -24,6 +24,7 @@ import {
   graph,
   ids,
 } from "@/lib/seo";
+import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return resolvedComparisons.map((c) => ({ slug: c.slug }));
@@ -370,6 +371,8 @@ export default async function ComparisonPage({
           </ul>
         </nav>
       ) : null}
+
+      <ReviewCta context="Still between two of these? A review weighs them against your traffic, team and existing stack." />
     </div>
   );
 }

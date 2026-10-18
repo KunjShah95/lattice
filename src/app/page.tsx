@@ -3,14 +3,23 @@ import { CategorySection } from "@/components/category-section";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
-import { categories, toolCount } from "@/lib/data";
+import { allTools, categories, stackLayers, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
 import { graph, siteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { bandColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
+import { resolvedComparisons } from "@/lib/comparisons";
+import { CtaBand, EarlyAccessPill, Faq, PricingTiers, SectionHeading } from "@/components/marketing";
+import { isEarlyAccess } from "@/lib/offer";
 
-const HEADLINE = ["The", "infrastructure", "behind", "working", "AI", "systems."];
+/**
+ * The headline states the one claim no other directory makes. "AI
+ * infrastructure" stays in it — it is the head term this page ranks for — and
+ * the accent lands on "skip", the half of every entry competitors leave out.
+ */
+const HEADLINE = ["Every", "AI", "infrastructure", "tool,", "with", "when", "to", "skip", "it."];
+const ACCENT = "skip";
 
 /**
  * A single pen stroke under "working", inked after the headline lands.
@@ -58,6 +67,82 @@ function ArrowUpRight() {
   );
 }
 
+/** A spread of tools for the coverage strip: round-robin across sections. */
+const MARQUEE = (() => {
+  const bySection = categories.map((c) => allTools.filter((t) => t.category.slug === c.slug));
+  const out: typeof allTools = [];
+  for (let i = 0; out.length < 40; i++) {
+    let added = false;
+    for (const list of bySection) {
+      if (list[i]) {
+        out.push(list[i]);
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+  return out.slice(0, 40);
+})();
+
+const HOME_FAQ = [
+  {
+    q: "Is Lattice free?",
+    a: "Yes. The index, the Stack Builder, comparisons, symptom guides and the dataset are free, with no account. The only thing offered on top is a review of your own stack by the maintainer.",
+  },
+  {
+    q: "Can a vendor pay to be listed or ranked higher?",
+    a: "No. Placement, rankings and comparison verdicts are not for sale, and there are no affiliate links in the index or its data files. That neutrality is the reason the comparisons are worth reading.",
+  },
+  {
+    q: "How are tools chosen?",
+    a: "Hand-picked against a published bar, ordered by where they sit in a real system rather than by popularity. Every fact is dated, and the build fails if any is more than six months old.",
+  },
+  {
+    q: "What is a stack review?",
+    a: "You describe what you are building; you get back a written, layer-by-layer review with what to keep, swap or add, a cost band and the biggest risk. It is free during early access.",
+  },
+  {
+    q: "Can my AI assistant use Lattice?",
+    a: "Yes. There is an llms.txt, a JSON dataset and an MCP server, so a model can look tools up instead of guessing.",
+  },
+];
+
+function BentoCard({
+  href,
+  label,
+  title,
+  body,
+  className = "",
+  children,
+}: {
+  href: string;
+  label: string;
+  title: string;
+  body: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <li className={className}>
+      <Link
+        href={href}
+        data-spot=""
+        className="crop group relative flex h-full flex-col rounded-2xl bg-bg-elevated/70 p-6 shadow-ink transition-shadow duration-300 [--crop-inset:-6px] hover:shadow-lift sm:p-7"
+      >
+        <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">{label}</span>
+        <span className="mt-3 flex items-start justify-between gap-3">
+          <span className="text-balance text-[19px] font-semibold leading-snug tracking-[-0.01em] transition-colors group-hover:text-accent">
+            {title}
+          </span>
+          <ArrowUpRight />
+        </span>
+        <span className="mt-2 block text-pretty text-[14px] leading-relaxed text-fg-muted">{body}</span>
+        {children ? <div className="mt-auto">{children}</div> : null}
+      </Link>
+    </li>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-5 sm:px-6">
@@ -88,21 +173,29 @@ export default function HomePage() {
               text nodes between the masks, so the heading still reads (and
               copies) as one sentence.
             */}
-            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
-              Sheet 01
-              <span aria-hidden="true" className="px-2 text-border-strong">/</span>
-              A production stack
-            </p>
+            {/* Announcement pill: the one new thing, one click from here. */}
+            <Link
+              href="/review"
+              className="group mb-6 inline-flex max-w-full items-center gap-2 rounded-full bg-bg-elevated py-1 pl-1 pr-3 text-[12.5px] text-fg-muted shadow-ink transition-shadow hover:shadow-lift"
+            >
+              <span className="rounded-full bg-fg px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-bg">
+                New
+              </span>
+              <span className="truncate">
+                {isEarlyAccess ? "Free stack reviews during early access" : "Stack reviews by the maintainer"}
+              </span>
+              <span aria-hidden="true" className="nudge text-fg-subtle">→</span>
+            </Link>
             <h1 className="max-w-full text-balance font-serif text-[32px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[44px] lg:text-[48px]">
               {HEADLINE.map((word, i) => (
                 <span key={word}>
                   <span className="mask-line">
                     <span
                       style={{ "--i": i } as React.CSSProperties}
-                      className={word === "working" ? "relative text-accent" : undefined}
+                      className={word === ACCENT ? "relative text-accent" : undefined}
                     >
                       {word}
-                      {word === "working" ? <InkStroke /> : null}
+                      {word === ACCENT ? <InkStroke /> : null}
                     </span>
                   </span>
                   {i < HEADLINE.length - 1 ? " " : null}
@@ -110,100 +203,137 @@ export default function HomePage() {
               ))}
             </h1>
 
-            <p className="editorial-justify mt-5 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-              Every entry here carries two sentences: when to use it, and when to skip it.
-              Most directories publish the first. Almost none publish the second — it is the
-              one that tells you whether anything on this page is worth your time.
-              If you are choosing AI infrastructure tools for a production AI stack,
-              this is the starting point: every layer, from inference runtimes to evals.
+            <p className="mt-6 max-w-[46ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+              {toolCount} tools across {stackLayers.length} layers of a production AI stack. Each
+              entry says when to use it <em>and when not to</em>, so you can choose without vendor
+              spin. Build your stack with the free Stack Builder, or have an engineer review yours.
             </p>
 
-            {/*
-              One decision per viewport. The hero sets context, the diagram
-              shows the shape, and this says what to actually do — in that
-              order. It was previously absent, so a first-time reader landed on
-              a beautiful diagram and had to infer that scrolling further was
-              the intended action.
-
-              The label names the action rather than the destination. "Start here"
-              would compete with the section below it that is also called Start
-              Here; this says what happens when you click.
-            */}
-            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2">
+            {/* Two doors, ranked: the free tool first (most readers), the
+                review second (the readers who are about to commit). */}
+            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/stack-builder"
-                className="btn-ink group inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium sm:justify-start"
+                className="btn-ink group inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-5 text-[15px] font-medium"
               >
                 Build my stack
                 <span aria-hidden="true" className="nudge">→</span>
               </Link>
-              <a
-                href="#start-here"
-                className="group inline-flex min-h-11 items-center gap-1 text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-              >
-                or find my starting layers
-                <span aria-hidden="true" className="nudge nudge-down inline-block no-underline">↓</span>
-              </a>
               <Link
-                href="/all"
-                className="inline-flex min-h-11 items-center text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                href="/review"
+                className="btn-paper group inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-5 text-[15px] font-medium"
               >
-                browse all {toolCount}
+                Get an expert review
               </Link>
             </div>
 
-            <ProductHuntBadge className="mt-7" />
-
-            {/*
-              The proof point, placed at first contact rather than in a
-              footer nobody opens.
-
-              "112 hand-picked tools" is the category's opening move and it is
-              why 112 reads as small against directories claiming 50,000. This
-              block is the better number: it is the one claim nobody else in
-              the category can make, because making it means doing it rather
-              than writing it. The six-month gate in `lib/data.ts` throws and
-              stops the deploy, so the date on a page is a receipt, not a
-              promise.
-
-              It also fills what was a large dead zone under the CTA. The
-              alternative was another navigation widget, and this page already
-              has enough of those.
-            */}
-            <div className="mt-9 max-w-[40ch] border-t border-border pt-4">
-              <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
-                {/* The build gate is live, so the marker breathes. */}
-                <span
-                  aria-hidden="true"
-                  className="pulse-dot h-1.5 w-1.5 rounded-full bg-band-state"
-                />
-                Why you can trust the figures
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <ProductHuntBadge />
+              <p className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">
+                <span aria-hidden="true" className="pulse-dot h-1.5 w-1.5 rounded-full bg-band-state" />
+                No sponsored placement
               </p>
-              <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
-                Licence, cost and deployment facts go stale, so every entry is dated
-                and the build{" "}
-                <span className="text-fg">fails</span> if any is more than six months
-                old. A stale entry cannot reach production, which is more than
-                &ldquo;updated daily&rdquo; can tell you.
-              </p>
-              <Link
-                href="/methodology"
-                className="group mt-2.5 inline-flex items-center gap-1 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-              >
-                Read the method, including where it is wrong
-                <span aria-hidden="true" className="nudge inline-block">→</span>
-              </Link>
             </div>
 
-            {/* No search field here. The sticky header already carries one and
-                is visible in the first viewport at every breakpoint, so a
-                second copy below the fold-adjacent hero was a duplicated
-                affordance competing with the diagram — which is the actual
-                pitch on this page, per the note above. */}
+            {/* The proof point. The six-month gate in `lib/data.ts` throws and
+                stops the deploy, so the date on a page is a receipt. */}
+            <div className="mt-9 max-w-[42ch] border-t border-border pt-4">
+              <p className="text-pretty text-[13px] leading-relaxed text-fg-muted">
+                Licence, cost and deployment facts go stale, so every entry is dated and the
+                build <span className="text-fg">fails</span> if any is more than six months old.{" "}
+                <Link
+                  href="/methodology"
+                  className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+                >
+                  Read the method
+                </Link>
+                .
+              </p>
+            </div>
           </div>
 
           <StackDiagram />
         </div>
+      </section>
+
+      {/* Coverage strip. Labelled as coverage, never as customers: these are
+          tools the index maps, not companies that use it. */}
+      <section aria-labelledby="covers" className="border-t border-border py-10">
+        <h2 id="covers" className="text-center font-mono text-[10.5px] uppercase tracking-[0.16em] text-fg-subtle">
+          Maps the tools you are already weighing
+        </h2>
+        <div className="marquee mt-6" style={{ "--marquee-duration": "80s" } as React.CSSProperties}>
+          {[0, 1].map((copy) => (
+            <ul key={copy} aria-hidden={copy === 1 ? true : undefined} className="marquee-track">
+              {MARQUEE.map((t) => (
+                <li key={t.slug} className="whitespace-nowrap text-[15px] font-medium text-fg-muted">
+                  {t.name}
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </section>
+
+      {/* What it does, as a bento: each cell is one way in, with a sketch of
+          what is behind it rather than a stock icon. */}
+      <section aria-labelledby="ways-in" className="border-t border-border py-20">
+        <SectionHeading
+          id="ways-in"
+          eyebrow="Four ways in"
+          title="Start from where you are, not from a category."
+          lede="Most people arrive with a workload, a symptom or a shortlist. Each of those has its own door."
+        />
+        <ul className="mt-12 grid gap-4 md:grid-cols-6">
+          <BentoCard
+            className="md:col-span-4"
+            href="/stack-builder"
+            label="Stack Builder"
+            title="Describe the workload. Get the stack."
+            body="RAG, agent, voice or plain API: answer a few questions and get one pick per layer, the reason, its skip-when and a cost band."
+          >
+            <div aria-hidden="true" className="mt-6 flex items-end gap-1.5">
+              {stackLayers.map((c, i) => (
+                <span
+                  key={c.slug}
+                  className="draw-y block w-full rounded-sm"
+                  style={{
+                    height: `${18 + ((i * 37) % 5) * 9}px`,
+                    backgroundColor: `var(--layer-${c.layer})`,
+                    opacity: i % 3 === 1 ? 0.35 : 0.85,
+                    "--i": i,
+                  } as React.CSSProperties}
+                />
+              ))}
+            </div>
+          </BentoCard>
+          <BentoCard
+            className="md:col-span-2"
+            href="/fix"
+            label="Fix"
+            title="Start from the symptom."
+            body="Slow, expensive, wrong answers, flaky agents: an ordered checklist through the stack."
+          />
+          <BentoCard
+            className="md:col-span-3"
+            href="/compare"
+            label="Compare"
+            title={`${resolvedComparisons.length} head-to-heads, each with a verdict.`}
+            body="Including across layers: gateway vs guardrails vs evals, which no vendor will ever publish."
+          />
+          <BentoCard
+            className="md:col-span-3"
+            href="/llms.txt"
+            label="For agents"
+            title="Readable by your AI assistant."
+            body="llms.txt, a JSON dataset and an MCP server, so a model can query the index instead of guessing."
+          >
+            <pre aria-hidden="true" className="mt-5 overflow-hidden rounded-lg bg-bg-sunken px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-fg-muted">
+{`search_tools({ layer: 3, cost: "free" })
+recommend_stack({ workload: "rag" })`}
+            </pre>
+          </BentoCard>
+        </ul>
       </section>
 
       {/* Symptom entry. Most readers arrive with a problem, not a category —
@@ -266,6 +396,43 @@ export default function HomePage() {
       <section id="start-here" className="scroll-mt-20 border-t border-border py-12">
         <StartHere />
       </section>
+
+      {/* The offer. Placed after the free tools on purpose: a reader who has
+          used the Stack Builder or a symptom guide knows what a review would
+          add, and is the reader most likely to want one. */}
+      <section id="review" aria-labelledby="offer" className="scroll-mt-20 border-t border-border py-20">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <SectionHeading
+            id="offer"
+            eyebrow="For teams shipping AI"
+            title="Want an engineer to check your stack?"
+            lede="The same rulebook as the index, applied to your system: a written review of every layer, with a cost band and the risk most likely to bite first."
+          />
+          <EarlyAccessPill className="shrink-0 self-start md:self-end" />
+        </div>
+        <div className="mt-12">
+          <PricingTiers />
+        </div>
+        <p className="mt-6 text-center text-[13.5px] text-fg-muted">
+          Reviews never change where a tool sits in the index.{" "}
+          <Link
+            href="/review"
+            className="text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent"
+          >
+            See exactly what you get
+          </Link>
+          .
+        </p>
+      </section>
+
+      <section aria-labelledby="home-faq" className="grid gap-10 border-t border-border py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <SectionHeading id="home-faq" eyebrow="Questions" title="The short answers." />
+        <Faq items={HOME_FAQ} />
+      </section>
+
+      <div className="pb-20">
+        <CtaBand />
+      </div>
 
       {/* The index — the legend for the diagram above. */}
       <div id="all" className="scroll-mt-20">

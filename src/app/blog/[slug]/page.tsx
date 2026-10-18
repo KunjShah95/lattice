@@ -10,6 +10,7 @@ import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import { authorNode, breadcrumbNode, bylineName, graph, ids } from "@/lib/seo";
+import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.meta.slug }));
@@ -117,6 +118,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         <div className="prose-lattice">
           <Component />
         </div>
+
+        <ReviewCta context="Making this call on a real system? Get the whole stack reviewed, not just this layer." />
       </article>
       </div>
 

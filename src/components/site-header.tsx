@@ -43,6 +43,15 @@ export function SiteHeader() {
               a phone. */}
           <SearchTrigger compact />
           <ThemeToggle />
+          {/* The one call to action in the chrome. Below `sm` it moves into
+              the mobile drawer, where there is room for it at full width. */}
+          <Link
+            href="/review"
+            className="btn-ink group ml-1 hidden h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium sm:inline-flex"
+          >
+            Get a review
+            <span aria-hidden="true" className="nudge">→</span>
+          </Link>
           <MobileNav />
         </div>
       </div>

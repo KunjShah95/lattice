@@ -927,6 +927,112 @@
   }
 }
 
+/* ------------------------------------------------------------------
+   Marketing surfaces (/, /review)
+   The conversion pages borrow the detailing of modern landing pages —
+   a dot field that fades out, a light that travels a card's edge, a
+   spotlight panel — but keep the drafting vocabulary: hairlines, mono
+   labels, crop marks. Nothing here is used on the index pages.
+   ------------------------------------------------------------------ */
+
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@layer utilities {
+  /* Dot field, masked to a soft ellipse so it never meets an edge. */
+  .bg-dots {
+    background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
+    background-size: 18px 18px;
+    mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, #000 30%, transparent 75%);
+  }
+
+  /* A light that travels the card's border. A conic gradient on a padded
+     pseudo-element, masked to the 1px ring — the card's own background is
+     untouched, so text contrast is whatever the card says it is. */
+  .border-beam {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .border-beam::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg,
+      transparent 280deg,
+      var(--accent) 330deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: beam 6s linear infinite;
+  }
+
+  /* Accent wash behind a section, fading at both ends. */
+  .wash {
+    background: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      color-mix(in oklch, var(--accent) 9%, transparent),
+      transparent 70%
+    );
+  }
+
+  /* Headline gradient: ink to muted, so a long display line reads as
+     weighted toward its start without a second colour. */
+  .text-ink-fade {
+    background: linear-gradient(180deg, var(--fg) 30%, color-mix(in oklch, var(--fg) 62%, var(--bg)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  /* A strip that scrolls sideways forever: two copies of the same track,
+     translated by one copy's width. Pauses under the pointer so a name can be
+     read; masked at both ends so items arrive rather than appear. */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--marquee-gap, 2.5rem);
+    padding-right: var(--marquee-gap, 2.5rem);
+    animation: marquee var(--marquee-duration, 60s) linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes beam {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -946,7 +1052,23 @@
   /* The sheen and pulse are ambient motion with no end state worth
      showing — remove them rather than freeze them mid-sweep. */
   .skeleton::after,
-  .pulse-dot::after {
+  .pulse-dot::after,
+  .border-beam::after {
+    display: none;
+  }
+
+  /* A frozen marquee is a clipped row; let it wrap instead. */
+  .marquee {
+    mask-image: none;
+  }
+
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    flex-shrink: 1;
+  }
+
+  .marquee-track + .marquee-track {
     display: none;
   }
 }

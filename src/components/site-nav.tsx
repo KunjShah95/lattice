@@ -14,17 +14,23 @@ import { useEffect, useState } from "react";
  * here — and it is the only route whose subject is the index itself rather than
  * an entry in it. Burying it would be self-defeating.
  */
+/**
+ * `primary` links make the desktop bar; the rest live in the mobile drawer
+ * and the footer. Ten links in a row read as a directory's table of
+ * contents; six read as a product, and leave room for the one call to action
+ * that pays for the rest (`/review`, beside the search).
+ */
 const links = [
-  { href: "/", label: "Index" },
-  { href: "/stack-builder", label: "Stack Builder" },
-  { href: "/fix", label: "Fix" },
-  { href: "/all", label: "All tools" },
-  { href: "/roles", label: "Roles" },
-  { href: "/bands", label: "Bands" },
-  { href: "/compare", label: "Compare" },
-  { href: "/blog", label: "Essays" },
-  { href: "/glossary", label: "Glossary" },
-  { href: "/methodology", label: "Method" },
+  { href: "/", label: "Index", primary: false },
+  { href: "/stack-builder", label: "Stack Builder", primary: true },
+  { href: "/all", label: "All tools", primary: true },
+  { href: "/compare", label: "Compare", primary: true },
+  { href: "/fix", label: "Fix", primary: true },
+  { href: "/roles", label: "Roles", primary: false },
+  { href: "/bands", label: "Bands", primary: false },
+  { href: "/blog", label: "Essays", primary: true },
+  { href: "/glossary", label: "Glossary", primary: false },
+  { href: "/methodology", label: "Method", primary: true },
 ] as const;
 
 function useIsActive() {
@@ -37,8 +43,8 @@ export function DesktopNav() {
   const isActive = useIsActive();
 
   return (
-    <nav aria-label="Sections" className="hidden items-center gap-1 lg:flex">
-      {links.map((l) => (
+    <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
+      {links.filter((l) => l.primary).map((l) => (
         <Link
           key={l.href}
           href={l.href}
@@ -186,6 +192,16 @@ export function MobileNav() {
                 </li>
               ))}
             </ul>
+            <div className="mx-auto max-w-5xl px-5 pb-5 pt-2 sm:px-6">
+              <Link
+                href="/review"
+                onClick={close}
+                className="btn-ink group flex h-12 w-full items-center justify-center gap-2 rounded-lg text-[15px] font-medium"
+              >
+                Get a stack review
+                <span aria-hidden="true" className="nudge">→</span>
+              </Link>
+            </div>
           </nav>
         </>
       ) : null}

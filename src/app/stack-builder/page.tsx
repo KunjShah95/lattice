@@ -3,6 +3,7 @@ import { StackBuilder } from "@/components/stack-builder";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { ReviewCta } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "AI stack builder",
@@ -71,6 +72,9 @@ export default function StackBuilderPage() {
       </header>
       <div className="mt-8">
         <StackBuilder />
+        {/* Server-rendered under the builder rather than inside it, so the
+            offer adds nothing to the configurator's client bundle. */}
+        <ReviewCta context="Want a human to check your stack against the real system before you commit?" />
       </div>
     </div>
   );
