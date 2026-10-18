@@ -66,3 +66,4 @@ strategy/
 # launch film stills
 launch/out/
 launch/voiceover.wav
+__pycache__/
