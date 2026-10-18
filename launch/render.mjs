@@ -6,7 +6,8 @@
  *   node launch/render.mjs            # 16:9, launch/lattice-redesign-launch.mp4
  *   node launch/render.mjs vertical   # 9:16, launch/lattice-redesign-launch-vertical.mp4
  *
- * The voiceover (launch/voiceover.m4a, from voice.py) is muxed in when present.
+ * The soundtrack (launch/soundtrack.m4a: music.py's score under voice.py's
+ * voiceover) is muxed in when present, else the voiceover alone.
  *
  * Env: CHROMIUM_PATH (browser binary), FFMPEG (default `ffmpeg`),
  * FPS (default 30), FRAMES ("12.5,20" renders only those stills to out/).
@@ -28,7 +29,7 @@ const CUTS = {
 };
 const cut = CUTS[process.argv[2] ?? "landscape"];
 if (!cut) throw new Error(`unknown cut: ${process.argv[2]} (landscape | vertical)`);
-const VOICE = join(ROOT, "voiceover.m4a");
+const AUDIO = ["soundtrack.m4a", "voiceover.m4a"].map((f) => join(ROOT, f)).find(existsSync);
 
 const server = createServer(async (req, res) => {
   try {
@@ -61,11 +62,10 @@ if (stills) {
   }
 } else {
   const out = join(ROOT, cut.out);
-  const voice = existsSync(VOICE);
   const ff = spawn(process.env.FFMPEG ?? "ffmpeg", [
     "-y", "-loglevel", "error",
     "-f", "image2pipe", "-framerate", String(FPS), "-c:v", "png", "-i", "-",
-    ...(voice ? ["-i", VOICE, "-map", "0:v", "-map", "1:a", "-c:a", "copy", "-shortest"] : []),
+    ...(AUDIO ? ["-i", AUDIO, "-map", "0:v", "-map", "1:a", "-c:a", "copy", "-shortest"] : []),
     "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
     "-movflags", "+faststart", out,
   ], { stdio: ["pipe", "inherit", "inherit"] });

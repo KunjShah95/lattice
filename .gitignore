@@ -67,3 +67,4 @@ strategy/
 launch/out/
 launch/voiceover.wav
 __pycache__/
+launch/music.wav
