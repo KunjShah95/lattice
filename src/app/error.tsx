@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { StatusArt } from "@/components/status-art";
 
 /**
  * Runtime error boundary for every page under the root layout.
@@ -29,64 +30,71 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col justify-center px-5 py-20 sm:px-6">
-      <div className="flex items-center gap-4">
-        <div
-          aria-hidden="true"
-          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-md border border-dashed border-border-strong [--crop-inset:-5px]"
-        >
-          <span className="font-mono text-[11px] text-fg-subtle">!</span>
+    <div className="mx-auto max-w-3xl px-5 pb-20 pt-2 sm:px-6 sm:pt-4">
+      <div className="hero-head text-center">
+        <div className="flex justify-center">
+          <StatusArt variant="fault" />
         </div>
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
-          Error
-          <br />
-          Sheet failed to draw
+
+        <p className="hero-pill mt-8 font-mono uppercase tracking-[0.14em] text-fg-muted">
+          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          Error · Sheet failed to draw
         </p>
-      </div>
 
-      <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
-        This page hit a problem.
-      </h1>
+        <h1 className="mx-auto mt-5 max-w-2xl text-balance font-serif text-[36px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[52px]">
+          Something slipped out of place.
+        </h1>
 
-      <p className="mt-4 max-w-[48ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-        Something failed while drawing it. Trying again usually works; if it
-        does not, the rest of the index is unaffected.
-      </p>
+        <p className="mx-auto mt-5 max-w-[48ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
+          This page hit a problem while drawing. Trying again usually fixes it,
+          and the rest of the index is unaffected.
+        </p>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => retry()}
-          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] font-medium"
-        >
-          <span
-            aria-hidden="true"
-            className="inline-block transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-180"
+        <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+          <button
+            type="button"
+            onClick={() => retry()}
+            className="btn-ink group inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium"
           >
-            ↺
-          </span>
-          Try again
-        </button>
-        <Link
-          href="/"
-          className="btn-paper inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] text-fg-muted hover:text-fg"
-        >
-          Back to the index
-        </Link>
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-180"
+            >
+              ↺
+            </span>
+            Try again
+          </button>
+          <Link
+            href="/"
+            className="btn-paper inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium"
+          >
+            Back to the index
+          </Link>
+        </div>
       </div>
 
-      {error.digest ? (
-        <p className="mt-10 border-t border-border pt-4 font-mono text-[11px] text-fg-subtle">
-          Reference <span className="text-fg-muted">{error.digest}</span> — quote it if you{" "}
+      {/* What to quote when reporting it. The digest matches the server log;
+          a reader can copy it without understanding it. */}
+      <div className="mx-auto flex max-w-md flex-col items-center gap-2 border-t border-border pt-8 text-center">
+        {error.digest ? (
+          <p className="font-mono text-[11px] text-fg-subtle">
+            Reference{" "}
+            <span className="rounded-md bg-bg-elevated px-2 py-0.5 text-fg-muted shadow-ink">
+              {error.digest}
+            </span>
+          </p>
+        ) : null}
+        <p className="text-[13px] text-fg-subtle">
+          Keeps happening?{" "}
           <Link
             href="/contact"
-            className="underline decoration-border-strong underline-offset-4 hover:text-fg"
+            className="text-fg-muted underline decoration-border-strong underline-offset-4 hover:text-fg hover:decoration-accent"
           >
-            report this
+            Report it
           </Link>
-          .
+          {error.digest ? " with the reference above" : ""}.
         </p>
-      ) : null}
+      </div>
     </div>
   );
 }

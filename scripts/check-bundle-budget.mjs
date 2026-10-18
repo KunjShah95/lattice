@@ -124,30 +124,34 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // +1.5 KB on every route for the runtime error boundary (`app/error.tsx`):
 // Next loads the boundary with each page so a throw renders a recoverable
 // page with Retry instead of a blank screen.
+// +1 KB on every route for the redesigned error states: the lattice artwork
+// in `app/error.tsx` and the self-contained `app/global-error.tsx`. Both are
+// client boundaries Next ships with each page; the 404 is a server component
+// and costs nothing. Measured +0.7 KB after compacting the global fallback.
 const BUDGETS = {
-  "/": 164_072,
-  "/stack-builder": 172_096, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 165_572,
-  "/glossary": 163_072,
-  "/methodology": 161_072,
-  "/verification": 161_072,
-  "/submit": 161_072,
-  "/blog": 161_072,
-  "/compare": 161_072,
-  "/compare/build": 166_072, // measured 157.7 KB; headroom left for the picker to grow
-  "/fix": 161_072,
-  "/roles": 161_072,
-  "/bands": 161_072,
-  "/[slug]": 161_572,
-  "/[slug]/[tool]": 162_572,
-  "/[slug]/[tool]/alternatives": 161_072,
-  "/roles/[role]": 161_072,
-  "/bands/[band]": 161_072,
-  "/stack/[workload]": 161_572,
-  "/blog/[slug]": 162_072,
-  "/compare/[slug]": 161_072,
-  "/fix/[slug]": 161_072,
-  "/glossary/[slug]": 161_072,
+  "/": 165_096,
+  "/stack-builder": 173_120, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
+  "/all": 166_596,
+  "/glossary": 164_096,
+  "/methodology": 162_096,
+  "/verification": 162_096,
+  "/submit": 162_096,
+  "/blog": 162_096,
+  "/compare": 162_096,
+  "/compare/build": 167_096, // measured 157.7 KB; headroom left for the picker to grow
+  "/fix": 162_096,
+  "/roles": 162_096,
+  "/bands": 162_096,
+  "/[slug]": 162_596,
+  "/[slug]/[tool]": 163_596,
+  "/[slug]/[tool]/alternatives": 162_096,
+  "/roles/[role]": 162_096,
+  "/bands/[band]": 162_096,
+  "/stack/[workload]": 162_596,
+  "/blog/[slug]": 163_096,
+  "/compare/[slug]": 162_096,
+  "/fix/[slug]": 162_096,
+  "/glossary/[slug]": 162_096,
 };
 
 const NEXT = join(root, ".next");
