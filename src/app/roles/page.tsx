@@ -9,6 +9,7 @@ import {
   indexCrumbs,
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Tools by engineering role",
@@ -39,7 +40,7 @@ export default function RolesIndexPage() {
   const overlap = tagged - toolCount;
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -63,14 +64,14 @@ export default function RolesIndexPage() {
         }}
       />
 
-      <header className="mb-10">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {ROLES.length} specialisations · {toolCount} tools
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Start from what you own.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The stack diagram answers <em>where things sit</em>; this answers{" "}
           <em>what you are accountable for</em>. Each specialisation lists the
           tools that role actually owns, grouped by the layer they live in — so
@@ -132,6 +133,9 @@ export default function RolesIndexPage() {
         </Link>{" "}
         for how the index decides anything at all.
       </p>
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

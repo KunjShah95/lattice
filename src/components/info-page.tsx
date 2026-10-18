@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHero } from "./page-hero";
 
 /**
  * Breadcrumb and header shared by every page that is *about* the index rather
@@ -17,36 +18,16 @@ export function InfoPageHeader({
   title: React.ReactNode;
   lede: React.ReactNode;
 }) {
+  // Routed through PageHero so the trust pages, /methodology and /submit open
+  // in the same language as every other page.
   return (
-    <>
-      <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
-        <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
-          <li>
-            <Link href="/" className="transition-colors hover:text-fg-muted">
-              Index
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li className="text-fg-muted" aria-current="page">{breadcrumb}</li>
-        </ol>
-      </nav>
-
-      <header className="mt-6">
-        {eyebrow ? (
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1
-          className={`${eyebrow ? "mt-4 " : ""}text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]`}
-        >
-          {title}
-        </h1>
-        <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
-          {lede}
-        </p>
-      </header>
-    </>
+    <PageHero
+      breadcrumb={[{ label: "Index", href: "/" }, { label: breadcrumb }]}
+      eyebrow={eyebrow}
+      title={title}
+      lede={<p className="editorial-justify">{lede}</p>}
+      size="md"
+    />
   );
 }
 
@@ -65,7 +46,7 @@ export function InfoPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-4 sm:px-6 sm:pt-6">
       <InfoPageHeader breadcrumb={breadcrumb} eyebrow={eyebrow} title={title} lede={lede} />
       {children}
     </div>

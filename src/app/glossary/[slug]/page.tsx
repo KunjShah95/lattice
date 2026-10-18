@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 import { getGlossaryTerm, glossary } from "@/lib/glossary";
 import { getToolByName, stackLayers } from "@/lib/data";
 import { AS_OF } from "@/lib/attributes";
@@ -61,7 +61,7 @@ export default async function GlossaryTermPage({
     : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -102,6 +102,7 @@ export default async function GlossaryTermPage({
       />
 
       <article>
+        <header className="hero-head" style={{ "--wash": layerColor(term.layer) } as React.CSSProperties}>
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -136,14 +137,15 @@ export default async function GlossaryTermPage({
             className="mt-2 h-10 w-[3px] shrink-0 rounded-full"
             style={layerStyle(term.layer)}
           />
-          <h1 className="text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[40px]">
+          <h1 className="text-balance font-serif text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {term.term}
           </h1>
         </div>
 
-        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg">
+        <p className="editorial-justify mt-6 max-w-[62ch] text-pretty text-[17px] leading-relaxed text-fg sm:text-[18px]">
           {term.definition}
         </p>
+        </header>
 
         {/* A definition does not expire the way a licence or a price does, so
             the stamp says the entry was last reviewed rather than implying the

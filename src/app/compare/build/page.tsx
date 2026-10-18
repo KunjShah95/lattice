@@ -7,6 +7,7 @@ import { roleTitle } from "@/lib/roles";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { ReviewCta } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Compare any AI infrastructure tools side by side",
@@ -61,7 +62,7 @@ export default function CompareBuilderPage() {
   const name = "Compare Builder";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* WebApplication, like `/stack-builder`: a thing a reader operates, not a
           list of pages. */}
       <script
@@ -94,7 +95,7 @@ export default function CompareBuilderPage() {
         }}
       />
 
-      <header>
+      <header className="hero-head">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -113,13 +114,13 @@ export default function CompareBuilderPage() {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           Pick any three
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Compare tools that were never meant to be compared.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The written comparisons cover tools that do the same job. This one takes any
           tools from any layers, shows where they differ, and says so when they are not
           substitutes. Vendors do not publish this page, because each of them sells one
@@ -130,6 +131,7 @@ export default function CompareBuilderPage() {
       <div className="mt-8">
         <CompareBuilder tools={pool} />
       </div>
+      <ReviewCta context="Comparison done, decision not? Get it weighed against your real system." />
     </div>
   );
 }

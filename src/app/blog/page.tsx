@@ -6,6 +6,7 @@ import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Essays on production AI",
@@ -30,7 +31,7 @@ export default function BlogIndexPage() {
   const name = "Essays";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The essays as an ItemList. The per-post pages each carry Article
           JSON-LD, but nothing joined them: this is the only page that says
           which essays exist, and it links out by rendered <a> alone otherwise.
@@ -56,14 +57,14 @@ export default function BlogIndexPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {posts.length} essays
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Notes on building AI systems that hold up.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[54ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The index tells you what exists. These essays cover the decisions
           behind it — what to reach for first, what looks like an optimisation
           and is actually a rewrite, and where the failure modes live.
@@ -116,6 +117,9 @@ export default function BlogIndexPage() {
           );
         })}
       </ol>
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

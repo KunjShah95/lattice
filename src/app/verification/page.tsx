@@ -77,7 +77,7 @@ export default function VerificationPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -99,7 +99,7 @@ export default function VerificationPage() {
         }}
       />
 
-      <header>
+      <header className="hero-head">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -112,11 +112,11 @@ export default function VerificationPage() {
           </ol>
         </nav>
 
-        <Eyebrow className="mt-6 tracking-[0.16em]">Build gate · receipt</Eyebrow>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <Eyebrow className="mt-6 tracking-[0.16em] hero-pill">Build gate · receipt</Eyebrow>
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           The build refuses stale facts.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           Licence, cost and deployment data last confirmed more than{" "}
           {STALE_AFTER_MONTHS} months ago throws an error and stops the deploy. Not
           a warning, not a review task. A deployed copy of this page is therefore a

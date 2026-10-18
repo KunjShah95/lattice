@@ -20,7 +20,7 @@ export default function StackBuilderPage() {
   const name = "Stack Builder";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* WebApplication, not CollectionPage. This is the one route on the site
           that is a tool rather than a list, so it gets the type that says so:
           a thing a reader operates, free, in a browser, with no install.
@@ -56,17 +56,17 @@ export default function StackBuilderPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           Tell me what to use
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Build my AI stack.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-          Describe your case — or start from a real one below. The stack updates
-          as you answer, every answer becomes part of a shareable link, and the
-          decision copies out as a report. Drawn from the 112 tools already in
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+          Describe your case — or start from a real one below — then press{" "}
+          <span className="text-fg">Build my stack</span>. Every build becomes a
+          shareable link, and the decision copies out as a report. Drawn from the 112 tools already in
           the index; estimates are heuristic bands, not vendor quotes.
         </p>
       </header>

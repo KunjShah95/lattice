@@ -65,7 +65,7 @@ export default function MethodologyPage() {
   const pageUrl = `${site.url}/methodology`;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* A WebPage, not a CollectionPage: this page is *about* the index and
           lists nothing, so declaring a mainEntity it does not have would be the
           kind of small false claim the index is arguing against.

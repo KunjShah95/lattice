@@ -15,6 +15,7 @@ import {
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 import type { Band } from "@/lib/layer";
+import { ReviewCta } from "@/components/marketing";
 
 /**
  * One band: the layers it owns, the tools in them, the symptoms it explains and
@@ -88,7 +89,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -134,7 +135,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         }}
       />
 
-      <header>
+      <header className="hero-head" style={{ "--wash": bandColor(meta.id) } as React.CSSProperties}>
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -151,22 +152,20 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           </ol>
         </nav>
 
-        <div className="mt-6 flex items-center gap-3">
+        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           <span
             aria-hidden="true"
-            className="h-3 w-3 shrink-0 rounded-full"
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ backgroundColor: bandColor(meta.id) }}
           />
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            Band {meta.roman} · {meta.title}
-          </p>
-        </div>
+          Band {meta.roman} · {meta.title}
+        </p>
 
-        <h1 className="mt-3 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-3 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           When it fails, it fails like{" "}
           <em className="text-fg-subtle not-italic">“{meta.sounds}”</em>
         </h1>
-        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           Band {meta.roman} is layers{" "}
           {meta.layers.map((l, i) => (
             <span key={l}>
@@ -341,6 +340,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </Link>{" "}
         says where else this index is wrong.
       </p>
+      <ReviewCta context="Problems living in this band? A review finds which layer is the cause and what to change." />
     </div>
   );
 }

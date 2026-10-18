@@ -60,7 +60,7 @@ export default function SubmitPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

@@ -56,7 +56,7 @@ export default function CorrectionsPage() {
   const earliest = dates.length ? dates[dates.length - 1] : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -92,7 +92,7 @@ export default function CorrectionsPage() {
         }}
       />
 
-      <header>
+      <header className="hero-head">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -105,13 +105,13 @@ export default function CorrectionsPage() {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {corrections.length} changes · {earliest ?? AS_OF} onward
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           What this index has got wrong.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           Every change to the {toolCount} entries, in order, generated from the
           commit log rather than kept by hand. An index that says it wants to be
           corrected and then shows no corrections has told you nothing.

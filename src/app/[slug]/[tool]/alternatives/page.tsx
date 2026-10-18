@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AS_OF } from "@/lib/attributes";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 import { getTool } from "@/lib/data";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { getSubstitutes, hasAlternativesPage, verdictFor } from "@/lib/alternatives";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/seo";
 import { Byline } from "@/components/byline";
 import { allAlternativesPages } from "@/lib/alternatives";
+import { ReviewCta } from "@/components/marketing";
 
 /**
  * `/<section>/<tool>/alternatives` — the substitutes graph as a page.
@@ -114,7 +115,7 @@ export default async function AlternativesPage({
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -150,7 +151,7 @@ export default async function AlternativesPage({
         }}
       />
 
-      <header>
+      <header className="hero-head" style={{ "--wash": layerColor(category.layer) } as React.CSSProperties}>
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -186,7 +187,7 @@ export default async function AlternativesPage({
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-serif text-[30px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[38px]">
+            <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
               {entry.name} alternatives
             </h1>
             <p className="mt-2 font-mono text-[12px] text-fg-subtle">
@@ -361,6 +362,7 @@ export default async function AlternativesPage({
         </Link>{" "}
         — including where it is wrong.
       </p>
+      <ReviewCta context="Deciding whether to switch? A review weighs the move against your traffic, team and stack." />
     </div>
   );
 }

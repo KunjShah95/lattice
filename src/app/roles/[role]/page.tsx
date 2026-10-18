@@ -8,6 +8,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
 import type { Role } from "@/lib/types";
+import { ReviewCta } from "@/components/marketing";
 
 /**
  * One page per specialisation, listing the tools that role owns.
@@ -82,7 +83,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
   const multiRole = tools.filter((t) => t.roles.length > 1);
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -121,7 +122,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         }}
       />
 
-      <header>
+      <header className="hero-head">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
@@ -139,10 +140,10 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </nav>
 
         <div className="mt-6">
-          <h1 className="text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+          <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {meta.title}
           </h1>
-          <p className="editorial-justify mt-3 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg">
+          <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg">
             {meta.owns}
           </p>
           <p className="mt-2 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
@@ -289,6 +290,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </Link>
         .
       </p>
+      <ReviewCta context="Own this part of the stack? Get your setup reviewed against the rest of the system." />
     </div>
   );
 }

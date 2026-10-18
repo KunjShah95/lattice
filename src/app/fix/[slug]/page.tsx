@@ -15,6 +15,7 @@ import {
 } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { getSymptom, resolvedSymptoms, symptomQuestions } from "@/lib/symptoms";
+import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return resolvedSymptoms.map((s) => ({ slug: s.slug }));
@@ -52,7 +53,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
   const questions = symptomQuestions(s);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -98,22 +99,22 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         }}
       />
 
-      <header>
+      <header className="hero-head" style={{ "--wash": band ? bandColor(band.id) : undefined } as React.CSSProperties}>
         <Link
           href="/fix"
-          className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+          className="block w-fit font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
         >
           ← Fix a symptom
         </Link>
 
         {band ? (
-          <p className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <p className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
             <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: bandColor(band.id) }} />
             Band {band.roman} · {band.title} · &ldquo;{band.sounds}&rdquo;
           </p>
         ) : null}
 
-        <h1 className="mt-4 text-balance font-serif text-[32px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           {s.title}
         </h1>
 
@@ -121,7 +122,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
             Short answer
           </p>
-          <p className="editorial-justify mt-1.5 text-pretty text-[16px] leading-relaxed text-fg">{s.answer}</p>
+          <p className="editorial-justify mt-1.5 text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg">{s.answer}</p>
         </div>
 
         <p className="mt-5 font-mono text-[11px] text-fg-subtle">
@@ -227,6 +228,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           ))}
         </ul>
       </nav>
+      <ReviewCta context="Fixed the symptom, but not sure the stack is right? Get the whole system reviewed, layer by layer." />
     </div>
   );
 }

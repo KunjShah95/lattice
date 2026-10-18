@@ -1,5 +1,5 @@
 import { ToolRow } from "./tool-row";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 import type { Category } from "@/lib/types";
 
 /**
@@ -16,6 +16,52 @@ export function CategorySection({
   const Heading = headingLevel;
   const isCrosscutting = category.role === "crosscutting";
   const isOffStack = category.role === "offstack";
+
+  // As a page's own h1 (`/<section>`), the section opens with the same hero
+  // as every other interior page, tinted with the layer's colour. As a row of
+  // the home page's index (h2) it keeps the compact drafting layout below.
+  if (headingLevel === "h1") {
+    const position = isOffStack
+      ? "Off-stack"
+      : isCrosscutting
+        ? `Layer ${category.index} · cross-cutting`
+        : `Layer ${category.index} of the stack`;
+    return (
+      <section id={category.slug} className="scroll-mt-24">
+        <header
+          className="hero-head"
+          style={{ "--wash": layerColor(category.layer) } as React.CSSProperties}
+        >
+          <p className="hero-pill font-mono uppercase tracking-[0.14em] text-fg-muted">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={layerStyle(category.layer)}
+            />
+            {position} · {category.tools.length} tools
+          </p>
+          <h1 className="mt-5 max-w-3xl text-balance font-serif text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+            {category.title}
+          </h1>
+          <p className="mt-5 max-w-[62ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
+            {category.responsibility}
+          </p>
+        </header>
+
+        <ul className="space-y-0.5 pb-12">
+          {category.tools.map((tool) => (
+            <ToolRow
+              key={tool.slug}
+              tool={tool}
+              layer={category.layer}
+              categorySlug={category.slug}
+              showDetails
+            />
+          ))}
+        </ul>
+      </section>
+    );
+  }
 
   return (
     <section

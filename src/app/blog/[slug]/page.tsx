@@ -64,7 +64,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         // Structured data for rich results. Content is ours, not user input.
@@ -77,19 +77,19 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
       <div className="relative">
       <ReadingRail headings={headings} />
       <article>
-        <header className="mb-10">
+        <header className="hero-head">
           <Link
             href="/blog"
-            className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+            className="block w-fit font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
           >
             ← Essays
           </Link>
 
-          <h1 className="mt-5 text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[42px]">
+          <h1 className="mt-5 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {meta.title}
           </h1>
 
-          <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
             {meta.dek}
           </p>
 

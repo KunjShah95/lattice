@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { layerStyle } from "@/lib/layer";
+import { layerColor, layerStyle } from "@/lib/layer";
 import { roleTitle, rolesInOrder } from "@/lib/roles";
 import { StackSpine } from "@/components/stack-spine";
 import {
@@ -135,7 +135,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   );
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -176,7 +176,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         }}
       />
 
-      <header>
+      <header className="hero-head" style={{ "--wash": layerColor(category.layer) } as React.CSSProperties}>
         {/* Breadcrumb doubles as the section backlink. */}
         <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
@@ -204,7 +204,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[40px]">
+            <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
               {tool.name}
             </h1>
             <p className="mt-2 font-mono text-[12px] text-fg-subtle">
@@ -224,7 +224,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         {/* What it is, as a sentence that names its subject. Answer engines
             lift passages, not layouts — "Paged-attention inference engine…"
             on its own does not say what it is describing. */}
-        <p className="editorial-justify mt-6 text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-6 text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           {toolDefinition(tool, category)}
         </p>
 
@@ -414,7 +414,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
               alt={`Lattice badge: ${tool.name} verified ${tool.asOf}`}
               height={20}
             />
-            <pre className="mt-3 overflow-x-auto rounded-md border border-border bg-bg-sunken p-3 font-mono text-[11.5px] leading-relaxed text-fg-muted">
+            <pre className="mt-3 max-w-full whitespace-pre-wrap break-all rounded-md border border-border bg-bg-sunken p-3 font-mono text-[11.5px] leading-relaxed text-fg-muted">
               <code>{badgeText}</code>
             </pre>
             <div className="mt-2">

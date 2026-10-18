@@ -74,7 +74,7 @@ export default async function ComparisonPage({
   const questions = comparisonQuestions(comparison);
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -118,25 +118,25 @@ export default async function ComparisonPage({
         }}
       />
 
-      <header className="mb-10">
+      <header className="hero-head">
         <Link
           href="/compare"
-          className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+          className="block w-fit font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
         >
           ← Comparisons
         </Link>
 
         {crossLayer ? (
-          <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
             Across layers · read in stack order
           </p>
         ) : null}
 
-        <h1 className="mt-5 text-balance font-serif text-[30px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[40px]">
+        <h1 className="mt-5 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           {comparison.title}
         </h1>
 
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           {comparison.intro}
         </p>
 

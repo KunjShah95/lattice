@@ -5,6 +5,7 @@ import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "AI infrastructure glossary",
@@ -23,7 +24,7 @@ export default function GlossaryIndexPage() {
   const name = "Glossary";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* Every term as an ItemList, described by its definition. Each term page
           declares DefinedTerm + WebPage, but nothing connected them into a
           vocabulary — so the set was only visible as 40 rendered links. A
@@ -49,14 +50,14 @@ export default function GlossaryIndexPage() {
         }}
       />
 
-      <header className="mb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {glossary.length} terms
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           The words, defined once.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           Short enough to answer a question, opinionated enough to be useful.
           Each entry says what the term{" "}
           <em className="text-fg not-italic">implies for a decision</em>, not just
@@ -72,6 +73,9 @@ export default function GlossaryIndexPage() {
       </header>
 
       <GlossaryList terms={glossary} />
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

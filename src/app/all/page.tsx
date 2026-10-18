@@ -5,6 +5,7 @@ import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/l
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "All AI infrastructure tools",
@@ -26,7 +27,7 @@ export default function AllToolsPage() {
   const name = "All AI infrastructure tools";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* Every tool in the index, as an ItemList. This is the one page that
           lists all 112 and the only parent of every tool page, so without it the
           complete set is described nowhere in structured data — a crawler sees
@@ -52,15 +53,15 @@ export default function AllToolsPage() {
         }}
       />
 
-      <header className="mb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {toolCount} tools · {selfHostedCount} self-hosted · {permissive} permissively
           licensed
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Every AI infrastructure tool, filterable.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The whole index in one list. Use it when you know what you are
           looking for; use the{" "}
           <Link
@@ -74,6 +75,9 @@ export default function AllToolsPage() {
       </header>
 
       <ToolExplorer tools={allToolEntries} />
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

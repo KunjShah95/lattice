@@ -5,6 +5,7 @@ import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons"
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "AI tool comparisons",
@@ -24,7 +25,7 @@ export default function CompareIndexPage() {
   const name = "Comparisons";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The comparisons as an ItemList, with each one described by its verdict
           rather than its intro. The verdict is the answer — it is what the page
           exists to give — and on the page itself it is further down, after the
@@ -50,14 +51,14 @@ export default function CompareIndexPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {resolvedComparisons.length} comparisons
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           When the list is not the answer.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           A directory can tell you what exists. It cannot tell you which of two
           things to pick. These comparisons cover tools that are genuine
           substitutes for one another, and end with a recommendation rather
@@ -87,6 +88,9 @@ export default function CompareIndexPage() {
         dek="Tools that do the same job. Pick one."
         items={substitutes}
       />
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

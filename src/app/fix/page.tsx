@@ -5,6 +5,7 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Fix an AI system by symptom",
@@ -22,7 +23,7 @@ export default function FixIndexPage() {
   const name = "Fix a symptom";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The symptoms as an ItemList. These five pages are the ones phrased the
           way people actually type — "why is my LLM app slow" — and each carries
           HowTo + FAQPage. This index is their only parent, and it described none
@@ -48,14 +49,14 @@ export default function FixIndexPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {resolvedSymptoms.length} symptoms
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Start from what is wrong.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           Nobody opens a directory because they want a vector database. They
           open it because answers are wrong, or slow, or the bill doubled. Pick
           the symptom; each one is an ordered checklist through the stack,
@@ -93,6 +94,9 @@ export default function FixIndexPage() {
           </section>
         );
       })}
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

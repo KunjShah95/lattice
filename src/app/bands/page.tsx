@@ -5,6 +5,7 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "The three bands of the stack",
@@ -45,7 +46,7 @@ export default function BandsIndexPage() {
   const name = "The three bands";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
       {/* The bands as an ItemList. Each is a collection with its own page, so
           this is the only parent they have — and without it they are prose to a
           crawler. */}
@@ -69,14 +70,14 @@ export default function BandsIndexPage() {
         }}
       />
 
-      <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+      <header className="hero-head">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {BANDS.length} bands · {BANDS.reduce((n, b) => n + b.layers.length, 0)} layers
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Nine layers, three bands.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
           The layers are ordered because they are a dependency chain — you cannot
           tune weights before you serve them. But a reader rarely arrives with a
           layer in mind; they arrive with a symptom. And almost every production
@@ -137,6 +138,9 @@ export default function BandsIndexPage() {
         </Link>{" "}
         says where else this index is wrong.
       </p>
+      <div className="pb-4 pt-16">
+        <CtaBand />
+      </div>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { AS_OF } from "@/lib/attributes";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, credit, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -53,7 +54,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const pageUrl = `${site.url}/${category.slug}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="mx-auto max-w-5xl px-5 pt-2 sm:px-6 sm:pt-4">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -223,6 +224,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           ))}
         </ul>
       </div>
+      <ReviewCta context={`Choosing between these for ${category.title.toLowerCase()}? A review picks one against your traffic, team and the rest of your stack.`} />
     </div>
   );
 }

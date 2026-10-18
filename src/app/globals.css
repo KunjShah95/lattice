@@ -217,6 +217,18 @@
     scrollbar-color: var(--border-strong) transparent;
   }
 
+  /* Nothing on this site is meant to scroll sideways. Invisible-until-
+     hovered previews sit past the right edge on narrow screens, and without
+     this a phone can drag the page sideways into empty space.
+
+     On <main>, not <body>: overflow set on body is propagated to the
+     viewport, where `clip` degrades to `hidden` and mobile Safari ignores it.
+     `clip`, not `hidden`: it creates no scroll container, so the sticky
+     filter bar inside main still sticks. */
+  #main {
+    overflow-x: clip;
+  }
+
   body {
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
@@ -935,6 +947,70 @@
    labels, crop marks. Nothing here is used on the index pages.
    ------------------------------------------------------------------ */
 
+/* Interior page heads: the landing pages' wash and dot field, drawn on the
+   header's own pseudo-elements so a page opts in with one class and no extra
+   markup. `--wash` tints it per page (a layer or band colour). */
+@layer components {
+  .hero-head {
+    position: relative;
+    isolation: isolate;
+    padding-top: 2.25rem;
+    padding-bottom: 2.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .hero-head {
+      padding-top: 3rem;
+      padding-bottom: 3.25rem;
+    }
+  }
+
+  .hero-head::before,
+  .hero-head::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Both layers are centred inside the box and fade to nothing before any
+     edge, so the decoration never shows a seam against the header bar or
+     the page content below it. */
+  .hero-head::before {
+    background: radial-gradient(
+      ellipse 55% 48% at var(--hero-x, 30%) 50%,
+      color-mix(in oklch, var(--wash, var(--accent)) 12%, transparent),
+      transparent 100%
+    );
+  }
+
+  .hero-head::after {
+    background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.55;
+    mask-image: radial-gradient(ellipse 50% 45% at var(--hero-x, 30%) 50%, #000 15%, transparent 100%);
+  }
+
+  .hero-head.text-center {
+    --hero-x: 50%;
+  }
+
+  /* The eyebrow, as a pill. Utilities on the element (colour, margin) still
+     win, because components sit below utilities in the cascade. */
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    border-radius: 9999px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-ink);
+    padding: 0.25rem 0.75rem;
+    font-size: 10.5px;
+  }
+}
+
 @property --beam-angle {
   syntax: "<angle>";
   inherits: false;
@@ -983,7 +1059,7 @@
   .wash {
     background: radial-gradient(
       ellipse 70% 60% at 50% 0%,
-      color-mix(in oklch, var(--accent) 9%, transparent),
+      color-mix(in oklch, var(--wash, var(--accent)) 9%, transparent),
       transparent 70%
     );
   }
