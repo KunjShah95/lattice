@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lattice redesign launch (vertical)</title>
+<!--
+  The 9:16 cut for Reels and Shorts. Same footage, same 36 s timeline and the
+  same voiceover cues as index.html, re-staged for a tall frame:
+
+    - The browser is a tall window and a camera moves over each 2x capture
+      (pan across the landing page, down the directory, from the "use" half
+      to the "skip" half), instead of showing whole desktop pages too small
+      to read on a phone.
+    - Type sits inside the platforms' safe area: nothing important above
+      ~220px (status bar, account name) or below ~1600px (caption, buttons),
+      and clear of the right-hand action rail.
+
+  Scrub with ?t=12.5. Rendered by `node launch/render.mjs vertical`.
+-->
+<style>
+@font-face { font-family: Plex Sans; src: url(fonts/plex-sans-latin.woff2) format("woff2"); font-weight: 400 600; }
+@font-face { font-family: Plex Serif; src: url(fonts/plex-serif-500-latin.woff2) format("woff2"); font-weight: 500; }
+@font-face { font-family: Plex Mono; src: url(fonts/plex-mono-400-latin.woff2) format("woff2"); font-weight: 400; }
+@font-face { font-family: Plex Mono; src: url(fonts/plex-mono-500-latin.woff2) format("woff2"); font-weight: 500; }
+
+:root {
+  --bg: #fbfbfa; --elev: #ffffff; --fg: #16161a; --muted: #66666e; --subtle: #97979f;
+  --border: #e4e4e0; --accent: oklch(0.56 0.19 32); --state: oklch(0.58 0.10 143);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+body { font-family: "Plex Sans", system-ui, sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+.abs { position: absolute; will-change: transform, opacity; }
+
+#grid { inset: -56px; background-image:
+  linear-gradient(to right, rgb(22 22 26 / .045) 1px, transparent 1px),
+  linear-gradient(to bottom, rgb(22 22 26 / .045) 1px, transparent 1px);
+  background-size: 56px 56px; mask-image: radial-gradient(ellipse 80% 65% at 50% 50%, #000 30%, transparent 100%); }
+#dots { inset: 0; background-image: radial-gradient(rgb(22 22 26 / .16) 1px, transparent 1.4px); background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 45% 30% at 50% 50%, #000, transparent); }
+#wash { left: 50%; top: 50%; width: 1300px; height: 1500px; margin: -750px 0 0 -650px; border-radius: 50%;
+  background: radial-gradient(closest-side, oklch(0.56 0.19 32 / .10), transparent); }
+
+#mark { left: 0; top: 0; width: 0; height: 0; }
+.cell { position: absolute; width: 64px; height: 64px; border-radius: 8px; background: var(--fg); }
+.cell.joint { background: var(--accent); }
+.cell.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--subtle); }
+#word { left: 0; right: 0; top: 1010px; text-align: center; font: 500 150px/1 "Plex Sans"; letter-spacing: -0.035em; }
+#kicker { left: 0; right: 0; top: 1200px; text-align: center; font: 500 26px/1 "Plex Mono"; letter-spacing: .36em; text-transform: uppercase; color: var(--muted); }
+
+.line { display: block; overflow: hidden; padding: 0 .04em .14em; margin-bottom: -.14em; }
+.w { display: inline-block; will-change: transform; }
+#headline { left: 70px; right: 40px; top: 640px; font: 500 116px/1.04 "Plex Serif"; letter-spacing: -0.03em; }
+#headline .skip { color: var(--accent); position: relative; }
+#stroke { position: absolute; left: -2%; bottom: -.04em; width: 104%; height: .32em; overflow: visible; }
+
+.cap { left: 60px; right: 60px; top: 236px; text-align: center; font: 500 70px/1.08 "Plex Serif"; letter-spacing: -0.025em; }
+.cap .w { max-width: 960px; text-wrap: balance; }
+
+#browser { left: 60px; top: 470px; width: 960px; height: 1100px; border-radius: 22px; background: var(--elev);
+  box-shadow: 0 0 0 1px rgb(22 22 26 / .08), 0 2px 4px rgb(22 22 26 / .04), 0 40px 90px -24px rgb(22 22 26 / .30), 0 70px 140px -50px rgb(22 22 26 / .2);
+  overflow: hidden; transform-origin: 50% 0%; }
+#chrome { position: absolute; left: 0; right: 0; top: 0; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 22px;
+  background: #f4f4f2; border-bottom: 1px solid var(--border); }
+#chrome i { width: 14px; height: 14px; border-radius: 50%; background: #dcdcd6; }
+#url { position: absolute; left: 50%; transform: translateX(-50%); height: 34px; padding: 0 18px; border-radius: 10px; background: var(--elev);
+  display: flex; align-items: center; gap: 10px; font: 400 18px/1 "Plex Mono"; color: var(--muted); box-shadow: 0 0 0 1px var(--border); white-space: nowrap; }
+#url b { width: 9px; height: 9px; border-radius: 50%; background: var(--state); }
+#view { position: absolute; left: 0; top: 56px; width: 960px; height: 1044px; overflow: hidden; background: var(--bg); }
+/* Captures at native size (2880px); the camera scales them down. */
+.shot { position: absolute; left: 0; top: 0; width: 2880px; transform-origin: 0 0; }
+
+.ring { position: absolute; border: 4px solid var(--accent); border-radius: 12px; box-shadow: 0 0 0 8px oklch(0.56 0.19 32 / .14); }
+#cursor { width: 46px; height: 46px; filter: drop-shadow(0 4px 8px rgb(0 0 0 / .3)); }
+#ripple { width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; border: 4px solid var(--accent); }
+
+.pill { display: inline-flex; align-items: center; gap: 14px; height: 64px; padding: 0 28px; border-radius: 999px; background: var(--elev);
+  box-shadow: 0 0 0 1px rgb(22 22 26 / .07), 0 12px 34px -10px rgb(22 22 26 / .25); font: 500 22px/1 "Plex Mono"; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.pill b { width: 12px; height: 12px; border-radius: 50%; background: var(--state); }
+
+#end-url { left: 0; right: 0; top: 1080px; text-align: center; font: 500 84px/1 "Plex Serif"; letter-spacing: -0.02em; white-space: nowrap; }
+#bar { left: 0; top: 0; height: 6px; background: var(--accent); }
+#fade { inset: 0; background: var(--bg); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wash" class="abs"></div>
+  <div id="grid" class="abs"></div>
+  <div id="dots" class="abs"></div>
+
+  <div id="mark" class="abs"></div>
+  <div id="word" class="abs">Lattice</div>
+  <div id="kicker" class="abs">The redesign</div>
+
+  <div id="headline" class="abs">
+    <span class="line"><span class="w">Every</span> <span class="w">AI</span></span>
+    <span class="line"><span class="w">infrastructure</span></span>
+    <span class="line"><span class="w">tool,</span> <span class="w">with</span></span>
+    <span class="line"><span class="w">when</span> <span class="w">to</span> <span class="w skip">skip<svg id="stroke" viewBox="0 0 100 20" preserveAspectRatio="none"><path id="strokePath" d="M2 13 C 25 6, 55 5, 98 10" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span> <span class="w">it.</span></span>
+  </div>
+
+  <div class="cap abs" data-in="7.3" data-out="11.3"><span class="line"><span class="w">Rebuilt from the first pixel.</span></span></div>
+  <div class="cap abs" data-in="11.7" data-out="15.8"><span class="line"><span class="w">112 tools. One click each.</span></span></div>
+  <div class="cap abs" data-in="16.2" data-out="20.3"><span class="line"><span class="w">Describe the workload. Get the stack.</span></span></div>
+  <div class="cap abs" data-in="20.7" data-out="24.3"><span class="line"><span class="w">Every tool says when to <em style="font-style:normal;color:var(--accent)">skip</em> it.</span></span></div>
+  <div class="cap abs" data-in="24.7" data-out="27.8"><span class="line"><span class="w">Light. And dark.</span></span></div>
+  <div class="cap abs" data-in="28.2" data-out="31.8"><span class="line"><span class="w">Expert stack reviews, on request.</span></span></div>
+
+  <div id="browser" class="abs">
+    <div id="chrome"><i></i><i></i><i></i><div id="url"><b></b>lattice.kunjshah.in<span id="path"></span></div></div>
+    <div id="view">
+      <img class="shot" id="s-hero" src="assets/home-hero-light.png">
+      <img class="shot" id="s-dir" src="assets/directory.png">
+      <img class="shot" id="s-form" src="assets/builder-form.png">
+      <img class="shot" id="s-result" src="assets/builder-result.png">
+      <img class="shot" id="s-tool" src="assets/tool-light.png">
+      <img class="shot" id="s-tooldark" src="assets/tool-dark.png">
+      <img class="shot" id="s-price" src="assets/pricing.png">
+      <div class="ring abs" id="ring-use"></div>
+      <div class="ring abs" id="ring-skip"></div>
+      <div id="ripple" class="abs"></div>
+      <svg id="cursor" class="abs" viewBox="0 0 24 24"><path d="M4 2.5 L4 19.5 L8.6 15.3 L11.6 21.8 L14.6 20.4 L11.7 14 L18 14 Z" fill="#16161a" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <div id="chip" class="abs pill"><b></b>Free during early access</div>
+
+  <div id="end-url" class="abs">lattice.kunjshah.in</div>
+  <div id="live" class="abs pill"><b></b>Live now</div>
+
+  <div id="bar" class="abs"></div>
+  <div id="fade" class="abs"></div>
+</div>
+
+<script src="motion.js"></script>
+<script>
+const DURATION = 36;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
+const markEl = $("#mark");
+const poseMark = createMark(markEl);
+const headWords = $$("#headline .w");
+const strokePath = $("#strokePath");
+strokePath.style.strokeDasharray = 100;
+const caps = $$(".cap").map((el) => ({ el, w: el.querySelector(".w"), a: +el.dataset.in, b: +el.dataset.out }));
+
+/* ---------- camera over the captures ---------- */
+const VW = 960, VH = 1044;
+const shots = Object.fromEntries($$(".shot").map((el) => [el.id.slice(2), el]));
+const browser = $("#browser"), chromeBar = $("#chrome"), pathEl = $("#path");
+const ringUse = $("#ring-use"), ringSkip = $("#ring-skip");
+const cursor = $("#cursor"), ripple = $("#ripple"), chip = $("#chip");
+/** Camera centred on footage point (cx, cy) at zoom z (viewport px per capture px). */
+const cam = (cx, cy, z) => ({ z, x: VW / 2 - cx * z, y: VH / 2 - cy * z });
+const mix = (a, b, p) => ({ cx: lerp(a.cx, b.cx, p), cy: lerp(a.cy, b.cy, p), z: lerp(a.z, b.z, p) });
+function shot(name, c, { o = 1, dy = 0, clip = "" } = {}) {
+  const el = shots[name];
+  const v = cam(c.cx, c.cy, c.z);
+  el.style.opacity = o;
+  el.style.visibility = o > 0.001 ? "visible" : "hidden";
+  el.style.transform = `translate(${v.x}px, ${v.y + dy}px) scale(${v.z})`;
+  el.style.clipPath = clip;
+  return v;
+}
+const hide = (name) => { shots[name].style.opacity = 0; shots[name].style.visibility = "hidden"; };
+/** Footage point -> viewport point under camera v. */
+const toView = (v, fx, fy) => [fx * v.z + v.x, fy * v.z + v.y];
+
+window.renderFrame = function (t) {
+  pose($("#grid"), { x: (t * 6) % 56, y: (t * 3) % 56 });
+  pose($("#wash"), { s: 1 + 0.05 * Math.sin(t * 0.5), o: 0.9 });
+  pose($("#dots"), { o: 0.7 });
+
+  /* 1. Mark over the wordmark (0 - 3.2) */
+  {
+    const rise = prog(t, 1.3, 2.1);
+    const out = prog(t, 2.75, 3.2, easeIn);
+    const endOut = prog(t, 35.0, 35.8, easeIn);
+    if (t < 3.3) {
+      poseMark(t, { cx: 540, cy: lerp(900, 800, rise) - out * 40, scale: lerp(2.2, 1.5, rise), appear: 0.15, leave: 2.75 });
+      markEl.style.opacity = 1;
+    } else if (t >= 32) {
+      poseMark(t, { cx: 540, cy: 820, scale: 1.6, appear: 32.15 });
+      markEl.style.opacity = 1 - endOut;
+    } else markEl.style.opacity = 0;
+    const word = $("#word"), k = $("#kicker");
+    const wIn = prog(t, 1.45, 2.2), kIn = prog(t, 1.9, 2.5);
+    word.style.clipPath = `inset(-20% 0 ${(1 - wIn) * 100}% 0)`;
+    pose(word, { y: (1 - wIn) * 70 - out * 40, o: t < 3.3 ? 1 - out : 0 });
+    pose(k, { y: (1 - kIn) * 18 - out * 40, o: t < 3.3 ? kIn * (1 - out) : 0 });
+  }
+
+  /* 2. Headline (3.2 - 7) */
+  {
+    $("#headline").style.visibility = t > 3.1 && t < 7.2 ? "visible" : "hidden";
+    const out = prog(t, 6.55, 7.1, easeIn);
+    const pulse = prog(t, 4.6, 4.95) * (1 - prog(t, 4.95, 5.6));
+    headWords.forEach((w, i) => {
+      const p = prog(t, 3.25 + i * 0.09, 3.25 + i * 0.09 + 0.8);
+      const s = w.classList.contains("skip") ? 1 + pulse * 0.06 : 1;
+      w.style.transform = `translateY(${(1 - p) * 170 - out * 170}px) rotate(${(1 - p) * 4}deg) scale(${s})`;
+    });
+    strokePath.style.strokeDashoffset = 100 * (1 - prog(t, 4.6, 5.35, easeInOut));
+  }
+
+  /* captions */
+  caps.forEach(({ el, w, a, b }) => {
+    const pin = prog(t, a, a + 0.75), pout = prog(t, b - 0.35, b, easeIn);
+    el.style.visibility = t > a - 0.05 && t < b + 0.05 ? "visible" : "hidden";
+    pose(w, { y: (1 - pin) * 170 - pout * 170 });
+  });
+
+  /* browser (7 - 32) */
+  {
+    const fly = prog(t, 7.0, 8.3);
+    const leave = prog(t, 31.6, 32.4, easeIn);
+    browser.style.visibility = t > 6.9 && t < 32.5 ? "visible" : "hidden";
+    browser.style.transform = `perspective(2400px) translateY(${(1 - fly) * 700 + leave * 160}px) rotateX(${(1 - fly) * 24}deg) scale(${lerp(0.86, 1, fly) - leave * 0.06})`;
+    browser.style.opacity = clamp(fly * 2) * (1 - leave);
+
+    for (const k in shots) hide(k);
+    ringUse.style.opacity = ringSkip.style.opacity = cursor.style.opacity = ripple.style.opacity = 0;
+    let dark = false, path = "/";
+
+    if (t < 11.6) {
+      // Landing: read the headline column, then glide right to the stack panel.
+      const pan = prog(t, 8.9, 10.9, easeInOut);
+      shot("hero", mix({ cx: 870, cy: 980, z: 0.62 }, { cx: 1880, cy: 980, z: 0.62 }, pan));
+    }
+    if (t >= 11.3 && t < 16.2) {
+      // Directory: crossfade in, then a long pan down the strip.
+      const fin = prog(t, 11.3, 11.8), pan = prog(t, 11.6, 16.0, easeInOut);
+      const z = 0.5, top = VH / 2 / z, bottom = 5200 - VH / 2 / z;
+      shot("dir", { cx: 1440, cy: lerp(top, bottom, pan), z }, { o: fin, dy: (1 - fin) * 30 });
+      path = "/#all";
+    }
+    if (t >= 15.9 && t < 20.7) {
+      path = "/stack-builder";
+      const fin = prog(t, 15.9, 16.4), swap = prog(t, 18.45, 18.95);
+      const press = prog(t, 18.05, 18.15) * (1 - prog(t, 18.2, 18.4));
+      const c = { cx: 1440, cy: 1010, z: 0.66 + press * 0.004 };
+      const v = shot("form", c, { o: fin * (1 - swap) });
+      shot("result", { cx: 1440, cy: 1010, z: 0.66 }, { o: swap, dy: (1 - swap) * 24 });
+      const [bx, by] = toView(v, 1973, 1708);
+      const mv = prog(t, 16.6, 17.95, easeInOut);
+      const cx = lerp(240, bx - 8, mv), cy = lerp(620, by - 6, mv) - Math.sin(mv * Math.PI) * 120;
+      const after = prog(t, 18.6, 19.6, easeInOut);
+      const co = clamp((t - 16.5) * 4) * (1 - prog(t, 19.8, 20.2));
+      pose(cursor, { x: cx - after * 160, y: cy - after * 340, s: 1 - press * 0.15, o: co });
+      const rp = prog(t, 18.1, 18.8);
+      ripple.style.left = bx + "px"; ripple.style.top = by + "px";
+      pose(ripple, { s: lerp(0.2, 1.6, rp), o: t > 18.1 ? (1 - rp) * 0.9 : 0 });
+    }
+    if (t >= 20.4 && t < 28.2) {
+      path = "/retrieval/pgvector";
+      const fin = prog(t, 20.4, 20.9);
+      // Page, then in on "use", across to "skip", then back out for the wipe.
+      const wide = { cx: 1440, cy: 900, z: 0.66 };
+      const use = { cx: 1090, cy: 1060, z: 1.1 }, skip = { cx: 1800, cy: 1060, z: 1.1 };
+      const zin = prog(t, 21.0, 21.9, easeInOut), across = prog(t, 22.7, 23.5, easeInOut), zout = prog(t, 23.9, 24.8, easeInOut);
+      const c = mix(mix(mix(wide, use, zin), skip, across), wide, zout);
+      const v = shot("tool", c, { o: fin });
+      if (t > 24.9) {
+        const wipe = prog(t, 25.0, 26.3, easeInOut);
+        const e = lerp(-40, 140, wipe);
+        shot("tooldark", c, { clip: `polygon(0 0, ${e}% 0, ${e - 40}% 100%, 0 100%)` });
+        dark = wipe > 0.5;
+      }
+      const ru = prog(t, 21.7, 22.2), rs = prog(t, 23.3, 23.7), rout = prog(t, 23.9, 24.2, easeIn);
+      const pad = 10;
+      const [ux, uy] = toView(v, 720, 962), [mx, my] = toView(v, 1440, 1159), [sx] = toView(v, 2160, 1159);
+      Object.assign(ringUse.style, { left: ux - pad + "px", top: uy - pad + "px", width: mx - ux + pad * 2 + "px", height: my - uy + pad * 2 + "px" });
+      Object.assign(ringSkip.style, { left: mx - pad + "px", top: uy - pad + "px", width: sx - mx + pad * 2 + "px", height: my - uy + pad * 2 + "px", borderColor: "var(--fg)", boxShadow: "0 0 0 8px rgb(22 22 26 / .1)" });
+      ringUse.style.transform = `scale(${lerp(1.06, 1, ru)})`; ringUse.style.opacity = ru * (1 - rout);
+      ringSkip.style.transform = `scale(${lerp(1.06, 1, rs)})`; ringSkip.style.opacity = rs * (1 - rout);
+      if (t > 26.3) {
+        const d = prog(t, 26.3, 28.2, easeInOut);
+        hide("tool");
+        shot("tooldark", mix(wide, { cx: 1440, cy: 760, z: 0.72 }, d));
+        dark = true;
+      }
+    }
+    if (t >= 27.9) {
+      path = "/review#pricing";
+      const fin = prog(t, 27.9, 28.4), d = prog(t, 28.2, 31.8, easeInOut);
+      // Down from the headline onto the three free tiers.
+      shot("price", mix({ cx: 1440, cy: 900, z: 0.6 }, { cx: 1440, cy: 1000, z: 0.66 }, d), { o: fin, dy: (1 - fin) * 24 });
+    }
+    chromeBar.style.background = dark ? "#18181b" : "#f4f4f2";
+    chromeBar.style.borderColor = dark ? "#232327" : "#e4e4e0";
+    $("#url").style.background = dark ? "#0b0b0c" : "#fff";
+    $("#url").style.color = dark ? "#9a9aa3" : "#66666e";
+    $("#url").style.boxShadow = dark ? "0 0 0 1px #2a2a2f" : "0 0 0 1px #e4e4e0";
+    browser.style.background = dark ? "#0b0b0c" : "#fff";
+    pathEl.textContent = path === "/" ? "" : path;
+
+    const cp = spring(t, 28.9, 0.9), cout = prog(t, 31.4, 31.9, easeIn);
+    chip.style.left = "540px"; chip.style.top = "1488px";
+    chip.style.visibility = t > 28.8 && t < 32 ? "visible" : "hidden";
+    chip.style.transform = `translate(-50%, ${(1 - cp) * 20 - cout * 20}px) scale(${lerp(0.7, 1, cp)})`;
+    chip.style.opacity = clamp(cp * 2) * (1 - cout);
+  }
+
+  /* 9. End card (32 - 36) */
+  {
+    const u = $("#end-url"), l = $("#live");
+    const uin = prog(t, 32.7, 33.5), lin = spring(t, 33.3, 0.9), out = prog(t, 35.0, 35.8, easeIn);
+    u.style.visibility = l.style.visibility = t > 32.5 ? "visible" : "hidden";
+    u.style.clipPath = `inset(-30% 0 ${(1 - uin) * 100}% 0)`;
+    u.style.transform = `translateY(${(1 - uin) * 70}px)`;
+    u.style.opacity = 1 - out;
+    l.style.left = "540px"; l.style.top = "1220px";
+    l.style.transform = `translate(-50%, ${(1 - lin) * 20}px) scale(${lerp(0.7, 1, lin)})`;
+    l.style.opacity = clamp(lin * 2) * (1 - out);
+    const beat = (t * 1.2) % 1;
+    l.querySelector("b").style.boxShadow = `0 0 0 ${5 + 7 * beat}px oklch(0.58 0.10 143 / ${0.35 * (1 - beat)})`;
+  }
+
+  $("#bar").style.width = (t / DURATION) * 100 + "%";
+  $("#bar").style.opacity = prog(t, 3.2, 3.8) * (1 - prog(t, 31.8, 32.3));
+  $("#fade").style.opacity = Math.max(1 - prog(t, 0, 0.35, easeOut), prog(t, 35.4, 36, easeInOut));
+};
+
+window.ready = Promise.all([
+  document.fonts.ready,
+  ...$$("img").map((i) => i.decode().catch(() => {})),
+]).then(() => {
+  const q = new URLSearchParams(location.search).get("t");
+  window.renderFrame(q ? +q : 0);
+  return true;
+});
+</script>
+</body>
+</html>
