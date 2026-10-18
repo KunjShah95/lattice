@@ -9,6 +9,7 @@ import { toJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
 import type { Role } from "@/lib/types";
 import { ReviewCta } from "@/components/marketing";
+import { ToolCard } from "@/components/tool-card";
 
 /**
  * One page per specialisation, listing the tools that role owns.
@@ -180,35 +181,20 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
               </Link>
             </div>
 
-            <ul className="mt-4 space-y-px">
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {sectionTools.map((tool) => (
                 <li key={`${sectionSlug}-${tool.slug}`}>
-                  <Link
+                  <ToolCard
+                    variant="full"
                     href={`/${sectionSlug}/${tool.slug}`}
-                    className="group -mx-2 block rounded-md px-2 py-3.5 transition-colors hover:bg-bg-sunken"
-                  >
-                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                      <span className="text-[15px] font-medium group-hover:text-accent">
-                        {tool.name}
-                      </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
-                        {tool.kind}
-                      </span>
-                      {tool.license ? (
-                        <span className="font-mono text-[10px] text-fg-subtle">
-                          {tool.license}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
-                      <span className="text-fg-muted">Use when</span>{" "}
-                      {tool.useWhen}
-                    </p>
-                    <p className="mt-0.5 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
-                      <span className="text-fg-muted">Skip when</span>{" "}
-                      {tool.skipWhen}
-                    </p>
-                  </Link>
+                    name={tool.name}
+                    layer={section.layer}
+                    blurb={tool.blurb}
+                    kind={tool.kind}
+                    license={tool.license}
+                    useWhen={tool.useWhen}
+                    skipWhen={tool.skipWhen}
+                  />
                 </li>
               ))}
             </ul>

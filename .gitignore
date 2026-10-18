@@ -63,3 +63,5 @@ lattice-launch/
 strategy/
 .txt
 .zip
+# launch film stills
+launch/out/

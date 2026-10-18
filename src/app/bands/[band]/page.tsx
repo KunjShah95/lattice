@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BANDS, bandColor, bandLayers, bandMeta, layerStyle } from "@/lib/layer";
+import { BANDS, bandColor, bandLayers, bandMeta } from "@/lib/layer";
 import { getSecondHomeTools } from "@/lib/data";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { roleTitle, ROLES } from "@/lib/roles";
@@ -16,6 +16,7 @@ import {
 import { toJsonLd } from "@/lib/jsonld";
 import type { Band } from "@/lib/layer";
 import { ReviewCta } from "@/components/marketing";
+import { ToolCard } from "@/components/tool-card";
 
 /**
  * One band: the layers it owns, the tools in them, the symptoms it explains and
@@ -260,27 +261,20 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
             <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
               {category.responsibility}. {category.description}
             </p>
-            <ul className="mt-4 space-y-px">
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {category.tools.map((tool) => (
                 <li key={tool.slug}>
-                  <Link
+                  <ToolCard
+                    variant="full"
                     href={`/${category.slug}/${tool.slug}`}
-                    className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="mt-1 h-8 w-[3px] shrink-0 rounded-full"
-                      style={layerStyle(category.layer)}
-                    />
-                    <span className="min-w-0">
-                      <span className="block text-[14px] font-medium text-fg group-hover:text-accent">
-                        {tool.name}
-                      </span>
-                      <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
-                        {tool.skipWhen}
-                      </span>
-                    </span>
-                  </Link>
+                    name={tool.name}
+                    layer={category.layer}
+                    blurb={tool.blurb}
+                    kind={tool.kind}
+                    license={tool.license}
+                    useWhen={tool.useWhen}
+                    skipWhen={tool.skipWhen}
+                  />
                 </li>
               ))}
             </ul>
