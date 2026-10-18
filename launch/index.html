@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lattice redesign launch</title>
+<!--
+  The launch film as a deterministic composition. Nothing here animates on its
+  own: `window.renderFrame(t)` poses every element for time t (seconds), and
+  `render.mjs` steps t at 30 fps and encodes the screenshots. Scrub it in a
+  browser with ?t=12.5.
+
+  Footage is real: `capture.mjs` screenshots the production build at 2x.
+  Motion borrows the site's own vocabulary: the --ease-out curve, the spring,
+  mask-rise type, the ink stroke under "skip", the 3x3 lattice mark.
+-->
+<style>
+@font-face { font-family: Plex Sans; src: url(fonts/plex-sans-latin.woff2) format("woff2"); font-weight: 400 600; }
+@font-face { font-family: Plex Serif; src: url(fonts/plex-serif-500-latin.woff2) format("woff2"); font-weight: 500; }
+@font-face { font-family: Plex Mono; src: url(fonts/plex-mono-400-latin.woff2) format("woff2"); font-weight: 400; }
+@font-face { font-family: Plex Mono; src: url(fonts/plex-mono-500-latin.woff2) format("woff2"); font-weight: 500; }
+
+:root {
+  --bg: #fbfbfa; --elev: #ffffff; --fg: #16161a; --muted: #66666e; --subtle: #97979f;
+  --border: #e4e4e0; --accent: oklch(0.56 0.19 32); --state: oklch(0.58 0.10 143);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+body { font-family: "Plex Sans", system-ui, sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+.abs { position: absolute; will-change: transform, opacity; }
+
+/* Paper: the site's 56px drafting grid, with registration dots, fading out. */
+#grid { inset: -56px; background-image:
+  linear-gradient(to right, rgb(22 22 26 / .045) 1px, transparent 1px),
+  linear-gradient(to bottom, rgb(22 22 26 / .045) 1px, transparent 1px);
+  background-size: 56px 56px; mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 30%, transparent 100%); }
+#dots { inset: 0; background-image: radial-gradient(rgb(22 22 26 / .16) 1px, transparent 1.4px); background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 40% 40% at 50% 50%, #000, transparent); }
+#wash { left: 50%; top: 50%; width: 1400px; height: 900px; margin: -450px 0 0 -700px; border-radius: 50%;
+  background: radial-gradient(closest-side, oklch(0.56 0.19 32 / .10), transparent); }
+
+/* Mark */
+#mark { left: 0; top: 0; width: 0; height: 0; }
+.cell { position: absolute; width: 64px; height: 64px; border-radius: 8px; background: var(--fg); }
+.cell.joint { background: var(--accent); }
+.cell.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--subtle); }
+#word { font: 500 120px/1 "Plex Sans"; letter-spacing: -0.035em; white-space: nowrap; }
+#kicker, .mono { font: 500 20px/1 "Plex Mono"; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+
+/* Kinetic type */
+.line { display: block; overflow: hidden; padding: 0 .04em .12em; margin-bottom: -.12em; }
+.w { display: inline-block; will-change: transform; }
+#headline { left: 0; right: 0; top: 300px; text-align: center; font: 500 112px/1.08 "Plex Serif"; letter-spacing: -0.03em; }
+#headline .skip { color: var(--accent); position: relative; }
+#stroke { position: absolute; left: -2%; bottom: -.06em; width: 104%; height: .32em; overflow: visible; }
+
+/* Captions above the browser */
+.cap { left: 0; right: 0; top: 74px; text-align: center; font: 500 56px/1.1 "Plex Serif"; letter-spacing: -0.025em; }
+
+/* Browser */
+#browser { left: 384px; top: 210px; width: 1152px; height: 764px; border-radius: 16px; background: var(--elev);
+  box-shadow: 0 0 0 1px rgb(22 22 26 / .08), 0 2px 4px rgb(22 22 26 / .04), 0 30px 80px -20px rgb(22 22 26 / .28), 0 60px 120px -40px rgb(22 22 26 / .18);
+  overflow: hidden; transform-origin: 50% 0%; }
+#chrome { position: absolute; left: 0; right: 0; top: 0; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 18px;
+  background: #f4f4f2; border-bottom: 1px solid var(--border); transition: none; }
+#chrome i { width: 12px; height: 12px; border-radius: 50%; background: #dcdcd6; }
+#url { position: absolute; left: 50%; transform: translateX(-50%); height: 26px; padding: 0 16px; border-radius: 8px; background: var(--elev);
+  display: flex; align-items: center; gap: 8px; font: 400 14px/1 "Plex Mono"; color: var(--muted); box-shadow: 0 0 0 1px var(--border); }
+#url b { width: 8px; height: 8px; border-radius: 50%; background: var(--state); }
+#view { position: absolute; left: 0; top: 44px; width: 1152px; height: 720px; overflow: hidden; background: var(--bg); }
+.shot { position: absolute; left: 0; top: 0; width: 1152px; transform-origin: 0 0; }
+
+/* Overlays drawn in page coordinates (1152x720 viewport space) */
+.ring { position: absolute; border: 3px solid var(--accent); border-radius: 10px; box-shadow: 0 0 0 6px oklch(0.56 0.19 32 / .14); }
+#cursor { width: 34px; height: 34px; filter: drop-shadow(0 3px 6px rgb(0 0 0 / .3)); }
+#ripple { width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 3px solid var(--accent); }
+
+.pill { display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 22px; border-radius: 999px; background: var(--elev);
+  box-shadow: 0 0 0 1px rgb(22 22 26 / .07), 0 10px 30px -10px rgb(22 22 26 / .25); font: 500 17px/1 "Plex Mono"; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.pill b { width: 10px; height: 10px; border-radius: 50%; background: var(--state); }
+
+/* Chapter rail */
+#rail { left: 56px; bottom: 44px; right: 56px; display: flex; justify-content: space-between; align-items: center; }
+#rail .mono { font-size: 14px; letter-spacing: .24em; color: var(--subtle); }
+#bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--accent); }
+
+#end-url { font: 500 64px/1 "Plex Serif"; letter-spacing: -0.02em; white-space: nowrap; }
+#fade { inset: 0; background: var(--bg); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wash" class="abs"></div>
+  <div id="grid" class="abs"></div>
+  <div id="dots" class="abs"></div>
+
+  <!-- 1. Mark -->
+  <div id="mark" class="abs"></div>
+  <div id="word" class="abs">Lattice</div>
+  <div id="kicker" class="abs">The redesign</div>
+
+  <!-- 2. Headline -->
+  <div id="headline" class="abs">
+    <span class="line"><span class="w">Every</span> <span class="w">AI</span> <span class="w">infrastructure</span> <span class="w">tool,</span></span>
+    <span class="line"><span class="w">with</span> <span class="w">when</span> <span class="w">to</span> <span class="w skip">skip<svg id="stroke" viewBox="0 0 100 20" preserveAspectRatio="none"><path id="strokePath" d="M2 13 C 25 6, 55 5, 98 10" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span> <span class="w">it.</span></span>
+  </div>
+
+  <!-- 3-8. Captions -->
+  <div class="cap abs" data-in="7.3" data-out="11.3"><span class="line"><span class="w">Rebuilt from the first pixel.</span></span></div>
+  <div class="cap abs" data-in="11.7" data-out="15.8"><span class="line"><span class="w">112 tools. One click each.</span></span></div>
+  <div class="cap abs" data-in="16.2" data-out="20.3"><span class="line"><span class="w">Describe the workload. Get the stack.</span></span></div>
+  <div class="cap abs" data-in="20.7" data-out="24.3"><span class="line"><span class="w">Every tool says when to <em style="font-style:normal;color:var(--accent)">skip</em> it.</span></span></div>
+  <div class="cap abs" data-in="24.7" data-out="27.8"><span class="line"><span class="w">Light. And dark.</span></span></div>
+  <div class="cap abs" data-in="28.2" data-out="31.8"><span class="line"><span class="w">Expert stack reviews, on request.</span></span></div>
+
+  <div id="browser" class="abs">
+    <div id="chrome"><i></i><i></i><i></i><div id="url"><b></b>lattice.kunjshah.in<span id="path"></span></div></div>
+    <div id="view">
+      <img class="shot" id="s-hero" src="assets/home-hero-light.png">
+      <img class="shot" id="s-dir" src="assets/directory.png">
+      <img class="shot" id="s-form" src="assets/builder-form.png">
+      <img class="shot" id="s-result" src="assets/builder-result.png">
+      <img class="shot" id="s-tool" src="assets/tool-light.png">
+      <img class="shot" id="s-tooldark" src="assets/tool-dark.png">
+      <img class="shot" id="s-price" src="assets/pricing.png">
+      <div class="ring abs" id="ring-use"></div>
+      <div class="ring abs" id="ring-skip"></div>
+      <div id="ripple" class="abs"></div>
+      <svg id="cursor" class="abs" viewBox="0 0 24 24"><path d="M4 2.5 L4 19.5 L8.6 15.3 L11.6 21.8 L14.6 20.4 L11.7 14 L18 14 Z" fill="#16161a" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <div id="chip" class="abs pill"><b></b>Free during early access</div>
+
+  <!-- 9. End card -->
+  <div id="end-url" class="abs">lattice.kunjshah.in</div>
+  <div id="live" class="abs pill"><b></b>Live now</div>
+
+  <div id="rail" class="abs"><span class="mono" id="chapter"></span><span class="mono" id="count"></span></div>
+  <div id="bar" class="abs"></div>
+  <div id="fade" class="abs"></div>
+</div>
+
+<script>
+const DURATION = 36;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
+/* ---------- easing ---------- */
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = (t) => ((ax * t + bx) * t + cx) * t, sy = (t) => ((ay * t + by) * t + cy) * t;
+  const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  return (x) => {
+    if (x <= 0) return 0; if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) { const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= (sx(t) - x) / d; }
+    return sy(Math.min(1, Math.max(0, t)));
+  };
+}
+const easeOut = bezier(0.22, 1, 0.36, 1);      // the site's --ease-out
+const easeInOut = bezier(0.65, 0, 0.35, 1);
+const easeIn = bezier(0.55, 0, 1, 0.45);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, p) => a + (b - a) * p;
+/** progress of t through [a, b], eased */
+const prog = (t, a, b, ease = easeOut) => ease(clamp((t - a) / (b - a)));
+/** damped spring 0 -> 1 with a little overshoot, like --ease-spring */
+const spring = (t, a, dur = 0.9) => {
+  const x = clamp((t - a) / dur);
+  if (x <= 0) return 0;
+  return 1 - Math.exp(-6.5 * x) * Math.cos(9.5 * x);
+};
+function pose(el, { x = 0, y = 0, s = 1, r = 0, o = 1, blur = 0 } = {}) {
+  el.style.transform = `translate(${x}px, ${y}px) scale(${s}) rotate(${r}deg)`;
+  el.style.opacity = o;
+  el.style.filter = blur > 0.05 ? `blur(${blur}px)` : "";
+}
+
+/* ---------- mark ---------- */
+const CELLS = [[0,0,"ink"],[1,0,"dot"],[2,0,"dot"],[0,1,"ink"],[1,1,"dot"],[2,1,"dot"],[0,2,"joint"],[1,2,"ink"],[2,2,"ink"]];
+const STEP = 84, CELL = 64;
+const markEl = $("#mark");
+const cellEls = CELLS.map(([c, r, k]) => {
+  const d = document.createElement("div");
+  d.className = "cell" + (k === "joint" ? " joint" : k === "dot" ? " dot" : "");
+  markEl.appendChild(d);
+  return { el: d, c, r, k };
+});
+function poseMark(t, { cx, cy, scale, appear, leave = 99 }) {
+  // Assemble: cells drop in on a spring, staggered along the stroke of the L.
+  const order = { "0,0": 0, "0,1": 1, "0,2": 2, "1,2": 3, "2,2": 4 };
+  cellEls.forEach(({ el, c, r, k }, i) => {
+    const size = k === "dot" ? 10 : CELL;
+    const baseX = (c - 1) * STEP - size / 2, baseY = (r - 1) * STEP - size / 2;
+    const idx = k === "dot" ? 5 + (i % 4) * 0.4 : order[`${c},${r}`];
+    const sp = spring(t, appear + idx * 0.09, 0.95);
+    const lv = prog(t, leave, leave + 0.5, easeIn);
+    const x = cx + baseX * scale, y = cy + baseY * scale;
+    el.style.width = el.style.height = size * scale + "px";
+    el.style.borderRadius = (k === "dot" ? 50 : 8 * scale) + (k === "dot" ? "%" : "px");
+    el.style.transformOrigin = "50% 100%";
+    pose(el, { x, y: y - (1 - sp) * 60 - lv * 30, s: k === "dot" ? clamp(sp) : Math.max(0, sp), o: clamp(sp * 1.4) * (1 - lv) * (k === "dot" ? 0.6 : 1) });
+  });
+}
+
+/* ---------- headline ---------- */
+const headWords = $$("#headline .w");
+const strokePath = $("#strokePath");
+const strokeLen = 100;
+strokePath.style.strokeDasharray = strokeLen;
+
+/* ---------- captions ---------- */
+const caps = $$(".cap").map((el) => ({ el, w: el.querySelector(".w"), a: +el.dataset.in, b: +el.dataset.out }));
+
+/* ---------- browser ---------- */
+const VW = 1152, VH = 720, K = VW / 2880; // footage px -> viewport px
+const shots = Object.fromEntries($$(".shot").map((el) => [el.id.slice(2), el]));
+const browser = $("#browser"), chromeBar = $("#chrome"), pathEl = $("#path");
+const ringUse = $("#ring-use"), ringSkip = $("#ring-skip");
+const cursor = $("#cursor"), ripple = $("#ripple"), chip = $("#chip");
+function shot(name, { o = 1, x = 0, y = 0, s = 1, clip = "" } = {}) {
+  const el = shots[name];
+  el.style.opacity = o;
+  el.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  el.style.clipPath = clip;
+  el.style.visibility = o > 0.001 ? "visible" : "hidden";
+}
+const CHAPTERS = [[0, "00 Lattice"], [7, "01 Landing"], [11.5, "02 Directory"], [16, "03 Stack Builder"], [20.5, "04 Use / skip"], [24.5, "05 Themes"], [28, "06 Reviews"], [32, "07 Live"]];
+
+window.renderFrame = function (t) {
+  /* background */
+  pose($("#grid"), { x: (t * 6) % 56, y: (t * 3) % 56 });
+  pose($("#wash"), { s: 1 + 0.05 * Math.sin(t * 0.5), o: 0.9 });
+  pose($("#dots"), { o: 0.7 });
+
+  /* 1. Mark + wordmark (0 - 3.2) */
+  {
+    const shift = prog(t, 1.3, 2.1);                 // mark slides left as the word arrives
+    const out = prog(t, 2.75, 3.2, easeIn);
+    const endIn = prog(t, 32.2, 33.2);
+    const endOut = prog(t, 35.0, 35.8, easeIn);
+    if (t < 3.3) {
+      const s = lerp(1.5, 1, shift);
+      poseMark(t, { cx: lerp(960, 640, shift), cy: 540 - out * 40, scale: s, appear: 0.15, leave: 2.75 });
+      markEl.style.opacity = 1;
+    } else if (t >= 32) {
+      poseMark(t, { cx: 960, cy: 330, scale: 1.1, appear: 32.15 });
+      markEl.style.opacity = 1 - endOut;
+    } else markEl.style.opacity = 0;
+    const word = $("#word");
+    const wIn = prog(t, 1.45, 2.2);
+    word.style.left = "806px"; word.style.top = "478px";
+    word.style.clipPath = `inset(-20% ${100 - wIn * 100}% -20% 0)`;
+    pose(word, { x: (1 - wIn) * -40, y: -out * 40, o: t < 3.3 ? 1 - out : 0 });
+    const k = $("#kicker");
+    k.style.left = "812px"; k.style.top = "622px";
+    const kIn = prog(t, 1.9, 2.5);
+    pose(k, { y: (1 - kIn) * 16 - out * 40, o: t < 3.3 ? kIn * (1 - out) : 0 });
+  }
+
+  /* 2. Headline (3.2 - 7) */
+  {
+    const visible = t > 3.1 && t < 7.2;
+    $("#headline").style.visibility = visible ? "visible" : "hidden";
+    const out = prog(t, 6.55, 7.1, easeIn);
+    headWords.forEach((w, i) => {
+      const p = prog(t, 3.25 + i * 0.075, 3.25 + i * 0.075 + 0.8);
+      pose(w, { y: (1 - p) * 140 - out * 140, r: (1 - p) * 4 });
+    });
+    strokePath.style.strokeDashoffset = strokeLen * (1 - prog(t, 4.35, 5.1, easeInOut));
+    const skip = $("#headline .skip");
+    const pulse = prog(t, 4.35, 4.7) * (1 - prog(t, 4.7, 5.4));
+    skip.style.display = "inline-block";
+    pose(skip, { s: 1 + pulse * 0.06, y: 0 });
+    // headline re-applies child transform: keep skip word riding with its line
+    const wi = headWords.indexOf(skip);
+    const p = prog(t, 3.25 + wi * 0.075, 3.25 + wi * 0.075 + 0.8);
+    skip.style.transform = `translateY(${(1 - p) * 140 - out * 140}px) scale(${1 + pulse * 0.06})`;
+  }
+
+  /* captions */
+  caps.forEach(({ el, w, a, b }) => {
+    const pin = prog(t, a, a + 0.75), pout = prog(t, b - 0.35, b, easeIn);
+    el.style.visibility = t > a - 0.05 && t < b + 0.05 ? "visible" : "hidden";
+    pose(w, { y: (1 - pin) * 80 - pout * 80 });
+  });
+
+  /* browser (7 - 32) */
+  {
+    const fly = prog(t, 7.0, 8.3);
+    const leave = prog(t, 31.6, 32.4, easeIn);
+    const on = t > 6.9 && t < 32.5;
+    browser.style.visibility = on ? "visible" : "hidden";
+    const tilt = (1 - fly) * 22;
+    browser.style.transform = `perspective(2200px) translateY(${(1 - fly) * 420 + leave * 120}px) rotateX(${tilt}deg) scale(${lerp(0.86, 1, fly) - leave * 0.06})`;
+    browser.style.opacity = clamp(fly * 2) * (1 - leave);
+
+    for (const k in shots) shot(k, { o: 0 });
+    ringUse.style.opacity = ringSkip.style.opacity = cursor.style.opacity = ripple.style.opacity = 0;
+    let dark = false, path = "/";
+
+    if (t < 11.6) {
+      // Landing: slow push in toward the headline.
+      const z = lerp(1, 1.08, prog(t, 7.4, 11.6, easeInOut));
+      shot("hero", { s: z, x: -40 * (z - 1) * 10, y: -20 * (z - 1) * 10 });
+    }
+    if (t >= 11.3 && t < 16.2) {
+      // Directory: crossfade in, then a long vertical pan down the strip.
+      const fin = prog(t, 11.3, 11.8);
+      const pan = prog(t, 11.6, 16.0, easeInOut);
+      const maxY = 5200 * K - VH;
+      shot("dir", { o: fin, y: -pan * maxY + (1 - fin) * 30 });
+      path = "/#all";
+    }
+    if (t >= 15.9 && t < 20.7) {
+      path = "/stack-builder";
+      const fin = prog(t, 15.9, 16.4);
+      const swap = prog(t, 18.45, 18.95);
+      const press = prog(t, 18.05, 18.15) * (1 - prog(t, 18.2, 18.4));
+      // Button centre in footage space: (1973, 1708)
+      const bx = 1973 * K, by = 1708 * K;
+      shot("form", { o: fin * (1 - swap), s: 1 + press * 0.004 });
+      shot("result", { o: swap, y: (1 - swap) * 24 });
+      // Cursor: enters bottom-left, eases to the button, clicks, drifts off.
+      const mv = prog(t, 16.6, 17.95, easeInOut);
+      const cx = lerp(560, bx - 6, mv), cy = lerp(760, by - 4, mv) - Math.sin(mv * Math.PI) * 90;
+      const after = prog(t, 18.6, 19.6, easeInOut);
+      cursor.style.opacity = clamp((t - 16.5) * 4) * (1 - prog(t, 19.8, 20.2));
+      pose(cursor, { x: cx + after * 120, y: cy - after * 260, s: 1 - press * 0.15, o: cursor.style.opacity });
+      const rp = prog(t, 18.1, 18.8);
+      ripple.style.left = bx + "px"; ripple.style.top = by + "px";
+      pose(ripple, { s: lerp(0.2, 1.6, rp), o: t > 18.1 ? (1 - rp) * 0.9 : 0 });
+    }
+    if (t >= 20.4 && t < 28.2) {
+      path = "/retrieval/pgvector";
+      const fin = prog(t, 20.4, 20.9);
+      // Push into the use / skip panel, footage-space centre (1440, 1060).
+      const zin = prog(t, 21.0, 22.4, easeInOut), zout = prog(t, 23.9, 24.8, easeInOut);
+      const z = lerp(1, 1.55, zin) - (0.55 * zout);
+      const fx = lerp(1440, 1440, zin), fy = lerp(900, 1060, zin) - (160 * zout);
+      const tf = { s: z, x: VW / 2 - fx * K * z, y: VH / 2 - fy * K * z };
+      const wipe = prog(t, 25.0, 26.3, easeInOut);
+      shot("tool", { o: fin, ...tf });
+      if (t > 24.9) {
+        // Diagonal wipe to the dark theme.
+        const e = lerp(-30, 130, wipe);
+        shot("tooldark", { o: 1, ...tf, clip: `polygon(0 0, ${e}% 0, ${e - 30}% 100%, 0 100%)` });
+        dark = wipe > 0.5;
+      }
+      // Rings around the use (left) and skip (right) halves.
+      const map = (x, y) => [(x * K) * z + tf.x, (y * K) * z + tf.y];
+      const ru = prog(t, 22.2, 22.7), rs = prog(t, 22.8, 23.3), rout = prog(t, 23.7, 24.0, easeIn);
+      const [ux, uy] = map(720, 962), [ux2, uy2] = map(1440, 1159);
+      const [sx2, sy2] = map(2160, 1159);
+      const pad = 10;
+      Object.assign(ringUse.style, { left: ux - pad + "px", top: uy - pad + "px", width: ux2 - ux + pad * 2 + "px", height: uy2 - uy + pad * 2 + "px" });
+      Object.assign(ringSkip.style, { left: ux2 - pad + "px", top: uy - pad + "px", width: sx2 - ux2 + pad * 2 + "px", height: sy2 - uy + pad * 2 + "px", borderColor: "var(--fg)", boxShadow: "0 0 0 6px rgb(22 22 26 / .1)" });
+      ringUse.style.transform = `scale(${lerp(1.08, 1, ru)})`; ringUse.style.opacity = ru * (1 - rout);
+      ringSkip.style.transform = `scale(${lerp(1.08, 1, rs)})`; ringSkip.style.opacity = rs * (1 - rout);
+      if (t > 26.3) {
+        // Hold on dark, then a gentle drift.
+        const d = prog(t, 26.3, 28.2, easeInOut);
+        shot("tooldark", { o: 1, s: lerp(1, 1.04, d), x: -VW * 0.02 * d, y: -VH * 0.02 * d });
+        shot("tool", { o: 0 });
+        dark = true;
+      }
+    }
+    if (t >= 27.9) {
+      path = "/review#pricing";
+      const fin = prog(t, 27.9, 28.4);
+      const z = lerp(1.0, 1.06, prog(t, 28.2, 31.8, easeInOut));
+      shot("price", { o: fin, s: z, x: -VW * (z - 1) / 2, y: -VH * (z - 1) / 3 + (1 - fin) * 24 });
+    }
+    chromeBar.style.background = dark ? "#18181b" : "#f4f4f2";
+    chromeBar.style.borderColor = dark ? "#232327" : "#e4e4e0";
+    $("#url").style.background = dark ? "#0b0b0c" : "#fff";
+    $("#url").style.color = dark ? "#9a9aa3" : "#66666e";
+    $("#url").style.boxShadow = dark ? "0 0 0 1px #2a2a2f" : "0 0 0 1px #e4e4e0";
+    browser.style.background = dark ? "#0b0b0c" : "#fff";
+    pathEl.textContent = path === "/" ? "" : path;
+
+    // Chip pops over the pricing frame.
+    const cp = spring(t, 28.9, 0.9), cout = prog(t, 31.4, 31.9, easeIn);
+    chip.style.left = "960px"; chip.style.top = "196px";
+    chip.style.visibility = t > 28.8 && t < 32 ? "visible" : "hidden";
+    chip.style.transform = `translate(-50%, ${(1 - cp) * 20 - cout * 20}px) scale(${lerp(0.7, 1, cp)})`;
+    chip.style.opacity = clamp(cp * 2) * (1 - cout);
+  }
+
+  /* 9. End card (32 - 36) */
+  {
+    const u = $("#end-url"), l = $("#live");
+    const uin = prog(t, 32.7, 33.5), lin = spring(t, 33.3, 0.9);
+    const out = prog(t, 35.0, 35.8, easeIn);
+    u.style.left = "960px"; u.style.top = "560px";
+    u.style.visibility = l.style.visibility = t > 32.5 ? "visible" : "hidden";
+    u.style.clipPath = `inset(-30% 0 ${(1 - uin) * 100}% 0)`;
+    u.style.transform = `translate(-50%, ${(1 - uin) * 60}px)`;
+    u.style.opacity = 1 - out;
+    l.style.left = "960px"; l.style.top = "680px";
+    l.style.transform = `translate(-50%, ${(1 - lin) * 20}px) scale(${lerp(0.7, 1, lin)})`;
+    l.style.opacity = clamp(lin * 2) * (1 - out);
+    // The live dot breathes.
+    l.querySelector("b").style.boxShadow = `0 0 0 ${4 + 6 * ((t * 1.2) % 1)}px oklch(0.58 0.10 143 / ${0.35 * (1 - ((t * 1.2) % 1))})`;
+  }
+
+  /* chapter rail */
+  {
+    const ch = CHAPTERS.filter(([a]) => t >= a).pop();
+    $("#chapter").textContent = ch[1];
+    $("#count").textContent = `lattice.kunjshah.in · ${String(Math.floor(t)).padStart(2, "0")}s`;
+    const railO = prog(t, 3.2, 3.8) * (1 - prog(t, 31.8, 32.3));
+    $("#rail").style.opacity = railO;
+    $("#bar").style.width = (t / DURATION) * 100 + "%";
+    $("#bar").style.opacity = railO;
+  }
+
+  $("#fade").style.opacity = Math.max(1 - prog(t, 0, 0.35, easeOut), prog(t, 35.4, 36, easeInOut));
+};
+
+window.ready = Promise.all([
+  document.fonts.ready,
+  ...$$("img").map((i) => i.decode().catch(() => {})),
+]).then(() => {
+  const q = new URLSearchParams(location.search).get("t");
+  window.renderFrame(q ? +q : 0);
+  return true;
+});
+</script>
+</body>
+</html>
