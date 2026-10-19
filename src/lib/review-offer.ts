@@ -182,7 +182,7 @@ export const reviewOffer = {
       n: "04",
       title: "Delivered",
       body: "The dated document lands, with a call if you want one. The index is unchanged, because it was never for sale.",
-      meta: `${deliveryDaysLabel()} working days total`,
+      meta: "5 working days total",
     },
   ],
 
@@ -222,8 +222,5 @@ export const reviewOffer = {
     "This review is a paid service. Nothing on this index is for sale: no entry is sponsored, no tool's position can be bought, and no comparison verdict changes because of who paid. Paying for a review changes nothing on this site.",
 } as const;
 
-function deliveryDaysLabel(): string {
-  return String(reviewOffer.deliveryDays);
-}
 
 export type ReviewTier = (typeof reviewOffer.tiers)[number];
