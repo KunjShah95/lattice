@@ -56,6 +56,25 @@ export default function AboutPage() {
         </p>
       </InfoSection>
 
+      <InfoSection title="Cite or link to Lattice">
+        <p>
+          Linking to a specific entry, comparison or essay is always better than
+          linking to the homepage — it carries the reader to the exact claim being
+          referenced and passes the most link equity to the page that earned it.
+        </p>
+        <p>
+          Preferred citation: &ldquo;Lattice (lattice.kunjshah.in), a curated
+          index of AI infrastructure tools ordered by stack layer, maintained by
+          Kunj Shah.&rdquo; Use the canonical URL of the page you are citing.
+        </p>
+        <p>
+          For directories and posts that want a badge, the listing badges on the
+          homepage (Product Hunt, UsefulShelf, Smol Rank) are the canonical
+          assets — link to the listing page rather than hot-linking, so the asset
+          and its attribution stay in step.
+        </p>
+      </InfoSection>
+
       <InfoSection title="How to trust it">
         <p>
           The inclusion rules, verification gates, and known weaknesses are written
