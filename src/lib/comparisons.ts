@@ -687,6 +687,123 @@ export const comparisons: Comparison[] = [
     sections: ["guardrails-safety"],
     related: ["where-guardrails-belong", "the-gateway-is-the-product", "observability-is-not-logging"],
   },
+  {
+    slug: "fine-tuning-frameworks",
+    kind: "substitutes",
+    title: "Unsloth vs Axolotl vs TRL vs LLaMA-Factory",
+    description:
+      "Fine-tuning frameworks compared on memory footprint, supported methods, configuration style and how much of the training loop you own: with a recommendation by team shape.",
+    intro:
+      "These four all train open models, but they ask you to own different parts of the loop. The decision is less about which produces a better model than about which leaves you with a process you can repeat.",
+    tools: [
+      { name: "Unsloth", angle: "Hand-written kernels, fastest and smallest memory." },
+      { name: "Axolotl", angle: "Config-driven, broad architecture support." },
+      { name: "TRL", angle: "Reference trainers for SFT, DPO and RLHF." },
+      { name: "LLaMA-Factory", angle: "Unified UI and config across methods." },
+    ],
+    rows: [
+      { dimension: "Memory footprint", values: [
+        "Lowest: 2x faster, ~60% less VRAM",
+        "Moderate, depends on backend",
+        "Baseline, framework overhead",
+        "Moderate, wraps TRL and PEFT",
+      ] },
+      { dimension: "Methods supported", values: [
+        "SFT, DPO, GRPO, ORPO",
+        "SFT, DPO, PPO, ORPO, KTO",
+        "SFT, DPO, PPO, GRPO, KTO",
+        "SFT, DPO, PPO, ORPO, KTO, RLHF",
+      ] },
+      { dimension: "Configuration", values: [
+        "Python code, explicit",
+        "YAML config, minimal code",
+        "Python code, full control",
+        "YAML or Web UI",
+      ] },
+      { dimension: "Architecture coverage", values: [
+        "Llama, Mistral, Qwen, Gemma and friends",
+        "Very broad, via transformers",
+        "Anything transformers supports",
+        "Very broad, via transformers",
+      ] },
+      { dimension: "Best for", values: [
+        "One person, one GPU, fast iteration",
+        "Teams wanting reproducible YAML runs",
+        "Researchers needing custom training loops",
+        "Teams wanting a UI and many methods",
+      ] },
+      { dimension: "Where it loses", values: [
+        "Narrower architecture list than Axolotl",
+        "Less kernel-level speed than Unsloth",
+        "You write and maintain the loop",
+        "Heavier stack, more moving parts",
+      ] },
+    ],
+    verdict:
+      "Start with Unsloth if you are one person on one GPU: the memory and speed gains are real and the loop stays short enough to understand. Move to Axolotl or LLaMA-Factory when runs need to be reproducible across a team, because YAML config beats a notebook. Reach for TRL directly when you need a method the wrappers have not exposed yet, or a custom loss, and accept that you now own the training loop.",
+    rules: [
+      "Fine-tuning teaches behaviour, not facts. If the answer changes monthly, it belongs in retrieval.",
+      "Measure on your own eval set before and after. A lower loss is not a better model.",
+      "A fine-tuned model is a new artefact you have to serve and retrain. Budget for that before you start.",
+    ],
+    sections: ["fine-tuning"],
+    related: ["prompt-or-finetune", "retrieval-finetuning-prompting", "evals-are-the-asset"],
+  },
+  {
+    slug: "multi-agent-frameworks",
+    kind: "substitutes",
+    title: "AutoGen vs CrewAI vs Pydantic AI",
+    description:
+      "Multi-agent frameworks compared on conversation model, type safety, observability and how much orchestration you own: with a recommendation by team shape.",
+    intro:
+      "All three let agents talk to each other, but they disagree on who is in charge. The decision is whether you want a conversation, a crew with roles, or typed agents you orchestrate yourself.",
+    tools: [
+      { name: "AutoGen", angle: "Conversable agents in a chat room." },
+      { name: "CrewAI", angle: "Role-based crew with task handoffs." },
+      { name: "Pydantic AI", angle: "Typed agents you compose yourself." },
+    ],
+    rows: [
+      { dimension: "Orchestration model", values: [
+        "Group chat among agents",
+        "Sequential or hierarchical crew",
+        "You write the control flow",
+      ] },
+      { dimension: "Type safety", values: [
+        "Moderate, Python-first",
+        "Moderate, task and role configs",
+        "Strong, Pydantic models end to end",
+      ] },
+      { dimension: "Observability", values: [
+        "Built-in tracing and logs",
+        "Execution traces per task",
+        "Via your own tracing layer",
+      ] },
+      { dimension: "Best for", values: [
+        "Research-style exploration and debate",
+        "Business workflows with clear roles",
+        "Agents where bad tool args are the risk",
+      ] },
+      { dimension: "Operational surface", values: [
+        "Medium, many agent types",
+        "Medium, crew config plus tools",
+        "Small core, you own orchestration",
+      ] },
+      { dimension: "Where it loses", values: [
+        "Harder to reason about at scale",
+        "Less flexible than writing the loop",
+        "No batteries-included multi-agent glue",
+      ] },
+    ],
+    verdict:
+      "Pick on the shape of the collaboration. CrewAI when the workflow is a set of roles passing work along; AutoGen when agents genuinely need to converse and challenge each other; Pydantic AI when the risk is malformed tool calls and you want the types to catch them. Whichever you pick, run the loop on a durable host and trace every tool call: no framework replaces those.",
+    rules: [
+      "Multi-agent systems multiply failure modes. Start with one agent and add a second only when a single agent cannot hold the context.",
+      "A framework orchestrates calls inside one process. It does not make long runs survive a deploy.",
+      "Fewer tools beats a longer system prompt. Narrow the agent before you add another integration.",
+    ],
+    sections: ["agent-frameworks"],
+    related: ["agents-need-a-durable-host", "observability-is-not-logging", "where-guardrails-belong"],
+  },
 ];
 
 export const getComparison = (slug: string) =>
