@@ -152,6 +152,7 @@ export const site = {
     "https://www.producthunt.com/products/lattice-12",
     "https://usefulshelf.co/apps/lattice-9fc3de",
     "https://smolrank.com/projects/lattice",
+    "https://peerlist.io/kunjshah/project/lattice",
     REPO_URL,
     "https://github.com/KunjShah95/awesome-ai-infrastructure",
     ...(CONTACT_X ? [CONTACT_X] : []),

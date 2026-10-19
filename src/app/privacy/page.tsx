@@ -64,7 +64,7 @@ export default function PrivacyPage() {
       <InfoSection title="Third-party links and badges">
         <p>
           Pages link out to tool vendors, GitHub, and badge providers (for example
-          Product Hunt, UsefulShelf and Smol Rank). Following those links is subject to each
+          Product Hunt, UsefulShelf, Smol Rank and Peerlist). Following those links is subject to each
           destination&apos;s privacy terms.
         </p>
       </InfoSection>

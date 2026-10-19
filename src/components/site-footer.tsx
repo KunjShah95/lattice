@@ -69,6 +69,30 @@ export function SiteFooter() {
                 style={{ height: 44, width: "auto" }}
               />
             </a>
+            {/* Peerlist Launchpad badge. */}
+            <a
+              href="https://peerlist.io/kunjshah/project/lattice"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Launched on Peerlist"
+              className="mt-4 inline-block"
+            >
+              <img
+                src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/launched-on-new-light.webp"
+                alt="Launched on Launchpad by Peerlist"
+                height={44}
+                className="block dark:hidden"
+                style={{ height: 44, width: "auto" }}
+              />
+              <img
+                src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/launched-on-new-dark.webp"
+                alt="Launched on Launchpad by Peerlist"
+                height={44}
+                className="hidden dark:block"
+                aria-hidden="true"
+                style={{ height: 44, width: "auto" }}
+              />
+            </a>
           </div>
 
           <FooterColumn title="Layers">
