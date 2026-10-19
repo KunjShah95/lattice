@@ -463,6 +463,48 @@ recommend_stack({ workload: "rag" })`}
           answer engine can lift the passage whole. Counts come from the
           dataset, not prose, so they cannot drift.
       */}
+      {/* Conversion rail. This is the one place the page acknowledges that the
+          review exists — not a popup, not a banner, one line of text plus a
+          path. The whole argument for keeping the paid tier small is that it
+          does not cut across the neutral product, and the same goes for how it
+          is surfaced: the reader who is not ready for it should be able to
+          ignore it without a single extra scroll.
+
+          Scoped to `.stack-review-aside`: no Aceternity canvas, just the one
+          strong CTA. The editorial voice does not change here; only the next
+          step does. */}
+      <section className="border-t border-border py-12">
+        <div className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <div className="max-w-[62ch]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+              Stack review
+            </p>
+            <h2 className="mt-2 text-[17px] font-medium leading-snug">
+              The index is free and stays free. If you want it read against your
+              stack, that is a document, not a subscription.
+            </h2>
+            <p className="editorial-justify mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
+              Thirty minutes of your context. Five working days. An answer to
+              which three of your decisions are costing you the most, each with a
+              figure attached — and nothing about the index changes when you pay,
+              because it is not for sale.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <Link
+              href="/stack-review"
+              className="btn-ink group inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-[14px] font-medium sm:justify-start"
+            >
+              Read the offer
+              <span aria-hidden="true" className="nudge">→</span>
+            </Link>
+            <span className="font-mono text-[10.5px] text-fg-subtle sm:text-right">
+              $490 one-off
+            </span>
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-border py-12">
         <div className="max-w-[62ch]">
           <h2 className="text-[15px] font-medium">What is AI infrastructure?</h2>

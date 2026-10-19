@@ -31,6 +31,7 @@ const links = [
   { href: "/blog", label: "Essays", primary: true },
   { href: "/glossary", label: "Glossary", primary: false },
   { href: "/methodology", label: "Method", primary: true },
+  { href: "/stack-review", label: "Review", primary: false },
 ] as const;
 
 function useIsActive() {
@@ -194,7 +195,7 @@ export function MobileNav() {
             </ul>
             <div className="mx-auto max-w-5xl px-5 pb-5 pt-2 sm:px-6">
               <Link
-                href="/review"
+                href="/stack-review"
                 onClick={close}
                 className="btn-ink group flex h-12 w-full items-center justify-center gap-2 rounded-lg text-[15px] font-medium"
               >

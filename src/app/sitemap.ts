@@ -78,6 +78,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    // The paid read. A money page, not a marketing one: the thing being sold
+    // is the author's judgement, applied to one team's stack, and the index
+    // itself is unchanged by the sale. Medium-high priority because this is
+    // the conversion surface and it needs to be indexable on its own.
+    {
+      url: `${site.url}/stack-review`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
     // The corrections log. Beside `/methodology` because it is the evidence for
     // the claim that page makes. `weekly`, not `monthly`: it changes whenever
     // the dataset does, which is the point of it.

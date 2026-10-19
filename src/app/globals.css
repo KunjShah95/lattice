@@ -1148,3 +1148,669 @@
     display: none;
   }
 }
+
+/* ==================================================================
+   The conversion canvas — `data-canvas="aurora"`
+
+   A second, deliberately separate visual language for the two surfaces
+   that have to *sell* rather than *inform*: `/stack-review` and its
+   entry points.
+
+   Why a scope rather than new tokens on `:root`:
+
+   The index is an engineering-paper document. Warm-neutral, hairline
+   grid, IBM Plex, one rust accent, generous margins. That restraint is
+   the product — it is what makes 112 entries read as surveyed rather
+   than advertised, and `strategy/04-monetisation.md` makes neutrality
+   the one asset no competitor can copy. Restyling it to sell would
+   spend that asset on the exact page that is supposed to prove it.
+
+   So the selling surface gets a different canvas, the way a brand gets
+   a landing page and a manual. Same type family, same hairlines, same
+   easing curves — so it reads as the same *author* — but near-black,
+   glow-lit, one saturated gradient doing all the colour work. Scoping
+   it to an attribute means no existing route can accidentally inherit
+   it: nothing in the tree sets `data-canvas`, so until a component
+   opts in, every rule below is dead CSS.
+
+   One accent, two stops. Cyan→violet, which is the Aceternity house
+   gradient; the ramps are hue-adjacent rather than a rainbow, so the
+   gradient never resolves into a third colour the eye wants to name.
+   */
+
+[data-canvas="aurora"] {
+  /* A true, slightly cool black. Not navy, not charcoal — a tinted dark
+     reads as "dark mode", and this needs to read as a stage. */
+  --bg: #050507;
+  --bg-elevated: #0b0b0f;
+  --bg-sunken: #08080b;
+  --fg: #f4f4f6;
+  --fg-muted: #9c9cab;
+  --fg-subtle: #62626f;
+  --border: #1b1b22;
+  --border-strong: #2e2e38;
+  --accent: #a78bfa;
+  --accent-fg: #08080b;
+  --selection: #3b2f63;
+
+  /* The gradient, as stops rather than as a rule, so a component can
+     animate one end of it independently of the other. Every accent
+     surface on this canvas is painted from these three. */
+  --aurora-1: #22d3ee;
+  --aurora-2: #818cf8;
+  --aurora-3: #c084fc;
+  --aurora-grad: linear-gradient(
+    100deg,
+    var(--aurora-1) 0%,
+    var(--aurora-2) 46%,
+    var(--aurora-3) 100%
+  );
+
+  /* Depth on a black canvas does not come from drop shadows — there is
+     nothing to cast onto. It comes from light: a blurred colour bloom
+     behind the surface plus a hairline rim. These are the blooms. */
+  --bloom-cyan: 0 0 90px -10px oklch(0.78 0.15 200 / 0.5);
+  --bloom-violet: 0 0 90px -10px oklch(0.68 0.2 295 / 0.5);
+  --bloom-mixed: 0 0 130px -20px oklch(0.72 0.19 280 / 0.42);
+
+  --shadow-ink:
+    0 0 0 1px oklch(1 0 0 / 0.07),
+    0 1px 0 0 oklch(1 0 0 / 0.04) inset,
+    0 12px 32px -12px oklch(0 0 0 / 0.7);
+  --shadow-lift:
+    0 0 0 1px oklch(1 0 0 / 0.12),
+    0 1px 0 0 oklch(1 0 0 / 0.06) inset,
+    0 0 0 1px transparent,
+    0 26px 60px -18px oklch(0.62 0.2 290 / 0.34);
+  --shadow-float:
+    0 0 0 1px oklch(1 0 0 / 0.14),
+    0 1px 0 0 oklch(1 0 0 / 0.07) inset,
+    0 40px 90px -28px oklch(0.65 0.22 290 / 0.45);
+  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.14);
+
+  color-scheme: dark;
+}
+
+/* The dark drafting grid is nearly invisible against a true black, and
+   the selling surface wants the *dotted* grid of the reference language
+   anyway — a dot field with a radial mask, so it fades out before it
+   reaches the page edge and never becomes a texture you can see the
+   boundary of. */
+[data-canvas="aurora"]::before {
+  background-image: radial-gradient(
+    circle at center,
+    oklch(1 0 0 / 0.13) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
+}
+
+/* --- Signature primitives ------------------------------------------
+   Each is one idea, done once, properly. The rest of the page stays
+   quiet around them — that restraint is what separates a page that
+   reads as expensive from one that reads as busy. */
+
+/* 1. Spotlight — a radial wash that tracks the pointer. The whole
+      surface stays dim; only the region near the cursor lights up, so
+      the eye is pulled to wherever the reader is already looking.
+      Pointer position arrives as `--mx/--my`, set by a `mousemove`
+      listener that writes two custom properties and nothing else, so
+      there is no re-render and no React state. */
+.ac-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    340px circle at var(--mx, 50%) var(--my, 0%),
+    oklch(0.78 0.14 260 / 0.16),
+    oklch(0.68 0.2 295 / 0.07) 38%,
+    transparent 66%
+  );
+}
+
+/* 2. Moving border — a conic gradient rotating behind a card, clipped
+      to a 1px ring by a double `mask`. Two masks are used rather than
+      `border-image` because `border-image` cannot be masked: it would
+      round the corners as a square, and the radius is the detail that
+      makes the effect read as a rim of light around a physical object
+      instead of a gradient smeared on top of one.
+
+      `@property` is what makes this affordable. A registered custom
+      property can be *interpolated*, so the sweep is a smooth rotation
+      driven by one compositable angle rather than a keyframe sequence
+      that would have to be re-declared per angle range. */
+@property --ac-sweep {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.ac-moving-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.ac-moving-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ac-sweep),
+    transparent 0%,
+    var(--aurora-1) 12%,
+    var(--aurora-2) 26%,
+    var(--aurora-3) 38%,
+    transparent 56%,
+    transparent 100%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  animation: ac-sweep 5.5s linear infinite;
+}
+
+/* Without `@property` support the pseudo-element would still paint, it
+   would just not rotate — a static half-lit rim. Rather than ship a
+   frozen effect that reads as a rendering fault, fall back to a plain
+   gradient that is present from the first frame. */
+@supports not (background: conic-gradient(from var(--ac-sweep), red, blue)) {
+  .ac-moving-border::before {
+    animation: none;
+    background: var(--aurora-grad);
+  }
+}
+
+/* 3. Aurora bloom — the blurred colour wash behind a hero. Two of them,
+      crossed, on opposite drift phases, so the composite never repeats
+      on any timescale a reader sits through. Transform + opacity only. */
+.ac-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.ac-aurora > span {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  filter: blur(78px);
+  will-change: transform, opacity;
+}
+
+.ac-aurora > span:nth-child(1) {
+  top: -22%;
+  left: 4%;
+  width: 46%;
+  height: 62%;
+  background: var(--aurora-1);
+  opacity: 0.24;
+  animation: ac-drift-a 17s var(--ease-out) infinite alternate;
+}
+
+.ac-aurora > span:nth-child(2) {
+  top: 2%;
+  right: 0%;
+  width: 52%;
+  height: 66%;
+  background: var(--aurora-3);
+  opacity: 0.26;
+  animation: ac-drift-b 21s var(--ease-out) infinite alternate;
+}
+
+/* 4. Shiny text — a highlight band travelling across the glyphs,
+      clipped to the text itself. The band is a moving background, not
+      a moving element, so the text never reflows and the effect costs
+      one composited background-position per frame. */
+.ac-shiny {
+  background: var(--aurora-grad);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ac-shine 5s linear infinite;
+}
+
+/* 5. Beams — thin gradient streaks falling across a dark field. Four is
+      the number that reads as weather; eight reads as a screensaver.
+      Fixed per-instance durations and delays so no two are ever in step. */
+.ac-beams {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 88%);
+}
+
+.ac-beams > span {
+  position: absolute;
+  top: -22%;
+  width: 2px;
+  height: 78%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--beam-color, var(--aurora-1)) 45%,
+    transparent
+  );
+  border-radius: 9999px;
+  opacity: 0.5;
+  transform: rotate(16deg);
+  will-change: transform, opacity;
+  animation: ac-beam var(--beam-dur, 11s) linear infinite;
+  animation-delay: var(--beam-delay, 0s);
+}
+
+/* 6. Bento cell — the hover contract for the grid. Lift 4px, rim
+      brightens, and the pointer wash fades in. Transform + opacity, so
+      the whole thing stays off the main thread while the pointer moves. */
+.ac-bento {
+  position: relative;
+  isolation: isolate;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.035), oklch(1 0 0 / 0.012)),
+    var(--bg-elevated);
+  transition:
+    transform 420ms var(--ease-out),
+    border-color 420ms var(--ease-out),
+    box-shadow 420ms var(--ease-out);
+}
+
+.ac-bento:hover,
+.ac-bento:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+.ac-bento > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* 7. Gradient CTA — the only place the accent is allowed to fill a
+      large area, because it is the one thing on the page the reader is
+      being asked to do. Everything else on this canvas keeps the accent
+      as rim, text or bloom. */
+.ac-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: var(--aurora-grad);
+  background-size: 200% 100%;
+  color: #06060a;
+  font-weight: 600;
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    box-shadow 320ms var(--ease-out),
+    background-position 700ms var(--ease-out);
+  box-shadow:
+    var(--edge-highlight),
+    var(--bloom-violet);
+}
+
+.ac-cta:hover {
+  transform: translateY(-2px);
+  background-position: 100% 0;
+  box-shadow:
+    var(--edge-highlight),
+    0 0 0 1px oklch(0.85 0.15 290 / 0.4),
+    0 10px 34px -8px oklch(0.7 0.2 290 / 0.6);
+}
+
+.ac-cta:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 60ms;
+}
+
+/* The travelling highlight. Sits above the gradient, below the label,
+   and is clipped by the button's own overflow — which is why the label
+   has an explicit z-index rather than relying on source order. */
+.ac-cta::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -40% -10%;
+  background: linear-gradient(
+    100deg,
+    transparent 38%,
+    oklch(1 0 0 / 0.55) 50%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+  animation: ac-sweep-cta 3.6s var(--ease-out) infinite;
+}
+
+.ac-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 8. Section header rule — a hairline that draws itself from the left
+      once, on entrance. Reuses the index's own `draw-x` timing so the
+      two canvases share a hand. */
+.ac-rule {
+  transform-origin: left center;
+  animation: draw-x 1000ms var(--ease-out) both;
+}
+
+/* 9. Text-generate — the staggered word/blur reveal. Transform and
+      filter only: the glyphs are painted at full ink from frame one
+      and lifted in from below the mask, so nothing here is ever
+      invisible to LCP or to a contrast audit taken mid-animation. */
+.ac-gen-line {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.ac-gen-line > span {
+  display: inline-block;
+  animation: ac-gen 720ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 62ms + 80ms);
+}
+
+@keyframes ac-sweep {
+  to {
+    --ac-sweep: 360deg;
+  }
+}
+
+@keyframes ac-drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(14%, 8%, 0) scale(1.16);
+  }
+}
+
+@keyframes ac-drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-12%, 10%, 0) scale(0.94);
+  }
+}
+
+@keyframes ac-shine {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 220% 50%;
+  }
+}
+
+@keyframes ac-beam {
+  0% {
+    transform: rotate(16deg) translate3d(0, -30vh, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.55;
+  }
+  88% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: rotate(16deg) translate3d(0, 130vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes ac-sweep-cta {
+  0%,
+  62% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes ac-gen {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Vertical timeline rail for the process section.
+
+   The fill is scroll-driven, the same planing-driver convention as
+   .header-elevate and .scroll-progress: the compositor owns it and the
+   main thread never hears about the scroll at all. Where scroll
+   timelines are unsupported the syntax degrades to an always-on rule, so
+   the line is present in either branch — just not animated in the
+   second one. */
+@supports (animation-timeline: scroll()) {
+  .ac-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.125rem;
+    top: 0.3rem;
+    bottom: 1rem;
+    width: 1px;
+    transform-origin: top center;
+    background: linear-gradient(
+      to bottom,
+      var(--aurora-1) 0%,
+      var(--aurora-2) 50%,
+      var(--aurora-3) 100%
+    );
+    transform: scaleY(0);
+    animation: draw-y 1ms linear both;
+    animation-timeline: scroll(root);
+    animation-range: entry 0% entry 70%;
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .ac-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.125rem;
+    top: 0.3rem;
+    bottom: 1rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      var(--aurora-1) 0%,
+      var(--aurora-2) 50%,
+      var(--aurora-3) 100%
+    );
+    opacity: 0.5;
+  }
+}
+
+@media (min-width: 640px) {
+  @supports (animation-timeline: scroll()) {
+    .ac-timeline::before {
+      left: 1.375rem;
+    }
+  }
+  @supports not (animation-timeline: scroll()) {
+    .ac-timeline::before {
+      left: 1.375rem;
+    }
+  }
+}
+
+/* The ambient effects are the first thing to go when motion is not
+   wanted. Unlike the entrance reveals — which have a meaningful static
+   end state — a frozen sweep or a stopped drift is just a bug, so these
+   are removed outright rather than collapsed to their first frame. */
+@media (prefers-reduced-motion: reduce) {
+  .ac-aurora > span,
+  .ac-beams > span,
+  .ac-moving-border::before,
+  .ac-cta::before,
+  .ac-shiny {
+    animation: none !important;
+  }
+
+  /* Still lit, still gradient — just not travelling. */
+  .ac-shiny {
+    background-position: 50% 50%;
+  }
+
+  .ac-bento:hover,
+  .ac-bento:focus-within {
+    transform: none;
+  }
+}
+
+/* ==================================================================
+   THE COMPLETE UI OVERHAUL — Light canvas
+   Same architecture, flipped: a near-white stage, ink text, accent in
+   violet, drop shadows instead of blooms. The gradient is cooler and
+   stays two stops so it resolves as an accent, never as a paint.
+   ================================================================== */
+:root {
+  --bg: #fafafa;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f2f2f4;
+  --fg: #0a0a0a;
+  --fg-muted: #52525b;
+  --fg-subtle: #71717a;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --accent: #7c3aed;
+  --accent-fg: #ffffff;
+  --selection: #ede9fe;
+
+  --band-compute: #8b5cf6;
+  --band-state: #a78bfa;
+  --band-control: #06b6d4;
+  --layer-1: #8b5cf6;
+  --layer-2: #a78bfa;
+  --layer-3: #c4b5fd;
+  --layer-4: #0ea5e9;
+  --layer-5: #22d3ee;
+  --layer-6: #38bdf8;
+  --layer-7: #0891b2;
+  --layer-8: #0284c7;
+  --layer-9: #0369a1;
+
+  --aurora-1: #06b6d4;
+  --aurora-2: #6366f1;
+  --aurora-3: #a855f7;
+  --aurora-grad: linear-gradient(100deg, var(--aurora-1) 0%, var(--aurora-2) 46%, var(--aurora-3) 100%);
+
+  --shadow-ink:
+    0 0 0 1px var(--border),
+    0 1px 1px -0.5px oklch(0.2 0 0 / 0.05),
+    0 3px 3px -1.5px oklch(0.2 0 0 / 0.04),
+    0 6px 6px -3px oklch(0.2 0 0 / 0.035);
+  --shadow-lift:
+    0 0 0 1px var(--border-strong),
+    0 1px 1px -0.5px oklch(0.2 0 0 / 0.06),
+    0 6px 12px -4px oklch(0 0 0 / 0.12);
+  --shadow-float:
+    0 0 0 1px var(--border-strong),
+    0 12px 24px -6px oklch(0 0 0 / 0.14),
+    0 32px 64px -16px oklch(0 0 0 / 0.18);
+  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.16);
+
+  color-scheme: light;
+}
+
+/* ==================================================================
+   THE COMPLETE UI OVERHAUL — Dark canvas
+   ================================================================== */
+.dark {
+  --bg: #050507;
+  --bg-elevated: #0c0c11;
+  --bg-sunken: #08080b;
+  --fg: #f4f4f6;
+  --fg-muted: #9c9cab;
+  --fg-subtle: #62626f;
+  --border: #1b1b22;
+  --border-strong: #2e2e38;
+  --accent: #a78bfa;
+  --accent-fg: #06060a;
+  --selection: #3b2f63;
+
+  --band-compute: #c084fc;
+  --band-state: #818cf8;
+  --band-control: #22d3ee;
+  --layer-1:  #c084fc;
+  --layer-2:  #a78bfa;
+  --layer-3:  #818cf8;
+  --layer-4:  #7c7df7;
+  --layer-5:  #5bd2f6;
+  --layer-6:  #3cc8f0;
+  --layer-7: #29bfee;
+  --layer-8: #22d3ee;
+  --layer-9: #1ec8e0;
+
+  --aurora-1: #22d3ee;
+  --aurora-2: #818cf8;
+  --aurora-3: #c084fc;
+  --aurora-grad: linear-gradient(100deg, #22d3ee 0%, #818cf8 46%, #c084fc 100%);
+
+  --shadow-ink:
+    0 0 0 1px oklch(1 0 0 / 0.07),
+    0 1px 0 0 oklch(1 0 0 / 0.04) inset,
+    0 12px 32px -12px oklch(0 0 0 / 0.7);
+  --shadow-lift:
+    0 0 0 1px oklch(1 0 0 / 0.12),
+    0 1px 0 0 oklch(1 0 0 / 0.06) inset,
+    0 26px 60px -18px oklch(0.62 0.2 290 / 0.34);
+  --shadow-float:
+    0 0 0 1px oklch(1 0 0 / 0.14),
+    0 1px 0 0 oklch(1 0 0 / 0.07) inset,
+    0 40px 90px -28px oklch(0.65 0.22 290 / 0.45);
+  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.14);
+
+  color-scheme: dark;
+}
+
+.dark body::before {
+  background-image: radial-gradient(circle at center, oklch(1 0 0 / 0.13) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
+}
+
+::selection { background: var(--accent); color: var(--bg); }
+.scroll-progress { background: var(--aurora-grad); }
+
+.dark .btn-ink {
+  background: var(--aurora-grad);
+  color: #06060a;
+  font-weight: 600;
+  box-shadow:
+    var(--edge-highlight),
+    0 0 0 1px oklch(0.85 0.15 290 / 0.4),
+    0 10px 34px -8px oklch(0.7 0.2 290 / 0.6);
+}
+
+.dark header.header-elevate {
+  background: oklch(0.01 0 0 / 0.72);
+  backdrop-filter: blur(14px);
+}

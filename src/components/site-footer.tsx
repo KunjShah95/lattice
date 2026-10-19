@@ -35,17 +35,38 @@ export function SiteFooter() {
               {toolCount} tools · {layers.length} layers · {glossary.length} terms
             </p>
             <ProductHuntBadge className="mt-4" />
+            {/* UsefulShelf listing badge. Rendered unconditionally — no cookie,
+                region or A/B gate — so UsefulShelfBot's daily crawl finds it in
+                the server-sent HTML on the submitted page and the listing stays
+                public. One badge only: the earlier `lattice` listing was
+                superseded by `lattice-9fc3de` when the domain moved to
+                lattice.kunjshah.in, so keeping both would have been duplicate
+                credit for the same product. */}
             <a
-              href="https://usefulshelf.co/apps/lattice?utm_source=lattice.kunjshah.in&utm_medium=referral&utm_campaign=badge&utm_content=light"
+              href="https://usefulshelf.co/apps/lattice-9fc3de?utm_source=lattice.kunjshah.in&utm_medium=referral&utm_campaign=badge&utm_content=lime"
               target="_blank"
-              rel="noopener"
+              rel="nofollow noopener"
               className="mt-4 inline-block"
             >
               <img
-                src="https://usefulshelf.co/badge/lattice.svg"
+                src="https://usefulshelf.co/badge/lattice-9fc3de.svg?theme=lime"
                 alt="Featured on UsefulShelf"
                 width={248}
                 height={66}
+              />
+            </a>
+            {/* Smol Rank listing badge. */}
+            <a
+              href="https://smolrank.com/projects/lattice?utm_source=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block"
+            >
+              <img
+                src="https://smolrank.com/smolrank/images/badges/featured-on-light.svg"
+                alt="Featured on Smol Rank"
+                height={44}
+                style={{ height: 44, width: "auto" }}
               />
             </a>
           </div>
@@ -78,7 +99,7 @@ export function SiteFooter() {
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/bands">By band</FooterLink>
-            <FooterLink href="/review">Stack review</FooterLink>
+            <FooterLink href="/stack-review">Stack review</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
             {/* Next to methodology rather than under "Submit", because it is the
                 evidence for the claim methodology makes rather than a way to
