@@ -276,7 +276,7 @@ export function ReviewCta({ context }: { context: string }) {
       <div className="max-w-[52ch]">
         <p className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {isEarlyAccess ? "Stack review · free during early access" : "Stack review"}
+          {isEarlyAccess ? "Stack review · free" : "Stack review"}
         </p>
         <p className="mt-2 text-pretty text-[16px] font-medium leading-snug">{context}</p>
         <p className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">

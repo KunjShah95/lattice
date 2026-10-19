@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgHomeCard } from "@/lib/og";
 
 export const runtime = "nodejs";
-export const alt = `${site.name}: the infrastructure behind working AI systems: ${toolCount} tools across nine stack layers`;
+export const alt = `${site.name}: the infrastructure behind working AI systems: ${toolCount} tools across nine stack layers and a reference section`;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

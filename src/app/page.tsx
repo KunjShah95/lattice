@@ -99,7 +99,7 @@ const HOME_FAQ = [
   },
   {
     q: "What is a stack review?",
-    a: "You describe what you are building; you get back a written, layer-by-layer review with what to keep, swap or add, a cost band and the biggest risk. It is free during early access.",
+    a: "You describe what you are building; you get back a written, layer-by-layer review with what to keep, swap or add, a cost band and the biggest risk. It is free.",
   },
   {
     q: "Can my AI assistant use Lattice?",
@@ -204,7 +204,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 max-w-[46ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
-              {toolCount} tools across {stackLayers.length} layers of a production AI stack. Each
+              {toolCount} tools across {stackLayers.length} stack layers, plus a reference section. Each
               entry says when to use it <em>and when not to</em>, so you can choose without vendor
               spin. Build your stack with the free Stack Builder, or have an engineer review yours.
             </p>
@@ -226,6 +226,16 @@ export default function HomePage() {
                 Get an expert review
               </Link>
             </div>
+
+            <p className="mt-4 font-mono text-[11px] text-fg-subtle">
+              Never shipped one of these?{" "}
+              <Link
+                href="/start"
+                className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                Start with a five-step path to one working RAG app →
+              </Link>
+            </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
               <ProductHuntBadge />
