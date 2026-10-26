@@ -61,7 +61,7 @@ export default function BlogIndexPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {posts.length} essays
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Notes on building AI systems that hold up.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -87,7 +87,7 @@ export default function BlogIndexPage() {
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                    <h2 className="text-balance font-serif text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                    <h2 className="text-balance font-display text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
                       {post.meta.title}
                     </h2>
                     <span className="font-mono text-[11px] text-fg-subtle">

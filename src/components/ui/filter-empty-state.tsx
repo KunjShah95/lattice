@@ -34,7 +34,7 @@ export function FilterEmptyState({
         <rect x="4.5" y="17.5" width="47" height="9" rx="2" stroke="currentColor" strokeDasharray="3 3" />
         <rect x="4" y="32" width="48" height="10" rx="2" fill="currentColor" opacity="0.18" />
       </svg>
-      <p className="mt-5 font-serif text-[20px] font-medium tracking-[-0.01em] text-fg">{title}</p>
+      <p className="mt-5 font-display text-[20px] font-medium tracking-[-0.01em] text-fg">{title}</p>
       <p className="mx-auto mt-2 max-w-[36ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
         Every tool here is ruled out by at least one constraint. Drop the one
         that matters least:

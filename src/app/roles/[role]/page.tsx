@@ -141,7 +141,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </nav>
 
         <div className="mt-6">
-          <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+          <h1 className="text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {meta.title}
           </h1>
           <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg">

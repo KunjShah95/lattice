@@ -204,7 +204,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+            <h1 className="text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
               {tool.name}
             </h1>
             <p className="mt-2 font-mono text-[12px] text-fg-subtle">

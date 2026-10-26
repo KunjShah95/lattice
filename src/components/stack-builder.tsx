@@ -646,7 +646,7 @@ export function StackBuilder() {
                 <span key={s.slug} className="block h-1.5 w-24 rounded-full border border-dashed border-border-strong" />
               ))}
             </div>
-            <h2 id="stack-empty" className="mt-6 font-serif text-[20px] font-medium tracking-[-0.01em]">
+            <h2 id="stack-empty" className="mt-6 font-display text-[20px] font-medium tracking-[-0.01em]">
               Your stack is drawn here.
             </h2>
             <p className="mx-auto mt-2 max-w-[44ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
@@ -665,7 +665,7 @@ export function StackBuilder() {
         >
           Your stack: built from your answers
         </h2>
-        <p className="mt-2 font-serif text-[20px] leading-snug">{result.summary}</p>
+        <p className="mt-2 font-display text-[20px] leading-snug">{result.summary}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
@@ -751,7 +751,7 @@ export function StackBuilder() {
                   {p.fitLabel}
                 </span>
               </div>
-              <Link href={p.url} className="mt-1 block font-serif text-[21px] font-medium hover:text-accent">
+              <Link href={p.url} className="mt-1 block font-display text-[21px] font-medium hover:text-accent">
                 {p.tool}
               </Link>
               {p.matches.length ? (
@@ -784,7 +784,7 @@ export function StackBuilder() {
         <div className="mt-6 grid gap-3 rounded-lg border border-border p-5 sm:grid-cols-3">
           <div>
             <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Estimated cost</p>
-            <p className="mt-1 font-serif text-[22px]">
+            <p className="mt-1 font-display text-[22px]">
               $<RollingNumber value={result.costLow} />–$<RollingNumber value={result.costHigh} />
               <span className="text-[13px] text-fg-muted">/mo</span>
             </p>
@@ -797,7 +797,7 @@ export function StackBuilder() {
           </div>
           <div>
             <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Confidence</p>
-            <p className="mt-1 flex items-center gap-3 font-serif text-[22px]">
+            <p className="mt-1 flex items-center gap-3 font-display text-[22px]">
               <span>{Math.round(result.confidence * 100)}%</span>
               <Meter value={result.confidence} />
             </p>

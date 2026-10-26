@@ -55,7 +55,7 @@ export default function CompareIndexPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {resolvedComparisons.length} comparisons
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           When the list is not the answer.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -128,7 +128,7 @@ function ComparisonGroup({
                 ))}
               </span>
               <span className="min-w-0 flex-1">
-                <h3 className="text-balance font-serif text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                <h3 className="text-balance font-display text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
                   {c.title}
                 </h3>
                 <p className="editorial-justify mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">

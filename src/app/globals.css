@@ -156,6 +156,9 @@
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
   --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+  /* Headings outside the essays. Sans, set tight: the index is a working
+     product, and the serif now belongs to long-form reading only. */
+  --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -175,32 +178,6 @@
     font-family: var(--font-sans);
   }
 
-  /* Drafting grid rather than a soft glow: the page should read as a working
-     surface with structure, not a marketing backdrop.
-
-     Painted on a fixed pseudo-element rather than on `body` with
-     `background-attachment: fixed`. The two are visually identical, but not
-     computationally: a fixed attachment on the scrolling body has to be
-     re-rastered against the viewport on every scroll frame, and that raster
-     work runs on the main thread: the same thread INP is measured on. A
-     `position: fixed` element is promoted to its own composited layer,
-     rastered once, and re-used as the page scrolls, so the grid goes from a
-     per-frame cost to a one-off.
-
-     `z-index: -1` sits it behind the content (body's own background has
-     propagated to the canvas, which paints beneath everything regardless) and
-     `pointer-events: none` keeps it from ever intercepting a click. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, var(--grid) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
-    background-size: 56px 56px;
-  }
 
   ::selection {
     background: var(--selection);
@@ -242,7 +219,8 @@
   }
 
   /* Display serif: optical tightening and real quotes. */
-  .font-serif {
+  .font-serif,
+  .font-display {
     font-feature-settings: "kern", "liga";
     hanging-punctuation: first;
   }
@@ -1173,9 +1151,10 @@
    it: nothing in the tree sets `data-canvas`, so until a component
    opts in, every rule below is dead CSS.
 
-   One accent, two stops. Cyan→violet, which is the Aceternity house
-   gradient; the ramps are hue-adjacent rather than a rainbow, so the
-   gradient never resolves into a third colour the eye wants to name.
+   One accent, three close stops: the index's own rust, warmed toward
+   amber. Hue-adjacent rather than a rainbow, so the gradient never
+   resolves into a second colour the eye wants to name, and the selling
+   surface is visibly the same product as the index.
    */
 
 [data-canvas="aurora"] {
@@ -1189,16 +1168,16 @@
   --fg-subtle: #62626f;
   --border: #1b1b22;
   --border-strong: #2e2e38;
-  --accent: #a78bfa;
+  --accent: oklch(0.72 0.17 34);
   --accent-fg: #08080b;
-  --selection: #3b2f63;
+  --selection: #4a2418;
 
   /* The gradient, as stops rather than as a rule, so a component can
      animate one end of it independently of the other. Every accent
      surface on this canvas is painted from these three. */
-  --aurora-1: #22d3ee;
-  --aurora-2: #818cf8;
-  --aurora-3: #c084fc;
+  --aurora-1: oklch(0.66 0.19 32);
+  --aurora-2: oklch(0.72 0.17 45);
+  --aurora-3: oklch(0.80 0.14 62);
   --aurora-grad: linear-gradient(
     100deg,
     var(--aurora-1) 0%,
@@ -1209,9 +1188,9 @@
   /* Depth on a black canvas does not come from drop shadows — there is
      nothing to cast onto. It comes from light: a blurred colour bloom
      behind the surface plus a hairline rim. These are the blooms. */
-  --bloom-cyan: 0 0 90px -10px oklch(0.78 0.15 200 / 0.5);
-  --bloom-violet: 0 0 90px -10px oklch(0.68 0.2 295 / 0.5);
-  --bloom-mixed: 0 0 130px -20px oklch(0.72 0.19 280 / 0.42);
+  --bloom-cyan: 0 0 90px -10px oklch(0.72 0.15 50 / 0.32);
+  --bloom-violet: 0 0 90px -10px oklch(0.66 0.18 34 / 0.32);
+  --bloom-mixed: 0 0 130px -20px oklch(0.68 0.16 40 / 0.26);
 
   --shadow-ink:
     0 0 0 1px oklch(1 0 0 / 0.07),
@@ -1221,13 +1200,18 @@
     0 0 0 1px oklch(1 0 0 / 0.12),
     0 1px 0 0 oklch(1 0 0 / 0.06) inset,
     0 0 0 1px transparent,
-    0 26px 60px -18px oklch(0.62 0.2 290 / 0.34);
+    0 26px 60px -18px oklch(0 0 0 / 0.6);
   --shadow-float:
     0 0 0 1px oklch(1 0 0 / 0.14),
     0 1px 0 0 oklch(1 0 0 / 0.07) inset,
-    0 40px 90px -28px oklch(0.65 0.22 290 / 0.45);
+    0 40px 90px -28px oklch(0 0 0 / 0.7);
   --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.14);
 
+  /* The canvas paints its own surface and ink. Without these the tokens
+     changed but the page behind them stayed light, so dark-token cards sat
+     grey on white with near-invisible text. */
+  background: var(--bg);
+  color: var(--fg);
   color-scheme: dark;
 }
 
@@ -1265,8 +1249,8 @@
   border-radius: inherit;
   background: radial-gradient(
     340px circle at var(--mx, 50%) var(--my, 0%),
-    oklch(0.78 0.14 260 / 0.16),
-    oklch(0.68 0.2 295 / 0.07) 38%,
+    oklch(0.75 0.12 50 / 0.10),
+    oklch(0.66 0.16 34 / 0.05) 38%,
     transparent 66%
   );
 }
@@ -1294,30 +1278,14 @@
 }
 
 .ac-moving-border::before {
+  /* Formerly a rotating conic sweep. A static, slightly stronger rim marks
+     the featured card without anything moving on the page. */
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  padding: 1px;
-  background: conic-gradient(
-    from var(--ac-sweep),
-    transparent 0%,
-    var(--aurora-1) 12%,
-    var(--aurora-2) 26%,
-    var(--aurora-3) 38%,
-    transparent 56%,
-    transparent 100%
-  );
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  animation: ac-sweep 5.5s linear infinite;
+  box-shadow: 0 0 0 1px var(--fg);
 }
 
 /* Without `@property` support the pseudo-element would still paint, it
@@ -1376,12 +1344,9 @@
       a moving element, so the text never reflows and the effect costs
       one composited background-position per frame. */
 .ac-shiny {
-  background: var(--aurora-grad);
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: ac-shine 5s linear infinite;
+  /* Was a travelling gradient clipped to the glyphs. Now plain accent ink:
+     emphasis by colour alone, the way the index marks a link. */
+  color: var(--accent);
 }
 
 /* 5. Beams — thin gradient streaks falling across a dark field. Four is
@@ -1454,26 +1419,18 @@
   isolation: isolate;
   overflow: hidden;
   border-radius: 0.75rem;
-  background: var(--aurora-grad);
-  background-size: 200% 100%;
-  color: #06060a;
-  font-weight: 600;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 500;
   transition:
     transform var(--dur-fast) var(--ease-spring),
     box-shadow 320ms var(--ease-out),
     background-position 700ms var(--ease-out);
-  box-shadow:
-    var(--edge-highlight),
-    var(--bloom-violet);
+  box-shadow: var(--edge-highlight);
 }
 
 .ac-cta:hover {
-  transform: translateY(-2px);
-  background-position: 100% 0;
-  box-shadow:
-    var(--edge-highlight),
-    0 0 0 1px oklch(0.85 0.15 290 / 0.4),
-    0 10px 34px -8px oklch(0.7 0.2 290 / 0.6);
+  transform: translateY(-1px);
 }
 
 .ac-cta:active {
@@ -1481,24 +1438,6 @@
   transition-duration: 60ms;
 }
 
-/* The travelling highlight. Sits above the gradient, below the label,
-   and is clipped by the button's own overflow — which is why the label
-   has an explicit z-index rather than relying on source order. */
-.ac-cta::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: -40% -10%;
-  background: linear-gradient(
-    100deg,
-    transparent 38%,
-    oklch(1 0 0 / 0.55) 50%,
-    transparent 62%
-  );
-  transform: translateX(-120%);
-  pointer-events: none;
-  animation: ac-sweep-cta 3.6s var(--ease-out) infinite;
-}
 
 .ac-cta > * {
   position: relative;
@@ -1685,132 +1624,3 @@
   }
 }
 
-/* ==================================================================
-   THE COMPLETE UI OVERHAUL — Light canvas
-   Same architecture, flipped: a near-white stage, ink text, accent in
-   violet, drop shadows instead of blooms. The gradient is cooler and
-   stays two stops so it resolves as an accent, never as a paint.
-   ================================================================== */
-:root {
-  --bg: #fafafa;
-  --bg-elevated: #ffffff;
-  --bg-sunken: #f2f2f4;
-  --fg: #0a0a0a;
-  --fg-muted: #52525b;
-  --fg-subtle: #71717a;
-  --border: #e4e4e7;
-  --border-strong: #d4d4d8;
-  --accent: #7c3aed;
-  --accent-fg: #ffffff;
-  --selection: #ede9fe;
-
-  --band-compute: #8b5cf6;
-  --band-state: #a78bfa;
-  --band-control: #06b6d4;
-  --layer-1: #8b5cf6;
-  --layer-2: #a78bfa;
-  --layer-3: #c4b5fd;
-  --layer-4: #0ea5e9;
-  --layer-5: #22d3ee;
-  --layer-6: #38bdf8;
-  --layer-7: #0891b2;
-  --layer-8: #0284c7;
-  --layer-9: #0369a1;
-
-  --aurora-1: #06b6d4;
-  --aurora-2: #6366f1;
-  --aurora-3: #a855f7;
-  --aurora-grad: linear-gradient(100deg, var(--aurora-1) 0%, var(--aurora-2) 46%, var(--aurora-3) 100%);
-
-  --shadow-ink:
-    0 0 0 1px var(--border),
-    0 1px 1px -0.5px oklch(0.2 0 0 / 0.05),
-    0 3px 3px -1.5px oklch(0.2 0 0 / 0.04),
-    0 6px 6px -3px oklch(0.2 0 0 / 0.035);
-  --shadow-lift:
-    0 0 0 1px var(--border-strong),
-    0 1px 1px -0.5px oklch(0.2 0 0 / 0.06),
-    0 6px 12px -4px oklch(0 0 0 / 0.12);
-  --shadow-float:
-    0 0 0 1px var(--border-strong),
-    0 12px 24px -6px oklch(0 0 0 / 0.14),
-    0 32px 64px -16px oklch(0 0 0 / 0.18);
-  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.16);
-
-  color-scheme: light;
-}
-
-/* ==================================================================
-   THE COMPLETE UI OVERHAUL — Dark canvas
-   ================================================================== */
-.dark {
-  --bg: #050507;
-  --bg-elevated: #0c0c11;
-  --bg-sunken: #08080b;
-  --fg: #f4f4f6;
-  --fg-muted: #9c9cab;
-  --fg-subtle: #62626f;
-  --border: #1b1b22;
-  --border-strong: #2e2e38;
-  --accent: #a78bfa;
-  --accent-fg: #06060a;
-  --selection: #3b2f63;
-
-  --band-compute: #c084fc;
-  --band-state: #818cf8;
-  --band-control: #22d3ee;
-  --layer-1:  #c084fc;
-  --layer-2:  #a78bfa;
-  --layer-3:  #818cf8;
-  --layer-4:  #7c7df7;
-  --layer-5:  #5bd2f6;
-  --layer-6:  #3cc8f0;
-  --layer-7: #29bfee;
-  --layer-8: #22d3ee;
-  --layer-9: #1ec8e0;
-
-  --aurora-1: #22d3ee;
-  --aurora-2: #818cf8;
-  --aurora-3: #c084fc;
-  --aurora-grad: linear-gradient(100deg, #22d3ee 0%, #818cf8 46%, #c084fc 100%);
-
-  --shadow-ink:
-    0 0 0 1px oklch(1 0 0 / 0.07),
-    0 1px 0 0 oklch(1 0 0 / 0.04) inset,
-    0 12px 32px -12px oklch(0 0 0 / 0.7);
-  --shadow-lift:
-    0 0 0 1px oklch(1 0 0 / 0.12),
-    0 1px 0 0 oklch(1 0 0 / 0.06) inset,
-    0 26px 60px -18px oklch(0.62 0.2 290 / 0.34);
-  --shadow-float:
-    0 0 0 1px oklch(1 0 0 / 0.14),
-    0 1px 0 0 oklch(1 0 0 / 0.07) inset,
-    0 40px 90px -28px oklch(0.65 0.22 290 / 0.45);
-  --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.14);
-
-  color-scheme: dark;
-}
-
-.dark body::before {
-  background-image: radial-gradient(circle at center, oklch(1 0 0 / 0.13) 1px, transparent 1px);
-  background-size: 26px 26px;
-  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
-}
-
-::selection { background: var(--accent); color: var(--bg); }
-.scroll-progress { background: var(--aurora-grad); }
-
-.dark .btn-ink {
-  background: var(--aurora-grad);
-  color: #06060a;
-  font-weight: 600;
-  box-shadow:
-    var(--edge-highlight),
-    0 0 0 1px oklch(0.85 0.15 290 / 0.4),
-    0 10px 34px -8px oklch(0.7 0.2 290 / 0.6);
-}
-
-.dark header.header-elevate {
-  background: oklch(0.01 0 0 / 0.72);
-  backdrop-filter: blur(14px);
-}

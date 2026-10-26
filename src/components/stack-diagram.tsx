@@ -28,14 +28,6 @@ export function StackDiagram() {
 
   return (
     <div className="relative">
-      <div className="mb-2 flex items-baseline justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
-          The stack
-        </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
-          {stackLayers.length} layers · {offStack.length} off-stack
-        </span>
-      </div>
 
       {/*
         A plain div, not `role="list"`.
@@ -52,9 +44,7 @@ export function StackDiagram() {
         announcement is *better* than one flat list was: the reader hears which
         family of layers they have moved into.
       */}
-      {/* The frame is a drawing, so it carries permanent crop corners just
-          outside its edge: the same marks a row picks up on hover, at rest. */}
-      <div className="crop crop-static relative rounded-xl bg-bg-elevated/70 p-1.5 shadow-ink [--crop-inset:-7px] [--crop:10px]">
+      <div className="relative rounded-lg bg-bg-elevated p-1.5 shadow-ink">
         {bandOrder.map((band) => (
           <section key={band.id} className="mb-1 last:mb-0">
             {/* The band heading carries the symptom it is associated with,

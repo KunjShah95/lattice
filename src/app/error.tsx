@@ -41,7 +41,7 @@ export default function Error({
           Error · Sheet failed to draw
         </p>
 
-        <h1 className="mx-auto mt-5 max-w-2xl text-balance font-serif text-[36px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[52px]">
+        <h1 className="mx-auto mt-5 max-w-2xl text-balance font-display text-[36px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[52px]">
           Something slipped out of place.
         </h1>
 

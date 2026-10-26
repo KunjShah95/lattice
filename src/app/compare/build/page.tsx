@@ -117,7 +117,7 @@ export default function CompareBuilderPage() {
         <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           Pick any three
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Compare tools that were never meant to be compared.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">

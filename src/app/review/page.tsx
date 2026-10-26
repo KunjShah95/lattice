@@ -3,14 +3,12 @@ import Link from "next/link";
 import {
   BookButton,
   CtaBand,
-  EarlyAccessPill,
   Faq,
-  PricingTiers,
   SectionHeading,
 } from "@/components/marketing";
 import { categories, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
-import { bookingIsExternal, FAQ, isEarlyAccess, TIERS } from "@/lib/offer";
+import { bookingIsExternal, FAQ } from "@/lib/offer";
 import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
@@ -19,7 +17,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Stack review: an engineer's second opinion on your AI stack",
   description:
-    "Send your AI system's design and get a written, layer-by-layer review: what to keep, what to swap, what it costs, where it breaks. Free during early access.",
+    "Send your AI system's design and get a written, layer-by-layer review: what to keep, what to swap, what it costs, where it breaks. Free.",
   alternates: { canonical: "/review" },
   openGraph: { url: absolute("/review") },
 };
@@ -84,14 +82,6 @@ export default function ReviewPage() {
         description: metadata.description as string,
         provider: { "@id": ids.organization },
         areaServed: "Worldwide",
-        offers: TIERS.map((t) => ({
-          "@type": "Offer",
-          name: t.name,
-          description: t.forWho,
-          price: t.price ?? 0,
-          priceCurrency: "USD",
-          url: pageUrl,
-        })),
       },
       {
         "@type": "FAQPage",
@@ -115,11 +105,8 @@ export default function ReviewPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div aria-hidden="true" className="wash pointer-events-none absolute inset-0" />
-        <div aria-hidden="true" className="bg-dots pointer-events-none absolute inset-0 opacity-70" />
         <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-16 text-center sm:px-6 sm:pb-20 sm:pt-24">
-          <EarlyAccessPill />
-          <h1 className="mx-auto mt-6 max-w-3xl text-balance font-serif text-[38px] font-medium leading-[1.04] tracking-[-0.03em] sm:text-[56px]">
+          <h1 className="mx-auto max-w-3xl text-balance font-display text-[38px] font-medium leading-[1.04] tracking-[-0.03em] sm:text-[56px]">
             A second opinion on your AI stack, from the engineer who mapped all of it.
           </h1>
           <p className="mx-auto mt-6 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
@@ -130,13 +117,13 @@ export default function ReviewPage() {
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
             <BookButton className="w-full sm:w-auto">
-              {isEarlyAccess ? "Book a free review" : "Book a review"}
+              Book a free review
             </BookButton>
             <a
-              href="#pricing"
+              href="#how"
               className="group inline-flex min-h-11 items-center gap-1 text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
             >
-              Compare the three options
+              See how it works
               <span aria-hidden="true" className="nudge nudge-down inline-block">↓</span>
             </a>
           </div>
@@ -151,7 +138,7 @@ export default function ReviewPage() {
         <p className="mx-auto -mt-2 max-w-3xl rounded-xl border border-border bg-bg-elevated/70 px-5 py-4 text-center text-pretty text-[13.5px] leading-relaxed text-fg-muted">
           <span className="font-medium text-fg">What a review is not:</span> it never changes
           where a tool sits in the index, a ranking or a comparison verdict, and vendors cannot
-          book one about their own product. You are paying for judgement about your system: the
+          book one about their own product. You are getting judgement about your system: the
           index stays free and neutral.{" "}
           <Link
             href="/methodology"
@@ -218,22 +205,6 @@ export default function ReviewPage() {
           </ol>
         </section>
 
-        {/* ── Pricing ───────────────────────────────────────────────── */}
-        <section id="pricing" aria-labelledby="pricing-h" className="scroll-mt-24 border-t border-border py-20">
-          <SectionHeading
-            id="pricing-h"
-            title={isEarlyAccess ? "Pick a depth. All three are free right now." : "Pick a depth."}
-            lede={
-              isEarlyAccess
-                ? "Early access: the first reviews shape the format, so they cost nothing in exchange for honest feedback. Prices will be published here before that changes."
-                : "Every option is written, dated and yours to keep."
-            }
-          />
-          <div className="mt-14">
-            <PricingTiers />
-          </div>
-        </section>
-
         {/* ── Why trust it ──────────────────────────────────────────── */}
         <section aria-labelledby="proof" className="border-t border-border py-20">
           <SectionHeading
@@ -251,7 +222,7 @@ export default function ReviewPage() {
               <div key={a} className="bg-bg p-6">
                 <dt className="sr-only">{`${a} ${b}`}</dt>
                 <dd>
-                  <span className="block font-serif text-[34px] font-medium leading-none tracking-[-0.02em]">{figure}</span>
+                  <span className="block font-display text-[34px] font-medium leading-none tracking-[-0.02em]">{figure}</span>
                   <span className="mt-3 block text-[13px] leading-snug text-fg-muted">
                     {a} {b}
                   </span>

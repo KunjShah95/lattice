@@ -114,7 +114,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           </p>
         ) : null}
 
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           {s.title}
         </h1>
 

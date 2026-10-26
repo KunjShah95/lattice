@@ -62,7 +62,7 @@ export function InfoSection({
 }) {
   return (
     <section className="mt-12 border-t border-border pt-7">
-      <h2 className="font-serif text-[22px] font-medium leading-snug tracking-[-0.015em]">
+      <h2 className="font-display text-[22px] font-medium leading-snug tracking-[-0.015em]">
         {title}
       </h2>
       <div className="prose-lattice mt-4 max-w-[62ch]">{children}</div>

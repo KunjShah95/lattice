@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Aurora, Beams, Bento, CtaButton, MovingBorder, ShinyText, TextGenerate } from "@/components/acetate/motion-primitives";
-import { Magnetic, Spotlight } from "@/components/acetate/pointer-effects";
+import { Bento, MovingBorder, ShinyText, TextGenerate } from "@/components/acetate/motion-primitives";
+import { Magnetic } from "@/components/acetate/pointer-effects";
 import { reviewOffer } from "@/lib/review-offer";
 import { site } from "@/lib/site";
 import { absolute } from "@/lib/seo";
@@ -31,14 +31,6 @@ const HEADLINE = [
  */
 const ACCENT_INDEX = HEADLINE.indexOf("costs");
 
-function money(n: number) {
-  return n.toLocaleString("en-US", {
-    style: "currency",
-    currency: reviewOffer.currency,
-    maximumFractionDigits: 0,
-  });
-}
-
 /**
  * A pre-addressed request rather than a form.
  *
@@ -49,11 +41,9 @@ function money(n: number) {
  * the intake already half-written. The reader who would rather type into a form
  * can still use the address on `/contact`.
  */
-function bookingHref(tier: string) {
+function bookingHref() {
   const body = [
     "Stack review request",
-    "",
-    `Tier: ${tier}`,
     "",
     "What we are building:",
     "",
@@ -64,28 +54,23 @@ function bookingHref(tier: string) {
     "What prompted this:",
   ].join("\n");
   return `mailto:${site.contact.email}?subject=${encodeURIComponent(
-    `Stack review — ${tier}`,
+    "Stack review",
   )}&body=${encodeURIComponent(body)}`;
 }
 
 export const metadata: Metadata = {
-  title: "Stack Review — a paid read of your AI stack, by the index's author",
-  description: `A dated written review of one team's AI stack: what to keep, what to change, what to delete, and what it costs to delay each one. ${money(
-    reviewOffer.priceUsd,
-  )}. The index itself stays free and unsponsored.`,
+  title: "Stack Review — a free read of your AI stack, by the index's author",
+  description:
+    "A dated written review of one team's AI stack: what to keep, what to change, what to delete, and what it costs to delay each one. Free. The index itself stays free and unsponsored.",
   alternates: { canonical: "/stack-review" },
   openGraph: {
     url: absolute("/stack-review"),
     title: "Stack Review — the index's author reads your stack",
-    description: `Every layer you run, checked against the index. Three changes ranked by cost of delay. ${money(
-      reviewOffer.priceUsd,
-    )}, delivered in ${reviewOffer.deliveryDays} working days.`,
+    description: `Every layer you run, checked against the index. Three changes ranked by cost of delay. Free, delivered in ${reviewOffer.deliveryDays} working days.`,
   },
 };
 
 export default function StackReviewPage() {
-  const featured = reviewOffer.tiers[1];
-
   return (
     <div data-canvas="aurora" className="relative">
       <script
@@ -98,16 +83,6 @@ export default function StackReviewPage() {
             description: reviewOffer.promise,
             url: absolute("/stack-review"),
             provider: { "@type": "Organization", name: site.name },
-            offers: reviewOffer.tiers
-              .filter((t) => t.priceUsd > 0)
-              .map((t) => ({
-                "@type": "Offer",
-                name: t.name,
-                price: t.priceUsd,
-                priceCurrency: reviewOffer.currency,
-                availability: "https://schema.org/LimitedAvailability",
-                url: absolute("/stack-review"),
-              })),
           }),
         }}
       />
@@ -115,27 +90,23 @@ export default function StackReviewPage() {
       {/* =================================================================
           Hero.
 
-          One signature idea: the spotlight. Everything else here — the aurora
-          blooms, the beams, the text reveal — is deliberately low-contrast
-          enough to read as atmosphere rather than as a second effect competing
-          with it. The one thing that is meant to be looked at is the price.
+          No ambient effects: no blooms, beams or pointer wash. The selling page
+          is set in the same plain ink as the index, so it reads as the same
+          product.
           ================================================================= */}
       <section className="relative isolate overflow-hidden border-b border-border">
-        <Aurora />
-        <Beams count={4} />
-        <Spotlight />
 
         <div className="relative z-10 mx-auto max-w-5xl px-5 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center lg:gap-16">
             <div className="min-w-0">
               <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
                 <span className="ac-shiny inline-block h-1.5 w-1.5 rounded-full" />
-                Paid service
+                Free
                 <span aria-hidden="true" className="text-border-strong">/</span>
                 {reviewOffer.slots} slots per month
               </p>
 
-              <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.05] tracking-[-0.025em] sm:text-[46px] lg:text-[52px]">
+              <h1 className="mt-5 text-balance font-display text-[34px] font-medium leading-[1.05] tracking-[-0.025em] sm:text-[46px] lg:text-[52px]">
                 <TextGenerate words={HEADLINE} accentIndex={ACCENT_INDEX} />
               </h1>
 
@@ -169,25 +140,18 @@ export default function StackReviewPage() {
               </p>
             </div>
 
-            {/* The price, given the loudest surface on the page. */}
+            {/* What arrives, on the loudest surface on the page. */}
             <div className="relative">
               <MovingBorder radius="1.25rem" className="bg-bg-elevated/70 backdrop-blur-sm">
                 <div className="rounded-[1.25rem] p-7 sm:p-8">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
                     Stack Review
                   </p>
-                  <p className="mt-4 flex items-baseline gap-2">
-                    <span className="font-serif text-[54px] leading-none tracking-tight">
-                      {money(featured.priceUsd)}
-                    </span>
-                    <span className="text-[13px] text-fg-subtle">one-off</span>
+                  <p className="mt-4 font-display text-[40px] font-medium leading-none tracking-tight">
+                    {reviewOffer.deliveryDays} working days
                   </p>
                   <p className="mt-3 text-[13px] leading-relaxed text-fg-muted">
-                    One team, one workload.{" "}
-                    <ShinyText className="font-medium">
-                      {reviewOffer.deliveryDays} working days
-                    </ShinyText>{" "}
-                    from context to document.
+                    One team, one workload, from context to a dated document.
                   </p>
 
                   <ul className="mt-6 space-y-2.5 border-t border-border pt-5 text-[13px] text-fg-muted">
@@ -208,7 +172,7 @@ export default function StackReviewPage() {
                     Start with the intake →
                   </Link>
                   <p className="mt-3 text-center text-[11px] text-fg-subtle">
-                    No card needed to ask a question first.
+                    Free. Ask a question first if you are not sure.
                   </p>
                 </div>
               </MovingBorder>
@@ -218,28 +182,25 @@ export default function StackReviewPage() {
       </section>
 
       {/* =================================================================
-          Free vs paid.
+          What you get.
 
-          This section is the conversion argument, and it is built as a
-          comparison rather than a feature list — because the objection is not
-          "what is in the box", it is "why would I pay for an opinion when this
-          site is free". Answering it means being explicit that the free
-          product is not a trial of the paid one.
+          Six things that only come out of reading a specific stack end to
+          end, which the index on its own cannot tell you.
           ================================================================= */}
       <section id="what-you-get" className="relative scroll-mt-20 border-b border-border py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-6">
           <header className="max-w-[62ch]">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
-              What you are buying
+              What you get
             </p>
-            <h2 className="mt-3 text-balance font-serif text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
+            <h2 className="mt-3 text-balance font-display text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
               The index tells you what exists. This tells you{" "}
               <ShinyText>what your choices cost.</ShinyText>
             </h2>
             <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
               These are not feature bullets, they are the six things that only
               come out of reading a specific stack end to end — the reasons the
-              entry says "skip it" are usually about a constraint you have, and
+              entry says &ldquo;skip it&rdquo; are usually about a constraint you have, and
               that is exactly what a generic list cannot see.
             </p>
           </header>
@@ -251,7 +212,6 @@ export default function StackReviewPage() {
                 key={d.title}
                 className={`${d.span} p-6`}
               >
-                <Spotlight />
                 <span
                   aria-hidden="true"
                   className="ac-rule mb-4 block h-px w-10"
@@ -279,7 +239,7 @@ export default function StackReviewPage() {
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
               How it runs
             </p>
-            <h2 className="mt-3 text-balance font-serif text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
+            <h2 className="mt-3 text-balance font-display text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
               Five working days. Thirty minutes of yours.
             </h2>
           </header>
@@ -309,133 +269,24 @@ export default function StackReviewPage() {
       </section>
 
       {/* =================================================================
-          Pricing.
-          ================================================================= */}
-      <section className="relative border-b border-border py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-5 sm:px-6">
-          <header className="max-w-[62ch]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
-              Pricing
-            </p>
-            <h2 className="mt-3 text-balance font-serif text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
-              The free one is not a trial of the paid one.
-            </h2>
-            <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
-              It is the product. Everything below the free tier buys is depth
-              and a conversation, not access — there is nothing on this site
-              held back behind the first tier.
-            </p>
-          </header>
-
-          <ul className="mt-10 grid gap-4 lg:grid-cols-3 lg:items-start">
-            {reviewOffer.tiers.map((tier) => {
-              const card = (
-                <div
-                  className={`flex h-full flex-col rounded-[1.25rem] p-6 ${
-                    tier.featured
-                      ? "bg-bg-elevated/80 backdrop-blur-sm"
-                      : "bg-bg-elevated/40"
-                  }`}
-                >
-                  {tier.featured ? (
-                    <span
-                      className="mb-4 inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em]"
-                      style={{ background: "var(--aurora-grad)", color: "#06060a" }}
-                    >
-                      Most chosen
-                    </span>
-                  ) : (
-                    <span className="mb-4 inline-flex h-[26px] items-center text-[10px] uppercase tracking-[0.12em] text-fg-subtle">
-                      {tier.priceUsd === 0 ? "Always free" : "Add-on"}
-                    </span>
-                  )}
-
-                  <h3 className="text-[15px] font-medium">{tier.name}</h3>
-                  <p className="mt-1 text-[13px] leading-relaxed text-fg-muted">{tier.pitch}</p>
-
-                  <p className="mt-6 flex items-baseline gap-2">
-                    <span className="font-serif text-[40px] leading-none tracking-tight">
-                      {money(tier.priceUsd)}
-                    </span>
-                    {tier.priceUsd > 0 ? (
-                      <span className="text-[12px] text-fg-subtle">one-off</span>
-                    ) : null}
-                  </p>
-
-                  <ul className="mt-6 flex-1 space-y-2.5 border-t border-border pt-5 text-[13px] text-fg-muted">
-                    {tier.features.map((f) => (
-                      <li key={f} className="flex gap-2.5">
-                        <span
-                          aria-hidden="true"
-                          className={`mt-[3px] shrink-0 ${
-                            tier.featured ? "text-accent" : "text-fg-subtle"
-                          }`}
-                        >
-                          ✓
-                        </span>
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-7">
-                    {tier.priceUsd === 0 ? (
-                      <Link
-                        href={tier.cta.href}
-                        className="btn-paper flex h-11 w-full items-center justify-center rounded-lg text-[14px] font-medium"
-                      >
-                        {tier.cta.label} →
-                      </Link>
-                    ) : (
-                      <CtaButton className="h-11 w-full">
-                        <a href={bookingHref(tier.name)}>{tier.cta.label} →</a>
-                      </CtaButton>
-                    )}
-                  </div>
-                </div>
-              );
-
-              return (
-                <li key={tier.id} className="h-full">
-                  {tier.featured ? <MovingBorder radius="1.25rem">{card}</MovingBorder> : card}
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Risk reversal. Placed immediately under the price, not in the FAQ,
-              because the objection it answers arrives at the price. */}
-          <div className="mt-8 rounded-[1.25rem] border border-border bg-bg-elevated/40 p-6 sm:p-7">
-            <p className="text-[15px] font-medium">
-              <ShinyText>{reviewOffer.guarantee.headline}</ShinyText>
-            </p>
-            <p className="editorial-justify mt-2 max-w-[68ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
-              {reviewOffer.guarantee.detail}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* =================================================================
           Booking.
 
           Not a form. See `bookingHref` for why.
           ================================================================= */}
       <section id="book" className="relative scroll-mt-20 border-b border-border py-16 sm:py-20">
-        <Aurora />
         <div className="relative z-10 mx-auto max-w-3xl px-5 text-center sm:px-6">
-          <h2 className="text-balance font-serif text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[34px]">
-            Ask a question first. It is free and it is the same email.
+          <h2 className="text-balance font-display text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[34px]">
+            Ask a question first. It is the same email.
           </h2>
           <p className="editorial-justify mx-auto mt-4 max-w-[54ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
             If the answer is that your stack is fine, that is the answer you get
-            and it costs nothing. Nobody is going to pretend otherwise to make
-            the sale — a neutral index that oversells is not a neutral index.
+            and nobody is going to pretend otherwise. A neutral index that
+            oversells is not a neutral index.
           </p>
 
           <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4">
             <Magnetic>
-              <Link href={bookingHref(featured.name)} className="ac-cta inline-flex h-12 items-center justify-center gap-2 px-7 text-[14px]">
+              <Link href={bookingHref()} className="ac-cta inline-flex h-12 items-center justify-center gap-2 px-7 text-[14px]">
                 <span className="inline-flex items-center gap-2">
                   Request a review
                   <span aria-hidden="true">→</span>
@@ -466,7 +317,7 @@ export default function StackReviewPage() {
           ================================================================= */}
       <section className="relative py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-5 sm:px-6">
-          <h2 className="font-serif text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
+          <h2 className="font-display text-[26px] font-medium leading-tight tracking-[-0.02em] sm:text-[32px]">
             The questions that stop people
           </h2>
 

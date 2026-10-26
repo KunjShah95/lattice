@@ -139,16 +139,14 @@ export default function MethodologyPage() {
           <em>Where this index is wrong</em>.
         </p>
         <p className="editorial-justify">
-          <strong>Paid service, not paid placement.</strong> The only paid thing
-          here is a{" "}
+          <strong>Nothing here is paid.</strong> The one service offered is a free{" "}
           <Link href="/stack-review" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
-            written review of one team's stack
+            written review of one team&apos;s stack
           </Link>{" "}
           — a document with its author and date on it, not an edit to any entry
-          on this site. No entry is sponsored, no tool's position can be bought,
-          and no comparison verdict changes because of who paid. Paying for the
-          review changes nothing about the index, because the index was never for
-          sale.
+          on this site. No entry is sponsored, no tool&apos;s position can be
+          bought, and no comparison verdict changes because of who asked for a
+          review. The index is not for sale.
         </p>
       </Section>
 
@@ -440,7 +438,7 @@ function Section({
         <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
           {n}
         </span>
-        <h2 className="font-serif text-[22px] font-medium leading-snug tracking-[-0.015em]">
+        <h2 className="font-display text-[22px] font-medium leading-snug tracking-[-0.015em]">
           {title}
         </h2>
       </div>

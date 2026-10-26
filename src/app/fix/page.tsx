@@ -53,7 +53,7 @@ export default function FixIndexPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {resolvedSymptoms.length} symptoms
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Start from what is wrong.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -81,7 +81,7 @@ export default function FixIndexPage() {
                     href={`/fix/${s.slug}`}
                     className="group -mx-2 block rounded-md px-2 py-4 transition-colors hover:bg-bg-sunken"
                   >
-                    <h3 className="text-balance font-serif text-[20px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                    <h3 className="text-balance font-display text-[20px] font-medium tracking-[-0.01em] group-hover:text-accent">
                       {s.title}
                     </h3>
                     <p className="mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">

@@ -143,18 +143,14 @@ export function TextGenerate({
       which is the right default for any headline that is not on the money page. */
   accentIndex?: number;
 }) {
+  // Static. The staggered rise used to leave words parked below their mask
+  // whenever the animation did not run to completion (background tabs,
+  // throttled devices, screenshots), so the headline could render clipped.
   return (
     <span className={className}>
       {words.map((word, i) => (
         <span key={`${word}-${i}`}>
-          <span className="ac-gen-line">
-            <span
-              style={{ "--i": i } as React.CSSProperties}
-              className={i === accentIndex ? "ac-shiny" : undefined}
-            >
-              {word}
-            </span>
-          </span>
+          <span className={i === accentIndex ? "ac-shiny" : undefined}>{word}</span>
           {i < words.length - 1 ? " " : null}
         </span>
       ))}

@@ -60,7 +60,7 @@ export default function StackBuilderPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           Tell me what to use
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Build my AI stack.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">

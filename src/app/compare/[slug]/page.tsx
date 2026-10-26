@@ -132,7 +132,7 @@ export default async function ComparisonPage({
           </p>
         ) : null}
 
-        <h1 className="mt-5 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-5 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           {comparison.title}
         </h1>
 

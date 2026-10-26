@@ -89,7 +89,7 @@ export function PageHero({
       ) : null}
 
       <h1
-        className={`${eyebrow ? "mt-5" : ""} text-balance font-serif font-medium tracking-[-0.025em] ${
+        className={`${eyebrow ? "mt-5" : ""} text-balance font-display font-medium tracking-[-0.025em] ${
           size === "lg"
             ? "text-[36px] leading-[1.06] sm:text-[50px]"
             : "text-[32px] leading-[1.1] sm:text-[42px]"

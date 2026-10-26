@@ -180,7 +180,7 @@ export function StartHere() {
     return (
       <div>
         <div className="flex flex-col items-center gap-3 text-center">
-          <h2 className="text-balance font-serif text-[32px] font-medium leading-[1.08] tracking-[-0.025em] sm:text-[46px]">
+          <h2 className="text-balance font-display text-[32px] font-medium leading-[1.08] tracking-[-0.025em] sm:text-[46px]">
             Your starting layers
           </h2>
           <button
@@ -236,7 +236,7 @@ export function StartHere() {
   return (
     <div>
       <div className="flex flex-col items-center gap-4 text-center">
-        <h2 className="text-balance font-serif text-[32px] font-medium leading-[1.08] tracking-[-0.025em] sm:text-[46px]">
+        <h2 className="text-balance font-display text-[32px] font-medium leading-[1.08] tracking-[-0.025em] sm:text-[46px]">
           Find your starting layers in two questions
         </h2>
         {/* Step pips, not just a fraction: the reader sees how far through
@@ -257,7 +257,7 @@ export function StartHere() {
       </div>
 
       <div className="mx-auto max-w-2xl">
-      <h3 className="mt-10 text-balance text-center font-serif text-[24px] font-medium tracking-[-0.01em]">
+      <h3 className="mt-10 text-balance text-center font-display text-[24px] font-medium tracking-[-0.01em]">
         {step.question}
       </h3>
 

@@ -42,11 +42,15 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   preload: false,
 });
-/** Serif is reserved for display type: it carries the editorial voice. */
+/**
+ * Serif is reserved for essays: it carries the long-form voice. Every other
+ * heading is set in the sans (`font-display`), so it is not preloaded.
+ */
 const plexSerif = IBM_Plex_Serif({
   variable: "--font-plex-serif",
   subsets: ["latin"],
   weight: ["500"],
+  preload: false,
 });
 
 export const metadata: Metadata = {

@@ -180,7 +180,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
       {/* ---- Result ---------------------------------------------------- */}
       <section aria-live="polite" className="mt-10">
         <Eyebrow>Side by side</Eyebrow>
-        <p className="editorial-justify mt-2 max-w-[60ch] text-pretty font-serif text-[19px] leading-snug">{relation.text}</p>
+        <p className="editorial-justify mt-2 max-w-[60ch] text-pretty font-display text-[19px] leading-snug">{relation.text}</p>
 
         {selected.length >= 2 ? (
           <p className="mt-1.5 font-mono text-[11px] text-fg-subtle">
@@ -205,7 +205,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                         <span className="flex items-start justify-between gap-2">
                           <Link
                             href={`/${t.id}`}
-                            className="inline-flex items-center gap-1.5 font-serif text-[17px] font-medium hover:text-accent"
+                            className="inline-flex items-center gap-1.5 font-display text-[17px] font-medium hover:text-accent"
                           >
                             <span
                               aria-hidden="true"

@@ -42,7 +42,7 @@ export function CategorySection({
             />
             {position} · {category.tools.length} tools
           </p>
-          <h1 className="mt-5 max-w-3xl text-balance font-serif text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+          <h1 className="mt-5 max-w-3xl text-balance font-display text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {category.title}
           </h1>
           <p className="mt-5 max-w-[62ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
@@ -103,7 +103,7 @@ export function CategorySection({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <Heading className="text-balance font-serif text-[22px] font-medium tracking-[-0.01em] sm:text-[25px]">
+            <Heading className="text-balance font-display text-[22px] font-medium tracking-[-0.01em] sm:text-[25px]">
               {category.title}
             </Heading>
             {isCrosscutting ? (

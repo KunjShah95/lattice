@@ -108,7 +108,7 @@ export default function CorrectionsPage() {
         <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {corrections.length} changes · {earliest ?? AS_OF} onward
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           What this index has got wrong.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -153,7 +153,7 @@ export default function CorrectionsPage() {
                   </span>
                 ))}
               </div>
-              <h2 className="mt-1.5 text-balance font-serif text-[19px] font-medium leading-snug tracking-[-0.01em]">
+              <h2 className="mt-1.5 text-balance font-display text-[19px] font-medium leading-snug tracking-[-0.01em]">
                 {/* Outbound, `rel="noopener"`, and deliberately not a next/link:
                     it goes to github.com, and prefetching a commit page on
                     every row of a list nobody asked for is not worth the

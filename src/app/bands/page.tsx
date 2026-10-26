@@ -74,7 +74,7 @@ export default function BandsIndexPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {BANDS.length} bands · {BANDS.reduce((n, b) => n + b.layers.length, 0)} layers
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Nine layers, three bands.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -97,7 +97,7 @@ export default function BandsIndexPage() {
                 className="group -mx-2 block rounded-md px-2 py-5 transition-colors hover:bg-bg-sunken"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h2 className="inline-flex items-center gap-2 font-serif text-[22px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                  <h2 className="inline-flex items-center gap-2 font-display text-[22px] font-medium tracking-[-0.01em] group-hover:text-accent">
                     <span
                       aria-hidden="true"
                       className="h-2.5 w-2.5 rounded-full"

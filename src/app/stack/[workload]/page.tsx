@@ -135,7 +135,7 @@ export default async function StackWorkloadPage({
         <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {meta.detail}
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           A {meta.label.toLowerCase()} stack.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -177,7 +177,7 @@ export default async function StackWorkloadPage({
           {result.picks.map((p) => (
             <li key={p.sectionSlug}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 className="text-balance font-serif text-[20px] font-medium tracking-[-0.01em]">
+                <h3 className="text-balance font-display text-[20px] font-medium tracking-[-0.01em]">
                   <Link
                     href={p.url}
                     className="transition-colors hover:text-accent"

@@ -113,7 +113,7 @@ export default function VerificationPage() {
         </nav>
 
         <Eyebrow className="mt-6 tracking-[0.16em] hero-pill">Build gate · receipt</Eyebrow>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           The build refuses stale facts.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -140,7 +140,7 @@ export default function VerificationPage() {
                 {label}
               </Eyebrow>
             </dt>
-            <dd className="mt-1.5 font-serif text-[20px] leading-tight tracking-[-0.01em]">
+            <dd className="mt-1.5 font-display text-[20px] leading-tight tracking-[-0.01em]">
               {value}
             </dd>
           </div>
@@ -161,7 +161,7 @@ export default function VerificationPage() {
             return (
               <li key={g.asOf} className="border-t border-border pt-5">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <h3 className="font-serif text-[20px] font-medium tracking-[-0.01em]">
+                  <h3 className="font-display text-[20px] font-medium tracking-[-0.01em]">
                     Checked <time dateTime={g.asOf}>{g.asOf}</time>
                   </h3>
                   <FreshnessMeter freshness={f} />

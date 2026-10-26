@@ -68,7 +68,7 @@ export default function RolesIndexPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
           {ROLES.length} specialisations · {toolCount} tools
         </p>
-        <h1 className="mt-4 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           Start from what you own.
         </h1>
         <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
@@ -93,7 +93,7 @@ export default function RolesIndexPage() {
                 className="group -mx-2 block rounded-md px-2 py-5 transition-colors hover:bg-bg-sunken"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h2 className="font-serif text-[22px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                  <h2 className="font-display text-[22px] font-medium tracking-[-0.01em] group-hover:text-accent">
                     {role.title}
                   </h2>
                   <span className="font-mono text-[11px] text-fg-subtle">

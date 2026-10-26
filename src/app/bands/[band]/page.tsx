@@ -162,7 +162,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           Band {meta.roman} · {meta.title}
         </p>
 
-        <h1 className="mt-3 text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-3 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
           When it fails, it fails like{" "}
           <em className="text-fg-subtle not-italic">“{meta.sounds}”</em>
         </h1>
@@ -243,7 +243,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         {layers.map((category) => (
           <div key={category.slug} className="mt-7">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3 className="inline-flex items-baseline gap-2.5 font-serif text-[20px] font-medium tracking-[-0.01em]">
+              <h3 className="inline-flex items-baseline gap-2.5 font-display text-[20px] font-medium tracking-[-0.01em]">
                 <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
                   {category.index}
                 </span>

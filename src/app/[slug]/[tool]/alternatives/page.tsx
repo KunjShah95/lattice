@@ -187,7 +187,7 @@ export default async function AlternativesPage({
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-serif font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+            <h1 className="text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
               {entry.name} alternatives
             </h1>
             <p className="mt-2 font-mono text-[12px] text-fg-subtle">
@@ -254,7 +254,7 @@ export default async function AlternativesPage({
             <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
               {inLayer.length}
             </span>
-            <h2 className="font-serif text-[20px] font-medium tracking-[-0.015em]">
+            <h2 className="font-display text-[20px] font-medium tracking-[-0.015em]">
               Real substitutes
             </h2>
             <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
@@ -312,7 +312,7 @@ export default async function AlternativesPage({
             <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
               {adjacent.length}
             </span>
-            <h2 className="font-serif text-[20px] font-medium tracking-[-0.015em]">
+            <h2 className="font-display text-[20px] font-medium tracking-[-0.015em]">
               Adjacent, not substitutes
             </h2>
           </div>

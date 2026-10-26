@@ -137,7 +137,7 @@ export default async function GlossaryTermPage({
             className="mt-2 h-10 w-[3px] shrink-0 rounded-full"
             style={layerStyle(term.layer)}
           />
-          <h1 className="text-balance font-serif text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+          <h1 className="text-balance font-display text-[34px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
             {term.term}
           </h1>
         </div>
