@@ -18,6 +18,12 @@ import { metadata as compareBuildMetadata } from "@/app/compare/build/page";
 import { metadata as rolesMetadata } from "@/app/roles/page";
 import { metadata as bandsMetadata } from "@/app/bands/page";
 import { metadata as stackBuilderMetadata } from "@/app/stack-builder/page";
+import { metadata as startMetadata } from "@/app/start/page";
+import { metadata as submitMetadata } from "@/app/submit/page";
+import { metadata as aboutMetadata } from "@/app/about/page";
+import { metadata as contactMetadata } from "@/app/contact/page";
+import { metadata as privacyMetadata } from "@/app/privacy/page";
+import { metadata as returnsMetadata } from "@/app/returns/page";
 import { generateMetadata as categoryMetadata } from "@/app/[slug]/page";
 import { generateMetadata as toolMetadata } from "@/app/[slug]/[tool]/page";
 import { generateMetadata as alternativesMetadata } from "@/app/[slug]/[tool]/alternatives/page";
@@ -104,6 +110,12 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
     ["/roles", rolesMetadata as Metadata],
     ["/bands", bandsMetadata as Metadata],
     ["/stack-builder", stackBuilderMetadata as Metadata],
+    ["/start", startMetadata as Metadata],
+    ["/submit", submitMetadata as Metadata],
+    ["/about", aboutMetadata as Metadata],
+    ["/contact", contactMetadata as Metadata],
+    ["/privacy", privacyMetadata as Metadata],
+    ["/returns", returnsMetadata as Metadata],
   ];
 
   const generated: Array<[string, Promise<Metadata>]> = [
@@ -191,11 +203,11 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 12, not 13: the home page carries no metadata of its own and is covered by
+    // 19, not 20: the home page carries no metadata of its own and is covered by
     // `absolute("/")` in seo.test.ts instead. Matches the `staticRoutes` list in
     // `allRoutes()` above, so adding a static route means touching both.
     const expected =
-      12 +
+      19 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
@@ -284,7 +296,9 @@ const SEGMENTS_WITH_CARDS = [
   "bands/[band]",
   "stack-builder",
   "stack/[workload]",
+  "start",
   "submit",
+  "submissions",
   "about",
   "contact",
   "privacy",
@@ -390,10 +404,12 @@ const INDEX_ROUTES: Array<[string, boolean]> = [
   ["bands", true],
   ["stack-builder", false],
   ["submit", false],
+  ["submissions", false],
   ["about", false],
   ["contact", false],
   ["privacy", false],
   ["returns", false],
+  ["start", false],
 ];
 
 describe("index page structured data", () => {

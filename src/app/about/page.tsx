@@ -6,7 +6,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About the Lattice index",
   description:
     "What Lattice is, who maintains the index, and how entries are chosen, checked, and corrected.",
   alternates: { canonical: "/about" },

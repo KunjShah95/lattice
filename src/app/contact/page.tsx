@@ -12,7 +12,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact the Lattice maintainer",
   description:
     "How to reach the maintainers of the Lattice index — email, social, and where to report corrections or suggest tools.",
   alternates: { canonical: "/contact" },
