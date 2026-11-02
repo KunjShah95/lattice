@@ -120,6 +120,54 @@ export const comparisons: Comparison[] = [
     related: ["choosing-an-inference-runtime", "the-gateway-is-the-product"],
   },
   {
+    slug: "vllm-vs-llama-cpp",
+    kind: "substitutes",
+    title: "vLLM vs llama.cpp",
+    description:
+      "vLLM and llama.cpp compared on hardware floor, concurrency and model format, for the question people actually have: run this on a GPU server, or on whatever machine is already in front of me?",
+    intro:
+      "This pairing gets compared constantly, and the comparison is usually a category error. vLLM is a GPU server built for concurrent requests. llama.cpp is a CPU-first runtime built to run on whatever hardware you already have. The question is not which is faster in the abstract. It is which job you have.",
+    tools: [
+      { name: "vLLM", angle: "GPU server. Paged attention, built for concurrent requests." },
+      { name: "llama.cpp", angle: "CPU-first. Quantised GGUF models, runs on almost anything." },
+    ],
+    rows: [
+      { dimension: "Best for", values: [
+        "Bursty, high-concurrency GPU serving",
+        "No GPU, an edge box, or a laptop",
+      ] },
+      { dimension: "Hardware floor", values: [
+        "One CUDA GPU, minimum",
+        "None. CPU alone is the default path",
+      ] },
+      { dimension: "Model format", values: [
+        "Safetensors, at full or reduced precision",
+        "GGUF, quantised down to 2-bit",
+      ] },
+      { dimension: "Concurrency", values: [
+        "Continuous batching, built for many requests at once",
+        "Serves one request well; many at once is not the design centre",
+      ] },
+      { dimension: "API", values: [
+        "OpenAI-compatible server built in",
+        "OpenAI-compatible server (llama-server) built in",
+      ] },
+      { dimension: "Where it loses", values: [
+        "No GPU, or no budget for one",
+        "Maximum concurrent throughput on datacentre GPUs",
+      ] },
+    ],
+    verdict:
+      "Use vLLM when you are serving a model to more than a handful of concurrent users on a GPU you control: its paged attention and continuous batching exist for exactly that load. Use llama.cpp when the constraint is hardware rather than throughput, such as no GPU, an edge device, or a laptop you want a model running on today. The two rarely compete for the same deployment, and the decision usually resolves itself the moment you say out loud whether a GPU is in the budget.",
+    rules: [
+      "If a GPU is in the budget and the traffic is bursty, vLLM wins the decision before you benchmark anything.",
+      "GGUF quantisation is why llama.cpp runs on a laptop at all. The same model at full precision would not fit.",
+      "Running llama.cpp on a GPU is possible, and sometimes right for a single user, but it is not the throughput path. That is what vLLM is for.",
+    ],
+    sections: ["inference-serving"],
+    related: ["choosing-an-inference-runtime"],
+  },
+  {
     slug: "llm-observability",
     kind: "substitutes",
     title: "Langfuse vs LangSmith vs Braintrust vs Phoenix",
@@ -231,6 +279,57 @@ export const comparisons: Comparison[] = [
     ],
     sections: ["retrieval-vector-stores"],
     related: ["fix-the-ranking-not-the-prompt", "evals-are-the-asset"],
+  },
+  {
+    slug: "qdrant-vs-pinecone-vs-weaviate",
+    kind: "substitutes",
+    title: "Qdrant vs Pinecone vs Weaviate",
+    description:
+      "Three dedicated vector databases compared on deployment model, filtering and data shape, for teams who have already decided they need one.",
+    intro:
+      "This is the comparison for after you have already decided a dedicated vector database earns its place, which is a decision worth making deliberately: see /compare/vector-databases if you have not made that call yet. Among these three, the real fork is not features. It is who operates the thing, and whether your data is a flat list of vectors or something with more shape to it.",
+    tools: [
+      { name: "Qdrant", angle: "Self-hosted, Rust, the strongest metadata filtering of the three." },
+      { name: "Pinecone", angle: "Fully managed. No infrastructure, usage-based pricing." },
+      { name: "Weaviate", angle: "Self-hosted, hybrid and multi-vector search over a graph-shaped schema." },
+    ],
+    rows: [
+      { dimension: "Deployment", values: [
+        "Self-hosted, single binary",
+        "Fully managed SaaS, no self-hosted option",
+        "Self-hosted",
+      ] },
+      { dimension: "Licence", values: ["Apache-2.0", "Proprietary", "BSD-3-Clause"] },
+      { dimension: "Pricing", values: [
+        "Free. You pay for the infrastructure",
+        "Usage-based. No infrastructure to run",
+        "Free. You pay for the infrastructure",
+      ] },
+      { dimension: "Data model", values: [
+        "Vectors with a structured payload, built for filtering",
+        "Vectors with metadata; filtering is simpler than Qdrant's",
+        "Hybrid and multi-vector search over an object-shaped schema",
+      ] },
+      { dimension: "Best for", values: [
+        "Heavy metadata filtering at scale, self-hosted",
+        "Zero operational work, vector search is not your core competence",
+        "Multiple vectors per object, or search that is genuinely hybrid",
+      ] },
+      { dimension: "Where it loses", values: [
+        "No managed option: you operate it",
+        "Residency, cost predictability, or control over the query language",
+        "Smaller ecosystem than Qdrant's for pure filtered search",
+      ] },
+    ],
+    verdict:
+      "Pick Pinecone when you want zero operational work and are comfortable paying for that by usage. Pick Qdrant when you are self-hosting anyway and your retrieval depends on heavy, structured metadata filters, because its purpose-built payload index is the strongest of the three for that case. Pick Weaviate when your data does not fit a flat vectors-plus-metadata shape, such as multiple vectors per object or search that is genuinely hybrid rather than vector search with a text filter bolted on.",
+    rules: [
+      "Residency and cost predictability are what Pinecone's usage-based, SaaS-only model takes off the table. Decide those two first.",
+      "Qdrant's filtering is purpose-built: a workload that filters on every query before it ranks by vector distance is the case it was built for.",
+      "Weaviate's advantage only matters if your data is genuinely multi-vector or hybrid. One embedding per row with a few metadata filters is Qdrant's case, not Weaviate's.",
+    ],
+    sections: ["retrieval-vector-stores"],
+    related: ["fix-the-ranking-not-the-prompt"],
   },
   {
     slug: "durable-workflows",
