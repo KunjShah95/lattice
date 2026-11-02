@@ -100,11 +100,20 @@ type JsonRpcRequest = {
   params?: Record<string, unknown>;
 };
 
+/** CORS headers so browser-based MCP clients can reach the endpoint. */
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, GET, DELETE, HEAD, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version",
+  "Access-Control-Expose-Headers": "Mcp-Session-Id",
+  "Access-Control-Max-Age": "86400",
+} as const;
+
 const ok = (id: JsonRpcRequest["id"], result: unknown) =>
-  Response.json({ jsonrpc: "2.0", id: id ?? null, result });
+  Response.json({ jsonrpc: "2.0", id: id ?? null, result }, { headers: CORS_HEADERS });
 
 const fail = (id: JsonRpcRequest["id"], code: number, message: string) =>
-  Response.json({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
+  Response.json({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }, { headers: CORS_HEADERS });
 
 /**
  * Check the arguments against the tool's own JSON Schema.
@@ -231,6 +240,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
         });
       }
 
+      const started = Date.now();
       const value = await tool.run(args as never);
 
       /**
@@ -253,7 +263,6 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
        * default. The query set in `citation-queries.mjs` is where that question
        * belongs, published on purpose.
        */
-      const started = Date.now();
       console.log(
         JSON.stringify({
           event: "lattice.mcp.tool_call",
@@ -271,7 +280,7 @@ async function handle(message: JsonRpcRequest): Promise<Response> {
     default:
       // A notification with an unrecognised method still gets no response, or the
       // client waits for one that never comes.
-      if (isNotification) return new Response(null, { status: 202 });
+      if (isNotification) return new Response(null, { status: 202, headers: CORS_HEADERS });
       return fail(id, RPC.methodNotFound, `Unknown method "${method}".`);
   }
 }
@@ -291,7 +300,7 @@ export async function GET() {
       discovery: `${site.url}/mcp.json`,
       hint: "Point an MCP client at this URL using the Streamable HTTP transport.",
     },
-    { status: 405, headers: { Allow: "POST, DELETE" } },
+    { status: 405, headers: { Allow: "POST, GET, DELETE, OPTIONS", ...CORS_HEADERS } },
   );
 }
 
@@ -322,19 +331,23 @@ export async function POST(request: Request) {
   const bodies = responses
     .map((r) => (r.status === 202 ? null : r))
     .filter((r): r is Response => r !== null);
-  if (bodies.length === 0) return new Response(null, { status: 202 });
+  if (bodies.length === 0) return new Response(null, { status: 202, headers: CORS_HEADERS });
 
   const payloads = await Promise.all(bodies.map((r) => r.json()));
   return Response.json(batch ? payloads : payloads[0], {
-    headers: { "Cache-Control": "no-store" },
+    headers: { "Cache-Control": "no-store", ...CORS_HEADERS },
   });
 }
 
 /** Session teardown. There are none, so this is a no-op that must still succeed. */
 export async function DELETE() {
-  return new Response(null, { status: 204 });
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
 export async function HEAD() {
-  return new Response(null, { status: 200, headers: { Allow: "POST, GET, DELETE" } });
+  return new Response(null, { status: 200, headers: { Allow: "POST, GET, DELETE, OPTIONS", ...CORS_HEADERS } });
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
