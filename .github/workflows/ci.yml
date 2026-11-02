@@ -201,6 +201,16 @@ jobs:
           echo "$code /definitely-not-a-page"
           [ "$code" = "404" ] || fail=1
 
+          # Technical SEO, against the same server. `scripts/audit-seo.mjs`
+          # crawls every URL in `sitemap.xml` for status codes, title/description
+          # budgets, canonical/og:url agreement, JSON-LD validity and duplicate
+          # titles or descriptions — none of which the curl checks above assert
+          # on, because those check specific paths exist and respond, not that
+          # every indexed page's metadata is correct. `--rewrite` because the
+          # sitemap names the canonical production host; `--strict` turns the
+          # report into a gate instead of something only read by hand.
+          node scripts/audit-seo.mjs "http://localhost:3111" --rewrite --strict || fail=1
+
           # Share-card bounds, against the same server.
           #
           # This is the only check in the repo that catches a clipped or

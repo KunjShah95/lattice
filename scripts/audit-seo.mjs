@@ -27,12 +27,17 @@
  * host, which is what you want to confirm).
  *
  *   npm start & node scripts/audit-seo.mjs http://localhost:3000 --rewrite
+ *
+ * `--strict` turns a report into a gate: exit code 1 if any per-page finding
+ * or any duplicate title/description was found. Off by default because this
+ * script is also run by hand against production to read, not to fail a
+ * shell — CI is the one caller that wants the exit code.
  */
 
 const arg = process.argv.find((a) => a.startsWith("http"));
 if (!arg) {
   console.error(
-    "usage: node scripts/audit-seo.mjs <origin> [--json] [--rewrite]\n  e.g. node scripts/audit-seo.mjs https://lattice.example",
+    "usage: node scripts/audit-seo.mjs <origin> [--json] [--rewrite] [--strict]\n  e.g. node scripts/audit-seo.mjs https://lattice.example",
   );
   process.exit(2);
 }
@@ -40,6 +45,7 @@ if (!arg) {
 const ORIGIN = arg.replace(/\/$/, "");
 const REWRITE = process.argv.includes("--rewrite");
 const AS_JSON = process.argv.includes("--json");
+const STRICT = process.argv.includes("--strict");
 const CONCURRENCY = 6;
 
 /** One sitemap fetch, then every URL in it. */
@@ -172,16 +178,31 @@ const dupe = (field, label, limit = 140) => {
     : [];
 };
 
+/**
+ * `bad` holds every finding worth printing; `strictFindings` is the subset
+ * `--strict` gates on. The two length checks below are informational only:
+ * `route-metadata.test.ts` documents, on purpose, that this site has no title
+ * ceiling (front-loaded queries like "/fix/measure-llm-changes" survive
+ * truncation and are meant to run long) and a 200-character description
+ * ceiling, not 160. Gating CI on this script's own looser 60/160 heuristic
+ * would have failed the build on ~150 pages that are correct by the site's
+ * actual, deliberately documented policy the day this flag was added.
+ */
 const bad = [];
-const push = (p, msg) => bad.push(`  [${p}] ${msg}`);
+const strictFindings = [];
+const push = (p, msg, strict = true) => {
+  bad.push(`  [${p}] ${msg}`);
+  if (strict) strictFindings.push(`  [${p}] ${msg}`);
+};
 
 for (const r of rows) {
   if (r.status !== 200) push(r.path, `status ${r.status}`);
   if (!r.title) push(r.path, "no <title>");
-  else if (r.titleLen > 60) push(r.path, `title ${r.titleLen} chars (>60): "${r.title}"`);
+  else if (r.titleLen > 60) push(r.path, `title ${r.titleLen} chars (>60): "${r.title}"`, false);
   else if (r.titleLen < 25) push(r.path, `title ${r.titleLen} chars (<25)`);
   if (!r.description) push(r.path, "no meta description");
-  else if (r.descLen > 160) push(r.path, `description ${r.descLen} chars (>160)`);
+  else if (r.descLen > 200) push(r.path, `description ${r.descLen} chars (>200)`);
+  else if (r.descLen > 160) push(r.path, `description ${r.descLen} chars (>160, under the 200 ceiling)`, false);
   else if (r.descLen < 70) push(r.path, `description ${r.descLen} chars (<70)`);
   if (!r.canonical) push(r.path, "no canonical");
   else if (r.canonical.replace(/\/$/, "") !== r.url.replace(/\/$/, ""))
@@ -233,4 +254,16 @@ if (AS_JSON) {
   );
   console.log(`\nPer-page findings (${bad.length})`);
   console.log(bad.join("\n") || "  none");
+}
+
+// Checked after the report prints (JSON or plain), so a strict failure in CI
+// still leaves the full findings in the log rather than just a bare exit
+// code with nothing to act on.
+if (STRICT) {
+  const failureCount =
+    strictFindings.length + report.duplicateTitles.length + report.duplicateDescriptions.length;
+  if (failureCount > 0) {
+    console.error(`\nSEO audit failed: ${failureCount} finding(s) with --strict set.`);
+    process.exitCode = 1;
+  }
 }
