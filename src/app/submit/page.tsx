@@ -25,7 +25,7 @@ import { toJsonLd } from "@/lib/jsonld";
  * how a submission queue fills with things nobody wanted.
  */
 export const metadata: Metadata = {
-  title: "Submit a tool",
+  title: "Submit a tool to the index",
   description:
     "Suggest a tool for the index. A maintainer reviews every submission and decides whether it becomes an entry: most are declined, and the review bar is published.",
   alternates: { canonical: "/submit" },

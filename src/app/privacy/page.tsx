@@ -6,7 +6,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Privacy policy",
+  title: "Privacy policy and data use",
   description:
     "What data Lattice collects when you browse the site, how analytics and third-party badges work, and how to contact the maintainer.",
   alternates: { canonical: "/privacy" },
