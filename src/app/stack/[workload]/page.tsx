@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { recommendStack, WORKLOADS, type Workload } from "@/lib/stacks";
+import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/stacks";
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
 import { site } from "@/lib/site";
@@ -9,6 +9,7 @@ import {
   absolute,
   breadcrumbNode,
   datasetModified,
+  faqPageJsonLd,
   graph,
   ids,
 } from "@/lib/seo";
@@ -73,6 +74,8 @@ export default async function StackWorkloadPage({
   // copied from any preview deployment still links to the real site.
   const reportSource = { origin: site.url, caseUrl: `${site.url}${builderPath}` };
 
+  const questions = stackQuestions(result, meta.label);
+
   const fitClass = (fit: string) =>
     fit === "Best fit"
       ? "text-fg"
@@ -104,6 +107,7 @@ export default async function StackWorkloadPage({
                 { name: site.name, path: "" },
                 { name: meta.label, path: `/stack/${meta.id}` },
               ]),
+              faqPageJsonLd(questions, pageUrl),
             ),
           ),
         }}
@@ -251,6 +255,22 @@ export default async function StackWorkloadPage({
           <span className="text-fg">Biggest risk at the default case: </span>
           {result.risk}
         </p>
+      </section>
+
+      <section className="mt-12 border-t border-border pt-8">
+        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          Quick answers
+        </h2>
+        <dl className="mt-4 space-y-5">
+          {questions.map((qa) => (
+            <div key={qa.question}>
+              <dt className="text-[15px] font-medium">{qa.question}</dt>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+                {qa.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">

@@ -1,4 +1,5 @@
 import { categories, getToolsForCategory } from "./data";
+import type { QA } from "./seo";
 import type { Tool } from "./types";
 
 /**
@@ -539,4 +540,49 @@ export function recommendStack(raw: StackInput): StackResult {
     risk: composeRisk(picks, input),
     summary: caseSummary(input, profile),
   };
+}
+
+/**
+ * Self-contained Q&A for a workload's default-case stack page, mirrored in
+ * its `FAQPage` JSON-LD.
+ *
+ * Every answer is built from fields `recommendStack` already computed
+ * (`why`, `watchOut`, `risk`, the cost band): nothing here is a second,
+ * independently-maintained description of the stack that could drift from
+ * the one rendered above it on the page.
+ */
+export function stackQuestions(result: StackResult, label: string): QA[] {
+  const stackLine = result.picks.map((p) => `${p.section}: ${p.tool}`).join(". ");
+
+  // "the {label} stack" rather than "a/an {label} stack": labels mix plain
+  // words with acronyms ("RAG application", "AI agent", "LLM API"), and "the"
+  // reads correctly before every one of them without picking "a" or "an"
+  // per label.
+  const overview: QA = {
+    question: `What should you run for the ${label} stack?`,
+    answer: `${stackLine}. ${result.risk}`,
+  };
+
+  // `lowerFirst` strips the trailing full stop (it is built for feeding a
+  // fragment into a longer sentence), so each clause restores its own before
+  // the next one starts, or "Watch out" would run straight into the clause
+  // before it with no punctuation between them.
+  const perPick: QA[] = result.picks.map((p) => ({
+    question: `What should you use for ${lowerFirst(p.section)} in the ${label} stack?`,
+    answer:
+      `${p.tool}: ${lowerFirst(p.why)}. Watch out: ${lowerFirst(p.watchOut)}.` +
+      (p.alternative !== "–" && p.switchWhen
+        ? ` Consider ${p.alternative} instead when ${p.switchWhen}.`
+        : ""),
+  }));
+
+  const cost: QA = {
+    question: `What does the ${label} stack cost per month?`,
+    answer:
+      `$${result.costLow}–$${result.costHigh} a month at the default case: a heuristic ` +
+      `band from query volume, not a vendor quote.` +
+      (result.costDrivers.length ? ` Cost drivers: ${result.costDrivers.join(", ")}.` : ""),
+  };
+
+  return [overview, ...perPick, cost];
 }
