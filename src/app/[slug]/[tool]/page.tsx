@@ -366,8 +366,13 @@ that is what this layer of the stack is answerable for. See the
           </div>
         ) : null}
 
-        <a
+        {/* Tracked: this is the one click that leaves the site, and whether
+            readers actually reach a provider is the metric
+            `strategy/04-monetisation.md` §7 cannot answer from a page view
+            alone. */}
+        <TrackLink
           href={tool.url}
+          event="outbound"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-7 inline-flex items-center gap-2 rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-[14px] font-medium transition-colors hover:border-accent hover:text-accent"
@@ -386,7 +391,7 @@ that is what this layer of the stack is answerable for. See the
           >
             <path d="M7 17 17 7M9 7h8v8" />
           </svg>
-        </a>
+        </TrackLink>
 
         {/* Straight into the cross-layer builder with this tool already chosen.
             Plain `Link`, not `TrackLink`: the builder is a page, not a funnel

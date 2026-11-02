@@ -63,7 +63,7 @@ describe("parseSignal", () => {
     // A component emitting an event the validator rejects loses data silently,
     // which looks identical to nobody clicking. Asserted against the component's
     // own union so adding an event without adding it here fails here.
-    for (const event of ["alternatives", "compare", "second-home", "tool"]) {
+    for (const event of ["alternatives", "compare", "second-home", "tool", "outbound"]) {
       expect(ALLOWED_EVENTS, `component sends "${event}"`).toContain(event);
     }
   });
@@ -145,5 +145,29 @@ describe("parseSignal", () => {
     // real thing to click, and dropping it would be an unexplained data gap.
     const self = { event: "tool", from: "/all", to: "/all" };
     expect(parseSignal(JSON.stringify(self))).toEqual(self);
+  });
+
+  describe("outbound", () => {
+    const outbound = { event: "outbound", from: "/retrieval/qdrant", to: "qdrant.tech" };
+
+    it("accepts a bare hostname instead of a path", () => {
+      expect(parseSignal(JSON.stringify(outbound))).toEqual(outbound);
+    });
+
+    it("rejects a path-shaped `to` for this event, since it is not a path", () => {
+      expect(parseSignal(JSON.stringify({ ...outbound, to: "/compare/x" }))).toBeNull();
+    });
+
+    it("rejects a scheme or a path suffix on the hostname", () => {
+      for (const bad of ["https://qdrant.tech", "qdrant.tech/", "qdrant.tech/path", ""]) {
+        expect(parseSignal(JSON.stringify({ ...outbound, to: bad })), `to: ${bad}`).toBeNull();
+      }
+    });
+
+    it("still requires `from` to be a site-absolute path", () => {
+      expect(
+        parseSignal(JSON.stringify({ ...outbound, from: "https://evil.com" })),
+      ).toBeNull();
+    });
   });
 });

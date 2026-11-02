@@ -66,7 +66,8 @@ export type TrackEvent =
   | "alternatives"
   | "compare"
   | "second-home"
-  | "tool";
+  | "tool"
+  | "outbound";
 
 export function TrackLink({
   href,
@@ -74,6 +75,8 @@ export function TrackLink({
   children,
   className,
   title,
+  target,
+  rel,
   "aria-label": ariaLabel,
 }: {
   href: string;
@@ -81,6 +84,8 @@ export function TrackLink({
   children: ReactNode;
   className?: string;
   title?: string;
+  target?: string;
+  rel?: string;
   "aria-label"?: string;
 }) {
   const onClick = useCallback(() => {
@@ -93,11 +98,16 @@ export function TrackLink({
       // starting with a single slash, and handing it `href` raw would let a future
       // absolute URL quietly produce a beacon that gets silently dropped.
       //
+      // "outbound" is the one event that points off-site on purpose (the tool's
+      // own homepage), so it sends the hostname instead of a path: the validator
+      // in `signal.mjs` branches on `event` the same way.
+      //
       // Both ends, because the record is an edge. The first version sent only
       // `location.pathname` under the key `to`, which recorded where a reader
       // already was and dropped where they went, so `kind: "compare"` looked
       // like a comparison exit while proving only that a comparison link existed.
-      const to = new URL(href, location.origin).pathname;
+      const to =
+        event === "outbound" ? new URL(href).hostname : new URL(href, location.origin).pathname;
 
       navigator.sendBeacon(
         "/signal",
@@ -115,6 +125,8 @@ export function TrackLink({
       onClick={onClick}
       className={className}
       title={title}
+      target={target}
+      rel={rel}
       aria-label={ariaLabel}
     >
       {children}
