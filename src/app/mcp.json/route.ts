@@ -89,6 +89,7 @@ export function GET() {
            * AND together. `q` becomes optional once one filter is set.
            */
           searchApiFacets: `${site.url}/api/search?layer=3&role=data&cost=free`,
+          submissions: `${site.url}/submissions`,
           stackBuilder: `${site.url}/stack-builder`,
           verification: `${site.url}/verification.json`,
           sitemap: `${site.url}/sitemap.xml`,
