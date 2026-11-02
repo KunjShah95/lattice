@@ -335,7 +335,7 @@ export default function HomePage() {
             <span aria-hidden="true" className="nudge">→</span>
           </Link>
           <Link
-            href="/stack-review"
+            href="/review#how"
             className="inline-flex min-h-11 items-center text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
           >
             How a review runs

@@ -140,7 +140,7 @@ export default function MethodologyPage() {
         </p>
         <p className="editorial-justify">
           <strong>Nothing here is paid.</strong> The one service offered is a free{" "}
-          <Link href="/stack-review" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
+          <Link href="/review" className="underline decoration-border-strong underline-offset-4 hover:decoration-accent">
             written review of one team&apos;s stack
           </Link>{" "}
           — a document with its author and date on it, not an edit to any entry
