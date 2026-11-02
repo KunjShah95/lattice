@@ -24,7 +24,7 @@
  */
 
 /** The only events that mean anything. Adding one is a deliberate change. */
-export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool"];
+export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound"];
 
 /** Exposed for the route's `GET`, which describes the endpoint honestly. */
 export const allowedEvents = ALLOWED_EVENTS;
@@ -85,10 +85,30 @@ export function parseSignal(raw) {
 
   // Querystrings and fragments carry nothing useful here and everything noisy.
   const from = cleanPath(body.from);
-  const to = cleanPath(body.to);
+  // "outbound" is the one event whose destination is not this site: `to` is the
+  // tool's own domain, not a path, so it gets the hostname validator instead of
+  // `cleanPath`. Every other event keeps the site-absolute-path rule.
+  const to = event === "outbound" ? cleanHost(body.to) : cleanPath(body.to);
   if (!from || !to) return null;
 
   return { event, from, to };
+}
+
+/**
+ * A bare hostname, or null.
+ *
+ * Deliberately narrower than a general URL parser: no scheme, no path, no
+ * port, because `to` for an outbound click is always `tool.domain` as it is
+ * already rendered on the page ("Visit qdrant.tech"), never a full URL. A
+ * value that needed a scheme stripped off to pass would be a value that
+ * reached this log un-stripped eventually.
+ */
+function cleanHost(value) {
+  if (typeof value !== "string" || value.length === 0 || value.length > MAX_PATH) return null;
+  if (hasControlChars(value)) return null;
+  return /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i.test(value)
+    ? value
+    : null;
 }
 
 /**
