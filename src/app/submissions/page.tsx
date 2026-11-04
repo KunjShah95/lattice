@@ -1,0 +1,87 @@
+import type { Metadata } from "next";
+import { InfoPageLayout, InfoSection } from "@/components/info-page";
+import { submissionLog } from "@/lib/submission-log";
+import { site } from "@/lib/site";
+import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
+import { toJsonLd } from "@/lib/jsonld";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Submissions accepted into the index",
+  description:
+    "The public log of tools submitted by readers and accepted into the Lattice index, with credit to the submitter.",
+  alternates: { canonical: "/submissions" },
+  openGraph: { url: absolute("/submissions") },
+};
+
+export default function SubmissionsPage() {
+  const pageUrl = `${site.url}/submissions`;
+  const jsonLd = toJsonLd(
+    graph(
+      {
+        "@type": "CollectionPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: "Accepted submissions",
+        isPartOf: { "@id": ids.website },
+        breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+      },
+      breadcrumbNode(pageUrl, [
+        { name: site.name, path: "" },
+        { name: "Submissions", path: "/submissions" },
+      ]),
+    ),
+  );
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      <InfoPageLayout
+        breadcrumb="Submissions"
+        eyebrow={`Submissions · ${site.name}`}
+        title="Accepted submissions, credited."
+        lede="Every tool here arrived through a reader's submission issue and cleared the review bar. The submitter is credited because the submission is the reason the entry exists."
+      >
+        <InfoSection title="The log">
+          {submissionLog.length === 0 ? (
+            <p>
+              No accepted submissions yet. The first one will appear here with
+              the submitter credited and a link to the pull request that merged
+              it. Until then, this page is empty on purpose rather than padded.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {submissionLog.map((entry) => (
+                <li key={entry.pr} className="border border-border bg-bg-elevated p-3">
+                  <Link
+                    href={`/${entry.section}/${entry.tool}`}
+                    className="font-medium hover:text-accent"
+                  >
+                    {entry.tool}
+                  </Link>
+                  <span className="text-fg-muted"> · {entry.section}</span>
+                  <p className="mt-1 text-[13px] text-fg-muted">
+                    Contributed by {entry.submitter} · merged {entry.mergedAt} ·{" "}
+                    <a href={entry.pr} className="underline">
+                      pull request
+                    </a>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </InfoSection>
+        <InfoSection title="How to submit">
+          <p>
+            Suggest a tool on the{" "}
+            <Link href="/submit" className="underline">
+              submission page
+            </Link>
+            . A maintainer reviews every submission; most are declined, and the
+            review bar is published on the methodology page.
+          </p>
+        </InfoSection>
+      </InfoPageLayout>
+    </>
+  );
+}

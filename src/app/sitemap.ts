@@ -110,6 +110,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.4,
     },
+    // The public submission log: evidence for `/methodology`'s claim that
+    // submissions are reviewed and credited, not just a form that goes
+    // nowhere. Changes whenever a submission merges.
+    {
+      url: `${site.url}/submissions`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.4,
+    },
     // Trust and operator pages. Listed because answer engines and sceptical
     // readers look for them by URL pattern, and a site that publishes
     // methodology but hides contact or privacy in the crawl graph is making a
