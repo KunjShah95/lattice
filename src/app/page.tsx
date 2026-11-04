@@ -152,6 +152,16 @@ export default function HomePage() {
               </Link>
             </div>
 
+            <p className="mt-4 font-mono text-[11px] text-fg-subtle">
+              Never shipped one of these?{" "}
+              <Link
+                href="/start"
+                className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+              >
+                Start with a five-step path to one working RAG app →
+              </Link>
+            </p>
+
             <ProductHuntBadge className="mt-7" />
 
             {/*
