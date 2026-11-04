@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPageLayout, InfoSection } from "@/components/info-page";
 import { site } from "@/lib/site";
-import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
