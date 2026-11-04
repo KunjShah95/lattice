@@ -205,11 +205,11 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 20, not 21: the home page carries no metadata of its own and is covered by
+    // 19, not 20: the home page carries no metadata of its own and is covered by
     // `absolute("/")` in seo.test.ts instead. Matches the `staticRoutes` list in
     // `allRoutes()` above, so adding a static route means touching both.
     const expected =
-      20 +
+      19 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
