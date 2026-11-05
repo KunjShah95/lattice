@@ -7,7 +7,7 @@ import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
-import { graph, siteJsonLd } from "@/lib/seo";
+import { faqPageJsonLd, graph, siteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { bandColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
@@ -67,7 +67,7 @@ export default function HomePage() {
           rather than restating them. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd())) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd(), faqPageJsonLd(PAGE_GUIDANCE.home.answers, site.url))) }}
       />
 
       {/* Hero. One idea, one action, one picture. Everything that used to

@@ -10,7 +10,7 @@ import { TrackLink } from "@/components/track-link";
 import { Byline } from "@/components/byline";
 import { AS_OF } from "@/lib/attributes";
 import { toJsonLd } from "@/lib/jsonld";
-import { absolute, breadcrumbNode, credit, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, credit, faqPageJsonLd, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -53,6 +53,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const next = position < categories.length - 1 ? categories[position + 1] : null;
 
   const pageUrl = `${site.url}/${category.slug}`;
+  const guidance = categoryGuidance(category.slug);
 
   return (
     <div className="page-shell pt-14 sm:pt-20">
@@ -92,6 +93,11 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                 { name: site.name, path: "" },
                 { name: category.title, path: `/${category.slug}` },
               ]),
+              // Mirrors the visible Quick answers below, so an answer engine
+              // can lift each one with its question attached.
+              guidance.answers.length
+                ? faqPageJsonLd(guidance.answers, pageUrl)
+                : undefined,
             ),
           ),
         }}
@@ -166,8 +172,8 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
       {/* Rules of thumb and quick answers for the decision this section owns. */}
       <div className="pb-16">
         <PageGuidance
-          rules={categoryGuidance(category.slug).rules}
-          answers={categoryGuidance(category.slug).answers}
+          rules={guidance.rules}
+          answers={guidance.answers}
           markerStyle={layerStyle(category.layer)}
         />
       </div>
