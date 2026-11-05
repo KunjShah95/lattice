@@ -2,7 +2,7 @@
  * Facet filtering for the tool index, as pure functions.
  *
  * This lives outside `tool-explorer.tsx` because the component is `"use client"`
- * and vitest runs in a node environment — logic inside it cannot be tested
+ * and vitest runs in a node environment: logic inside it cannot be tested
  * without a DOM. The filtering is the part with real behaviour in it: OR within
  * a group, AND across groups, with counts that respect the *other* active
  * filters. That is subtle enough to be worth testing, and untestable-in-place is
@@ -41,8 +41,8 @@ export type FacetRow = {
 /**
  * Facet dimensions, OR within a group and AND across groups.
  *
- * `roles` is first because it is the axis a reader arrives with — they know
- * their job before they know which layer they need — and every other facet here
+ * `roles` is first because it is the axis a reader arrives with, they know
+ * their job before they know which layer they need, and every other facet here
  * is a property of the tool rather than of them.
  */
 export const FACET_GROUPS = [
@@ -54,14 +54,14 @@ export const FACET_GROUPS = [
 
 export type FacetKey = (typeof FACET_GROUPS)[number]["key"];
 
-/** Single-valued keys only — the ones `valueOf` is allowed to index into. */
+/** Single-valued keys only: the ones `valueOf` is allowed to index into. */
 export type SingleFacetKey = Exclude<FacetKey, "roles">;
 
 /**
  * Which selections are active.
  *
  * `section` lives alongside the facet groups rather than being a separate
- * argument because it is a filter like any other — it is just single-valued,
+ * argument because it is a filter like any other: it is just single-valued,
  * always exclusive, and rendered above the facet rows rather than inside one.
  */
 export type FacetSelection = Partial<Record<FacetKey, ReadonlySet<string>>> & {
@@ -73,7 +73,7 @@ const EMPTY_SET: ReadonlySet<string> = new Set();
 /**
  * The value a single-valued facet tests a row against.
  *
- * `roles` never reaches here — it is a list, and `inGroup` handles it. The
+ * `roles` never reaches here: it is a list, and `inGroup` handles it. The
  * fallback keeps a row with a missing attribute filterable as "unknown" rather
  * than dropping it out of every count silently.
  */

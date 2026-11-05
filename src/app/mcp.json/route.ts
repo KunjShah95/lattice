@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 import { AS_OF } from "@/lib/attributes";
 
 /**
- * `/mcp.json` — the discovery document for the MCP server.
+ * `/mcp.json`the discovery document for the MCP server.
  *
  * ## Why a separate file rather than only an endpoint
  *
@@ -16,7 +16,7 @@ import { AS_OF } from "@/lib/attributes";
  * The shape follows the widely-implemented convention (`mcpServers` plus
  * top-level `name`/`description`), so a client that knows nothing about this
  * server can still read it. Fields a specific client needs and this convention
- * does not define — the protocol version, the transport — are included too,
+ * does not define (the protocol version, the transport), are included too,
  * because a client that ignores them is better served than one that requires
  * them.
  *
@@ -33,7 +33,7 @@ export function GET() {
     JSON.stringify(
       {
         // Typed as a plain object literal rather than an interface, so a comment
-        // can sit inside it. The alternative — a type plus a constant — moves the
+        // can sit inside it. The alternative, a type plus a constant, moves the
         // reasoning above the field, which is where it stops being read.
         $schema: "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
 
@@ -64,7 +64,7 @@ export function GET() {
          * `capabilities` is deliberately absent.
          *
          * The first draft of this file advertised `{ tools: { listChanged: false } }`,
-         * which is the honest description — the tool list changes only on a
+         * which is the honest description: the tool list changes only on a
          * deploy. Probed against the running server, it answers
          * `tools: { listChanged: true }`, because that is what the SDK reports by
          * default and it is not configurable per server.

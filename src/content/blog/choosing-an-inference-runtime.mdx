@@ -12,7 +12,7 @@ export const meta = {
 };
 
 Every team that self-hosts a model eventually discovers that the model is not
-the bottleneck. The bottleneck is the engine around it — how requests are
+the bottleneck. The bottleneck is the engine around it: how requests are
 batched, how the KV cache is managed, and what happens when two requests with
 a long shared prefix arrive at the same moment.
 
@@ -28,13 +28,13 @@ and the shortlist usually drops to one or two.
 
 **1. Is your traffic bursty or steady?** Continuous batching exists to fill a
 batch with whatever is in flight right now. Under steady, low-concurrency
-traffic — an internal tool, a batch job — there is never enough in flight to
+traffic (an internal tool, a batch job), there is never enough in flight to
 fill a batch, and a fancy scheduler buys you nothing. Under bursty traffic it
 is the entire game. This is the single biggest fork in the road.
 
 **2. How much of your traffic shares a prefix?** If a large fraction of
-requests begin with the same few hundred tokens — a long system prompt, a
-cached document, a shared tool schema — then prefix caching is worth more than
+requests begin with the same few hundred tokens (a long system prompt, a
+cached document, a shared tool schema), then prefix caching is worth more than
 every other optimisation combined. SGLang's RadixAttention and vLLM's
 automatic prefix caching both exist to capture exactly this. If your prompts are
 short and unrelated, neither will do much for you.
@@ -75,7 +75,7 @@ reasonable choice inside an existing Hugging Face shop; it is not usually the
 one to pick cold.
 
 **[Triton](https://github.com/triton-inference-server/server)** is the
-general-purpose answer for heterogeneous serving — when some requests want
+general-purpose answer for heterogeneous serving, when some requests want
 ONNX, some want TensorRT, and some want a Python model. It trades peak
 LLM-specific throughput for flexibility you probably do not need.
 
@@ -103,7 +103,7 @@ done
 
 Plot tokens/second on one axis and p99 latency on the other. The right runtime
 is the one whose curve is furthest right before latency becomes unacceptable
-*for your users* — not before it exceeds some number you read in a blog post.
+*for your users*, not before it exceeds some number you read in a blog post.
 
 ## The decision, compressed
 

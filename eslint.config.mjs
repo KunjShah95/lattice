@@ -22,6 +22,8 @@ const eslintConfig = defineConfig([
     // one-off maintenance scripts, not app code, so the app lint rules do not
     // apply to them.
     "scripts/**",
+    // The launch film's capture and render scripts (see launch/render.mjs).
+    "launch/**",
   ]),
 ]);
 

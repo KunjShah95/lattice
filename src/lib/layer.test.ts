@@ -11,7 +11,7 @@ import { categories, licenses, stackLayers } from "./data";
  *
  * The card now carries the three bands rather than nine layer stops, so the
  * thing to assert is that both implementations classify the same layer the
- * same way — not that there are nine distinct colours, which was the old
+ * same way, not that there are nine distinct colours, which was the old
  * contract and is now actively wrong.
  */
 
@@ -36,8 +36,8 @@ describe("the OG card palette", () => {
   });
 
   it("classifies every layer the same way the live site does", () => {
-    // The two implementations are independent by necessity — Satori cannot
-    // read a CSS custom property — so nothing but this test stops them
+    // The two implementations are independent by necessity, Satori cannot
+    // read a CSS custom property, so nothing but this test stops them
     // drifting. If they disagree, an OG card says one band and the page it
     // links to says another, which is worse than either being wrong alone.
     for (const c of stackLayers) {

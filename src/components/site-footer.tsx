@@ -10,7 +10,7 @@ import { site } from "@/lib/site";
  *
  * Every top-level page is listed here. The footer is the only place a reader
  * can reach everything without using the header, so a route that exists but is
- * not linked from here is effectively invisible to anyone not already on it —
+ * not linked from here is effectively invisible to anyone not already on it:
  * which is how the glossary ended up reachable only by typing the URL.
  *
  * Columns are grouped by what a reader is looking for, not by internal type:
@@ -35,17 +35,62 @@ export function SiteFooter() {
               {toolCount} tools · {layers.length} layers · {glossary.length} terms
             </p>
             <ProductHuntBadge className="mt-4" />
+            {/* UsefulShelf listing badge. Rendered unconditionally — no cookie,
+                region or A/B gate — so UsefulShelfBot's daily crawl finds it in
+                the server-sent HTML on the submitted page and the listing stays
+                public. One badge only: the earlier `lattice` listing was
+                superseded by `lattice-9fc3de` when the domain moved to
+                lattice.kunjshah.in, so keeping both would have been duplicate
+                credit for the same product. */}
             <a
-              href="https://usefulshelf.co/apps/lattice?utm_source=lattice.kunjshah.in&utm_medium=referral&utm_campaign=badge&utm_content=light"
+              href="https://usefulshelf.co/apps/lattice-9fc3de?utm_source=lattice.kunjshah.in&utm_medium=referral&utm_campaign=badge&utm_content=lime"
               target="_blank"
-              rel="noopener"
+              rel="nofollow noopener"
               className="mt-4 inline-block"
             >
               <img
-                src="https://usefulshelf.co/badge/lattice.svg"
+                src="https://usefulshelf.co/badge/lattice-9fc3de.svg?theme=lime"
                 alt="Featured on UsefulShelf"
                 width={248}
                 height={66}
+              />
+            </a>
+            {/* Smol Rank listing badge. */}
+            <a
+              href="https://smolrank.com/projects/lattice?utm_source=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block"
+            >
+              <img
+                src="https://smolrank.com/smolrank/images/badges/featured-on-light.svg"
+                alt="Featured on Smol Rank"
+                height={44}
+                style={{ height: 44, width: "auto" }}
+              />
+            </a>
+            {/* Peerlist Launchpad badge. */}
+            <a
+              href="https://peerlist.io/kunjshah/project/lattice"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Launched on Peerlist"
+              className="mt-4 inline-block"
+            >
+              <img
+                src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/launched-on-new-light.webp"
+                alt="Launched on Launchpad by Peerlist"
+                height={44}
+                className="block dark:hidden"
+                style={{ height: 44, width: "auto" }}
+              />
+              <img
+                src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/launched-on-new-dark.webp"
+                alt="Launched on Launchpad by Peerlist"
+                height={44}
+                className="hidden dark:block"
+                aria-hidden="true"
+                style={{ height: 44, width: "auto" }}
               />
             </a>
           </div>
@@ -78,6 +123,7 @@ export function SiteFooter() {
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/bands">By band</FooterLink>
+            <FooterLink href="/review">Stack review</FooterLink>
             <FooterLink href="/methodology">Methodology</FooterLink>
             {/* Next to methodology rather than under "Submit", because it is the
                 evidence for the claim methodology makes rather than a way to
@@ -88,7 +134,7 @@ export function SiteFooter() {
             <FooterLink href="/verification">Freshness ledger</FooterLink>
             {/* Beside methodology rather than under "Corrections" because it is
                 how you challenge a selection, not how you report a broken
-                link — and methodology is what defines the bar it is judged
+                link, and methodology is what defines the bar it is judged
                 against. */}
             <FooterLink href="/submit">Submit a tool</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>

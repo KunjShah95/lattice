@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
-export const alt = "Compare Builder — any three AI infrastructure tools, side by side, with no winner declared";
+export const alt = "Compare Builder: any three AI infrastructure tools, side by side, with no winner declared";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -14,7 +14,7 @@ export const contentType = "image/png";
  *
  * `variant="plain"` like `/stack-builder`'s sibling pages: the page is a tool that
  * spans every layer, so a strata rail drawn against one layer would assert a
- * position it does not have — the opposite of what a cross-layer comparison says.
+ * position it does not have: the opposite of what a cross-layer comparison says.
  */
 export default function OpengraphImage() {
   return new ImageResponse(

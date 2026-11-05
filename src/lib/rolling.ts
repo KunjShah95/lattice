@@ -6,7 +6,7 @@
  *
  * ## Why columns are keyed from the right
  *
- * A number gaining a digit — 999 to 1,000 — must not remount the columns it
+ * A number gaining a digit (999 to 1,000), must not remount the columns it
  * already has, or every digit would restart from zero and the whole figure would
  * spin instead of the one digit that changed. Aligning keys to the ones place
  * means the units column is always `c0`, tens `c1`, and so on, so a longer number

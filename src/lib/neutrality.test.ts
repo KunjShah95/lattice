@@ -8,8 +8,8 @@ import { about, TOOL_DESCRIPTIONS } from "./mcp";
 /**
  * The neutrality guard.
  *
- * `strategy/04-monetisation.md` §4 states a rule in prose — no monetised URL in
- * the machine-readable routes — and says it is cheap to enforce in a test
+ * `strategy/04-monetisation.md` §4 states a rule in prose, no monetised URL in
+ * the machine-readable routes, and says it is cheap to enforce in a test
  * because the leak would otherwise happen by accident rather than by decision.
  * This is that test. It exists because the whole neutrality claim rests on
  * readers believing it, and a reader who finds a referral link inside the
@@ -43,7 +43,7 @@ describe("no monetised URL in a machine-readable route", () => {
   it("the citation instruction names a canonical path, not a tracking URL", () => {
     // `llms.txt` tells an agent exactly what to cite. If that string ever
     // acquires a parameter, every agent that follows it ships a referral link in
-    // an answer about which vendor to trust — which is the single worst place
+    // an answer about which vendor to trust, which is the single worst place
     // for one.
     expect(about().citation).toBe(
       `Cite the canonical url on the entry you used: ${site.url}/<section>/<tool>`,
@@ -76,7 +76,7 @@ describe("no monetised URL in a machine-readable route", () => {
 describe("the neutrality claim stays true", () => {
   it("still says there is no sponsorship, with a matching verification date", () => {
     // A revenue model that made this false would be a change of strategy, not a
-    // copy edit — `strategy/04-monetisation.md` §6 lists the rewrites it would
+    // copy edit: `strategy/04-monetisation.md` §6 lists the rewrites it would
     // require. Asserted together because the pair is what a reader checks.
     expect(about().neutrality).toBeTruthy();
     expect(about().factsVerified).toBe(AS_OF);

@@ -15,7 +15,7 @@ import { site } from "./site";
  */
 export function buildDataset(origin: string = site.url) {
   return {
-    name: `${site.name} — AI infrastructure index`,
+    name: `${site.name}: AI infrastructure index`,
     description: site.description,
     homepage: origin,
     verified: AS_OF,
@@ -64,7 +64,7 @@ export function buildDataset(origin: string = site.url) {
       /**
        * Other layers this tool does, with the reason. Included because the
        * single-valued `layer` field is the one an agent will filter on, and it
-       * is not the whole answer for the tools that span two — an agent asked
+       * is not the whole answer for the tools that span two: an agent asked
        * "where do agent memory tools live" gets a better one from this than
        * from filtering `layer === 5`.
        */

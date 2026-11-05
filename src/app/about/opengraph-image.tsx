@@ -4,7 +4,7 @@ import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt =
-  "About — what Lattice is, who maintains the index, and how entries are chosen";
+  "About: what Lattice is, who maintains the index, and how entries are chosen";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -12,7 +12,7 @@ export const contentType = "image/png";
  * Cover image for the about page.
  *
  * `variant="plain"` and `layer={null}` because this page is about the index
- * rather than an entry in it — the same framing as `/methodology` and `/submit`.
+ * rather than an entry in it: the same framing as `/methodology` and `/submit`.
  */
 export default function OpengraphImage() {
   return new ImageResponse(

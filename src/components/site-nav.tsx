@@ -26,10 +26,10 @@ const primary = [
   { href: "/stack-builder", label: "Stack Builder" },
   { href: "/compare", label: "Compare" },
   { href: "/fix", label: "Fix" },
-  { href: "/blog", label: "Essays" },
 ] as const;
 
 const secondary = [
+  { href: "/blog", label: "Essays" },
   { href: "/roles", label: "By role" },
   { href: "/bands", label: "By band" },
   { href: "/glossary", label: "Glossary" },
@@ -230,6 +230,16 @@ export function MobileNav() {
             className="pop-in absolute inset-x-0 top-full z-40 max-h-[calc(100dvh-4rem-env(safe-area-inset-top))] overflow-y-auto overscroll-contain border-b border-border bg-bg pb-[env(safe-area-inset-bottom)] shadow-float"
           >
             <ul className="page-shell py-3">
+              <li className="pb-2">
+                <Link
+                  href="/review"
+                  onClick={() => setOpen(false)}
+                  className="btn-ink group flex h-12 w-full items-center justify-center gap-2 rounded-[var(--r-control)] px-4 text-[15px] font-medium"
+                >
+                  Get a stack review
+                  <span aria-hidden="true" className="nudge">→</span>
+                </Link>
+              </li>
               <li className="pb-1.5">
                 <p className="t-label px-1 pb-2 pt-2">Browse</p>
               </li>

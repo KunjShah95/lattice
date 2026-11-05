@@ -7,7 +7,7 @@ import { ThemeToggle } from "./theme-toggle";
 /**
  * Three links, not ten. The nine layer links that used to live here were the
  * loudest generic-template signal on the page, and the stack diagram on the
- * index already navigates layers better than a header strip can — it shows
+ * index already navigates layers better than a header strip can: it shows
  * depth, colour and density that a flat list of links threw away.
  */
 export function SiteHeader() {
@@ -16,12 +16,12 @@ export function SiteHeader() {
     // was contributing a fraction of a percent of visible difference while
     // costing a full backdrop read-back, blur and re-composite every time the
     // page scrolled underneath it. `backdrop-filter` cannot be cached across
-    // scroll frames — the region beneath it changes — so on a header that is on
+    // scroll frames, the region beneath it changes, so on a header that is on
     // screen for the entire session it is a per-frame main-thread charge for
     // an effect nobody would notice missing.
     //
     // `header-elevate` adds a shadow once content scrolls beneath the bar. It is
-    // a scroll-driven CSS animation, so it costs the main thread nothing — the
+    // a scroll-driven CSS animation, so it costs the main thread nothing: the
     // compositor owns it, unlike the blur this replaced.
     <header className="header-elevate sticky top-0 z-40 border-b border-border bg-bg pt-[env(safe-area-inset-top)]">
       {/* `relative` anchors the mobile drawer, which is absolutely
@@ -38,11 +38,20 @@ export function SiteHeader() {
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           {/* `compact` collapses to an icon below `sm`. This used to be
-              `hidden sm:inline-flex`, which left the palette — the fastest way
-              to find anything on a 113-tool index — completely unreachable on
+              `hidden sm:inline-flex`, which left the palette, the fastest way
+              to find anything on a 113-tool index, completely unreachable on
               a phone. */}
           <SearchTrigger compact />
           <ThemeToggle />
+          {/* The one call to action in the chrome. Below `sm` it moves into
+              the mobile drawer, where there is room for it at full width. */}
+          <Link
+            href="/review"
+            className="btn-ink group ml-1 hidden h-10 items-center gap-1.5 rounded-[var(--r-control)] px-3.5 text-[14px] font-medium sm:inline-flex"
+          >
+            Get a review
+            <span aria-hidden="true" className="nudge">→</span>
+          </Link>
           <MobileNav />
         </div>
       </div>

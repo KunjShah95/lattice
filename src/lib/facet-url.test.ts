@@ -17,8 +17,8 @@ import { allTools } from "./data";
  * The round trip is the contract: a reader who filters, copies the address bar
  * and sends it to a colleague must land on the same list. Before this existed the
  * filtered view was not expressible as a URL at all, so the most linkable claim
- * the site could make — "the free, self-hosted tools an ML platform engineer
- * owns" — was the one thing a reader could not send anywhere.
+ * the site could make: "the free, self-hosted tools an ML platform engineer
+ * owns"was the one thing a reader could not send anywhere.
  *
  * The vocabulary is shared with `/api/search`, and that is asserted here rather
  * than assumed: two surfaces that spell the same facet differently is a trap
@@ -158,7 +158,7 @@ describe("shared vocabulary with /api/search", () => {
   });
 
   it("spells every shared axis the way /api/search does", () => {
-    // `/api/search` has no `roles` — it is `role`, because that is the singular
+    // `/api/search` has no `roles`it is `role`, because that is the singular
     // the MCP server's enum already uses. Two surfaces spelling the same facet
     // differently is the kind of mismatch that only surfaces when someone tries
     // to move a link from one to the other.
@@ -171,11 +171,11 @@ describe("shared vocabulary with /api/search", () => {
 
   it("only encodes values the dataset can actually produce", () => {
     // A link carrying `?cost=fre` renders an unfiltered list with a lit-looking
-    // URL, so the encoder is only ever fed real values — asserted against the
+    // URL, so the encoder is only ever fed real values: asserted against the
     // dataset rather than a hand-copied list.
     // Widened to `string` deliberately: `FacetSelection` holds display strings, so
     // the point is that every value the dataset produces lands in that type
-    // without a cast — which a narrower `Set<Deployment>` would not prove.
+    // without a cast, which a narrower `Set<Deployment>` would not prove.
     const costs = new Set<string>(allTools.map((t) => t.cost));
     const kinds = new Set<string>(allTools.map((t) => t.kind));
     const deployments = new Set<string>(

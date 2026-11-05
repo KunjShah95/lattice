@@ -27,7 +27,7 @@ export function activeIndex(tops: number[], offset: number): number {
  * How far through the article the reader has scrolled, 0–1.
  *
  * 0 while the article's top is still below the viewport top, 1 once its bottom
- * reaches the viewport bottom — the point where there is nothing left to scroll to.
+ * reaches the viewport bottom: the point where there is nothing left to scroll to.
  * An article shorter than the viewport has no scroll range at all, so it reads 1 as
  * soon as it is in view rather than dividing by zero or by a negative.
  *

@@ -6,7 +6,7 @@ import type { Role } from "./types";
  * Every other axis on this site answers a question about the *tool*. The layer
  * ramp says where it sits in a stack, `kind` says what shape it is, `cost` and
  * `deployment` say what adopting it costs. None of them can answer "I am the
- * person who owns this", which is how a reader actually arrives — they know
+ * person who owns this", which is how a reader actually arrives: they know
  * their own job and they are looking for the three tools that job is
  * accountable for, not the ninety that sit in layers they do not touch.
  *
@@ -16,7 +16,7 @@ import type { Role } from "./types";
  * not work, and it is worth being explicit about why rather than shipping it
  * because it sounds right. A Principal and a Staff engineer need *the same
  * tools*. Seniority changes who makes the decision and what the bar is, not
- * which parts of the stack you are responsible for — so every tool would carry
+ * which parts of the stack you are responsible for, so every tool would carry
  * the same value on that axis and the facet would filter to nothing while
  * appearing to work. The useful axis is the specialisation inside the title:
  * the thing you are accountable for regardless of level.
@@ -27,13 +27,13 @@ import type { Role } from "./types";
  * remainder. Four merges AI Infrastructure into ML Platform, which is the
  * distinction a serving engineer cares about most. Six splits Applied from
  * Agents, but very few tools are one without the other, so it would be a
- * distinction without a difference. The count that matters is not five — it is
+ * distinction without a difference. The count that matters is not five: it is
  * that no role is defined by what it is *not*, which is how a facet starts
  * returning noise.
  *
  * These are deliberately *not* the bands. A band is a property of the stack
  * (where compute happens, where state lives); a role is a property of a person.
- * They correlate — most Platform tools sit in layer 2 or 6 — but a Principal
+ * They correlate, most Platform tools sit in layer 2 or 6, but a Principal
  * Platform Engineer owns routing *and* orchestration *and* the evals that prove
  * the whole thing works, which crosses all three bands. Collapsing the two would
  * lose exactly the cross-cutting rows that are most worth surfacing.
@@ -107,7 +107,7 @@ export function roleShort(id: Role): string {
  * Every tool a role is accountable for, in dataset order.
  *
  * A tool with several roles appears under each of them. That is the honest
- * reading — an eval framework is genuinely part of what a platform engineer owns
+ * reading: an eval framework is genuinely part of what a platform engineer owns
  * and part of what an applied engineer owns, and pretending otherwise would
  * hide the row from the person most likely to need it. The consequence is that
  * role counts do not sum to the tool count, which is expected.

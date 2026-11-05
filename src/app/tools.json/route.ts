@@ -1,7 +1,7 @@
 import { buildDataset } from "@/lib/dataset";
 
 /**
- * /tools.json — the full index as structured data, for agents and tools.
+ * /tools.json: the full index as structured data, for agents and tools.
  * Prerendered; it changes only when the dataset does, which is a deploy.
  */
 export const dynamic = "force-static";

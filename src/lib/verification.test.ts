@@ -25,7 +25,7 @@ describe("staleCutoff", () => {
 describe("buildVerificationReport", () => {
   const report = buildVerificationReport(BUILD);
 
-  it("passes for the shipped dataset — otherwise the build would have thrown", () => {
+  it("passes for the shipped dataset: otherwise the build would have thrown", () => {
     expect(report.status).toBe("pass");
     expect(report.stale).toEqual([]);
   });
@@ -152,7 +152,7 @@ describe("per-tool asOf", () => {
     // deliberate correction, which is the opposite of what the field is for.
     for (const [name, attr] of Object.entries(attributes)) {
       if (!attr.asOf) continue;
-      // `YYYY-MM` sorts correctly as a string — fixed width, zero-padded month —
+      // `YYYY-MM` sorts correctly as a string (fixed width, zero-padded month),
       // so this is a plain comparison rather than a Date round trip.
       expect(attr.asOf < AS_OF, `${name}: ${attr.asOf} predates ${AS_OF}`).toBe(false);
     }

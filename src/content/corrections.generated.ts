@@ -1,5 +1,5 @@
 /**
- * GENERATED — do not edit. Run `npm run generate` to rebuild.
+ * GENERATED: do not edit. Run `npm run generate` to rebuild.
  *
  * The corrections log for `/corrections`, derived from git history over
  * `src/lib/attributes.ts` and `src/lib/data.ts`. See
@@ -99,7 +99,7 @@ export const corrections: Correction[] = [
   },
   {
     "date": "2026-09-30",
-    "title": "Lattice: initial commit — AI tooling directory",
+    "title": "Lattice: initial commit: AI tooling directory",
     "hash": "81f85fe",
     "url": "https://github.com/KunjShah95/lattice/commit/81f85fe8a9b1f30c00140ae41216ebba9326f967",
     "touched": [

@@ -2,7 +2,7 @@
  * A horizontal value bar for a share of something, 0–1.
  *
  * Used where a number needs a picture and the number itself stays on screen
- * beside it — a confidence figure, a fit score. The bar is `aria-hidden` and the
+ * beside it: a confidence figure, a fit score. The bar is `aria-hidden` and the
  * caller renders the number as text, so the figure is never only an image.
  *
  * Ticks, not a smooth fill: ten segments read as a reading on an instrument and

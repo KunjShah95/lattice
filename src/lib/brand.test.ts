@@ -5,8 +5,8 @@ import { REPO } from "./submissions.mjs";
 /**
  * Branding invariants.
  *
- * `site.url` is the root of every canonical, every `og:url` and — because
- * `metadataBase` resolves relative og:image URLs against it — every generated
+ * `site.url` is the root of every canonical, every `og:url` and, because
+ * `metadataBase` resolves relative og:image URLs against it: every generated
  * share image on the site. Getting it wrong does not break the build; it
  * publishes 143 correct-looking pages pointing at a domain nobody owns, and
  * every social share of a tool link renders from a URL that 404s.
@@ -30,7 +30,7 @@ describe("branding", () => {
 
   it("has no placeholder contact details", () => {
     // These ship as real links in the footer. Unset channels are omitted (X)
-    // or fall back to the issue tracker (email) — never to a dead address.
+    // or fall back to the issue tracker (email): never to a dead address.
     expect(site.copyrightHolder).not.toMatch(/your name|todo/i);
     if (site.contact.email) expect(site.contact.email).not.toMatch(/example\.|\.invalid|todo@/i);
     if (site.contact.x) expect(site.contact.x).not.toMatch(/yourhandle|\/todo$/i);
@@ -48,7 +48,7 @@ describe("branding", () => {
   /**
    * `site.repo` and `submissions.mjs`'s `REPO` were two spellings of one fact:
    * a bare `owner/repo` here and a full URL there. Nothing forced them to agree,
-   * so a repo rename that updated one left the other pointing at a 404 — and the
+   * so a repo rename that updated one left the other pointing at a 404, and the
    * contact page would offer an issue link that could not receive an issue.
    */
   it("derives the repo URL from the same constant issues are filed against", () => {
@@ -58,7 +58,7 @@ describe("branding", () => {
   it("keeps the meta description inside the search-result budget", () => {
     // Search engines truncate around 155-160 characters on desktop and nearer
     // 120 on mobile. Anything past that is written and never seen, so the
-    // budget is enforced rather than remembered — the description was 229
+    // budget is enforced rather than remembered: the description was 229
     // characters at one point and lost its entire second half.
     const len = [...site.description].length;
     expect(len).toBeLessThanOrEqual(158);

@@ -40,7 +40,7 @@ towards the middle.
 ### Put the instruction where attention is strongest
 
 Position matters more than most people expect. The system prompt and the
-question should be at the extremes — the beginning and the end — with the
+question should be at the extremes, the beginning and the end, with the
 material in between. A model asked to answer at the end of a long document
 performs considerably better than one asked at the start.
 
@@ -63,13 +63,13 @@ Large tool outputs do not need to be re-read on every turn. Store the full
 result, put a summary and a handle in the context, and let the model fetch
 detail if it wants it.
 
-A file listing with 4,000 lines is not context — it is a tool result that
+A file listing with 4,000 lines is not context: it is a tool result that
 should have been summarised at the point of return. This pattern alone fixes
 most of the "the agent gets confused after twenty tool calls" complaints.
 
 ## Summarise the middle, preserve the ends
 
-For genuinely long-running work — an agent loop, a multi-stage pipeline — the
+For genuinely long-running work (an agent loop, a multi-stage pipeline), the
 context needs active management rather than passive accumulation.
 
 The shape that works: **the first few turns contain the task and the decisions

@@ -28,7 +28,7 @@ describe("buildSearchEntries", () => {
   it("covers every kind the palette can return", () => {
     // Excluding essays was a real regression once: a query for "evals"
     // returned only tools and hid the best answer on the site. Glossary was the
-    // same mistake later — 51 terms, each with a page, none findable by name.
+    // same mistake later: 51 terms, each with a page, none findable by name.
     //
     // Asserted as an exact set rather than a superset, because a new kind that
     // ships without a branch in the palette's pill renderer is exactly the kind
@@ -122,7 +122,7 @@ describe("buildSearchEntries", () => {
 
   it("gives second-home titles, not slugs, so they read in the palette", () => {
     // The palette renders these next to the tool. A slug reads as a filename,
-    // so assert against the real vocabulary rather than by shape — section
+    // so assert against the real vocabulary rather than by shape: section
     // titles legitimately contain hyphens ("Fine-tuning & Training").
     const titles = new Set(categories.map((c) => c.title));
     const slugs = new Set(categories.map((c) => c.slug));

@@ -1,7 +1,7 @@
 /**
  * Turns a submission issue into a draft pull request.
  *
- * Run under bare `node` in CI with no build step — the same constraint as
+ * Run under bare `node` in CI with no build step: the same constraint as
  * `generate-awesome-list.mjs`, and the reason the shared logic lives in
  * `src/lib/submissions.mjs` as plain ESM rather than as TypeScript. That module
  * owns the format; this file owns the side effects.
@@ -15,7 +15,7 @@
  * Judgements are left as `TODO`: whether the tool is infrastructure at all,
  * which layer it belongs to, `cost`, `roles`, and the use-when/skip-when pair.
  * Those are the argument `methodology` §01 says a person makes, and a pipeline
- * that fills them in produces a plausible layer assignment nobody checked —
+ * that fills them in produces a plausible layer assignment nobody checked:
  * the exact failure mode the site exists to argue against.
  *
  * So the PR cannot merge as written. It carries a marker in its body, and the
@@ -57,7 +57,7 @@ const {
  * This script's first side effect is `git checkout -b` in whatever directory it
  * is invoked from, followed by a `git push`. Run locally by accident, it moves
  * the maintainer's working tree onto a submission branch and appends a `TODO`
- * entry to `src/lib/data.ts` — and because the branch is never merged, the mess
+ * entry to `src/lib/data.ts`and because the branch is never merged, the mess
  * is only visible in `git status` until the next checkout overwrites it. It
  * happened once during development, and recovering it cost a reset and a manual
  * rebuild of fourteen files.
@@ -172,7 +172,7 @@ const parsed = parseSubmission(issue.body ?? "");
 // per field and a day per submission.
 if (parsed && !parsed.ok) {
   await fail(
-    `Nothing to draft yet — ${parsed.missing.length} field(s) missing:\n\n` +
+    `Nothing to draft yet: ${parsed.missing.length} field(s) missing:\n\n` +
       parsed.missing.map((f) => `- **${f}**`).join("\n") +
       "\n\nThe form is at `/submit`. The field names and the fence markers have " +
       "to survive editing: the bot reads them, and a renamed field arrives empty.",
@@ -182,7 +182,7 @@ if (parsed && !parsed.ok) {
 if (!parsed) {
   await fail(
     "Could not read a submission out of this issue. The form is a set of " +
-      "fenced code blocks under `###` headings — if the headings were reworded " +
+      "fenced code blocks under `###` headings, if the headings were reworded " +
       "beyond recognition or the fences removed, the fields arrive empty. " +
       "The template is at `/submit`.",
   );
@@ -318,7 +318,7 @@ try {
 } catch (error) {
   console.error(`Could not push ${branch}: ${error.message}`);
   await fail(
-    `I could not push the draft branch \`${branch}\`. The drafted entry is below — ` +
+    `I could not push the draft branch \`${branch}\`. The drafted entry is below: ` +
       `add it by hand and close this issue.\n\n` +
       `In \`src/lib/data.ts\` (section \`${draft.section ?? "?"}\`):\n\n` +
       "```ts\n" + draft.dataBlock + "\n```\n\n" +
@@ -336,7 +336,7 @@ const body = [
   "### The entry, as it will read",
   "",
   draft.section
-    ? `Appended to the end of \`${draft.section}\` in \`src/lib/data.ts\`. Move it if the position is wrong — alphabetical within a section is the convention.`
+    ? `Appended to the end of \`${draft.section}\` in \`src/lib/data.ts\`. Move it if the position is wrong: alphabetical within a section is the convention.`
     : "**No section chosen**, because the submitted layer did not resolve. Pick one and place the row.",
   "",
   "```ts",
@@ -348,13 +348,13 @@ const body = [
   "```",
   "",
   draft.duplicates.length
-    ? `> **Already in the dataset:** ${draft.duplicates.join(", ")}. This may be a correction rather than a new entry — check before merging, and do not add a second page for one product.`
+    ? `> **Already in the dataset:** ${draft.duplicates.join(", ")}. This may be a correction rather than a new entry: check before merging, and do not add a second page for one product.`
     : "",
   "### Before this merges",
   "",
   "1. Fill in every `TODO`. The build fails on the licence gate and the tests fail on the missing roles, so this cannot merge half-written.",
   "2. Confirm the layer. The submitter's guess is a starting point, not an answer.",
-  "3. Decide whether the tool is infrastructure at all — that is §01 of the methodology, and no bot applied it.",
+  "3. Decide whether the tool is infrastructure at all: that is §01 of the methodology, and no bot applied it.",
   "4. Rewrite the blurb. It is a one-sentence definition, not a tagline.",
   "5. Then set the marker below to `ready` and mark the PR ready for review.",
   "",
@@ -390,14 +390,14 @@ try {
   });
   prUrl = pr.html_url ?? "";
 } catch (error) {
-  // 422 means a PR already exists for this branch — the common case on an edited
+  // 422 means a PR already exists for this branch: the common case on an edited
   // submission, and not a failure worth failing the run for. The existing PR
   // already carries a draft somebody is working through.
   if (String(error.message).includes("422")) {
     console.log(`A PR already exists for ${branch}. Nothing to do.`);
     await comment(
       `This submission was already drafted from \`${branch}\`. Editing the issue ` +
-        `body does not update it — edit the branch, or close the old PR and ` +
+        `body does not update it: edit the branch, or close the old PR and ` +
         `reopen the issue to re-draft.`,
     );
     setOutput("pr_url", "");
@@ -408,7 +408,7 @@ try {
 
 await comment(
   `Drafted: ${prUrl}\n\n` +
-    `Filled from the GitHub API — licence ${
+    `Filled from the GitHub API: licence ${
       facts.license ? `\`${facts.license}\`` : "**unconfirmed**"
     }, language ${facts.language ? `\`${facts.language}\`` : "**unconfirmed**"}.\n` +
     (facts.archived ? "> This repository is archived. Confirm it still works.\n" : "") +

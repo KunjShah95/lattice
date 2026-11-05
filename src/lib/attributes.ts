@@ -8,7 +8,7 @@ import type { CostModel, Deployment, Role, SecondHome, ToolKind } from "./types"
  * link-bearing and must not be disturbed. These are the classification facts
  * that make the index filterable and decision-oriented. Splitting them means a
  * wrong licence can be corrected in one place, and `data.ts` asserts a
- * one-to-one match with this file at build time — so a tool can never appear
+ * one-to-one match with this file at build time, so a tool can never appear
  * without attributes, or vice versa.
  *
  * `license` is an SPDX identifier, `"proprietary"`, or `null` where it could
@@ -47,9 +47,9 @@ export type ToolAttributes = {
    * Per-tool override for the licence/cost check date, `YYYY-MM`.
    *
    * The dataset-wide `AS_OF` is the honest default: it says "this whole sweep
-   * was done in this month". But vendors move at different speeds — a managed
+   * was done in this month". But vendors move at different speeds, a managed
    * observability vendor reprices quarterly while a stable inference runtime
-   * has not changed licence in years — and one global date makes the published
+   * has not changed licence in years, and one global date makes the published
    * receipt (`/verification.json`) carry the same `asOf` on all 112 rows, so its
    * per-entry expiry column is decorative rather than true.
    *
@@ -96,7 +96,7 @@ export const attributes: Record<string, ToolAttributes> = {
   "llama.cpp": {
     kind: "runtime", deployment: "self-hosted", license: "MIT", language: "C++", cost: "free",
     roles: ["serving"],
-    useWhen: "The constraint is hardware, not throughput — no GPU, or an edge box.",
+    useWhen: "The constraint is hardware, not throughput: no GPU, or an edge box.",
     skipWhen: "You need maximum concurrent throughput on datacentre GPUs.",
     alternatives: ["Ollama", "llamafile", "KoboldCpp"],
   },
@@ -153,7 +153,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "runtime", deployment: "self-hosted", license: "Apache-2.0", language: "C++", cost: "free",
     roles: ["serving"],
     useWhen: "CPU-first serving where the GPU accelerates rather than carries the load.",
-    skipWhen: "You have GPUs to spare — it trades peak throughput for reach.",
+    skipWhen: "You have GPUs to spare: it trades peak throughput for reach.",
     alternatives: ["llama.cpp", "vLLM"],
   },
   "Marlin": {
@@ -312,7 +312,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "database", deployment: "self-hosted", license: "Elastic-License-2.0", language: "Java", cost: "usage-based",
     roles: ["data"],
     useWhen: "One index carrying BM25 and dense vectors, with ranking you can tune.",
-    skipWhen: "You need a permissive licence — the Elastic licence is not OSI-approved.",
+    skipWhen: "You need a permissive licence: the Elastic licence is not OSI-approved.",
     alternatives: ["Vespa", "Weaviate", "Qdrant"],
   },
   "Vespa": {
@@ -340,7 +340,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "library", deployment: "self-hosted", license: "MIT", language: "Python", cost: "free",
     roles: ["data", "applied"],
     useWhen: "Document loaders and splitters, if you are already in that ecosystem.",
-    skipWhen: "Structure matters — fixed-size splitting is rarely the right boundary.",
+    skipWhen: "Structure matters: fixed-size splitting is rarely the right boundary.",
     alternatives: ["Unstructured", "Docling"],
   },
   "Docling": {
@@ -383,7 +383,7 @@ export const attributes: Record<string, ToolAttributes> = {
   "PEFT": {
     kind: "library", deployment: "self-hosted", license: "BSD-3-Clause", language: "Python", cost: "free",
     roles: ["applied"],
-    useWhen: "Parameter-efficient fine-tuning — LoRA and variants — on limited hardware.",
+    useWhen: "Parameter-efficient fine-tuning, LoRA and variants, on limited hardware.",
     skipWhen: "You need to change the model's capabilities, not bolt on an adapter.",
     alternatives: ["Unsloth", "TRL"],
   },
@@ -398,7 +398,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "library", deployment: "self-hosted", license: "MIT", language: "Python", cost: "free",
     roles: ["serving", "applied"],
     useWhen: "ZeRO sharding and pipeline parallelism across many GPUs.",
-    skipWhen: "The model fits on one device — the complexity buys nothing.",
+    skipWhen: "The model fits on one device: the complexity buys nothing.",
     alternatives: ["Megatron-LM"],
   },
   "Megatron-LM": {
@@ -426,7 +426,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "platform", deployment: "saas", license: "proprietary", language: null, cost: "free-tier",
     roles: ["applied"],
     useWhen: "A disposable GPU for a quick experiment, with no setup.",
-    skipWhen: "Anything reproducible — a notebook is not a training pipeline.",
+    skipWhen: "Anything reproducible: a notebook is not a training pipeline.",
     alternatives: ["Replicate"],
   },
   "Replicate": {
@@ -455,7 +455,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "framework", deployment: "self-hosted", license: "MIT", language: "Python", cost: "free",
     roles: ["applied"],
     useWhen: "Tool use and state, in an ecosystem where the answers already exist.",
-    skipWhen: "You want a thin, legible core — this is a large surface.",
+    skipWhen: "You want a thin, legible core: this is a large surface.",
     alternatives: ["LlamaIndex", "Pydantic AI", "CrewAI"],
   },
   "LlamaIndex": {
@@ -540,7 +540,7 @@ export const attributes: Record<string, ToolAttributes> = {
     skipWhen: "You want memory to be a detail the framework handles for you.",
     alternatives: ["smolagents", "OpenAI Agents SDK"],
     // This is the entry that forced the second-home field. Letta's memory is
-    // persisted, queried state over an embedding store — the same layer-3 job —
+    // persisted, queried state over an embedding store, the same layer-3 job,
     // so a reader looking for agent memory under Retrieval was previously right
     // to conclude the taxonomy had no answer for it.
     secondHomes: [
@@ -553,7 +553,7 @@ export const attributes: Record<string, ToolAttributes> = {
   "smolagents": {
     kind: "framework", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
     roles: ["applied"],
-    useWhen: "Reading the whole agent loop in a page — it is deliberately tiny.",
+    useWhen: "Reading the whole agent loop in a page: it is deliberately tiny.",
     skipWhen: "You need a rich tool ecosystem around it.",
     alternatives: ["Agno", "Letta"],
   },
@@ -570,7 +570,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "platform", deployment: "self-hosted", license: "MIT", language: "Go", cost: "free",
     roles: ["platform"],
     useWhen: "Work spanning minutes or hours that must survive restarts and retries.",
-    skipWhen: "You need it live in a day — the adoption cost is real.",
+    skipWhen: "You need it live in a day: the adoption cost is real.",
     alternatives: ["Inngest", "Restate", "DBOS"],
   },
   "Inngest": {
@@ -605,7 +605,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "platform", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
     roles: ["platform", "data"],
     useWhen: "Scheduled batch data engineering, where DAGs are the shared language.",
-    skipWhen: "You are building a latency-sensitive product — it was not designed for one.",
+    skipWhen: "You are building a latency-sensitive product: it was not designed for one.",
     alternatives: ["Dagster", "Prefect"],
   },
   "Restate": {
@@ -642,7 +642,7 @@ export const attributes: Record<string, ToolAttributes> = {
     kind: "library", deployment: "self-hosted", license: "Apache-2.0", language: "Python", cost: "free",
     roles: ["production"],
     useWhen: "Constraining conversational flow with programmable rails.",
-    skipWhen: "You need deep semantic moderation — it is not a classifier.",
+    skipWhen: "You need deep semantic moderation: it is not a classifier.",
     alternatives: ["Guardrails AI", "Llama Guard"],
   },
   "Guardrails AI": {
@@ -732,7 +732,7 @@ export const attributes: Record<string, ToolAttributes> = {
   },
   // Langfuse has one home page, in Evaluation & Observability. Its prompt
   // module is a feature of the same product, so it does not get a second page
-  // and a second copy of its attributes — but it does get a second home in
+  // and a second copy of its attributes, but it does get a second home in
   // Prompt Engineering, which is a cross-reference rather than a duplicate.
   // The two requirements are different and the distinction matters: a second
   // *page* splits the attributes, a second *home* keeps one page and tells the
@@ -904,7 +904,7 @@ export const attributes: Record<string, ToolAttributes> = {
     skipWhen: "You need a curated and explained version." },
   "Papers with Code": { ...READ, roles: ["applied"],
     useWhen: "Linking papers to their reference implementations.",
-    skipWhen: "You are offline — it is a live index." },
+    skipWhen: "You are offline: it is a live index." },
   "Jay Alammar": { ...READ, roles: ["applied", "data"],
     useWhen: "Visual explanations of transformers, RAG and model internals.",
     skipWhen: "You want depth beyond the intuition." },
@@ -918,6 +918,6 @@ export const attributes: Record<string, ToolAttributes> = {
     useWhen: "Designing, building and deploying ML systems as a discipline.",
     skipWhen: "You only need LLM-specific material." },
   "Distill": { ...READ, roles: ["production"],
-    useWhen: "Carefully explained model and method write-ups — though the publication is now archived.",
+    useWhen: "Carefully explained model and method write-ups, though the publication is now archived.",
     skipWhen: "You need recent work; the archive stopped years ago." },
 };

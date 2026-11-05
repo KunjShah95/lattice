@@ -4,8 +4,8 @@
  * ## Why this exists
  *
  * `/signal`, `/api/search` and `/mcp` are open to the internet with no
- * credentials. `signal.mjs` validates the *shape* of a beacon carefully — a
- * closed event vocabulary, site-absolute paths, a size cap — and that is the
+ * credentials. `signal.mjs` validates the *shape* of a beacon carefully (a
+ * closed event vocabulary, site-absolute paths, a size cap), and that is the
  * right call, because it is what decides whether the endpoint is safe to leave
  * open. But shape validation bounds the cost of one request, not the number of
  * them. Without a ceiling, anyone who finds the URL can write to the metrics
@@ -13,7 +13,7 @@
  *
  * The threat is specific and is called out in `strategy/04-monetisation.md` §7:
  * *"POST ten thousand `event: "compare"` lines and the metric you built says the
- * wedge is being used."* The shape rules do not stop that at all — those beacons
+ * wedge is being used."* The shape rules do not stop that at all: those beacons
  * are perfectly well-formed.
  *
  * ## Why in-memory, given the no-bindings rule
@@ -23,7 +23,7 @@
  * architectural decision for a number nobody acts on. A `Map` in module scope
  * needs no infrastructure, no deploy step and no cost.
  *
- * ## What it does and does not buy — read this before relying on it
+ * ## What it does and does not buy: read this before relying on it
  *
  * It is **per isolate**, and a Worker has many. So this is not a global rate
  * limit and cannot be presented as one: an attacker spread across N isolates gets
@@ -33,7 +33,7 @@
  *
  * The honest ceiling is Cloudflare's own per-account limit, which is far higher
  * and is the real defence. If `/signal` ever needs a hard global cap, the answer
- * is a rate-limiting rule in the Cloudflare dashboard, not more code here — and
+ * is a rate-limiting rule in the Cloudflare dashboard, not more code here, and
  * `worker-smoke.mjs` asserts this limiter is wired rather than assuming it.
  *
  * ## Why rejections are silent
@@ -50,7 +50,7 @@
  *
  * Set well above any human or crawler. The palette issues one fetch; a crawler
  * paging `/api/search` legitimately makes dozens. The point is to stop a script,
- * not to enforce a quota — a limit low enough to notice would break real clients
+ * not to enforce a quota: a limit low enough to notice would break real clients
  * before it inconvenienced anyone.
  */
 export const DEFAULT_LIMIT = 120;
@@ -62,7 +62,7 @@ export const WINDOW_MS = 60_000;
  * Entries kept at once.
  *
  * A bound, because the map is keyed by client identity and an attacker can
- * present unlimited distinct identities — without a cap this is a slow memory
+ * present unlimited distinct identities: without a cap this is a slow memory
  * leak triggered by a single request path. Evicted oldest-first when full, which
  * is the right policy for rate limiting: the entries most likely to be stale are
  * the oldest.
@@ -76,7 +76,7 @@ const buckets = new Map();
  * The client identity used for bucketing.
  *
  * Deliberately coarse. A real per-user limit wants a verified identity, which
- * would mean a cookie — and this site has none, on purpose
+ * would mean a cookie, and this site has none, on purpose
  * (`strategy/04-monetisation.md` §7: no cookie, no session, so the log cannot be
  * joined into a profile). Adding one to enforce a rate limit would give up the
  * privacy property to protect a metric nobody is paying for.
@@ -93,7 +93,7 @@ export function clientKey(request) {
  * Has this client exceeded its budget?
  *
  * Returns the verdict rather than throwing, so each route decides its own status
- * code — `signal` answers 204, `/api/search` answers 429.
+ * code: `signal` answers 204, `/api/search` answers 429.
  *
  * The window is fixed rather than sliding: a sliding window needs per-request
  * history and the precision buys nothing here. The consequence is that a client
@@ -123,7 +123,7 @@ export function retryAfterSeconds(windowMs = WINDOW_MS) {
 /**
  * Drop the oldest entries until there is room.
  *
- * Iterating a `Map` yields in insertion order, so the first key is the oldest —
+ * Iterating a `Map` yields in insertion order, so the first key is the oldest:
  * except for a key that was refreshed by a later request, which keeps its
  * original position. That is a small inaccuracy in the eviction order and does
  * not matter: the evicted entry is expired or nearly so either way, and the
@@ -139,7 +139,7 @@ function evictOldest() {
   }
 }
 
-/** Drop every bucket. Tests only — production never resets. */
+/** Drop every bucket. Tests only: production never resets. */
 export function resetLimiter() {
   buckets.clear();
 }

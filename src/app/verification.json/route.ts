@@ -1,7 +1,7 @@
 import { buildVerificationReport } from "@/lib/verification";
 
 /**
- * /verification.json — the receipt for the staleness guard in `data.ts`.
+ * /verification.json: the receipt for the staleness guard in `data.ts`.
  *
  * Prerendered, so `generatedAt` is the build date: the date the guard actually
  * ran. A deployed copy of this file is evidence that every entry passed on

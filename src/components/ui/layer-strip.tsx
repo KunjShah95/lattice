@@ -13,8 +13,8 @@ export type LayerCell = {
  * The nine stack layers as a strip, showing which ones a recommended stack fills.
  *
  * The home page draws the stack as a section elevation; this is the same drawing
- * compressed to one row, so a reader sees the *shape* of their stack — which layers
- * it occupies and which it leaves empty — before reading any of the picks.
+ * compressed to one row, so a reader sees the *shape* of their stack, which layers
+ * it occupies and which it leaves empty, before reading any of the picks.
  *
  * Filled layers carry the layer colour and the stack hatch (`hatch-stack`, the
  * drafting convention for "sits in the stack"). Empty layers are dashed outlines,
@@ -22,7 +22,7 @@ export type LayerCell = {
  * fine-tuning, and drawing the gap as a failure would be a false claim about the
  * workload, so an empty layer reads as an empty slot rather than a missing one.
  *
- * Stack order, left to right, substrate first — the order is the site's argument.
+ * Stack order, left to right, substrate first: the order is the site's argument.
  * Server-safe and stateless: it takes finished cells, so it imports only the colour
  * helper and nothing about the dataset.
  */

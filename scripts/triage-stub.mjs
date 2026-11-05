@@ -2,7 +2,7 @@
  * A stubbed GitHub, for the triage harness.
  *
  * Installed with `node --import`, which runs before the target's own module
- * graph — necessary because the target calls `fetch` at top level and ESM
+ * graph: necessary because the target calls `fetch` at top level and ESM
  * imports are hoisted, so a test cannot replace the global in time.
  *
  * It is a real file rather than a string built at runtime for one reason: an
@@ -52,7 +52,7 @@ globalThis.fetch = async (url, init = {}) => {
     return json({ html_url: "https://github.com/o/r/pull/7" }, 201);
   }
 
-  // The issue read, matched on the path shape rather than a hardcoded number —
+  // The issue read, matched on the path shape rather than a hardcoded number:
   // the number comes from the environment, and pinning it here would make the
   // stub quietly wrong the first time the harness passes `issueNumber`.
   if (method === "GET" && /\/issues\/\d+$/.test(u)) {

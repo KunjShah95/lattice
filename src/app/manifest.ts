@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${site.name} — AI infrastructure tools`,
+    name: `${site.name}: AI infrastructure tools`,
     short_name: site.name,
     description: site.description,
     start_url: "/",

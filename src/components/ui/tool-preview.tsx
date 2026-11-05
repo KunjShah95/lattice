@@ -6,7 +6,7 @@ import { DecisionValve } from "./decision-valve";
  * facts that most often rule a tool in or out before anything else.
  *
  * Server component, rendered into the page and handed to `PreviewLink` as an
- * opaque node — the client never sees the dataset, only the finished markup.
+ * opaque node: the client never sees the dataset, only the finished markup.
  *
  * Licence and cost are shown and popularity is not, and that is the point of the
  * card: the one-line comparison a reader wants is "can I run this, and what does

@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-export const alt = `The three bands of the AI stack — ${BANDS.length} bands over nine layers`;
+export const alt = `The three bands of the AI stack: ${BANDS.length} bands over nine layers`;
 
 /**
  * Cover image for the band index.

@@ -8,13 +8,13 @@ import {
   parseFilters,
   type EntryFilters,
 } from "@/lib/search-filters";
-// `.mjs` stated, matching `app/signal/route.ts` — `moduleResolution: "bundler"`
+// `.mjs` stated, matching `app/signal/route.ts``moduleResolution: "bundler"`
 // will not resolve `@/lib/rate-limit` onto the file.
 import { isRateLimited, retryAfterSeconds } from "@/lib/rate-limit.mjs";
 import { site } from "@/lib/site";
 
 /**
- * GET /api/search — the directory index as a plain query API.
+ * GET /api/search: the directory index as a plain query API.
  *
  * The same ranked search the palette and the MCP `search_tools` tool run,
  * for crawlers and agents that speak HTTPS but not MCP: `GET
@@ -23,7 +23,7 @@ import { site } from "@/lib/site";
  * ## Facets
  *
  * `layer`, `section`, `role`, `kind`, `deployment` and `cost` filter the
- * result set, with the same vocabulary the MCP `search_tools` tool accepts —
+ * result set, with the same vocabulary the MCP `search_tools` tool accepts:
  * repeat a key to OR within it, and the axes AND together. This was the gap
  * between the two surfaces: an agent with an MCP client could ask "free,
  * self-hosted, layer 3" and an agent without one could not ask it at all,
@@ -37,7 +37,7 @@ import { site } from "@/lib/site";
  * differ whenever a filter is selective, which is exactly when it is used.
  *
  * Reads the query string, so this is dynamic per request rather than a build
- * artefact like the other machine endpoints — but the corpus underneath only
+ * artefact like the other machine endpoints, but the corpus underneath only
  * changes on a deploy, hence the long edge cache. `limit` clamps to 1–50 so
  * a crawler cannot page the whole index out one giant response at a time;
  * that is what `/tools.json` is for.
@@ -54,7 +54,7 @@ const entries = buildSearchEntries();
 const index = buildIndex(entries);
 
 // The legal values per axis, derived from the corpus rather than restated here.
-// A hand-copied list is a list that goes stale the next time a tool is added —
+// A hand-copied list is a list that goes stale the next time a tool is added:
 // and it would go stale silently, because an unknown value would filter
 // everything out and return an empty result that looks like "no matches"
 // rather than "you passed nonsense".
@@ -129,8 +129,8 @@ export function GET(req: Request) {
   const filtering = hasAnyFilter(filters);
 
   // `q` is required only when nothing is filtered. With a filter the caller has
-  // already said what shape they want — `?role=platform&cost=free` is a complete
-  // question — and insisting on a keyword as well would make browse-by-facet
+  // already said what shape they want: `?role=platform&cost=free` is a complete
+  // question, and insisting on a keyword as well would make browse-by-facet
   // impossible over HTTPS, which is the one thing this route is for.
   if (!q && !filtering) {
     return Response.json(

@@ -12,7 +12,7 @@
  * ran that runtime.
  *
  * So this builds the Worker with the same command the deploy pipeline uses
- * (`npm run build` — not `npx opennextjs-cloudflare build`, which re-enters
+ * (`npm run build`not `npx opennextjs-cloudflare build`, which re-enters
  * itself without the recursion marker in `build.mjs` and produces a
  * `next-env.mjs` with duplicate exports), starts `wrangler dev` against the
  * bundle, and requests the routes that matter.
@@ -68,7 +68,7 @@ const EXPECTED = [
   // uses POST. Asserting the exact code rather than "not 200" is what
   // distinguishes "wrong runtime" from "never built".
   { path: "/mcp", status: 405 },
-  // `/signal` is 405 on GET for the same reason — a beacon is a POST.
+  // `/signal` is 405 on GET for the same reason: a beacon is a POST.
   { path: "/signal", status: 405 },
   // The band axis. Both routes are prerendered via `generateStaticParams`, so a
   // regression here is the `next build`-passes-but-500s class: a page that was
@@ -83,7 +83,7 @@ const EXPECTED = [
 /**
  * Beacon posts that must all answer 204, whether accepted or rejected.
  *
- * Every case returns 204 deliberately — see `app/signal/route.ts` — so the status
+ * Every case returns 204 deliberately: see `app/signal/route.ts`so the status
  * proves the route loaded and the validator ran, and cannot distinguish them. What
  * is actually being tested is that none of them 500s on the Worker, which is the
  * failure mode an unauthenticated public endpoint is most likely to have.
@@ -92,14 +92,14 @@ const EXPECTED = [
  * Beacon posts, and what each must answer.
  *
  * Accepted beacons answer 200 with the recorded edge. Rejected ones answer 204
- * and an empty body — a malformed beacon is noise, and a 4xx would show up as
+ * and an empty body: a malformed beacon is noise, and a 4xx would show up as
  * failed requests in the very analytics this route exists to produce, so
  * rejection stays silent and inside the 2xx range.
  *
  * The status alone distinguishes the two, which is the point: this used to assert
  * that every case answered 204 and then scrape the Worker's stdout to see which
  * ones had been logged. Scraping a subprocess's buffered pipe fails intermittently
- * — and did, here, intermittently enough to look like a product bug and to cost
+ *, and did, here, intermittently enough to look like a product bug and to cost
  * more time than the thing it was verifying.
  *
  * `expect` receives the status and the parsed body (null when there is none), so a
@@ -290,7 +290,7 @@ const FACET_SEARCHES = [
 
 const failures = [];
 const record = (ok, label, detail) => {
-  console.log(`${ok ? "  ok " : "FAIL "} ${label}${detail ? ` — ${detail}` : ""}`);
+  console.log(`${ok ? "  ok " : "FAIL "} ${label}${detail ? `${detail}` : ""}`);
   if (!ok) failures.push(label);
 };
 
@@ -299,7 +299,7 @@ function bundleLooksValid() {
   const worker = join(root, ".open-next", "worker.js");
   if (!existsSync(worker)) {
     console.error(
-      "No .open-next/worker.js. Run `npm run build` first — this script tests the\n" +
+      "No .open-next/worker.js. Run `npm run build` first: this script tests the\n" +
         "bundle the deploy pipeline uploads, not a Next server.",
     );
     process.exit(1);
@@ -365,7 +365,7 @@ const main = async () => {
     }
   };
   // If this script is interrupted, the Worker would otherwise outlive it and hold
-  // `.open-next` open — which then makes the next `rmdir` fail with EBUSY.
+  // `.open-next` open, which then makes the next `rmdir` fail with EBUSY.
   process.on("exit", shutdown);
   process.on("SIGINT", () => {
     shutdown();
@@ -417,7 +417,7 @@ const main = async () => {
       } catch {
         ok = false;
       }
-      record(ok, `mcp ${call.name}`, ok ? "" : `${call.why} — got ${body}`);
+      record(ok, `mcp ${call.name}`, ok ? "" : `${call.why}: got ${body}`);
     }
 
     for (const beacon of BEACONS) {
@@ -455,7 +455,7 @@ const main = async () => {
      *
      * `/api/search` is the plain-HTTPS path into the index and its facets are the
      * only way a caller without an MCP client can filter. Asserted here rather
-     * than in a unit test because the thing that can go wrong is the *bundling* —
+     * than in a unit test because the thing that can go wrong is the *bundling*:
      * a `.mjs` import the Worker resolves differently from Node, or a filter that
      * returns nothing on the runtime that actually serves traffic.
      */
@@ -465,8 +465,8 @@ const main = async () => {
       try {
         const res = await fetch(`${BASE}${facet.path}`);
         const json = await res.json();
-        // Most facets must return results; `mayBeEmpty` — used by the unrecognised-value
-        // case — returns 200 with an empty result set and the published vocabulary.
+        // Most facets must return results; `mayBeEmpty`used by the unrecognised-value
+        // case, returns 200 with an empty result set and the published vocabulary.
         ok = res.status === 200 && facet.expect(json) && (facet.mayBeEmpty || json.count > 0);
         if (!ok) detail = `count=${json.count} ${JSON.stringify(json).slice(0, 100)}`;
       } catch (error) {
@@ -480,7 +480,7 @@ const main = async () => {
      *
      * Only that it refuses and stays a 2xx-shaped answer: `/signal` rejects
      * silently by design, so a flood is indistinguishable from accepted beacons
-     * from the outside — which is exactly why the limit has to be asserted by
+     * from the outside, which is exactly why the limit has to be asserted by
      * exhausting it rather than by reading a status code. The budget is 120 per
      * minute, so this makes 130 requests; cheap against a local workerd and it is
      * the only check that the limiter is actually wired into the bundle rather

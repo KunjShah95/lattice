@@ -5,7 +5,7 @@ import robots from "@/app/robots";
  * The robots policy, asserted against the object the route returns.
  *
  * This file exists because the file it covers is a *decision document*. The owner
- * position — everything public is crawlable, including by training crawlers — is
+ * position (everything public is crawlable, including by training crawlers), is
  * the kind of thing that gets quietly narrowed by a later edit made for a reason
  * that seemed local: one group gains a `disallow`, one agent is dropped "temporarily",
  * and every other file that documents the position keeps describing the old one.
@@ -14,7 +14,7 @@ import robots from "@/app/robots";
  *
  * The rendering assertion at the end matters because `MetadataRoute.Robots` types
  * `other` as `Record<string, string | number | Array<...>>` and Next passes it
- * through verbatim — a misspelled directive name is a valid value of a valid type
+ * through verbatim: a misspelled directive name is a valid value of a valid type
  * and produces a robots.txt no crawler honours, silently.
  */
 describe("robots policy", () => {
@@ -35,7 +35,7 @@ describe("robots policy", () => {
   /**
    * The training crawlers are the half of this policy that looks wrong without the
    * context. They are allowed deliberately, so the assertion is that they are
-   * *present and allowed* — not merely absent from a disallow list, which is what a
+   * *present and allowed*, not merely absent from a disallow list, which is what a
    * reader skimming the file would assume.
    */
   it("allows the training crawlers by name", () => {
@@ -72,7 +72,7 @@ describe("robots policy", () => {
   it("renders directives verbatim, so a misspelling cannot ship silently", () => {
     // What Next emits, reproduced from `resolve-route-data.js`: `User-Agent` lines
     // first, then allow/disallow/crawl-delay, then each `other` key in insertion
-    // order. Asserting the exact line is what makes the previous test meaningful —
+    // order. Asserting the exact line is what makes the previous test meaningful:
     // `other` is unvalidated, so only the output proves the directive is real.
     const content = rules
       .flatMap((rule) => {

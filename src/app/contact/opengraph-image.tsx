@@ -4,14 +4,14 @@ import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt =
-  "Contact — how to reach the maintainers, report corrections, or suggest a tool";
+  "Contact: how to reach the maintainers, report corrections, or suggest a tool";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
 /**
  * Cover image for the contact page.
  *
- * `variant="plain"` and `layer={null}` because this page belongs to no layer —
+ * `variant="plain"` and `layer={null}` because this page belongs to no layer:
  * it is operator-facing trust material rather than an entry in the index.
  */
 export default function OpengraphImage() {

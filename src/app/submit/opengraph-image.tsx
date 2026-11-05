@@ -4,14 +4,14 @@ import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt =
-  "Submit a tool — every submission is reviewed by a person before it becomes an entry";
+  "Submit a tool: every submission is reviewed by a person before it becomes an entry";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
 /**
  * Cover image for the submission page.
  *
- * `variant="plain"` and `layer={null}` because this page belongs to no layer —
+ * `variant="plain"` and `layer={null}` because this page belongs to no layer:
  * it is about the index rather than an entry in it, the same reason the
  * methodology card drops its layer framing.
  *

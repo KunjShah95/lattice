@@ -26,7 +26,7 @@ import {
  * rather than a type error: a duplicated slug, a broken URL, an ordinal that
  * collides. The module throws on several of these at load, but a throwing
  * import is a bad way to learn *which* rule broke, so they are asserted here
- * too — where a failure names the offending entry.
+ * too, where a failure names the offending entry.
  */
 
 describe("sections", () => {
@@ -42,8 +42,8 @@ describe("sections", () => {
 
   it("uses the em-dash ordinal only for off-stack sections", () => {
     for (const c of categories) {
-      if (c.role === "offstack") expect(c.index).toBe("—");
-      else expect(c.index).not.toBe("—");
+      if (c.role === "offstack") expect(c.index).toBe("–");
+      else expect(c.index).not.toBe("–");
     }
   });
 
@@ -191,8 +191,8 @@ describe("tools", () => {
   });
 
   it("never pairs a self-hosted tool with a proprietary licence and no caveat", () => {
-    // Not a hard rule — some products ship open code with a commercial
-    // licence — but the pairing should be rare enough to be deliberate.
+    // Not a hard rule, some products ship open code with a commercial
+    // licence, but the pairing should be rare enough to be deliberate.
     const odd = allTools.filter(
       (t) => t.deployment === "self-hosted" && t.license === "proprietary",
     );
@@ -269,7 +269,7 @@ describe("allToolEntries", () => {
       expect(typeof entry.categorySlug).toBe("string");
       expect(typeof entry.categoryShort).toBe("string");
       // The nested section object is deliberately not carried across the
-      // boundary — only the scalars the explorer actually reads.
+      // boundary, only the scalars the explorer actually reads.
       expect(Object.keys(entry)).not.toContain("category");
       // Second homes cross as bare slugs: the explorer has room for a compact
       // "also in X" marker and nowhere to put a clause. The prose stays on the
@@ -377,7 +377,7 @@ describe("the alternatives graph", () => {
         ).toBeGreaterThanOrEqual(15);
         // A full stop, like every other sentence of prose in the dataset. The
         // renderers append punctuation of their own where a clause is embedded
-        // in a sentence, so the field carries its own — same rule as `blurb`.
+        // in a sentence, so the field carries its own: same rule as `blurb`.
         expect(
           home.because.trim().endsWith("."),
           `${t.name} → ${home.section} has no trailing stop`,

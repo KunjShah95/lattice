@@ -52,6 +52,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: `${site.url}/review`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${site.url}/stack-builder`,
       lastModified,
       changeFrequency: "weekly",
@@ -82,8 +88,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     // The freshness ledger: the human view of `/verification.json`, and the
-    // place the staleness guard — the claim `strategy/02` §3 ranks strongest and
-    // calls invisible — is shown rather than asserted. `monthly`: it changes when
+    // place the staleness guard: the claim `strategy/02` §3 ranks strongest and
+    // calls invisible: is shown rather than asserted. `monthly`: it changes when
     // the dataset is re-verified, which is the cadence the guard enforces.
     {
       url: `${site.url}/verification`,
@@ -92,7 +98,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     // Roles are the one view that answers "what does my job own", and no
-    // competitor has that axis at all — so it is the cheapest new set of URLs
+    // competitor has that axis at all, so it is the cheapest new set of URLs
     // to be found for.
     {
       url: `${site.url}/roles`,
@@ -170,7 +176,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     })),
     // The band axis. Lower than `/fix`, because a band is a coarser cut of the
-    // same data and the symptom pages are what people actually search — but the
+    // same data and the symptom pages are what people actually search, but the
     // bands had no URL at all, so this is the difference between an axis a
     // reader can cite and one they can only read about.
     {
@@ -186,7 +192,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     })),
     // The seven workload stacks. These are the answer to "what should I run for
-    // a RAG app / an agent / a voice agent" — a query no other route on this
+    // a RAG app / an agent / a voice agent"a query no other route on this
     // site can answer for a reader who has not run the questionnaire, and an
     // MCP-less agent has no call at all. `/stack-builder` itself stays in the
     // sitemap; these are the indexable shadows of its output.
@@ -235,7 +241,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     })),
     // Every tool has a page. A directory's value is being findable, so all of
-    // them belong in the sitemap — not just the ones with inbound links yet.
+    // them belong in the sitemap, not just the ones with inbound links yet.
     ...allTools.map((entry) => ({
       url: `${site.url}/${entry.category.slug}/${entry.slug}`,
       lastModified,
@@ -245,7 +251,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Alternatives pages, for the tools with enough of a graph to justify one.
     // "Alternatives to X" is the query a reader types once they have already
     // decided to leave something, and it is the one shape a vendor cannot
-    // publish honestly about a competitor — so these are the pages most worth
+    // publish honestly about a competitor, so these are the pages most worth
     // being found for.
     ...allAlternativesPages().map((p) => ({
       url: `${site.url}/${p.slug}/${p.tool}/alternatives`,

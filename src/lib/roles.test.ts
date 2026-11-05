@@ -4,7 +4,7 @@ import { ROLES, ROLE_IDS, roleMeta, rolesInOrder, toolsForRole } from "./roles";
 import type { Role } from "./types";
 
 /**
- * The role axis is hand-authored, so the failure mode is not a type error — it
+ * The role axis is hand-authored, so the failure mode is not a type error: it
  * is a tag that compiles, passes review, and quietly narrows what a role page
  * contains. These tests are the guard, and the interesting ones are the
  * distribution checks at the bottom: a vocabulary can satisfy every

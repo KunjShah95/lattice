@@ -21,7 +21,7 @@ nobody was looking.
 
 ## The gateway is where the real decisions live
 
-A gateway is usually introduced as a convenience — "so we can swap providers
+A gateway is usually introduced as a convenience: "so we can swap providers
 easily". That undersells it. The gateway is where most of the genuinely
 interesting engineering in an LLM system happens, because it is the only layer
 that sees the whole request.
@@ -35,7 +35,7 @@ there is a gateway to make them in:
 problem. "Use GPT-4 for hard queries and a small model for easy ones" sounds
 until you try to define easy. The workable version is usually narrower: route
 on explicit task identity, on user tier, or on a cheap classifier whose
-thresholds you actually measure. Note what is *not* in that list — routing on
+thresholds you actually measure. Note what is *not* in that list: routing on
 whether the prompt "looks hard".
 
 **What happens when it fails.** Provider error rates are not constant and are
@@ -90,7 +90,7 @@ finding out from users.
 ## Where to start
 
 Put a gateway in front of your provider calls this week, even if it is a thin
-wrapper that does auth and logging. The value is not in the routing — it is in
+wrapper that does auth and logging. The value is not in the routing: it is in
 that every subsequent call now passes through a single place where you can add
 routing, caching, budgets and tracing without touching application code.
 

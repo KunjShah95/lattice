@@ -5,7 +5,7 @@ import { createSlugger } from "./heading-slug.mjs";
  *
  * MDX does not add them, so a heading had no address: no deep link, no contents
  * entry that could scroll to it. Done at compile time rather than in the browser so
- * the anchors exist in the prerendered HTML — a shared `#where-to-start` link works
+ * the anchors exist in the prerendered HTML: a shared `#where-to-start` link works
  * with JavaScript off, and a crawler sees the same fragment targets a reader does.
  *
  * Walks the tree itself instead of depending on `unist-util-visit`: the node shape
@@ -17,7 +17,7 @@ import { createSlugger } from "./heading-slug.mjs";
  * collide with it.
  */
 
-/** Concatenated text of a node and everything under it — `code`, `em` and all. */
+/** Concatenated text of a node and everything under it: `code`, `em` and all. */
 function textOf(node) {
   if (node.type === "text") return node.value;
   return (node.children ?? []).map(textOf).join("");

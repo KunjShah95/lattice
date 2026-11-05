@@ -69,7 +69,7 @@ test.describe("@e2e search palette", () => {
 
     await page.keyboard.press("Escape");
     // Focus must not be stranded inside the unmounted dialog. It is not restored
-    // to the trigger — this component does not do that — so the assertion is that
+    // to the trigger, this component does not do that, so the assertion is that
     // it lands somewhere real rather than nowhere.
     await expect(paletteInput(page)).toBeHidden();
     const focused = await page.evaluate(() => document.activeElement?.tagName ?? "");
@@ -140,13 +140,13 @@ test.describe("@e2e search palette", () => {
 
   test("names the kind on each row, so the reader can tell them apart", async ({ page }) => {
     // Five flavours share one list and the category line does not always
-    // distinguish them — a fix guide reads like an essay.
+    // distinguish them: a fix guide reads like an essay.
     await openPalette(page);
     await paletteInput(page).fill("vllm");
     const first = page.getByRole("option").first();
     await expect(first).toBeVisible();
     // Case-insensitive because the pill is uppercased in CSS, and `innerText`
-    // reflects rendered text — so it reads "TOOL", not "Tool".
+    // reflects rendered text, so it reads "TOOL", not "Tool".
     expect(await first.innerText()).toMatch(
       /tool|essay|guide|term|compare|alternatives/i,
     );
@@ -230,7 +230,7 @@ test.describe("@e2e Stack Builder", () => {
 
     await page.getByRole("button", { name: "Build my stack" }).click();
     await expect(page).toHaveURL(/workload=rag/);
-    await expect(page.getByRole("heading", { name: /Your stack — built/i })).toBeFocused();
+    await expect(page.getByRole("heading", { name: /Your stack: built/i })).toBeFocused();
 
     // The report is a Markdown export for an ADR, and the clipboard write is the
     // only thing that proves the button is wired to the renderer rather than
@@ -562,7 +562,7 @@ test.describe("@e2e navigation", () => {
   test("every top-level nav destination resolves", async ({ page }) => {
     // A route that exists but is linked nowhere is invisible; a route that is
     // linked but does not exist is a 404 a reader clicks. `site-footer.tsx`
-    // already asserts the other direction — that every page is *reachable*.
+    // already asserts the other direction: that every page is *reachable*.
     await page.goto("/");
     const hrefs = await page
       .locator("header nav a, footer a")

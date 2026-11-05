@@ -3,7 +3,7 @@
  *
  * This used to be built inline in the root layout and handed to
  * `<SearchProvider>` as a prop. That put all 129 entries into the RSC payload
- * of *every* route — roughly 42 KB of serialised JSON in the HTML of a page
+ * of *every* route: roughly 42 KB of serialised JSON in the HTML of a page
  * whose own markup might be 16 KB. It was the single largest thing in the
  * document that no reader had asked for yet.
  *
@@ -60,7 +60,7 @@ export function buildSearchEntries(): SearchEntry[] {
         },
       })),
     ),
-    // Essays — the site's actual argument. Excluding these meant a query for
+    // Essays: the site's actual argument. Excluding these meant a query for
     // "evals" returned only tools and hid the best answer on the site.
     ...posts.map((p) => ({
       kind: "essay" as const,
@@ -93,7 +93,7 @@ export function buildSearchEntries(): SearchEntry[] {
       tag: "Compared",
     })),
     // Glossary terms. Fifty-one definitions, each with its own page, and the
-    // palette returned nothing for any of them — so "paged attention" or "KV
+    // palette returned nothing for any of them, so "paged attention" or "KV
     // cache" found the tool that implements the term but not the page that
     // explains it, which is the page a reader arriving from a search engine
     // actually wants. Indexed as their own kind rather than folded into
@@ -112,9 +112,9 @@ export function buildSearchEntries(): SearchEntry[] {
     })),
     // Alternatives pages. "X alternatives" and "alternatives to X" are two of
     // the highest-intent queries this index can serve, and the palette is the
-    // only place a reader who types either will find them — they are one hop
+    // only place a reader who types either will find them: they are one hop
     // from the tool page, which is one hop too many.
-    // Trust and policy pages — discoverable from Cmd-K ("privacy", "contact").
+    // Trust and policy pages: discoverable from Cmd-K ("privacy", "contact").
     {
       kind: "essay" as const,
       name: "Contact",

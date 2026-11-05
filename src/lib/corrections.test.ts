@@ -48,7 +48,7 @@ describe("/corrections", () => {
     // the edit date are different things, and only the sweep one gates the build.
     // `AS_OF = "2026-09"` with commits touching the dataset running into October
     // is the normal state, and an earlier version of this assertion demanded they
-    // agree — which would have been a test that fails the moment anyone edits an
+    // agree, which would have been a test that fails the moment anyone edits an
     // entry between sweeps.
     //
     // What must hold is the opposite direction: the verification date cannot be
@@ -62,7 +62,7 @@ describe("/corrections", () => {
     const newest = corrections[0].date;
     expect(
       // Plain comparison: `toBeLessThanOrEqual` is typed for numbers, and
-      // `YYYY-MM` sorts correctly as a string — fixed width, zero-padded month.
+      // `YYYY-MM` sorts correctly as a string: fixed width, zero-padded month.
       AS_OF <= newest,
       `AS_OF ${AS_OF} is later than the newest change ${newest}, so the published ` +
         `verification claims to cover edits it has not seen`,
@@ -93,7 +93,7 @@ describe("/corrections", () => {
 
   it("only claims to log changes to the two dataset files", () => {
     // The generator watches exactly these paths. If a third is added there, this
-    // fails and the comment has to be updated to match — which is the point.
+    // fails and the comment has to be updated to match, which is the point.
     expect(WATCHED).toEqual(["src/lib/attributes.ts", "src/lib/data.ts"]);
   });
 
@@ -116,7 +116,7 @@ describe("/corrections", () => {
  * Read the page's own source.
  *
  * The copy assertions are about the rendered prose, and this is the only way to
- * see it without a DOM — vitest runs in node, and rendering the page would pull
+ * see it without a DOM: vitest runs in node, and rendering the page would pull
  * in `next/link` and the whole metadata graph for three string matches.
  */
 function readFile() {

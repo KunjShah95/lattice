@@ -15,8 +15,8 @@ Teams instrument their LLM systems, then discover during their first incident
 that they cannot answer the only question that mattered: what did the model
 actually receive, and what did it actually return?
 
-The reason is usually that they logged what is easy — status, latency, token
-count — rather than what a question requires.
+The reason is usually that they logged what is easy (status, latency, token
+count), rather than what a question requires.
 
 ## What a trace has to contain
 
@@ -54,7 +54,7 @@ store holding unredacted PII is a liability that grows with every request, and
 you cannot retroactively redact what you already logged.
 
 **Full verbosity on high-volume paths.** Sample. A trace at 100% on a
-high-traffic system can cost real money and rarely changes a decision — because
+high-traffic system can cost real money and rarely changes a decision, because
 the interesting requests are rare by definition. Sample the boring ones
 aggressively and keep everything that errored, retried or drew feedback.
 
@@ -64,8 +64,8 @@ the text, do not store both.
 ## Emit one standard, not four
 
 The failure mode of home-grown instrumentation is schema drift. Every service
-logs slightly different fields, and the cross-service question — "did this slow
-request also cost more?" — becomes a manual join nobody performs.
+logs slightly different fields, and the cross-service question: "did this slow
+request also cost more?"becomes a manual join nobody performs.
 
 Adopt OpenTelemetry as your export format even if you use a proprietary
 collector. It costs almost nothing to emit and it is the only way your traces
@@ -86,7 +86,7 @@ a certain size".
 "what happened" but "what changed". If you can put a failed trace next to a
 successful one from last week, you will solve most incidents in minutes.
 
-**Link a trace to a cost and a latency figure per hop.** Not aggregate —
+**Link a trace to a cost and a latency figure per hop.** Not aggregate:
 per hop. Aggregate cost tells you where to look; per-hop cost tells you what
 to change.
 
@@ -99,5 +99,5 @@ from eighteen months ago against today.
 
 The [Evaluation & Observability](/evaluation-observability) section covers the
 tooling. If you want the discipline rather than the tools, start with
-[evals are the asset](/blog/evals-are-the-asset) — because a trace with no
+[evals are the asset](/blog/evals-are-the-asset), because a trace with no
 outcomes attached is a very expensive log file.

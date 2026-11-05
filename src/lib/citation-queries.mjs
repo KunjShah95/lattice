@@ -5,8 +5,8 @@
  *
  * `gtm/citation-tracker.md` carried a 20-row query table in prose, which meant
  * three things: nothing could run it, the monthly log was 200 rows of markdown
- * that nobody reads, and "the tactic category it maps to" — a column the
- * tracker's own instructions depend on — had no defined vocabulary anywhere. A
+ * that nobody reads, and "the tactic category it maps to"a column the
+ * tracker's own instructions depend on, had no defined vocabulary anywhere. A
  * tracker that cannot be run is a wish, and a log of 200 blank rows is worse
  * than no log.
  *
@@ -17,7 +17,7 @@
  * the `neutrality` queries did not" says which half of the strategy is working.
  *
  * Plain `.mjs` rather than `.ts` because `cite-check.mjs` runs it under bare node
- * with no build step — the same constraint as `submissions.mjs`, and the reason
+ * with no build step: the same constraint as `submissions.mjs`, and the reason
  * `generate-awesome-list.mjs` parses TypeScript with regexes. Regex-parsing a
  * file whose values contain commas and quotes is the fragile path; this is not.
  * The types live in `citation-queries.d.mts` beside it.
@@ -27,7 +27,7 @@
  * These are the six ranked as genuinely open in
  * `strategy/02-unique-selling-points.md` §"Ranked: what is genuinely open", plus
  * two route families that carry traffic rather than argument. If a claim is ever
- * retired from that document, retire it here too — otherwise the tracker spends
+ * retired from that document, retire it here too: otherwise the tracker spends
  * its budget measuring a category nobody is working on.
  */
 
@@ -45,7 +45,7 @@ export const CLAIMS = {
     note: "The one claim no competitor makes. If these never cite, the ordering is not reaching anyone.",
   },
   "skip-when": {
-    title: "skipWhen — when not to use something",
+    title: "skipWhen, when not to use something",
     note: "112/112 entries, and not one competitor publishes the second half of the decision pair.",
   },
   freshness: {
@@ -114,7 +114,7 @@ export const CITATION_QUERIES = [
  *
  * Kept separate rather than merged because these are the queries most likely to
  * need *new pages written* rather than better rankings. If one never cites, the
- * usual answer is "there is no page that says this" — `target: ""` marks exactly
+ * usual answer is "there is no page that says this"`target: ""` marks exactly
  * those, and a query with an empty target is a content gap, not a ranking loss.
  */
 export const SKIP_WHEN_QUERIES = [

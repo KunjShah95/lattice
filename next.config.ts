@@ -57,8 +57,19 @@ const nextConfig: NextConfig = {
    * the canonical host, and localhost, never match.
    */
   async redirects() {
-    if (isPreview) return [];
+    const redirects = [
+      // `/stack-review` was a second landing page for the same free offer as
+      // `/review` — same promise, same FAQ content, a different visual
+      // register, built during the Aceternity motion experiment and never
+      // folded back in. Two canonical URLs for one offer is a duplicate-content
+      // signal a crawler has to guess its way through, so one wins: `/review`
+      // carries the richer structured data (`Service` + `FAQPage`) and is the
+      // page every primary CTA already points to.
+      { source: "/stack-review", destination: "/review", permanent: true },
+    ];
+    if (isPreview) return redirects;
     return [
+      ...redirects,
       {
         source: "/:path*",
         has: [{ type: "host", value: "(?<legacy>.+\\.(?:workers\\.dev|vercel\\.app))" }],

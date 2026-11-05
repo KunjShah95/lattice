@@ -3,7 +3,7 @@ import { BANDS, bandOf, layerColor } from "@/lib/layer";
 import { stackLayers } from "@/lib/data";
 
 /**
- * The strata spine — a nine-band rail that shows where a page sits in the
+ * The strata spine: a nine-band rail that shows where a page sits in the
  * stack, surface-first, with the current layer ringed.
  *
  * A breadcrumb answers "how did I get here". This answers "where am I in
@@ -12,7 +12,7 @@ import { stackLayers } from "@/lib/data";
  * tells you what the tool is, never what it is above or below.
  *
  * Renders as a link strip rather than a chart, so it is navigation and not
- * decoration — every band goes somewhere. Collapses to the current layer's
+ * decoration: every band goes somewhere. Collapses to the current layer's
  * name alone below `sm`, where nine horizontal segments carry no more
  * information than the label already in the page header.
  */
@@ -41,7 +41,7 @@ export function StackSpine({ layer }: { layer: number | null }) {
             <li key={category.slug} className="min-w-0 flex-1">
               <Link
                 href={`/${category.slug}`}
-                title={`${category.index} — ${category.title}`}
+                title={`${category.index}: ${category.title}`}
                 aria-current={isCurrent ? "true" : undefined}
                 className={`flex h-7 items-center justify-center rounded-[2px] transition-opacity hover:opacity-100 ${
                   isCurrent
@@ -57,7 +57,7 @@ export function StackSpine({ layer }: { layer: number | null }) {
                 <span className="sr-only">
                   {category.index} {category.title}
                   {isCurrent ? " (current)" : ""}
-                  {band ? ` — band ${band}` : ""}
+                  {band ? `band ${band}` : ""}
                 </span>
               </Link>
             </li>

@@ -20,8 +20,8 @@ export function ChipTick({ layer }: { layer: number | null }) {
  * (a button with `aria-pressed`); this one navigates. Sharing a component would
  * have meant one element pretending to be the other.
  *
- * Plain server-rendered link with no client code at all, so a long list — the 112
- * chips on `/verification` — costs nothing. The hover card lives in
+ * Plain server-rendered link with no client code at all, so a long list: the 112
+ * chips on `/verification`costs nothing. The hover card lives in
  * `PreviewToolChip`, a separate file on purpose: a first version took an optional
  * `preview` prop here, and importing the client component from this module put its
  * chunk in the bundle of *every* route that renders a chip, previews or not. The

@@ -4,7 +4,7 @@
  * Why: Bing's index backs Copilot and a large share of ChatGPT search, and
  * Bing (with Yandex, Seznam, Naver) accepts IndexNow pushes. A new comparison
  * page otherwise waits for a crawl that can take weeks on a young domain; a
- * push gets it fetched in hours. Google does not take IndexNow — Search
+ * push gets it fetched in hours. Google does not take IndexNow: Search
  * Console and the sitemap cover it.
  *
  * Ownership is proved by `public/<key>.txt`, whose body is the key. The script

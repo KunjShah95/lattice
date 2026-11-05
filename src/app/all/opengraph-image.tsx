@@ -11,7 +11,7 @@ export const contentType = "image/png";
 /**
  * Cover image for the flat tool list.
  *
- * `variant="plain"` because this page deliberately has no layer framing — it is
+ * `variant="plain"` because this page deliberately has no layer framing: it is
  * the one view that refuses to sort by depth, so drawing the strata rail here
  * would contradict the page's own premise.
  */

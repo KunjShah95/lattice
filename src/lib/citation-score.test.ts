@@ -153,7 +153,7 @@ describe("claimSummary", () => {
 
   it("sorts strongest claim first, so the summary reads top-down", () => {
     // neutrality is 2/3 here and skip-when is 1/2, so the ordering is the
-    // assertion — not "the alphabetically first one".
+    // assertion, not "the alphabetically first one".
     const summary = claimSummary(rows);
     expect(summary.map((s) => s.claim)).toEqual(["neutrality", "skip-when"]);
   });
@@ -223,7 +223,7 @@ describe("movement", () => {
   });
 
   it("handles a query that stopped being cited", () => {
-    // It is absent from `now`, so it has no current median — the query table shows
+    // It is absent from `now`, so it has no current median: the query table shows
     // it as uncited this month and the comparison is left unstated rather than
     // invented.
     const before = [{ query_id: 8, claim: "neutrality", cited: true, position: 2 }];
@@ -252,7 +252,7 @@ describe("the query set itself", () => {
     // The tracker's instruction is "double down on the tactic category it maps
     // to", so an unrecognised claim makes that instruction unfollowable. Asserted
     // against `Object.keys` rather than through the type, because a type error
-    // cannot fail on data edited at runtime — and this file is edited by hand.
+    // cannot fail on data edited at runtime, and this file is edited by hand.
     const known = new Set<string>(Object.keys(CLAIMS));
     for (const q of ALL_QUERIES) {
       expect(known.has(q.claim), `query ${q.id} claim "${q.claim}"`).toBe(true);
@@ -276,7 +276,7 @@ describe("the query set itself", () => {
   it("exercises every declared claim, so no category is measured as zero by accident", () => {
     // `Set<string>` rather than the inferred `Set<Claim>`, because `Object.keys`
     // is `string[]` and comparing it against a narrower set type is the error
-    // this file hit — the check is correct and the annotation was not.
+    // this file hit: the check is correct and the annotation was not.
     const used = new Set<string>(ALL_QUERIES.map((q) => q.claim));
     for (const claim of Object.keys(CLAIMS)) {
       expect(used.has(claim), `claim "${claim}" has no query`).toBe(true);

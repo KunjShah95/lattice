@@ -32,7 +32,7 @@ describe("parseSignal", () => {
 
   it("requires both ends of the edge", () => {
     // The regression this file exists for. An earlier version accepted a beacon
-    // carrying only `to`, and `TrackLink` sent the *current* page in that field —
+    // carrying only `to`, and `TrackLink` sent the *current* page in that field:
     // so the log recorded where a reader already was and never where they went.
     // `kind: "compare"` then looked like a comparison exit while proving only
     // that a comparison link was rendered. Every metric in §7 that depends on
@@ -141,7 +141,7 @@ describe("parseSignal", () => {
   });
 
   it("survives a self-link, where both ends are the same path", () => {
-    // Not a special case worth rejecting — an anchor to the current page is a
+    // Not a special case worth rejecting: an anchor to the current page is a
     // real thing to click, and dropping it would be an unexplained data gap.
     const self = { event: "tool", from: "/all", to: "/all" };
     expect(parseSignal(JSON.stringify(self))).toEqual(self);

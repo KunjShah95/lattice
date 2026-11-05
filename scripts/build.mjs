@@ -8,7 +8,7 @@
  * build produces. So `build` has to produce it.
  *
  * Making `build` = `opennextjs-cloudflare build` looks like the fix, but
- * OpenNext defaults its internal build command to `npm run build` — so it calls
+ * OpenNext defaults its internal build command to `npm run build`so it calls
  * itself. Two things then go wrong, and both are quiet:
  *
  *   1. **Recursion.** The inner `opennextjs-cloudflare build` re-enters this
@@ -21,7 +21,7 @@
  *      `ENOENT ... .next/standalone/.next/server/pages-manifest.json`.
  *
  * `buildCommand` would express this directly, but it exists only on the AWS
- * config type — `defineCloudflareConfig` rejects it, and its absence is a
+ * config type: `defineCloudflareConfig` rejects it, and its absence is a
  * TypeScript error rather than a runtime warning.
  *
  * So the recursion is broken with an environment marker instead. OpenNext
@@ -47,7 +47,7 @@ const run = (command, args) => {
   if (result.status !== 0) process.exit(result.status ?? 1);
 };
 
-// OpenNext's child. Run the Next build and stop — bundling is the outer
+// OpenNext's child. Run the Next build and stop: bundling is the outer
 // process's job, and doing it here too would write .open-next twice.
 if (process.env[CHILD]) {
   run(npm, ["run", "next:build"]);
@@ -57,13 +57,13 @@ if (process.env[CHILD]) {
 // Top level, i.e. the deploy build. Refuse to bundle a Worker whose every
 // canonical, sitemap entry and og:url points at a placeholder domain.
 // NEXT_PUBLIC_* values are inlined at build time, so an unset SITE_URL in the
-// Cloudflare build environment silently ships `https://lattice.invalid` — which
+// Cloudflare build environment silently ships `https://lattice.invalid`which
 // is exactly what happened on the first deploy. Env is loaded the same way
 // Next loads it, so `.env.local` counts locally.
 loadEnvConfig(process.cwd(), false);
 
 // One origin for every build target. Unset, or set to a host the site has
-// left (workers.dev, *.vercel.app), resolves to https://lattice.kunjshah.in —
+// left (workers.dev, *.vercel.app), resolves to https://lattice.kunjshah.in:
 // so a Vercel or Cloudflare build cannot publish canonicals anywhere else.
 // Written back into process.env so the `next build` spawned below inlines the
 // resolved value into client bundles too.
@@ -84,7 +84,7 @@ if (
       "",
       `NEXT_PUBLIC_SITE_URL is ${siteUrl ? `"${siteUrl}"` : "unset"}.`,
       "",
-      "Set it to the https:// origin the site is served from — in .env.local",
+      "Set it to the https:// origin the site is served from: in .env.local",
       "locally, as a build variable in the Cloudflare dashboard",
       "(Workers & Pages → lattice → Settings → Build → Variables), or as an",
       "environment variable in Vercel (Project → Settings → Environment Variables).",
@@ -125,7 +125,7 @@ if (result.status !== 0) {
       "",
       "If the error above is a bare `status: 1` with no diagnostic, the Next",
       "build it spawned is failing. Run `npm run next:build` on its own to see",
-      "the real error — that is the step OpenNext cannot report back.",
+      "the real error: that is the step OpenNext cannot report back.",
     ].join("\n"),
   );
   process.exit(result.status ?? 1);

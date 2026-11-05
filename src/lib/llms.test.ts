@@ -10,7 +10,7 @@ import { TOOL_MANIFEST } from "./mcp";
  * and both are generated from the same dataset as the UI. The failure they are
  * exposed to is specific: a field added to a tool that only reached the HTML
  * would leave every agent-facing copy silently behind, and nothing else would
- * notice — the pages would still render correctly.
+ * notice: the pages would still render correctly.
  *
  * So each tool's decision pair is asserted here per format, rather than sampled.
  */
@@ -49,7 +49,7 @@ describe("/llms.txt", () => {
 
   it("advertises every MCP tool by name, and the count agrees with the manifest", async () => {
     // The sentence naming the tools is hand-written, so a tool added to the
-    // manifest silently stops being mentioned — the exact drift this file
+    // manifest silently stops being mentioned: the exact drift this file
     // exists to prevent, applied to itself. Derived from the manifest rather
     // than from a second list.
     const text = await summary();

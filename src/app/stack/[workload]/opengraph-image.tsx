@@ -11,7 +11,7 @@ export const contentType = "image/png";
  * Cover image for one workload's stack page.
  *
  * Mirrors `generateStaticParams` on the page, so a workload can never gain a
- * page without a card or the reverse — the same pairing `roles/[role]` uses.
+ * page without a card or the reverse: the same pairing `roles/[role]` uses.
  */
 export function generateStaticParams() {
   return WORKLOADS.map((w) => ({ workload: w.id }));
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: WorkloadRouteParams) {
   const { workload } = await params;
   const meta = WORKLOADS.find((w) => w.id === workload);
   return {
-    alt: `${meta?.label ?? "Stack"} — the default-case stack and what to skip`,
+    alt: `${meta?.label ?? "Stack"}: the default-case stack and what to skip`,
   };
 }
 

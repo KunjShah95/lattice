@@ -4,7 +4,7 @@ import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
 export const alt =
-  "Privacy policy — what Lattice collects when you browse, and how to contact the maintainer";
+  "Privacy policy: what Lattice collects when you browse, and how to contact the maintainer";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

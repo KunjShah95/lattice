@@ -12,10 +12,10 @@ import { GET, POST } from "../app/signal/route";
  *
  * The status split is the contract:
  *
- * - **200 with the recorded edge** — accepted. Both ends present, because a record
+ * - **200 with the recorded edge**: accepted. Both ends present, because a record
  *   with only one end is a counter, and every "did anyone arrive at X" metric
  *   depends on the edge.
- * - **204, empty** — rejected. Silent, because a malformed beacon is noise and a
+ * - **204, empty**: rejected. Silent, because a malformed beacon is noise and a
  *   4xx would appear as failed requests in the very analytics this route produces.
  *   Both statuses are 2xx, so neither pollutes request analytics.
  */

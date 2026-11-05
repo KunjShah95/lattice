@@ -22,7 +22,7 @@ export type ClaimMeta = {
 
 /** One tracked query. */
 export type CitationQuery = {
-  /** Stable 1-based id. Never renumber — the monthly log references these. */
+  /** Stable 1-based id. Never renumber: the monthly log references these. */
   id: number;
   /** The query exactly as a reader would type it. No brand names, no site names. */
   query: string;
@@ -30,7 +30,7 @@ export type CitationQuery = {
    * The page on this site that should answer it, or `""` where none does.
    *
    * An empty target is a content gap rather than a ranking loss, and the two need
-   * different responses — writing a page versus improving an existing one.
+   * different responses: writing a page versus improving an existing one.
    */
   target: string;
   claim: Claim;

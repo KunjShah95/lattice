@@ -8,11 +8,11 @@ import type { QA } from "./seo";
  * Symptom-first entry points: /fix/<symptom>.
  *
  * Every directory in the category routes by *what a tool is*. A reader almost
- * never arrives that way — they arrive with "it is slow" or "it is wrong", and
+ * never arrives that way: they arrive with "it is slow" or "it is wrong", and
  * the band a symptom lives in is the question they came with. These pages turn
  * a symptom into an ordered checklist through the stack, cheapest check
- * first, with the tools worth reaching for at each step and — the part no
- * vendor writes — when to skip each one.
+ * first, with the tools worth reaching for at each step and, the part no
+ * vendor writes, when to skip each one.
  *
  * Tools are named, not linked, so the checklist cannot drift from the index:
  * the resolver below fails the build on any name that no longer exists or
@@ -33,7 +33,7 @@ export type SymptomCheck = {
 export type Symptom = {
   slug: string;
   /**
-   * The band the symptom presents in — what the reader would call it, per
+   * The band the symptom presents in: what the reader would call it, per
    * `BANDS[].sounds`. Not where the checklist spends most steps: "too slow"
    * is a compute symptom even though the first check is a trace.
    */
@@ -63,7 +63,7 @@ export const symptoms: Symptom[] = [
     label: "Too slow",
     title: "Why is my LLM app slow?",
     description:
-      "A layer-by-layer checklist for LLM latency: where the time usually goes, which check to run first, and which tools help — or do not — at each step.",
+      "A layer-by-layer checklist for LLM latency: where the time usually goes, which check to run first, and which tools help, or do not, at each step.",
     answer:
       "Most LLM latency comes from output length and sequential calls, not the model server. Trace one slow request end to end, count the tokens it generates, and look for calls that could run in parallel. Cache repeats and stream the response. Only tune or replace the serving runtime once a trace shows the time is actually spent inside it.",
     checks: [
@@ -101,7 +101,7 @@ export const symptoms: Symptom[] = [
     notTheFix: [
       "Buying a bigger GPU before measuring where the time goes.",
       "Switching provider on a latency benchmark whose prompt lengths look nothing like yours.",
-      "Turning off streaming to simplify the client — it makes the wait feel longer.",
+      "Turning off streaming to simplify the client: it makes the wait feel longer.",
     ],
     comparisons: ["inference-runtimes", "llm-gateways"],
     related: ["choosing-an-inference-runtime", "the-gateway-is-the-product", "observability-is-not-logging"],
@@ -112,9 +112,9 @@ export const symptoms: Symptom[] = [
     label: "Too expensive",
     title: "Why is my LLM bill so high?",
     description:
-      "Where LLM spend usually concentrates, the order to cut it in, and which tools help at each layer — with the trade-off each cut makes against quality.",
+      "Where LLM spend usually concentrates, the order to cut it in, and which tools help at each layer: with the trade-off each cut makes against quality.",
     answer:
-      "LLM spend is rarely spread evenly: a few features, long prompts or silent retries usually dominate it. Attribute cost per request and feature first. Then shorten prompts and outputs, cache repeats, and route easy queries to cheaper models — with an eval confirming quality held. Self-host only when sustained utilisation makes GPU-hours cheaper than tokens.",
+      "LLM spend is rarely spread evenly: a few features, long prompts or silent retries usually dominate it. Attribute cost per request and feature first. Then shorten prompts and outputs, cache repeats, and route easy queries to cheaper models: with an eval confirming quality held. Self-host only when sustained utilisation makes GPU-hours cheaper than tokens.",
     checks: [
       {
         layer: 9,
@@ -137,7 +137,7 @@ export const symptoms: Symptom[] = [
       {
         layer: 2,
         check: "Route easy queries to a cheaper model",
-        why: "A real saving when many queries are easy — but it trades quality for cost by design, so it needs an eval first.",
+        why: "A real saving when many queries are easy, but it trades quality for cost by design, so it needs an eval first.",
         tools: ["RouteLLM", "Not Diamond"],
       },
       {
@@ -150,7 +150,7 @@ export const symptoms: Symptom[] = [
     notTheFix: [
       "Negotiating a volume discount before you know which feature spends the money.",
       "Routing to a cheaper model with no eval to say what it loses.",
-      "Self-hosting at low utilisation — idle GPUs still bill by the hour.",
+      "Self-hosting at low utilisation: idle GPUs still bill by the hour.",
     ],
     comparisons: ["cutting-inference-cost", "llm-gateways"],
     related: ["the-cost-model", "context-is-a-budget", "the-gateway-is-the-product"],
@@ -198,7 +198,7 @@ export const symptoms: Symptom[] = [
     ],
     notTheFix: [
       "Rewriting the prompt when the retrieved context never contained the answer.",
-      "Fine-tuning to teach facts — anything that changes monthly belongs in retrieval.",
+      "Fine-tuning to teach facts: anything that changes monthly belongs in retrieval.",
       "Moving to a larger model before checking what context the current one was given.",
     ],
     comparisons: ["retrieval-finetuning-prompting", "vector-databases", "structured-output"],
@@ -210,7 +210,7 @@ export const symptoms: Symptom[] = [
     label: "Agent keeps failing",
     title: "Why does my AI agent keep failing?",
     description:
-      "Why AI agents fail in production — timeouts, lost state, unvalidated tool calls — and the layer-by-layer order to make one reliable.",
+      "Why AI agents fail in production (timeouts, lost state, unvalidated tool calls), and the layer-by-layer order to make one reliable.",
     answer:
       "Agents usually fail at the seams rather than in the model: a tool call times out, a step is retried without being idempotent, or a long run dies with the process that hosted it. Trace every step, validate tool inputs and outputs against schemas, and run the loop on a durable host so steps survive crashes. Narrow the agent's tools before adding instructions.",
     checks: [
@@ -302,7 +302,7 @@ export const symptoms: Symptom[] = [
     label: "RAG hallucinations",
     title: "Why does my RAG system hallucinate?",
     description:
-      "Why RAG apps invent facts: thin retrieval, bad chunks, or prompts that allow guessing — and the layer-by-layer order to fix it with the right tools.",
+      "Why RAG apps invent facts: thin retrieval, bad chunks, or prompts that allow guessing, and the layer-by-layer order to fix it with the right tools.",
     answer:
       "RAG hallucinations usually mean the model answered without support in the retrieved text, or the chunks looked relevant but were not. Log retrieval for each failure, fix ranking and chunking before swapping models, and require citations or abstention when context is thin. Build a small eval of questions where every answer must stay inside the passages you retrieved.",
     checks: [
@@ -327,7 +327,7 @@ export const symptoms: Symptom[] = [
       {
         layer: 3,
         check: "Fix parsing and chunk boundaries on the source documents",
-        why: "Chunks cut mid-table or mid-sentence produce context that reads well and contains no usable fact — the model fills the gap.",
+        why: "Chunks cut mid-table or mid-sentence produce context that reads well and contains no usable fact: the model fills the gap.",
         tools: ["Docling", "Unstructured"],
       },
       {
@@ -351,7 +351,7 @@ export const symptoms: Symptom[] = [
     label: "PII in logs",
     title: "How do I stop PII showing up in LLM traces and prompts?",
     description:
-      "Why customer data ends up in observability tools and prompt stores — and the order to fix it: redact before log, gate at the gateway, validate outputs, then prove it with tests.",
+      "Why customer data ends up in observability tools and prompt stores, and the order to fix it: redact before log, gate at the gateway, validate outputs, then prove it with tests.",
     answer:
       "PII in traces is almost always a logging choice, not a model bug. Redact or block before text hits your observability vendor, enforce the same policy at the gateway for every provider, and add output validators for fields that must never leave the system. Then sample production traces in an eval that fails when known patterns appear.",
     checks: [

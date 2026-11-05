@@ -3,7 +3,7 @@ import { buildIndex, searchTools, type SearchEntry } from "./search";
 
 /**
  * Search ranking is the one piece of logic on this site that a reader can
- * notice failing without any other signal — a query that returns the wrong
+ * notice failing without any other signal: a query that returns the wrong
  * result looks identical to a directory that simply does not have it. These
  * tests pin the behaviour that was deliberately designed: tier ordering,
  * AND semantics across terms, and a fuzzy floor that cannot outrank a real
@@ -142,7 +142,7 @@ describe("searchTools", () => {
     ];
     const byRole = searchTools(buildIndex(roles), "platform").map((t) => t.name);
     expect(byRole).toContain("Envoy AI Gateway");
-    // AND semantics still holds across the fields — the second term must match
+    // AND semantics still holds across the fields: the second term must match
     // somewhere, so this stays empty rather than matching every role-tagged row.
     expect(searchTools(buildIndex(roles), "platform zzzznotathing")).toHaveLength(0);
   });

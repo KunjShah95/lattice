@@ -4,7 +4,7 @@
  * The script runs under bare node with no build step, and its whole job is a
  * sequence of irreversible side effects: edit two source files, push a branch,
  * open a PR, comment on an issue. That combination cannot be exercised from
- * vitest without a live token, and — more importantly — it must not be
+ * vitest without a live token, and, more importantly, it must not be
  * exercised against the real repository. An earlier version of this harness ran
  * the target with `cwd` set to the checkout, and the target's `git checkout -b`
  * moved the working tree onto a submission branch and appended a junk entry to
@@ -15,7 +15,7 @@
  * target there. Nothing outside the temp directory is reachable from it.
  *
  * It is a script rather than a test case because the fetch stub has to be
- * installed before the target's module graph is evaluated — ESM imports are
+ * installed before the target's module graph is evaluated: ESM imports are
  * hoisted, so replacing `globalThis.fetch` from inside a test cannot happen in
  * time. A child process with `--import` can. See `triage-stub.mjs`.
  *
@@ -186,7 +186,7 @@ function run({ body = ISSUE, repo = REPO_JSON, issueNumber = "42" } = {}) {
           TRIAGE_STUB_LOG: log,
           TRIAGE_STUB_FIXTURES: fixtures,
           // The target refuses to run outside CI unless this is set. The harness
-          // earns the exception because it runs inside a throwaway repository —
+          // earns the exception because it runs inside a throwaway repository:
           // the guard exists to stop the script touching a working tree, and
           // there is no working tree here.
           TRIAGE_ALLOW_LOCAL: "1",
@@ -250,7 +250,7 @@ const blankField = (body, heading) =>
  * One section's source block, from its `slug:` line to the next section header.
  *
  * Bounded the same way the target bounds its own search, because the assertion
- * about placement has to look at the same region the script wrote into —
+ * about placement has to look at the same region the script wrote into:
  * otherwise "the row is in the section" can be true of the whole file.
  */
 function sectionBlock(src, slug) {

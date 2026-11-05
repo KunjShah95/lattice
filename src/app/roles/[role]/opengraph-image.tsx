@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: RoleRouteParams) {
   const meta = roleMeta(role as Parameters<typeof roleMeta>[0]);
   if (!meta) return { alt: "Role" };
   return {
-    alt: `${meta.title} — ${toolsByRole(meta.id).length} tools that role owns`,
+    alt: `${meta.title}: ${toolsByRole(meta.id).length} tools that role owns`,
   };
 }
 
@@ -49,7 +49,7 @@ export default async function Image({ params }: RoleRouteParams) {
       <OgCard
         // `plain`, not `section`: a role deliberately spans layers, so there is
         // no single depth to badge and no strata rail that would mean anything.
-        // The band colour is dropped for the same reason — it is a property of
+        // The band colour is dropped for the same reason: it is a property of
         // the stack, not of the person.
         variant="plain"
         eyebrow="Specialisation"
@@ -58,7 +58,7 @@ export default async function Image({ params }: RoleRouteParams) {
         meta={`${names}${tools.length > 3 ? ` +${tools.length - 3}` : ""}`}
         layer={null}
         // The question is the most distinctive line on the page and belongs on the card,
-        // but it is a sentence and the footer slot is one line — hence the short
+        // but it is a sentence and the footer slot is one line: hence the short
         // form, which is authored rather than truncated. A "…" in the footer of
         // a share image reads as a rendering fault.
         footNote={`${tools.length} tools · ${meta.short.toLowerCase()} owns the stack`}

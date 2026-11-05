@@ -4,13 +4,13 @@
  * ## Why this exists
  *
  * `posts.ts` imports each essay as an MDX module, which gives the site a React
- * component and nothing else — the prose is compiled away. The MCP server's
+ * component and nothing else: the prose is compiled away. The MCP server's
  * `resources/read` has to return the essay as text, and there is no way to get
  * it back out of a component.
  *
  * So it is read from the source files at build time and written to a generated
  * module. Not at request time: the Worker has no filesystem, and `new URL(…,
- * import.meta.url)` does not survive the OpenNext bundle. Not by hand either —
+ * import.meta.url)` does not survive the OpenNext bundle. Not by hand either:
  * a copy of the prose that is not derived from the prose is exactly the kind of
  * second source of truth this repo keeps refusing, and it would drift silently
  * the first time an essay was reworded.
@@ -18,7 +18,7 @@
  * ## `--check`
  *
  * Regenerates into memory and compares. `npm run generate:check` fails on a
- * difference, so a reworded essay cannot ship with a stale resource body — which
+ * difference, so a reworded essay cannot ship with a stale resource body, which
  * is the same reason `generate-awesome-list.mjs` has a check mode.
  *
  * ## What is stripped
@@ -77,7 +77,7 @@ function toMarkdown(source) {
     // A figure on its own line becomes a marker, not a deletion.
     const figure = FIGURES.find((f) => new RegExp(`^<${f}\\s*/>$`).test(trimmed));
     if (figure) {
-      out.push(`*[Figure: ${figure} — see the canonical page]*`);
+      out.push(`*[Figure: ${figure}: see the canonical page]*`);
       continue;
     }
 
@@ -107,13 +107,13 @@ function build() {
     const slug = file.replace(/\.mdx$/, "");
     const markdown = toMarkdown(readFileSync(join(BLOG_DIR, file), "utf8"));
     if (!markdown) {
-      throw new Error(`${file} produced no text — the stripper is probably too aggressive.`);
+      throw new Error(`${file} produced no text: the stripper is probably too aggressive.`);
     }
     entries.push([slug, markdown]);
   }
 
   const module = `/**
- * GENERATED — do not edit. Run \`npm run generate\` after changing any essay.
+ * GENERATED: do not edit. Run \`npm run generate\` after changing any essay.
  *
  * The prose of each MDX essay, projected to Markdown for the MCP server's
  * \`resources/read\`. See \`scripts/build-essay-text.mjs\` for why this is a

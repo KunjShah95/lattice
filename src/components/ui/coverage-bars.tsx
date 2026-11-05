@@ -6,7 +6,7 @@ import type { CoverageRow } from "@/lib/coverage";
  * Entries per layer, as bars in stack order.
  *
  * Borrowed mechanic: the dithered / hatched chart (designeer's Dither Kit,
- * Aceternity's Scales) — a value drawn as *texture* rather than as a flat fill.
+ * Aceternity's Scales): a value drawn as *texture* rather than as a flat fill.
  * What it is not borrowed for is the retro look. This site already draws "sits in
  * the stack" as a hatch (`hatch-stack`, the drafting convention in `globals.css`),
  * so a bar in a layer's own colour with that hatch is the stack diagram's own
@@ -17,7 +17,7 @@ import type { CoverageRow } from "@/lib/coverage";
  * would be wrong here: the order of the layers is the site's argument, and a
  * chart that re-ranked them would be the one place the index ranks something.
  *
- * Server component. No hover, no animation, no JS — the figure is a table of
+ * Server component. No hover, no animation, no JS: the figure is a table of
  * counts with a picture of it, and the counts are the content: they are real text
  * so a screen reader or a crawler gets the numbers and not an image of them.
  */

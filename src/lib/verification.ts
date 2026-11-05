@@ -7,7 +7,7 @@ import { expiryMonth } from "./freshness";
  *
  * `data.ts` throws at module load when any entry's licence/cost check is older
  * than the cutoff, so a deployed site has by construction passed. That is
- * the strongest true claim this index makes, and on its own it is invisible —
+ * the strongest true claim this index makes, and on its own it is invisible:
  * a `throw` nobody sees. This report publishes the rule, the date it was
  * enforced, and every entry's check and expiry, so the claim can be audited
  * rather than taken on trust.
