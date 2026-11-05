@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { askLinks, askPrompt } from "@/components/ask-ai";
+import { askLinks, askPrompt } from "@/lib/ask-ai";
 
 describe("ask an AI about this page", () => {
   const url = "https://lattice.kunjshah.in/compare/vector-databases";

@@ -128,30 +128,35 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // in `app/error.tsx` and the self-contained `app/global-error.tsx`. Both are
 // client boundaries Next ships with each page; the 404 is a server component
 // and costs nothing. Measured +0.7 KB after compacting the global fallback.
+// +1 KB on every route for the header's Copy / Ask AI menu
+// (`components/page-actions.tsx`): copy the page or its link, or open it in
+// ChatGPT, Claude, Perplexity, Google AI Mode or Grok with a question filled
+// in. Mounted once in the site header, so every route loads it. Measured
+// +0.9 KB; the foot-of-page links are server-rendered and cost nothing.
 const BUDGETS = {
-  "/": 165_096,
-  "/stack-builder": 173_120, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 168_000, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
-  "/glossary": 164_096,
-  "/methodology": 162_096,
-  "/verification": 162_096,
-  "/submit": 162_096,
-  "/blog": 162_096,
-  "/compare": 162_096,
-  "/compare/build": 167_096, // measured 157.7 KB; headroom left for the picker to grow
-  "/fix": 162_096,
-  "/roles": 162_096,
-  "/bands": 162_096,
-  "/[slug]": 162_596,
-  "/[slug]/[tool]": 163_596,
-  "/[slug]/[tool]/alternatives": 162_096,
-  "/roles/[role]": 162_096,
-  "/bands/[band]": 162_096,
-  "/stack/[workload]": 162_596,
-  "/blog/[slug]": 163_096,
-  "/compare/[slug]": 162_096,
-  "/fix/[slug]": 162_096,
-  "/glossary/[slug]": 162_096,
+  "/": 166_120,
+  "/stack-builder": 174_144, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
+  "/all": 169_024, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
+  "/glossary": 165_120,
+  "/methodology": 163_120,
+  "/verification": 163_120,
+  "/submit": 163_120,
+  "/blog": 163_120,
+  "/compare": 163_120,
+  "/compare/build": 168_120, // measured 157.7 KB; headroom left for the picker to grow
+  "/fix": 163_120,
+  "/roles": 163_120,
+  "/bands": 163_120,
+  "/[slug]": 163_620,
+  "/[slug]/[tool]": 164_620,
+  "/[slug]/[tool]/alternatives": 163_120,
+  "/roles/[role]": 163_120,
+  "/bands/[band]": 163_120,
+  "/stack/[workload]": 163_620,
+  "/blog/[slug]": 164_120,
+  "/compare/[slug]": 163_120,
+  "/fix/[slug]": 163_120,
+  "/glossary/[slug]": 163_120,
 };
 
 const NEXT = join(root, ".next");

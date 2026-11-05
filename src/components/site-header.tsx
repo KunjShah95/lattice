@@ -3,6 +3,8 @@ import { Logo } from "./logo";
 import { DesktopNav, MobileNav } from "./site-nav";
 import { SearchTrigger } from "./search-provider";
 import { ThemeToggle } from "./theme-toggle";
+import { PageActions } from "./page-actions";
+import { site } from "@/lib/site";
 
 /**
  * Three links, not ten. The nine layer links that used to live here were the
@@ -42,6 +44,10 @@ export function SiteHeader() {
               to find anything on a 113-tool index, completely unreachable on
               a phone. */}
           <SearchTrigger compact />
+          {/* Copy this page, or open it in ChatGPT, Claude and the rest with a
+              question already filled in. In the sticky bar so it is reachable
+              from every page without scrolling. */}
+          <PageActions origin={site.url} />
           <ThemeToggle />
           {/* The one call to action in the chrome. Below `sm` it moves into
               the mobile drawer, where there is room for it at full width. */}
