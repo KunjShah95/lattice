@@ -563,7 +563,7 @@ export const PAGE_GUIDANCE = {
       {
         question: "How do I report an error?",
         answer:
-          "Send the tool, the wrong fact and a link to the source that shows the right one. Corrections are listed here with their date.",
+          "Send the tool, the wrong fact and a link to the source that shows the right one. Recent changes to the dataset are logged on this page with their date and commit.",
       },
     ],
   },
@@ -599,7 +599,7 @@ export const PAGE_GUIDANCE = {
       {
         question: "Who runs Lattice?",
         answer:
-          "Kunj Shah maintains it. It is not owned by, or paid by, any vendor it lists, and every change to an entry is listed on Corrections.",
+          "Kunj Shah maintains it. It is not owned by, or paid by, any vendor it lists, and the Corrections page logs the most recent changes to the tool dataset, each with its date and commit.",
       },
     ],
   },
