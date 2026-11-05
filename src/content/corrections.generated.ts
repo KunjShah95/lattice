@@ -22,6 +22,25 @@ export type Correction = {
 
 export const corrections: Correction[] = [
   {
+    "date": "2026-11-05",
+    "title": "feat: rebuild the site on one type, radius and contrast system",
+    "hash": "74159e4",
+    "url": "https://github.com/KunjShah95/lattice/commit/74159e4bfd24d7bb4855bb2ad1fe019aec4a2e86",
+    "touched": [
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-10-18",
+    "title": "Landing page as a tool directory; centred headings; no em dashes",
+    "hash": "7c49fa4",
+    "url": "https://github.com/KunjShah95/lattice/commit/7c49fa4965c721a5daf4837fbccdb9094845c280",
+    "touched": [
+      "classification",
+      "the index"
+    ]
+  },
+  {
     "date": "2026-10-06",
     "title": "Update .gitignore, package dependencies, and CI configuration; enhance accessibility and sitemap",
     "hash": "78f8be9",

@@ -671,7 +671,7 @@ export function StackBuilder() {
           tabIndex={-1}
           className="scroll-mt-24 t-h4 outline-none"
         >
-          Your stack — built from your answers
+          Your stack: built from your answers
         </h2>
         <p className="mt-2 font-serif text-[26px] leading-snug tracking-[-0.015em]">{result.summary}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
