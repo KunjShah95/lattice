@@ -237,7 +237,7 @@ export default function CorrectionsPage() {
           </li>
         </ul>
       </section>
-      <PageGuidance rules={PAGE_GUIDANCE.corrections.rules} answers={PAGE_GUIDANCE.corrections.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.corrections.rules} answers={PAGE_GUIDANCE.corrections.answers} />
     </div>
   );
 }

@@ -108,7 +108,7 @@ export default function FixIndexPage() {
         );
       })}
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.fixIndex.rules} answers={PAGE_GUIDANCE.fixIndex.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.fixIndex.rules} answers={PAGE_GUIDANCE.fixIndex.answers} />
       </div>
     </div>
   );

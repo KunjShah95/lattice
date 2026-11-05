@@ -131,7 +131,7 @@ export default function BlogIndexPage() {
         })}
       </ol>
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.blogIndex.rules} answers={PAGE_GUIDANCE.blogIndex.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.blogIndex.rules} answers={PAGE_GUIDANCE.blogIndex.answers} />
       </div>
     </div>
   );

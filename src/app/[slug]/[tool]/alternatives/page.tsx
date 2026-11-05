@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AS_OF } from "@/lib/attributes";
+import { AskAi } from "@/components/ask-ai";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
@@ -369,6 +370,7 @@ export default async function AlternativesPage({
         </Link>{" "}
         — including where it is wrong.
       </p>
+      <AskAi url={pageUrl} />
     </div>
   );
 }

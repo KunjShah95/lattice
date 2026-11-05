@@ -89,7 +89,7 @@ export default function AboutPage() {
           belong to their respective authors.
         </p>
       </InfoSection>
-      <PageGuidance rules={PAGE_GUIDANCE.about.rules} answers={PAGE_GUIDANCE.about.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.about.rules} answers={PAGE_GUIDANCE.about.answers} />
     </InfoPageLayout>
     </>
   );

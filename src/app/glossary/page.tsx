@@ -76,7 +76,7 @@ export default function GlossaryIndexPage() {
 
       <GlossaryList terms={glossary} />
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.glossaryIndex.rules} answers={PAGE_GUIDANCE.glossaryIndex.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.glossaryIndex.rules} answers={PAGE_GUIDANCE.glossaryIndex.answers} />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { QA } from "@/lib/seo";
+import { AskAi } from "@/components/ask-ai";
 
 /**
  * The two closing blocks every page on the site carries: "Rules of thumb" and
@@ -74,20 +75,24 @@ export function QuickAnswers({
   );
 }
 
-/** Both blocks, in reading order: the rules first, then the answers. */
+/** Both blocks, in reading order: the rules, the answers, then the AI links. */
 export function PageGuidance({
   rules,
   answers,
   markerStyle,
+  url,
 }: {
   rules: readonly string[];
   answers: readonly QA[];
   markerStyle?: CSSProperties;
+  /** The page's canonical URL, for the "Ask an AI about this page" links. */
+  url: string;
 }) {
   return (
     <>
       <RulesOfThumb rules={rules} markerStyle={markerStyle} />
       <QuickAnswers answers={answers} />
+      <AskAi url={url} />
     </>
   );
 }

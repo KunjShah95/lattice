@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskAi } from "@/components/ask-ai";
 import {
   InfoChannel,
   InfoPageLayout,
@@ -180,6 +181,7 @@ export default function ContactPage() {
           <Link href="/returns">Returns</Link>.
         </p>
       </InfoSection>
+      <AskAi url={pageUrl} />
     </InfoPageLayout>
     </>
   );

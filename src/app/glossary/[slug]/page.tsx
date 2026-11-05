@@ -212,7 +212,7 @@ export default async function GlossaryTermPage({
           </section>
         ) : null}
       </article>
-      <PageGuidance rules={PAGE_GUIDANCE.glossaryTerm.rules} answers={PAGE_GUIDANCE.glossaryTerm.answers} />
+      <PageGuidance url={`${site.url}/glossary/${term.slug}`} rules={PAGE_GUIDANCE.glossaryTerm.rules} answers={PAGE_GUIDANCE.glossaryTerm.answers} />
     </div>
   );
 }

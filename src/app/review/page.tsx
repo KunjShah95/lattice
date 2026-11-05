@@ -290,7 +290,7 @@ export default function ReviewPage() {
           </div>
         </section>
 
-        <PageGuidance rules={PAGE_GUIDANCE.review.rules} answers={PAGE_GUIDANCE.review.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.review.rules} answers={PAGE_GUIDANCE.review.answers} />
         <div className="pb-8">
           <CtaBand
             title="Ship the stack you would choose with all the facts."

@@ -193,7 +193,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         </ul>
       </section>
 
-      <PageGuidance
+      <PageGuidance url={pageUrl}
         rules={rulesFromComparisons(s.comparisons.map((c) => c.slug))}
         answers={questions.slice(1)}
       />

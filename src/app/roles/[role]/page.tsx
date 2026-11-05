@@ -301,7 +301,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </Link>
         .
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.role.rules} answers={PAGE_GUIDANCE.role.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.role.rules} answers={PAGE_GUIDANCE.role.answers} />
     </div>
   );
 }

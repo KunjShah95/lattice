@@ -91,7 +91,7 @@ export default function CompareIndexPage() {
         items={substitutes}
       />
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.compareIndex.rules} answers={PAGE_GUIDANCE.compareIndex.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.compareIndex.rules} answers={PAGE_GUIDANCE.compareIndex.answers} />
       </div>
     </div>
   );

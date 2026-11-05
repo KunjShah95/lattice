@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskAi } from "@/components/ask-ai";
 import { CompareBuilder } from "@/components/compare-builder";
 import { allTools } from "@/lib/data";
 import type { CompareTool } from "@/lib/compare-table";
@@ -130,6 +131,7 @@ export default function CompareBuilderPage() {
       <div className="mt-8">
         <CompareBuilder tools={pool} />
       </div>
+      <AskAi url={pageUrl} className="mt-16 mb-16 border-t border-border pt-10" />
     </div>
   );
 }

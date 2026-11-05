@@ -412,7 +412,7 @@ export default function MethodologyPage() {
         , and each tool page states its licence, cost, deployment and the
         date those facts were last confirmed.
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.methodology.rules} answers={PAGE_GUIDANCE.methodology.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.methodology.rules} answers={PAGE_GUIDANCE.methodology.answers} />
     </div>
   );
 }

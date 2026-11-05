@@ -171,7 +171,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
 
       {/* Rules of thumb and quick answers for the decision this section owns. */}
       <div className="pb-16">
-        <PageGuidance
+        <PageGuidance url={pageUrl}
           rules={guidance.rules}
           answers={guidance.answers}
           markerStyle={layerStyle(category.layer)}

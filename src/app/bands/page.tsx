@@ -170,7 +170,7 @@ export default function BandsIndexPage() {
         </Link>{" "}
         says where else this index is wrong.
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.bands.rules} answers={PAGE_GUIDANCE.bands.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.bands.rules} answers={PAGE_GUIDANCE.bands.answers} />
     </div>
   );
 }

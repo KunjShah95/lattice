@@ -235,7 +235,7 @@ export default function VerificationPage() {
           </li>
         </ul>
       </section>
-      <PageGuidance rules={PAGE_GUIDANCE.verification.rules} answers={PAGE_GUIDANCE.verification.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.verification.rules} answers={PAGE_GUIDANCE.verification.answers} />
     </div>
   );
 }

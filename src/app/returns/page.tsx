@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskAi } from "@/components/ask-ai";
 import { InfoPageLayout, InfoSection, MaintainerNote } from "@/components/info-page";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
@@ -77,6 +78,7 @@ export default function ReturnsPage() {
           arrived by.
         </p>
       </InfoSection>
+      <AskAi url={pageUrl} />
     </InfoPageLayout>
     </>
   );

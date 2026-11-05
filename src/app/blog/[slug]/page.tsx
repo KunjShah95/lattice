@@ -206,7 +206,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </ul>
         </nav>
       ) : null}
-      <PageGuidance
+      <PageGuidance url={`${site.url}/blog/${meta.slug}`}
         rules={meta.rules ?? PAGE_GUIDANCE.blogPost.rules}
         answers={meta.faq ?? PAGE_GUIDANCE.blogPost.answers}
       />

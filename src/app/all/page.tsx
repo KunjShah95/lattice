@@ -94,7 +94,7 @@ export default function AllToolsPage() {
 
       <ToolExplorer tools={allToolEntries} />
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.all.rules} answers={PAGE_GUIDANCE.all.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.all.rules} answers={PAGE_GUIDANCE.all.answers} />
       </div>
     </div>
   );

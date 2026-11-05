@@ -342,7 +342,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </Link>{" "}
         says where else this index is wrong.
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.band.rules} answers={PAGE_GUIDANCE.band.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.band.rules} answers={PAGE_GUIDANCE.band.answers} />
     </div>
   );
 }

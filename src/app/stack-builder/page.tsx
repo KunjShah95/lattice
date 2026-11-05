@@ -76,7 +76,7 @@ export default function StackBuilderPage() {
         <StackBuilder />
       </div>
       <div className="pb-16">
-        <PageGuidance rules={PAGE_GUIDANCE.stackBuilder.rules} answers={PAGE_GUIDANCE.stackBuilder.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.stackBuilder.rules} answers={PAGE_GUIDANCE.stackBuilder.answers} />
       </div>
     </div>
   );

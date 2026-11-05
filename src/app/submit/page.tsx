@@ -275,7 +275,7 @@ export default function SubmitPage() {
         </Link>
         .
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.submit.rules} answers={PAGE_GUIDANCE.submit.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.submit.rules} answers={PAGE_GUIDANCE.submit.answers} />
     </div>
   );
 }

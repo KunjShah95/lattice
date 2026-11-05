@@ -85,7 +85,7 @@ export default function SubmissionsPage() {
             review bar is published on the methodology page.
           </p>
         </InfoSection>
-        <PageGuidance rules={PAGE_GUIDANCE.submissions.rules} answers={PAGE_GUIDANCE.submissions.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.submissions.rules} answers={PAGE_GUIDANCE.submissions.answers} />
       </InfoPageLayout>
     </>
   );

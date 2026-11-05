@@ -139,7 +139,7 @@ export default function StartPage() {
             </Link>
           </p>
         </InfoSection>
-        <PageGuidance rules={PAGE_GUIDANCE.start.rules} answers={PAGE_GUIDANCE.start.answers} />
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.start.rules} answers={PAGE_GUIDANCE.start.answers} />
       </InfoPageLayout>
     </>
   );

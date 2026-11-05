@@ -452,7 +452,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {/* Rules of thumb for the decision this tool sits inside, then the
           remaining questions people ask about it. Each answer is a
           self-contained passage, mirrored in the FAQPage JSON-LD. */}
-      <PageGuidance
+      <PageGuidance url={pageUrl}
         rules={categoryGuidance(category.slug).rules}
         answers={answerBlocks}
         markerStyle={layerStyle(category.layer)}

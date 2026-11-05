@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskAi } from "@/components/ask-ai";
 import { InfoPageLayout, InfoSection } from "@/components/info-page";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
@@ -75,6 +76,7 @@ export default function PrivacyPage() {
           <a href={site.contact.href}>{site.contact.label}</a>.
         </p>
       </InfoSection>
+      <AskAi url={pageUrl} />
     </InfoPageLayout>
     </>
   );

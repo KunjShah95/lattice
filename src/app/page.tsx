@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
+import { AskAi } from "@/components/ask-ai";
 import { QuickAnswers, RulesOfThumb } from "@/components/page-guidance";
 import { PAGE_GUIDANCE } from "@/lib/guidance";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
@@ -328,6 +329,8 @@ export default function HomePage() {
           <QuickAnswers answers={PAGE_GUIDANCE.home.answers} className="" />
         </div>
       </section>
+
+      <AskAi url={site.url} className="section border-t border-border" />
     </div>
   );
 }

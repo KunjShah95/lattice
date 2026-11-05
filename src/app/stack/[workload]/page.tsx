@@ -254,7 +254,7 @@ export default async function StackWorkloadPage({
         </p>
       </section>
 
-      <PageGuidance
+      <PageGuidance url={pageUrl}
         rules={rulesForSections(result.picks.map((p) => p.sectionSlug))}
         answers={questions}
       />

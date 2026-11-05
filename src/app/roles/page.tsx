@@ -143,7 +143,7 @@ export default function RolesIndexPage() {
         </Link>{" "}
         for how the index decides anything at all.
       </p>
-      <PageGuidance rules={PAGE_GUIDANCE.roles.rules} answers={PAGE_GUIDANCE.roles.answers} />
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.roles.rules} answers={PAGE_GUIDANCE.roles.answers} />
     </div>
   );
 }
