@@ -131,7 +131,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BUDGETS = {
   "/": 165_096,
   "/stack-builder": 173_120, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 167_420, // +0.5 KB: shared ToolCard (compact + full variants) replaces the inline card. +0.3 KB: main (ca3e7c2) already measured 163.3 KB against 163.2 KB; CI never reached this step because generate:check failed first. Not caused by later changes, which add no client JS.
+  "/all": 168_000, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
   "/glossary": 164_096,
   "/methodology": 162_096,
   "/verification": 162_096,

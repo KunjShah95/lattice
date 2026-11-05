@@ -274,7 +274,14 @@ function endOfSection(src, sectionSlug) {
   if (!rows.length) return -1;
 
   const last = rows[rows.length - 1];
-  return start + last.index + last[0].length;
+  // `last[0]` ends at the name, not at the row: the rest of the row is the
+  // domain and blurb. Advancing to the row's closing `),` is what makes the
+  // insertion land *after* the last tool instead of inside it. Getting this
+  // wrong rewrites the Distill row in sections at the end of the file.
+  const afterName = start + last.index + last[0].length;
+  const close = src.slice(afterName).indexOf("),");
+  if (close === -1) return -1;
+  return afterName + close + 2;
 }
 
 if (draft.section) {
