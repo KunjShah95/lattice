@@ -4,7 +4,7 @@ import { corrections } from "@/content/corrections.generated";
 import { AS_OF } from "@/lib/attributes";
 import { toolCount } from "@/lib/data";
 import { site } from "@/lib/site";
-import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, datasetModified, graph, ids, faqPageJsonLd } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 import { PageGuidance } from "@/components/page-guidance";
 import { PAGE_GUIDANCE } from "@/lib/guidance";
@@ -85,6 +85,7 @@ export default function CorrectionsPage() {
                 })),
                 breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
               },
+              faqPageJsonLd(PAGE_GUIDANCE.corrections.answers, pageUrl),
               breadcrumbNode(pageUrl, [
                 { name: site.name, path: "" },
                 { name: "Corrections", path: "/corrections" },

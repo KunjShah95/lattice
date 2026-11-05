@@ -40,6 +40,7 @@ export default function AllToolsPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.all.answers,
               name,
               description: metadata.description as string,
               listId: "tools",

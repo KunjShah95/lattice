@@ -11,6 +11,7 @@ import { glossary } from "@/lib/glossary";
 import { ROLES, roleTitle } from "@/lib/roles";
 import { AS_OF } from "@/lib/attributes";
 import { site } from "@/lib/site";
+import { categoryGuidance } from "@/lib/guidance";
 import { openness, toolDefinition } from "@/lib/seo";
 
 /**
@@ -50,6 +51,15 @@ export function GET() {
       `${category.description} ${category.responsibility}`,
       "",
     );
+
+    // The section's rules of thumb and quick answers, verbatim from the page,
+    // so an agent quoting this file quotes the same sentences a reader sees.
+    const guidance = categoryGuidance(category.slug);
+    lines.push("Rules of thumb:", "", ...guidance.rules.map((r) => `- ${r}`), "");
+    if (guidance.answers.length) {
+      lines.push("Quick answers:", "");
+      for (const qa of guidance.answers) lines.push(`Q: ${qa.question}`, `A: ${qa.answer}`, "");
+    }
 
     for (const tool of category.tools) {
       const alternatives = getAlternatives(category.slug, tool.slug).map(
@@ -161,6 +171,8 @@ export function GET() {
       ),
       "",
       `Recommendation: ${c.verdict}`,
+      "",
+      "Rules of thumb:",
       "",
       ...c.rules.map((r) => `- ${r}`),
       "",

@@ -57,6 +57,7 @@ export default function BandsIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.bands.answers,
               name,
               description: metadata.description as string,
               listId: "bands",

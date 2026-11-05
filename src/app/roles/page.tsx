@@ -48,6 +48,7 @@ export default function RolesIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.roles.answers,
               name: "Tools by role",
               description: metadata.description as string,
               listId: "roles",

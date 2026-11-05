@@ -44,6 +44,7 @@ export default function BlogIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.blogIndex.answers,
               name,
               description: metadata.description as string,
               listId: "essays",

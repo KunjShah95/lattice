@@ -38,6 +38,7 @@ export default function CompareIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.compareIndex.answers,
               name,
               description: metadata.description as string,
               listId: "comparisons",

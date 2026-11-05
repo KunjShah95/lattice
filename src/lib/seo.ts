@@ -415,6 +415,7 @@ export function collectionPageNodes({
   items,
   crumbs,
   listId = "items",
+  faq,
 }: {
   pageUrl: string;
   name: string;
@@ -422,6 +423,8 @@ export function collectionPageNodes({
   items?: ListEntry[];
   crumbs: Array<{ name: string; path: string }>;
   listId?: string;
+  /** The page's visible Quick answers, mirrored as a FAQPage node. */
+  faq?: QA[];
 }) {
   const list = items?.length ? `${pageUrl}#${listId}` : undefined;
 
@@ -453,6 +456,7 @@ export function collectionPageNodes({
         }
       : undefined,
     breadcrumbNode(pageUrl, crumbs),
+    faq?.length ? faqPageJsonLd(faq, pageUrl) : undefined,
   );
 }
 

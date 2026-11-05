@@ -36,6 +36,7 @@ export default function FixIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.fixIndex.answers,
               name,
               description: metadata.description as string,
               listId: "symptoms",

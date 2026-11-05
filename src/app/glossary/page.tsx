@@ -37,6 +37,7 @@ export default function GlossaryIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.glossaryIndex.answers,
               name,
               description: metadata.description as string,
               listId: "terms",
