@@ -12,6 +12,8 @@ import { extremeLayers, joinNames, layerCoverage } from "@/lib/coverage";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 /**
  * /methodology — what this index claims, how it is checked, and what it
@@ -409,6 +411,7 @@ export default function MethodologyPage() {
         , and each tool page states its licence, cost, deployment and the
         date those facts were last confirmed.
       </p>
+      <PageGuidance rules={PAGE_GUIDANCE.methodology.rules} answers={PAGE_GUIDANCE.methodology.answers} />
     </div>
   );
 }

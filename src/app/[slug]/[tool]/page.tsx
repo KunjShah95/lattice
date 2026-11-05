@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
+import { categoryGuidance } from "@/lib/guidance";
+import { PageGuidance } from "@/components/page-guidance";
 import { roleTitle, rolesInOrder } from "@/lib/roles";
 import { StackSpine } from "@/components/stack-spine";
 import {
@@ -447,23 +449,14 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </details>
       </header>
 
-      {/* Quick answers: the remaining questions people ask about a tool,
-          each a self-contained passage. Mirrored in the FAQPage JSON-LD. */}
-      {answerBlocks.length ? (
-        <section className="mt-16 border-t border-border pt-10">
-          <h2 className="t-h4">Quick answers</h2>
-          <dl className="mt-4 space-y-5">
-            {answerBlocks.map((qa) => (
-              <div key={qa.question}>
-                <dt className="text-[16px] font-medium">{qa.question}</dt>
-                <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-                  {qa.answer}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ) : null}
+      {/* Rules of thumb for the decision this tool sits inside, then the
+          remaining questions people ask about it. Each answer is a
+          self-contained passage, mirrored in the FAQPage JSON-LD. */}
+      <PageGuidance
+        rules={categoryGuidance(category.slug).rules}
+        answers={answerBlocks}
+        markerStyle={layerStyle(category.layer)}
+      />
 
       {/* Appears-in: the decision contexts, which is what makes this page
           more than a link with a sentence on it. */}

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { CategorySection } from "@/components/category-section";
 import { categories, getCategory, getSecondHomeTools } from "@/lib/data";
 import { layerStyle } from "@/lib/layer";
+import { categoryGuidance } from "@/lib/guidance";
+import { PageGuidance } from "@/components/page-guidance";
 import { TrackLink } from "@/components/track-link";
 import { Byline } from "@/components/byline";
 import { AS_OF } from "@/lib/attributes";
@@ -160,6 +162,15 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           </ul>
         </section>
       ) : null}
+
+      {/* Rules of thumb and quick answers for the decision this section owns. */}
+      <div className="pb-16">
+        <PageGuidance
+          rules={categoryGuidance(category.slug).rules}
+          answers={categoryGuidance(category.slug).answers}
+          markerStyle={layerStyle(category.layer)}
+        />
+      </div>
 
       {/* Prev / next */}
       <nav

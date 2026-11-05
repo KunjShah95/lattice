@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
+import { QuickAnswers, RulesOfThumb } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
@@ -315,6 +317,15 @@ export default function HomePage() {
           <Link href="/start" className="transition-colors hover:text-fg">
             Start with a five-step path →
           </Link>
+        </div>
+      </section>
+
+      {/* Rules of thumb and quick answers: the house voice, stated once on
+          the front page and repeated in context on every page below it. */}
+      <section className="section border-t border-border">
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
+          <RulesOfThumb rules={PAGE_GUIDANCE.home.rules} className="" />
+          <QuickAnswers answers={PAGE_GUIDANCE.home.answers} className="" />
         </div>
       </section>
     </div>

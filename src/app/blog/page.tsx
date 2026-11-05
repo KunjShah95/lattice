@@ -6,6 +6,8 @@ import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Essays on production AI",
@@ -127,6 +129,9 @@ export default function BlogIndexPage() {
           );
         })}
       </ol>
+      <div className="pb-16">
+        <PageGuidance rules={PAGE_GUIDANCE.blogIndex.rules} answers={PAGE_GUIDANCE.blogIndex.answers} />
+      </div>
     </div>
   );
 }

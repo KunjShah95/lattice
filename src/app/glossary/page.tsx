@@ -5,6 +5,8 @@ import { glossary } from "@/lib/glossary";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "AI infrastructure glossary",
@@ -72,6 +74,9 @@ export default function GlossaryIndexPage() {
       </header>
 
       <GlossaryList terms={glossary} />
+      <div className="pb-16">
+        <PageGuidance rules={PAGE_GUIDANCE.glossaryIndex.rules} answers={PAGE_GUIDANCE.glossaryIndex.answers} />
+      </div>
     </div>
   );
 }

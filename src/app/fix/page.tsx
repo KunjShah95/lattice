@@ -5,6 +5,8 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Fix an AI system by symptom",
@@ -104,6 +106,9 @@ export default function FixIndexPage() {
           </section>
         );
       })}
+      <div className="pb-16">
+        <PageGuidance rules={PAGE_GUIDANCE.fixIndex.rules} answers={PAGE_GUIDANCE.fixIndex.answers} />
+      </div>
     </div>
   );
 }

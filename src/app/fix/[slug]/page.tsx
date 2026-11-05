@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { AS_OF } from "@/lib/attributes";
 import { BANDS, bandColor, layerStyle } from "@/lib/layer";
 import { toJsonLd } from "@/lib/jsonld";
+import { rulesFromComparisons } from "@/lib/guidance";
+import { PageGuidance } from "@/components/page-guidance";
 import {
   authorNode,
   breadcrumbNode,
@@ -191,19 +193,10 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         </ul>
       </section>
 
-      <section className="mt-16 border-t border-border pt-10">
-        <h2 className="t-h4">
-          Quick answers
-        </h2>
-        <dl className="mt-4 space-y-5">
-          {questions.slice(1).map((qa) => (
-            <div key={qa.question}>
-              <dt className="text-[16px] font-medium">{qa.question}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">{qa.answer}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <PageGuidance
+        rules={rulesFromComparisons(s.comparisons.map((c) => c.slug))}
+        answers={questions.slice(1)}
+      />
 
       <nav aria-label="Read next" className="mt-16 border-t border-border pt-10">
         <h2 className="t-h4">Read next</h2>

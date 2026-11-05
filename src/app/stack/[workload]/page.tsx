@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/stacks";
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
+import { PageGuidance } from "@/components/page-guidance";
+import { rulesForSections } from "@/lib/guidance";
 import { site } from "@/lib/site";
 import { toolCount } from "@/lib/data";
 import {
@@ -252,21 +254,10 @@ export default async function StackWorkloadPage({
         </p>
       </section>
 
-      <section className="mt-16 border-t border-border pt-10">
-        <h2 className="t-h4">
-          Quick answers
-        </h2>
-        <dl className="mt-4 space-y-5">
-          {questions.map((qa) => (
-            <div key={qa.question}>
-              <dt className="text-[16px] font-medium">{qa.question}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-                {qa.answer}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <PageGuidance
+        rules={rulesForSections(result.picks.map((p) => p.sectionSlug))}
+        answers={questions}
+      />
 
       <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[15px] leading-relaxed text-fg-subtle">
         A starting point, not a prescription. The recommendation at the default

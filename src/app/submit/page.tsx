@@ -5,6 +5,8 @@ import { LAYERS, REPO, ISSUE_TEMPLATE } from "@/lib/submissions.mjs";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 /**
  * `/submit` — the intake, and the page that has to be honest about it.
@@ -273,6 +275,7 @@ export default function SubmitPage() {
         </Link>
         .
       </p>
+      <PageGuidance rules={PAGE_GUIDANCE.submit.rules} answers={PAGE_GUIDANCE.submit.answers} />
     </div>
   );
 }

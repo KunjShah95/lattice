@@ -10,6 +10,8 @@ import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import { authorNode, breadcrumbNode, bylineName, graph, ids } from "@/lib/seo";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.meta.slug }));
@@ -204,6 +206,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </ul>
         </nav>
       ) : null}
+      <PageGuidance rules={PAGE_GUIDANCE.blogPost.rules} answers={PAGE_GUIDANCE.blogPost.answers} />
     </div>
   );
 }

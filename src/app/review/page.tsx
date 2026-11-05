@@ -13,6 +13,8 @@ import { posts } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Stack review: an engineer's second opinion on your AI stack",
@@ -288,6 +290,7 @@ export default function ReviewPage() {
           </div>
         </section>
 
+        <PageGuidance rules={PAGE_GUIDANCE.review.rules} answers={PAGE_GUIDANCE.review.answers} />
         <div className="pb-8">
           <CtaBand
             title="Ship the stack you would choose with all the facts."

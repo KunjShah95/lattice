@@ -15,6 +15,8 @@ import {
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 import type { Band } from "@/lib/layer";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 /**
  * One band: the layers it owns, the tools in them, the symptoms it explains and
@@ -340,6 +342,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </Link>{" "}
         says where else this index is wrong.
       </p>
+      <PageGuidance rules={PAGE_GUIDANCE.band.rules} answers={PAGE_GUIDANCE.band.answers} />
     </div>
   );
 }

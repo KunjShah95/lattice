@@ -5,6 +5,8 @@ import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 import Link from "next/link";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Submissions accepted into the index",
@@ -83,6 +85,7 @@ export default function SubmissionsPage() {
             review bar is published on the methodology page.
           </p>
         </InfoSection>
+        <PageGuidance rules={PAGE_GUIDANCE.submissions.rules} answers={PAGE_GUIDANCE.submissions.answers} />
       </InfoPageLayout>
     </>
   );

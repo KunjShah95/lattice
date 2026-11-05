@@ -5,6 +5,8 @@ import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/l
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "All AI infrastructure tools",
@@ -90,6 +92,9 @@ export default function AllToolsPage() {
       </header>
 
       <ToolExplorer tools={allToolEntries} />
+      <div className="pb-16">
+        <PageGuidance rules={PAGE_GUIDANCE.all.rules} answers={PAGE_GUIDANCE.all.answers} />
+      </div>
     </div>
   );
 }

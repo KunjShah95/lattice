@@ -9,6 +9,8 @@ import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import { breadcrumbNode, credit, graph, ids, lowerFirst } from "@/lib/seo";
 import { Byline } from "@/components/byline";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export function generateStaticParams() {
   return glossary.map((t) => ({ slug: t.slug }));
@@ -210,6 +212,7 @@ export default async function GlossaryTermPage({
           </section>
         ) : null}
       </article>
+      <PageGuidance rules={PAGE_GUIDANCE.glossaryTerm.rules} answers={PAGE_GUIDANCE.glossaryTerm.answers} />
     </div>
   );
 }
