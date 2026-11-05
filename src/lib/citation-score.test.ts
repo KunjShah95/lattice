@@ -172,20 +172,23 @@ describe("claimSummary", () => {
 });
 
 describe("contentGaps", () => {
+  // A query with no page to be cited from. Synthetic, because every tracked
+  // gap now has an essay answering it; the function is still what reports the
+  // next one.
+  const GAP = { id: 9001, query: "a question nothing answers", target: "", claim: "skip-when" } as const;
+
   it("finds tracked queries with no page to be cited from", () => {
     // These are the queries where the fix is writing copy, not improving a
     // ranking. Lumping them in with "not cited" produces a to-do list of things
     // to rewrite, when the thing does not exist.
-    const gaps = contentGaps(
-      ALL_QUERIES,
-      [{ query_id: 101, claim: "skip-when", cited: false, position: "" }],
-    );
-    expect(gaps.map((g) => g.id)).toContain(102);
-    expect(gaps.map((g) => g.id)).toContain(106);
-    // Every gap must genuinely have no target page.
-    for (const gap of gaps) {
-      expect(ALL_QUERIES.find((q) => q.id === gap.id)!.target).toBe("");
-    }
+    const gaps = contentGaps([...ALL_QUERIES, GAP], []);
+    expect(gaps.map((g) => g.id)).toEqual([GAP.id]);
+  });
+
+  it("has no open content gap in the tracked set", () => {
+    // 101, 102, 104 and 106 were gaps until the skip-when essays were written.
+    // A new query with an empty target should fail here until its page exists.
+    expect(contentGaps(ALL_QUERIES, [])).toEqual([]);
   });
 
   it("does not report a query that has a page but was not cited", () => {
@@ -197,10 +200,10 @@ describe("contentGaps", () => {
   });
 
   it("drops a gap once something else answers the query", () => {
-    const gaps = contentGaps(ALL_QUERIES, [
-      { query_id: 102, claim: "skip-when", cited: true, position: 1 },
+    const gaps = contentGaps([GAP], [
+      { query_id: GAP.id, claim: "skip-when", cited: true, position: 1 },
     ]);
-    expect(gaps.map((g) => g.id)).not.toContain(102);
+    expect(gaps.map((g) => g.id)).not.toContain(GAP.id);
   });
 });
 

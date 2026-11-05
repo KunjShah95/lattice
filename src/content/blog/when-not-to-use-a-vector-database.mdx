@@ -1,0 +1,130 @@
+export const meta = {
+  slug: "when-not-to-use-a-vector-database",
+  title: "When not to use a vector database",
+  description:
+    "Most teams adopt a dedicated vector database before they need one. When the database you already run is enough, when keyword search beats embeddings, and when to switch.",
+  dek: "Bad retrieval is usually a ranking or chunking problem wearing a database costume. Fix those first, and the store you already run often turns out to be enough.",
+  date: "2026-11-05",
+  readingTime: "7 min",
+  layers: [3, 9],
+  sections: ["retrieval-vector-stores", "evaluation-observability"],
+  related: ["fix-the-ranking-not-the-prompt", "evals-are-the-asset", "context-is-a-budget"],
+  keywords: [
+    "when not to use a vector database",
+    "do I need a vector database",
+    "pgvector vs dedicated vector database",
+    "vector database alternatives",
+  ],
+  rules: [
+    "Most bad retrieval is a ranking or chunking problem, not a database problem. Fix the eval set and the chunks before you migrate stores.",
+    "Use the database you already run until it measurably fails. A second datastore is a second thing to back up, secure and page on.",
+    "If users search by exact names, codes or IDs, start with keyword search. Embeddings are good at meaning and bad at part numbers.",
+  ],
+  faq: [
+    {
+      question: "When should you not use a vector database?",
+      answer:
+        "When your corpus fits in a database you already run with a vector extension, when users search mostly by exact terms that keyword search handles better, when the whole corpus fits in the model's context window, or when you have not yet measured that retrieval is the failing step.",
+    },
+    {
+      question: "Is pgvector enough instead of a dedicated vector database?",
+      answer:
+        "For many teams, yes. A Postgres extension handles millions of embeddings, keeps vectors next to the rows they describe, and adds no new system to operate. Move to a dedicated store when filtered recall, latency or index size fails a target you have measured.",
+    },
+    {
+      question: "When is a dedicated vector database worth it?",
+      answer:
+        "When vector search is the product's main workload, when heavy metadata filtering must stay fast at large scale, or when index size and query volume outgrow what your primary database can serve without hurting its other traffic.",
+    },
+    {
+      question: "Can I do RAG without a vector database?",
+      answer:
+        "Yes. Keyword search with BM25, a full-text index in your existing database, or simply putting a small corpus into the prompt all work. Many production systems combine keyword and vector search rather than relying on vectors alone.",
+    },
+  ],
+};
+
+The short answer: you do not need a dedicated vector database when the
+database you already run can hold your embeddings, when your users search by
+exact terms, when the corpus fits in the context window, or when you have not
+yet proved that retrieval is what is failing. Add one when a measured
+requirement, not a demo, says the existing store cannot meet it.
+
+That is a less exciting answer than the one most architecture diagrams give.
+It is also the one that saves the most engineering time.
+
+## The usual mistake: migrating to fix a ranking problem
+
+A RAG app returns the wrong passages. The team concludes the vector store is
+the problem and starts a migration. Weeks later the new store returns the
+same wrong passages, slightly faster.
+
+Retrieval quality is decided mostly by three things that live above the
+database: how documents were split into chunks, which embedding model encoded
+them, and how the candidates were ranked. A store that returns the nearest
+neighbours of a bad chunk returns a bad chunk, whichever store it is.
+
+Before changing databases, build a small query set with the passages that
+should come back for each query, and measure recall at k. That set tells
+you whether the problem is the store at all. More often than not it points at
+[chunking](/glossary/chunking) or at a missing [reranking](/glossary/reranking)
+step. The longer version of this argument is in
+[Fix the ranking, not the prompt](/blog/fix-the-ranking-not-the-prompt).
+
+## Four cases where you do not need one
+
+**You already run Postgres, or another database with vector support.**
+pgvector and its equivalents keep embeddings in the same rows as the data
+they describe. Joins, permissions, backups and transactions all work as they
+already do. For most corpora measured in millions of chunks rather than
+billions, that is enough, and it removes an entire system from your on-call
+rotation.
+
+**Your users search by exact terms.** Product codes, error messages, function
+names, legal citations: embeddings blur these, because they are built to
+match meaning rather than strings. A full-text index finds them exactly. If
+your query logs are full of identifiers, start with keyword search and add
+vectors for the long-tail natural-language queries, which is what
+[hybrid search](/glossary/hybrid-search) means.
+
+**The corpus fits in the context window.** A handbook of a few hundred pages
+does not need retrieval at all for many tasks. Put it in the prompt, use
+[prompt caching](/glossary/prompt-caching) so you do not pay for it on every
+call, and spend the saved week on evals. Read
+[Context is a budget](/blog/context-is-a-budget) before doing this at scale,
+because long contexts have their own failure modes.
+
+**You have not measured anything yet.** A vector database chosen before an
+eval set exists is chosen on a vendor benchmark, which measures the vendor's
+data and the vendor's queries.
+
+## When a dedicated store is the right call
+
+None of this means dedicated stores are a mistake. They earn their place when:
+
+- **Vector search is the main workload**, not a side feature, and its traffic
+  would compete with transactional queries on your primary database.
+- **Filtered search must stay fast at scale.** Metadata filters combined with
+  approximate nearest-neighbour search are where stores differ most, and where
+  a general-purpose database tends to degrade first. Test filtered recall, not
+  just recall.
+- **The index outgrows the primary database's memory**, or rebuilding it
+  starts to affect the rest of the system.
+- **You need features the extension lacks**, such as built-in hybrid ranking,
+  multi-tenancy at large scale, or tiered storage for very large indexes.
+
+The [vector database comparison](/compare/vector-databases) sets the main
+options side by side, with when to skip each one.
+
+## How to decide in an afternoon
+
+1. Export a sample of real queries, and label the passages that should come
+   back for twenty to fifty of them.
+2. Measure recall at k on the store you already have, with and without a
+   reranker, and with keyword search alone.
+3. Only if all three miss your target, and the misses are latency or scale
+   rather than ranking, trial a dedicated store against the same set.
+
+The set you build in step one is the asset. It outlives whichever store you
+pick, and it is what tells you when to switch. [Evals are the
+asset](/blog/evals-are-the-asset) makes that case in full.

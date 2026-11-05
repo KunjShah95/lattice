@@ -14,9 +14,12 @@ import {
   graph,
   ids,
   indexCrumbs,
+  faqPageJsonLd,
 } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { buildVerificationReport, groupByCheck } from "@/lib/verification";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Freshness ledger — what the build refuses to ship stale",
@@ -93,6 +96,7 @@ export default function VerificationPage() {
                 isPartOf: { "@id": ids.website },
                 breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
               },
+              faqPageJsonLd(PAGE_GUIDANCE.verification.answers, pageUrl),
               breadcrumbNode(pageUrl, indexCrumbs("Freshness ledger", "/verification")),
             ),
           ),
@@ -231,6 +235,7 @@ export default function VerificationPage() {
           </li>
         </ul>
       </section>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.verification.rules} answers={PAGE_GUIDANCE.verification.answers} />
     </div>
   );
 }

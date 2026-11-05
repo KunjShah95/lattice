@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 import { InfoPageLayout, InfoSection } from "@/components/info-page";
 import { site } from "@/lib/site";
-import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, datasetModified, graph, ids, faqPageJsonLd } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
@@ -28,6 +30,7 @@ export default function AboutPage() {
         about: { "@id": ids.organization },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
       },
+      faqPageJsonLd(PAGE_GUIDANCE.about.answers, pageUrl),
       breadcrumbNode(pageUrl, [
         { name: site.name, path: "" },
         { name: "About", path: "/about" },
@@ -86,6 +89,7 @@ export default function AboutPage() {
           belong to their respective authors.
         </p>
       </InfoSection>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.about.rules} answers={PAGE_GUIDANCE.about.answers} />
     </InfoPageLayout>
     </>
   );

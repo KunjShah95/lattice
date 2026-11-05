@@ -1,0 +1,117 @@
+export const meta = {
+  slug: "when-you-do-not-need-evals",
+  title: "When you don't need LLM evals (and when you do)",
+  description:
+    "Evals are not free, and a one-off prototype does not need a test suite. The few cases where you can skip LLM evals, the signals that you can no longer skip them, and the smallest useful set.",
+  dek: "Skip evals while nothing depends on the output. The day a prompt change can break something a user relies on, you need them, and twenty cases is enough to start.",
+  date: "2026-11-05",
+  readingTime: "6 min",
+  layers: [9, 8],
+  sections: ["evaluation-observability", "prompt-engineering"],
+  related: ["evals-are-the-asset", "observability-is-not-logging", "choosing-a-model"],
+  keywords: [
+    "when do I not need evals",
+    "do I need LLM evals",
+    "how many examples in an LLM eval set",
+    "LLM evaluation for small projects",
+  ],
+  rules: [
+    "Skip evals while nothing depends on the output. Start them the day a change can break something a user relies on.",
+    "Twenty real cases you run on every change beat a thousand you never run. Grow the set from production failures.",
+    "Grade with code where you can and with a model where you must. A model grader needs its own spot-checks against human labels.",
+  ],
+  faq: [
+    {
+      question: "When do you not need LLM evals?",
+      answer:
+        "For a throwaway prototype, a one-off script whose output a person reviews in full, an internal tool where every answer is checked by a human anyway, or the first days of exploring whether a model can do the task at all. Once a change can silently break something users rely on, you need them.",
+    },
+    {
+      question: "How do I know I need evals?",
+      answer:
+        "When you are about to change a prompt, model or retrieval setup and cannot say whether the result got better or worse; when users report regressions you did not catch; or when you want to switch to a cheaper model and need evidence it holds up.",
+    },
+    {
+      question: "How many examples does an LLM eval set need?",
+      answer:
+        "Start with 20 to 50 real cases that cover the failures you care about most. A small set that runs on every change is worth more than a large one that runs rarely. Grow it by adding each production failure as a new case.",
+    },
+    {
+      question: "Are evals the same as unit tests?",
+      answer:
+        "They play the same role, but LLM output is not deterministic, so evals score a set of outputs rather than asserting one exact answer. Use exact checks for structure and facts, and a model grader or human review for qualities such as tone and helpfulness.",
+    },
+  ],
+};
+
+The short answer: you do not need evals while nothing depends on the output:
+a prototype you will throw away, a one-off script whose results you read in
+full, or the first days of testing whether a model can do the task at all.
+You need them the moment a change to a prompt, model or retrieval step could
+silently break something a user relies on. The first set can be twenty cases.
+
+## Evals have a cost, so skipping them can be right
+
+An eval set takes time to collect and label, a grader takes time to build and
+check, and running it costs tokens. For work whose output a person already
+reviews line by line, that cost buys nothing the reviewer does not already
+provide.
+
+So it is reasonable to skip them when:
+
+- **It is a prototype** that answers "can a model do this at all?" and will be
+  rewritten if the answer is yes.
+- **A human checks every output** before anyone acts on it, and the volume is
+  small enough that they really do.
+- **It runs once.** A migration script that rewrites a thousand descriptions,
+  spot-checked and then deleted, does not need a regression suite.
+
+Note what all three have in common: there is no *next change* for an eval to
+protect against.
+
+## The signals that you can no longer skip them
+
+**You are about to change something and cannot say if it helped.** Rewording
+a prompt, upgrading a model, changing the chunk size. Without a fixed set of
+inputs to compare on, "it seems better" is the whole measurement, and it is
+usually measured on the three examples the author had in mind.
+
+**Users found a regression you did not.** That failure is your first eval
+case. Every production failure that reaches a user and is not added to a set
+will be reintroduced by some later change.
+
+**You want to use a cheaper model.** Routing to a smaller model without an
+eval set trades a cost you can see for a quality loss you cannot. A cheaper
+model that fails your eval set is not cheaper.
+
+**More than one person changes prompts.** Two engineers improving the same
+prompt for different cases will undo each other's work unless something
+holds both cases still.
+
+## The smallest set that works
+
+1. **Collect 20 to 50 real inputs**, not invented ones, weighted towards the
+   failures that would hurt most.
+2. **Write down what a good output must contain** for each: a fact, a field, a
+   refusal, a format. That is your [golden set](/glossary/golden-set).
+3. **Grade with code first.** Exact matches, schema checks and keyword checks
+   are cheap and stable. Use an [LLM-as-judge](/glossary/llm-as-judge) only
+   for what code cannot check, and compare its scores against your own labels
+   on a sample before trusting it.
+4. **Run it on every change** to prompt, model or retrieval, ideally as an
+   [eval gate](/glossary/eval-gate) in CI.
+5. **Add every production failure** as a new case. The set grows to fit the
+   product without anyone planning it.
+
+## Where evals and observability meet
+
+Evals tell you whether a change is safe before release. Traces tell you what
+happened to real requests after it. The traces are where the next eval cases
+come from, which is why the two belong together rather than in separate
+tools that never share data. [Observability is not
+logging](/blog/observability-is-not-logging) covers the tracing half, and the
+[LLM observability comparison](/compare/llm-observability) lists the tools
+that do both, with when to skip each.
+
+The longer argument for why the set, not the tool, is what you are building
+is in [Evals are the asset](/blog/evals-are-the-asset).

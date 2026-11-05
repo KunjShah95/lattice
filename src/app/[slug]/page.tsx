@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { CategorySection } from "@/components/category-section";
 import { categories, getCategory, getSecondHomeTools } from "@/lib/data";
 import { layerStyle } from "@/lib/layer";
+import { categoryGuidance } from "@/lib/guidance";
+import { PageGuidance } from "@/components/page-guidance";
 import { TrackLink } from "@/components/track-link";
 import { Byline } from "@/components/byline";
 import { AS_OF } from "@/lib/attributes";
 import { toJsonLd } from "@/lib/jsonld";
-import { absolute, breadcrumbNode, credit, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, credit, faqPageJsonLd, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -51,6 +53,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const next = position < categories.length - 1 ? categories[position + 1] : null;
 
   const pageUrl = `${site.url}/${category.slug}`;
+  const guidance = categoryGuidance(category.slug);
 
   return (
     <div className="page-shell pt-14 sm:pt-20">
@@ -90,6 +93,11 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                 { name: site.name, path: "" },
                 { name: category.title, path: `/${category.slug}` },
               ]),
+              // Mirrors the visible Quick answers below, so an answer engine
+              // can lift each one with its question attached.
+              guidance.answers.length
+                ? faqPageJsonLd(guidance.answers, pageUrl)
+                : undefined,
             ),
           ),
         }}
@@ -160,6 +168,15 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           </ul>
         </section>
       ) : null}
+
+      {/* Rules of thumb and quick answers for the decision this section owns. */}
+      <div className="pb-16">
+        <PageGuidance url={pageUrl}
+          rules={guidance.rules}
+          answers={guidance.answers}
+          markerStyle={layerStyle(category.layer)}
+        />
+      </div>
 
       {/* Prev / next */}
       <nav

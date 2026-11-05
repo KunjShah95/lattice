@@ -9,6 +9,8 @@ import {
   indexCrumbs,
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Tools by engineering role",
@@ -46,6 +48,7 @@ export default function RolesIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.roles.answers,
               name: "Tools by role",
               description: metadata.description as string,
               listId: "roles",
@@ -140,6 +143,7 @@ export default function RolesIndexPage() {
         </Link>{" "}
         for how the index decides anything at all.
       </p>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.roles.rules} answers={PAGE_GUIDANCE.roles.answers} />
     </div>
   );
 }

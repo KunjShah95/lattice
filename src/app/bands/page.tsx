@@ -5,6 +5,8 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "The three bands of the stack",
@@ -55,6 +57,7 @@ export default function BandsIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.bands.answers,
               name,
               description: metadata.description as string,
               listId: "bands",
@@ -167,6 +170,7 @@ export default function BandsIndexPage() {
         </Link>{" "}
         says where else this index is wrong.
       </p>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.bands.rules} answers={PAGE_GUIDANCE.bands.answers} />
     </div>
   );
 }

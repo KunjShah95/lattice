@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { CategorySection } from "@/components/category-section";
+import { AskAi } from "@/components/ask-ai";
+import { QuickAnswers, RulesOfThumb } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
-import { graph, siteJsonLd } from "@/lib/seo";
+import { faqPageJsonLd, graph, siteJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { bandColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
@@ -65,7 +68,7 @@ export default function HomePage() {
           rather than restating them. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd())) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd(), faqPageJsonLd(PAGE_GUIDANCE.home.answers, site.url))) }}
       />
 
       {/* Hero. One idea, one action, one picture. Everything that used to
@@ -317,6 +320,17 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* Rules of thumb and quick answers: the house voice, stated once on
+          the front page and repeated in context on every page below it. */}
+      <section className="section border-t border-border">
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
+          <RulesOfThumb rules={PAGE_GUIDANCE.home.rules} className="" />
+          <QuickAnswers answers={PAGE_GUIDANCE.home.answers} className="" />
+        </div>
+      </section>
+
+      <AskAi url={site.url} className="section border-t border-border" />
     </div>
   );
 }

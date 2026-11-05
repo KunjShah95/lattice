@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPageLayout, InfoSection } from "@/components/info-page";
 import { site } from "@/lib/site";
-import { absolute, breadcrumbNode, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, graph, ids, faqPageJsonLd } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "Start here: your first working RAG app",
@@ -70,6 +72,7 @@ export default function StartPage() {
         isPartOf: { "@id": ids.website },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
       },
+      faqPageJsonLd(PAGE_GUIDANCE.start.answers, pageUrl),
       breadcrumbNode(pageUrl, [
         { name: site.name, path: "" },
         { name: "Start here", path: "/start" },
@@ -136,6 +139,7 @@ export default function StartPage() {
             </Link>
           </p>
         </InfoSection>
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.start.rules} answers={PAGE_GUIDANCE.start.answers} />
       </InfoPageLayout>
     </>
   );

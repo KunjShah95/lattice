@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AskAi } from "@/components/ask-ai";
 import { notFound } from "next/navigation";
 import { BANDS, bandOf, layerStyle } from "@/lib/layer";
 import {
@@ -337,6 +338,8 @@ export default async function ComparisonPage({
           ))}
         </dl>
       </section>
+
+      <AskAi url={pageUrl} />
 
       {/* Backlinks */}
       {relatedPosts.length ? (

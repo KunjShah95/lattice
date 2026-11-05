@@ -8,6 +8,8 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
 import type { Role } from "@/lib/types";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 /**
  * One page per specialisation, listing the tools that role owns.
@@ -299,6 +301,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </Link>
         .
       </p>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.role.rules} answers={PAGE_GUIDANCE.role.answers} />
     </div>
   );
 }

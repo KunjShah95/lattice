@@ -16,6 +16,17 @@ export type PostMeta = {
   sections: string[];
   /** Slugs of related posts, for the footer links. */
   related: string[];
+  /**
+   * The search queries this essay is written to answer, in the words people
+   * type into a search box or ask an assistant. Emitted as Article keywords;
+   * the first should also appear in `citation-queries.mjs`, so whether it is
+   * cited gets measured.
+   */
+  keywords?: string[];
+  /** The essay's own rules of thumb, shown under it. Defaults to the house set. */
+  rules?: string[];
+  /** Questions the essay answers, shown as Quick answers and as FAQPage JSON-LD. */
+  faq?: Array<{ question: string; answer: string }>;
 };
 
 export type Post = {
@@ -35,6 +46,10 @@ import Ctor8, { meta as m8 } from "@/content/blog/context-is-a-budget.mdx";
 import Ctor9, { meta as m9 } from "@/content/blog/the-cost-model.mdx";
 import Ctor10, { meta as m10 } from "@/content/blog/choosing-a-model.mdx";
 import Ctor11, { meta as m11 } from "@/content/blog/observability-is-not-logging.mdx";
+import Ctor12, { meta as m12 } from "@/content/blog/when-not-to-use-a-vector-database.mdx";
+import Ctor13, { meta as m13 } from "@/content/blog/do-you-need-an-ai-gateway.mdx";
+import Ctor14, { meta as m14 } from "@/content/blog/when-not-to-use-an-agent-framework.mdx";
+import Ctor15, { meta as m15 } from "@/content/blog/when-you-do-not-need-evals.mdx";
 
 /**
  * Every essay is registered here. MDX cannot be glob-imported at build time
@@ -53,6 +68,10 @@ const registry: Array<[PostMeta, ComponentType<Record<string, unknown>>]> = [
   [m9, Ctor9],
   [m10, Ctor10],
   [m11, Ctor11],
+  [m12, Ctor12],
+  [m13, Ctor13],
+  [m14, Ctor14],
+  [m15, Ctor15],
 ];
 
 export const posts: Post[] = registry

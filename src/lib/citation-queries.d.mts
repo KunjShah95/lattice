@@ -39,5 +39,6 @@ export type CitationQuery = {
 export const CLAIMS: Record<Claim, ClaimMeta>;
 export const CITATION_QUERIES: CitationQuery[];
 export const SKIP_WHEN_QUERIES: CitationQuery[];
+export const KEYWORD_QUERIES: CitationQuery[];
 export const ALL_QUERIES: CitationQuery[];
 export const CLAIM_IDS: string[];

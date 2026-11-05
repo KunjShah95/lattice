@@ -10,8 +10,10 @@ import { glossary } from "@/lib/glossary";
 import { CoverageBars } from "@/components/ui/coverage-bars";
 import { extremeLayers, joinNames, layerCoverage } from "@/lib/coverage";
 import { site } from "@/lib/site";
-import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
+import { absolute, breadcrumbNode, datasetModified, graph, ids, faqPageJsonLd } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 /**
  * /methodology — what this index claims, how it is checked, and what it
@@ -89,6 +91,7 @@ export default function MethodologyPage() {
                 about: { "@id": ids.organization },
                 breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
               },
+              faqPageJsonLd(PAGE_GUIDANCE.methodology.answers, pageUrl),
               breadcrumbNode(pageUrl, [
                 { name: site.name, path: "" },
                 { name: "Methodology", path: "/methodology" },
@@ -409,6 +412,7 @@ export default function MethodologyPage() {
         , and each tool page states its licence, cost, deployment and the
         date those facts were last confirmed.
       </p>
+      <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.methodology.rules} answers={PAGE_GUIDANCE.methodology.answers} />
     </div>
   );
 }

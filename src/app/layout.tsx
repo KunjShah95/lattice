@@ -96,7 +96,30 @@ export const metadata: Metadata = {
     siteName: site.name,
   },
   robots: { index: true, follow: true },
+  verification: siteVerification(),
 };
+
+/**
+ * Search-engine ownership tags, set from the environment so a code rotation
+ * is a dashboard change rather than a commit.
+ *
+ * Bing matters more than its search share suggests: its index is what
+ * ChatGPT search and Copilot retrieve from, so a site Bing has not verified
+ * and crawled is a site ChatGPT rarely cites. Google is already verified by
+ * the HTML file in `public/`; the meta tag is a second route if that file is
+ * ever removed. Unset variables emit nothing.
+ */
+function siteVerification(): Metadata["verification"] {
+  const bing = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim();
+  const google = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+  const yandex = process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION?.trim();
+  if (!bing && !google && !yandex) return undefined;
+  return {
+    ...(google ? { google } : {}),
+    ...(yandex ? { yandex } : {}),
+    ...(bing ? { other: { "msvalidate.01": bing } } : {}),
+  };
+}
 
 /**
  * Explicit viewport.

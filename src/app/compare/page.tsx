@@ -5,6 +5,8 @@ import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons"
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export const metadata: Metadata = {
   title: "AI tool comparisons",
@@ -36,6 +38,7 @@ export default function CompareIndexPage() {
           __html: toJsonLd(
             collectionPageNodes({
               pageUrl,
+              faq: PAGE_GUIDANCE.compareIndex.answers,
               name,
               description: metadata.description as string,
               listId: "comparisons",
@@ -87,6 +90,9 @@ export default function CompareIndexPage() {
         dek="Tools that do the same job. Pick one."
         items={substitutes}
       />
+      <div className="pb-16">
+        <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.compareIndex.rules} answers={PAGE_GUIDANCE.compareIndex.answers} />
+      </div>
     </div>
   );
 }

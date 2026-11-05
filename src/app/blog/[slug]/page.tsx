@@ -9,7 +9,9 @@ import { getPost, posts, relatedPosts } from "@/lib/posts";
 import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
-import { authorNode, breadcrumbNode, bylineName, graph, ids } from "@/lib/seo";
+import { authorNode, breadcrumbNode, bylineName, faqPageJsonLd, graph, ids } from "@/lib/seo";
+import { PageGuidance } from "@/components/page-guidance";
+import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.meta.slug }));
@@ -204,6 +206,10 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </ul>
         </nav>
       ) : null}
+      <PageGuidance url={`${site.url}/blog/${meta.slug}`}
+        rules={meta.rules ?? PAGE_GUIDANCE.blogPost.rules}
+        answers={meta.faq ?? PAGE_GUIDANCE.blogPost.answers}
+      />
     </div>
   );
 }
@@ -222,10 +228,11 @@ function postJsonLd(meta: import("@/lib/posts").PostMeta) {
       publisher: { "@id": ids.organization },
       isPartOf: { "@id": ids.website },
       mainEntityOfPage: { "@id": pageUrl },
-      keywords: meta.sections
-        .map((s) => getCategory(s)?.title)
-        .filter(Boolean)
-        .join(", "),
+      // The queries the essay answers first, then the sections it covers.
+      keywords: [
+        ...(meta.keywords ?? []),
+        ...meta.sections.map((s) => getCategory(s)?.title).filter(Boolean),
+      ].join(", "),
     },
     {
       "@type": "WebPage",
@@ -239,5 +246,7 @@ function postJsonLd(meta: import("@/lib/posts").PostMeta) {
       { name: "Essays", path: "/blog" },
       { name: meta.title, path: `/blog/${meta.slug}` },
     ]),
+    // Mirrors the Quick answers rendered under the essay.
+    meta.faq?.length ? faqPageJsonLd(meta.faq, pageUrl) : undefined,
   );
 }
