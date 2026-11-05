@@ -9,6 +9,11 @@ import type { ElementType, ReactNode } from "react";
  * the label voice is one edit, and the choice between `h2` and `p` is made in
  * the open at the call site rather than inherited from whichever copy was pasted.
  *
+ * The floor is 12px. `xs` was 10px, which is below the size at which uppercase
+ * mono is comfortably readable on a laptop and well below it on a phone; the
+ * difference between the two sizes is now 0.5px and a tracking step, not a
+ * legibility step.
+ *
  * `as` is required in spirit: a label that names a section of the page is a
  * heading and should be an `h2`; one that is a caption on a number is a `p` or
  * `span`. The default is `p` because a wrong heading is an accessibility bug and
@@ -22,7 +27,7 @@ export function Eyebrow({
   children,
 }: {
   as?: ElementType;
-  /** `xs` is 10px with wider tracking, for labels inside a dense box. */
+  /** `xs` is the label inside a dense box; `sm` heads a page section. */
   size?: "xs" | "sm";
   /** `strong` is full ink: the active half of a pair, not a louder label. */
   tone?: "subtle" | "strong";
@@ -30,8 +35,10 @@ export function Eyebrow({
   children: ReactNode;
 }) {
   const scale =
-    size === "xs" ? "text-[10px] tracking-[0.14em]" : "text-[11px] tracking-[0.14em]";
-  const colour = tone === "strong" ? "text-fg" : "text-fg-subtle";
+    size === "xs"
+      ? "text-[12px] tracking-[0.08em]"
+      : "text-[13px] tracking-[0.08em]";
+  const colour = tone === "strong" ? "text-fg" : "text-fg-muted";
   return (
     <Tag className={`font-mono uppercase ${scale} ${colour} ${className}`.trim()}>
       {children}

@@ -82,7 +82,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
   const multiRole = tools.filter((t) => t.roles.length > 1);
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -122,7 +122,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
       />
 
       <header>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -139,41 +139,51 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </nav>
 
         <div className="mt-6">
-          <h1 className="text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+          <h1 className="t-h1">
             {meta.title}
           </h1>
-          <p className="editorial-justify mt-3 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg">
+          <p className="editorial-justify mt-3 max-w-[56ch] text-pretty text-[17px] leading-relaxed text-fg">
             {meta.owns}
           </p>
-          <p className="mt-2 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+          <p className="mt-2 text-pretty text-[15.5px] leading-relaxed text-fg-muted">
             The question this role arrives with:{" "}
             <em className="text-fg-muted not-italic">“{meta.question}”</em>
           </p>
-          <p className="mt-4 font-mono text-[11.5px] text-fg-subtle">
-            {tools.length} tools · {groups.length} sections
-            {multiRole.length
-              ? ` · ${multiRole.length} also owned by another role`
-              : ""}
-          </p>
+          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-4">
+            <div>
+              <dt className="t-label">Tools</dt>
+              <dd className="mt-1 font-mono text-[22px] leading-none tabular-nums">{tools.length}</dd>
+            </div>
+            <div>
+              <dt className="t-label">Sections</dt>
+              <dd className="mt-1 font-mono text-[22px] leading-none tabular-nums">{groups.length}</dd>
+            </div>
+            {multiRole.length ? (
+              <div>
+                <dt className="t-label">Shared with</dt>
+                <dd className="mt-1 font-mono text-[22px] leading-none tabular-nums">{multiRole.length}</dd>
+              </div>
+            ) : null}
+          </dl>
         </div>
       </header>
 
       {groups.map(([sectionSlug, sectionTools]) => {
         const section = sectionTools[0].category;
         return (
-          <section key={sectionSlug} className="mt-12 border-t border-border pt-8">
+          <section key={sectionSlug} className="mt-16 border-t border-border pt-10">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+              <h2 className="inline-flex items-center gap-2.5 t-h4">
                 <span
                   aria-hidden="true"
-                  className="h-2.5 w-[3px] rounded-full"
+                  className="h-4 w-[3px] rounded-full"
                   style={layerStyle(section.layer)}
                 />
                 {section.title}
               </h2>
               <Link
                 href={`/${section.slug}`}
-                className="font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                className="font-mono text-[13px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
               >
                 all {section.tools.length} →
               </Link>
@@ -184,26 +194,26 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
                 <li key={`${sectionSlug}-${tool.slug}`}>
                   <Link
                     href={`/${sectionSlug}/${tool.slug}`}
-                    className="group -mx-2 block rounded-md px-2 py-3.5 transition-colors hover:bg-bg-sunken"
+                    className="group -mx-2 block rounded-[var(--r-control)] px-2 py-3.5 transition-colors hover:bg-bg-sunken"
                   >
                     <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                      <span className="text-[15px] font-medium group-hover:text-accent">
+                      <span className="text-[16px] font-medium group-hover:text-accent">
                         {tool.name}
                       </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                      <span className="inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted">
                         {tool.kind}
                       </span>
                       {tool.license ? (
-                        <span className="font-mono text-[10px] text-fg-subtle">
+                        <span className="inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 text-[12.5px] text-fg-muted">
                           {tool.license}
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+                    <p className="mt-1 text-pretty text-[15px] leading-relaxed text-fg-muted">
                       <span className="text-fg-muted">Use when</span>{" "}
                       {tool.useWhen}
                     </p>
-                    <p className="mt-0.5 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+                    <p className="mt-0.5 text-pretty text-[15px] leading-relaxed text-fg-subtle">
                       <span className="text-fg-muted">Skip when</span>{" "}
                       {tool.skipWhen}
                     </p>
@@ -218,11 +228,11 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
       {/* Cross-role tools: the rows worth surfacing twice, because they are the
           ones where two jobs disagree about who owns the decision. */}
       {multiRole.length ? (
-        <section className="mt-12 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">
             Shared with another role
           </h2>
-          <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             These are part of what you own and part of what someone else owns.
             That overlap is where the interesting arguments happen — who decides
             the eval threshold, who carries the pager.
@@ -235,7 +245,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
                 <li key={`${tool.category.slug}-${tool.slug}`}>
                   <Link
                     href={`/${tool.category.slug}/${tool.slug}`}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                    className="inline-flex items-center gap-1.5 rounded-[var(--r-control)] border border-border px-2.5 py-1.5 text-[14.5px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
                   >
                     <span
                       aria-hidden="true"
@@ -244,7 +254,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
                     />
                     {tool.name}
                     {otherMeta ? (
-                      <span className="font-mono text-[10px] text-fg-subtle">
+                      <span className="font-mono text-[12.5px] text-fg-subtle">
                         / {otherMeta.short}
                       </span>
                     ) : null}
@@ -257,8 +267,8 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
       ) : null}
 
       {/* Sibling roles, so no page is a dead end. */}
-      <nav aria-label="Other roles" className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
+      <nav aria-label="Other roles" className="mt-16 border-t border-border pt-10">
+        <h2 className="font-mono text-[13px] uppercase tracking-[0.12em] text-fg-subtle">
           Other roles
         </h2>
         <ul className="mt-4 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -266,10 +276,10 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
             <li key={r.id}>
               <Link
                 href={`/roles/${r.id}`}
-                className="flex items-baseline gap-2 rounded-md px-2 py-1.5 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+                className="flex items-baseline gap-2 rounded-[var(--r-control)] px-2 py-1.5 text-[14.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
               >
                 {r.title}
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {toolsByRole(r.id).length}
                 </span>
               </Link>
@@ -278,7 +288,7 @@ export default async function RolePage({ params }: PageProps<"/roles/[role]">) {
         </ul>
       </nav>
 
-      <p className="mt-10 text-pretty text-[13px] leading-relaxed text-fg-subtle">
+      <p className="mt-10 text-pretty text-[14.5px] leading-relaxed text-fg-subtle">
         Roles overlap on purpose, so these counts do not sum to the index. All{" "}
         {ROLE_IDS.length} specialisations are listed in{" "}
         <Link

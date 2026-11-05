@@ -114,7 +114,7 @@ export default async function AlternativesPage({
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -151,7 +151,7 @@ export default async function AlternativesPage({
       />
 
       <header>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -186,13 +186,20 @@ export default async function AlternativesPage({
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-serif text-[30px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[38px]">
+            <h1 className="t-h1">
               {entry.name} alternatives
             </h1>
-            <p className="mt-2 font-mono text-[12px] text-fg-subtle">
-              {subs.length} substitutes · {inLayer.length} in{" "}
-              {category.short.toLowerCase()} · {adjacent.length} adjacent
-            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              <span className="chip min-h-8">
+                <span className="font-mono tabular-nums">{subs.length}</span> substitutes
+              </span>
+              <span className="chip min-h-8">
+                <span className="font-mono tabular-nums">{inLayer.length}</span> in {category.short.toLowerCase()}
+              </span>
+              <span className="chip min-h-8">
+                <span className="font-mono tabular-nums">{adjacent.length}</span> adjacent
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -201,7 +208,7 @@ export default async function AlternativesPage({
           question answered — a reader who only reads this paragraph should
           still have something usable. */}
       <section className="mt-8 border-t border-border pt-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <p className="t-label">
           The short answer
         </p>
         <p className="editorial-justify mt-2.5 max-w-[64ch] text-pretty text-[15.5px] leading-relaxed text-fg">
@@ -216,15 +223,15 @@ export default async function AlternativesPage({
       {/* A real comparison beats this page. */}
       {inComparisons.length ? (
         <section className="mt-10">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <h2 className="t-h4">
             Better than this page
-          </p>
+          </h2>
           <ul className="mt-3 space-y-px">
             {inComparisons.map((c) => (
               <li key={c.slug}>
                 <Link
                   href={`/compare/${c.slug}`}
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
                     aria-hidden="true"
@@ -232,10 +239,10 @@ export default async function AlternativesPage({
                     style={layerStyle(category.layer)}
                   />
                   <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
+                    <span className="block text-[16px] font-medium group-hover:text-accent">
                       {c.title}
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {c.description}
                     </span>
                   </span>
@@ -249,14 +256,11 @@ export default async function AlternativesPage({
       {/* In-layer substitutes. These are the real answer. */}
       {inLayer.length ? (
         <section className="mt-12 border-t border-border pt-7">
-          <div className="flex items-baseline gap-3">
-            <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
-              {inLayer.length}
-            </span>
-            <h2 className="font-serif text-[20px] font-medium tracking-[-0.015em]">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="t-h3">
               Real substitutes
             </h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+            <span className="t-label">
               in {category.title}
             </span>
           </div>
@@ -273,25 +277,29 @@ export default async function AlternativesPage({
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/${s.category.slug}/${s.tool.slug}`}
-                      className="text-[15px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
+                      className="text-[17px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
                     >
                       {s.tool.name}
                     </Link>
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                    <span className="ml-2 inline-flex items-center gap-1.5 rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted">
                       {s.tool.kind}
-                      {s.tool.license ? ` · ${s.tool.license}` : ""}
                     </span>
-                    <p className="mt-1 text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    {s.tool.license ? (
+                      <span className="ml-1.5 inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 text-[12.5px] text-fg-muted">
+                        {s.tool.license}
+                      </span>
+                    ) : null}
+                    <p className="mt-1.5 text-pretty text-[15px] leading-relaxed text-fg-muted">
                       {s.tool.blurb}
                     </p>
                     {/* Both halves. A substitutes page that only carries the
                         positive half is a vendor page with better manners. */}
-                    <p className="mt-1.5 text-pretty text-[12.5px] leading-relaxed text-fg-muted">
-                      <span className="text-fg-subtle">Use when</span>{" "}
+                    <p className="mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">
+                      <span className="font-medium text-fg">Use when</span>{" "}
                       {s.tool.useWhen}
                     </p>
-                    <p className="mt-1 text-pretty text-[12.5px] leading-relaxed text-fg-subtle">
-                      <span className="text-fg-muted">Skip when</span>{" "}
+                    <p className="mt-1 text-pretty text-[14px] leading-relaxed text-fg-muted">
+                      <span className="font-medium text-fg-muted">Skip when</span>{" "}
                       {s.tool.skipWhen}
                     </p>
                   </div>
@@ -307,15 +315,15 @@ export default async function AlternativesPage({
           be the single most misleading thing this page could do. */}
       {adjacent.length ? (
         <section className="mt-12 border-t border-border pt-7">
-          <div className="flex items-baseline gap-3">
-            <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
-              {adjacent.length}
-            </span>
-            <h2 className="font-serif text-[20px] font-medium tracking-[-0.015em]">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="t-h3">
               Adjacent, not substitutes
             </h2>
+            <span className="t-label">
+              <span className="font-mono tabular-nums">{adjacent.length}</span> adjacent
+            </span>
           </div>
-          <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             These appear in the same graph but sit in a different layer. They solve a
             neighbouring problem, not this one — including them in a shortlist is the
             most common mistake made when migrating off {entry.name}.
@@ -333,14 +341,14 @@ export default async function AlternativesPage({
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/${s.category.slug}/${s.tool.slug}`}
-                      className="text-[14.5px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
+                      className="text-[16.5px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:decoration-border-strong"
                     >
                       {s.tool.name}
                     </Link>
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                    <span className="ml-2 inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 text-[12.5px] text-fg-muted">
                       {s.category.title}
                     </span>
-                    <p className="mt-1 text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <p className="mt-1.5 line-clamp-2 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {s.tool.blurb}
                     </p>
                   </div>
@@ -351,7 +359,7 @@ export default async function AlternativesPage({
         </section>
       ) : null}
 
-      <p className="editorial-justify mt-12 border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
+      <p className="mt-12 border-t border-border pt-6 text-[14px] leading-relaxed text-fg-muted">
         This graph is bidirectional and unsponsored. A tool appears here if{" "}
         {entry.name} or another entry names it as a substitute, and{" "}
         {listNames(subs.map((s) => s.tool.name))} point at {entry.name} as well.

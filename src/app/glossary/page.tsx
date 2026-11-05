@@ -23,7 +23,7 @@ export default function GlossaryIndexPage() {
   const name = "Glossary";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* Every term as an ItemList, described by its definition. Each term page
           declares DefinedTerm + WebPage, but nothing connected them into a
           vocabulary — so the set was only visible as 40 rendered links. A
@@ -50,13 +50,13 @@ export default function GlossaryIndexPage() {
       />
 
       <header className="mb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <p className="t-label">
           {glossary.length} terms
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 t-h1">
           The words, defined once.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Short enough to answer a question, opinionated enough to be useful.
           Each entry says what the term{" "}
           <em className="text-fg not-italic">implies for a decision</em>, not just

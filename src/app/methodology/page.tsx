@@ -65,7 +65,7 @@ export default function MethodologyPage() {
   const pageUrl = `${site.url}/methodology`;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* A WebPage, not a CollectionPage: this page is *about* the index and
           lists nothing, so declaring a mainEntity it does not have would be the
           kind of small false claim the index is arguing against.
@@ -187,7 +187,7 @@ export default function MethodologyPage() {
                 className="mt-1.5 h-3 w-[3px] shrink-0 rounded-full"
                 style={{ backgroundColor: `var(--band-${band.id})` }}
               />
-              <span className="min-w-0 text-[13.5px] leading-relaxed text-fg-muted">
+              <span className="min-w-0 text-[15px] leading-relaxed text-fg-muted">
                 <strong className="font-medium text-fg">
                   Band {band.roman} · {band.title}
                 </strong>{" "}
@@ -352,11 +352,11 @@ export default function MethodologyPage() {
             the order of the layers is the argument and a chart that re-ranked
             them would be the one place this index ranks something. */}
         <figure className="mt-8">
-          <figcaption className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <figcaption className="t-label">
             Entries per layer, in stack order
           </figcaption>
           <CoverageBars rows={coverage} className="mt-4" />
-          <p className="mt-3 text-[12.5px] leading-relaxed text-fg-subtle">
+          <p className="mt-3 text-[13.5px] leading-relaxed text-fg-subtle">
             A count of entries, not a measure of quality. Off-stack reading
             material is excluded.
           </p>
@@ -393,7 +393,7 @@ export default function MethodologyPage() {
         </p>
       </Section>
 
-      <p className="mt-14 border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
+      <p className="mt-14 border-t border-border pt-6 text-[13.5px] leading-relaxed text-fg-subtle">
         The full dataset as plain text is at{" "}
         <Link href="/llms.txt" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
           /llms.txt
@@ -425,10 +425,10 @@ function Section({
   return (
     <section className="mt-12 border-t border-border pt-7">
       <div className="flex items-baseline gap-3">
-        <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
+        <span className="font-mono text-[13px] tabular-nums text-fg-subtle">
           {n}
         </span>
-        <h2 className="font-serif text-[22px] font-medium leading-snug tracking-[-0.015em]">
+        <h2 className="t-h3">
           {title}
         </h2>
       </div>
@@ -446,8 +446,8 @@ function Limitation({
 }) {
   return (
     <li className="border-l-2 border-border-strong pl-4">
-      <strong className="block text-[14.5px] font-medium text-fg">{title}</strong>
-      <p className="editorial-justify mt-1 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+      <strong className="block text-[15.5px] font-medium text-fg">{title}</strong>
+      <p className="editorial-justify mt-1 text-pretty text-[15px] leading-relaxed text-fg-muted">
         {children}
       </p>
     </li>

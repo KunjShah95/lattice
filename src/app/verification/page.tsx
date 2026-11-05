@@ -77,7 +77,7 @@ export default function VerificationPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -100,7 +100,7 @@ export default function VerificationPage() {
       />
 
       <header>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -113,10 +113,10 @@ export default function VerificationPage() {
         </nav>
 
         <Eyebrow className="mt-6 tracking-[0.16em]">Build gate · receipt</Eyebrow>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 t-h1">
           The build refuses stale facts.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Licence, cost and deployment data last confirmed more than{" "}
           {STALE_AFTER_MONTHS} months ago throws an error and stops the deploy. Not
           a warning, not a review task. A deployed copy of this page is therefore a
@@ -132,15 +132,15 @@ export default function VerificationPage() {
         <Byline fact="Build gate last ran" date={report.generatedAt} />
       </header>
 
-      <dl className="mt-8 grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-3">
+      <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--r-card)] border border-border bg-border sm:grid-cols-3">
         {summary.map(([label, value]) => (
-          <div key={label} className="bg-bg-elevated p-3.5">
+          <div key={label} className="bg-bg-elevated p-4">
             <dt>
               <Eyebrow as="span" size="xs">
                 {label}
               </Eyebrow>
             </dt>
-            <dd className="mt-1.5 font-serif text-[20px] leading-tight tracking-[-0.01em]">
+            <dd className="mt-2 font-mono text-[24px] leading-none tabular-nums tracking-[-0.02em]">
               {value}
             </dd>
           </div>
@@ -148,8 +148,8 @@ export default function VerificationPage() {
       </dl>
 
       <section className="mt-12">
-        <Eyebrow as="h2">Soonest to expire first</Eyebrow>
-        <p className="editorial-justify mt-3 max-w-[60ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+        <h2 className="t-h4">Soonest to expire first</h2>
+        <p className="editorial-justify mt-3 max-w-[60ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Each cell is one month the build still accepts the entry; the meter drains
           as it ages. An entry is refused the month after its last full cell.
         </p>
@@ -161,15 +161,15 @@ export default function VerificationPage() {
             return (
               <li key={g.asOf} className="border-t border-border pt-5">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <h3 className="font-serif text-[20px] font-medium tracking-[-0.01em]">
+                  <h3 className="font-serif text-[21px] font-medium tracking-[-0.01em]">
                     Checked <time dateTime={g.asOf}>{g.asOf}</time>
                   </h3>
                   <FreshnessMeter freshness={f} />
-                  <span className="font-mono text-[11px] text-fg-subtle">
+                  <span className="font-mono text-[13px] text-fg-subtle">
                     refused from {g.expires}
                   </span>
                 </div>
-                <p className="mt-1.5 font-mono text-[11px] text-fg-subtle">
+                <p className="mt-1.5 font-mono text-[13px] text-fg-subtle">
                   {g.entries.length} {g.entries.length === 1 ? "entry" : "entries"}
                   {" · "}
                   {own === 0
@@ -196,9 +196,9 @@ export default function VerificationPage() {
         </ol>
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <Eyebrow as="h2">How to read this</Eyebrow>
-        <ul className="mt-4 space-y-3 text-pretty text-[14px] leading-relaxed text-fg-muted">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">How to read this</h2>
+        <ul className="mt-4 space-y-3 text-pretty text-[15px] leading-relaxed text-fg-muted">
           <li className="editorial-justify">
             <span className="text-fg">It proves someone looked, not that they saw
             correctly.</span>{" "}

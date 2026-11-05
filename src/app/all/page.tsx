@@ -26,7 +26,7 @@ export default function AllToolsPage() {
   const name = "All AI infrastructure tools";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* Every tool in the index, as an ItemList. This is the one page that
           lists all 112 and the only parent of every tool page, so without it the
           complete set is described nowhere in structured data — a crawler sees
@@ -52,17 +52,12 @@ export default function AllToolsPage() {
         }}
       />
 
-      <header className="mb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-          {toolCount} tools · {selfHostedCount} self-hosted · {permissive} permissively
-          licensed
-        </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
-          Every AI infrastructure tool, filterable.
-        </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-          The whole index in one list. Use it when you know what you are
-          looking for; use the{" "}
+      <header className="pb-8 pt-14 sm:pt-20">
+        <p className="t-label">The whole index</p>
+        <h1 className="t-h1 mt-3">Every tool, filterable.</h1>
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
+          The whole index in one list. Use it when you know what you are looking
+          for; use the{" "}
           <Link
             href="/"
             className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
@@ -71,6 +66,27 @@ export default function AllToolsPage() {
           </Link>{" "}
           when you do not.
         </p>
+
+        {/* Three figures, set as figures rather than as a sentence. The old
+            header ran them together in one mono line, which made the only
+            quantitative claim on the page read as a caption. */}
+        <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-y border-border py-4">
+          {[
+            { n: toolCount, label: "tools" },
+            { n: selfHostedCount, label: "self-hosted" },
+            { n: permissive, label: "permissively licensed" },
+          ].map((s) => (
+            <div key={s.label}>
+              <dt className="sr-only">{s.label}</dt>
+              <dd className="font-mono text-[28px] leading-none tracking-[-0.02em] tabular-nums">
+                {s.n}
+              </dd>
+              <dd className="mt-1.5 font-mono text-[12px] uppercase tracking-[0.08em] text-fg-subtle">
+                {s.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </header>
 
       <ToolExplorer tools={allToolEntries} />

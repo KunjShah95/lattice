@@ -52,15 +52,17 @@ export default function SubmissionsPage() {
           ) : (
             <ul className="space-y-3">
               {submissionLog.map((entry) => (
-                <li key={entry.pr} className="border border-border bg-bg-elevated p-3">
+                <li key={entry.pr} className="card p-4 not-prose">
                   <Link
                     href={`/${entry.section}/${entry.tool}`}
-                    className="font-medium hover:text-accent"
+                    className="text-[17px] font-medium hover:text-accent"
                   >
                     {entry.tool}
                   </Link>
-                  <span className="text-fg-muted"> · {entry.section}</span>
-                  <p className="mt-1 text-[13px] text-fg-muted">
+                  <span className="ml-2 inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] text-fg-muted">
+                    {entry.section}
+                  </span>
+                  <p className="mt-2 text-[14px] text-fg-muted">
                     Contributed by {entry.submitter} · merged {entry.mergedAt} ·{" "}
                     <a href={entry.pr} className="underline">
                       pull request

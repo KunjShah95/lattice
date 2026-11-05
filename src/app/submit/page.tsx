@@ -60,7 +60,7 @@ export default function SubmitPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -115,10 +115,10 @@ export default function SubmitPage() {
           after. A submitter who does not know submissions are usually declined
           will read every decline as being ignored. */}
       <section className="mt-8 border-l-2 border-accent pl-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           Before you submit
         </h2>
-        <ul className="mt-3 space-y-2 text-[14.5px] leading-relaxed text-fg-muted">
+        <ul className="mt-3 space-y-2 text-[15.5px] leading-relaxed text-fg-muted">
           <li>
             Is it <strong className="text-fg">infrastructure</strong> — something
             a production AI system runs on — rather than an application someone
@@ -153,7 +153,7 @@ export default function SubmitPage() {
           href={issueUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-bg-elevated px-4 py-2.5 text-[14.5px] font-medium transition-colors hover:border-accent hover:text-accent"
+          className="inline-flex items-center gap-2 rounded-[var(--r-control)] border border-border-strong bg-bg-elevated px-4 py-2.5 text-[15.5px] font-medium transition-colors hover:border-accent hover:text-accent"
         >
           Open a submission issue
           <svg
@@ -170,7 +170,7 @@ export default function SubmitPage() {
             <path d="M7 17 17 7M9 7h8v8" />
           </svg>
         </a>
-        <span className="font-mono text-[11px] text-fg-subtle">
+        <span className="font-mono text-[13px] text-fg-subtle">
           Requires a GitHub account
         </span>
       </div>
@@ -179,10 +179,10 @@ export default function SubmitPage() {
           where somebody opens the issue, writes three words, and the bot
           reports six missing fields. */}
       <section className="mt-10">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           The form
         </h2>
-        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Copy this into the issue body. The field names and the fence markers
           have to survive editing — the bot reads them, and a renamed field
           arrives empty.
@@ -203,7 +203,7 @@ export default function SubmitPage() {
           tabIndex={0}
           role="group"
           aria-label="Submission issue template"
-          className="mt-4 max-h-[28rem] overflow-auto rounded-lg border border-border bg-bg-elevated p-4 font-mono text-[12px] leading-relaxed text-fg-muted focus:outline-none focus-visible:border-border-strong"
+          className="mt-4 max-h-[28rem] overflow-auto rounded-[var(--r-control)] border border-border bg-bg-elevated p-4 font-mono text-[13px] leading-relaxed text-fg-muted focus:outline-none focus-visible:border-border-strong"
         >
           {ISSUE_TEMPLATE}
         </pre>
@@ -211,10 +211,10 @@ export default function SubmitPage() {
 
       {/* The nine layers, so the field is answerable without leaving the page. */}
       <section className="mt-10">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           The nine layers
         </h2>
-        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           Pick the one you think it belongs in. Guessing is fine and expected —
           the reviewer will disagree, and that disagreement is the useful part.
         </p>
@@ -225,10 +225,10 @@ export default function SubmitPage() {
                 href={`/${layer.slug}`}
                 className="group flex items-baseline gap-2"
               >
-                <span className="font-mono text-[12px] tabular-nums text-fg-subtle">
+                <span className="font-mono text-[13px] tabular-nums text-fg-subtle">
                   {layer.index}
                 </span>
-                <span className="text-[14px] font-medium transition-colors group-hover:text-accent">
+                <span className="text-[15px] font-medium transition-colors group-hover:text-accent">
                   {layer.title}
                 </span>
               </Link>
@@ -237,15 +237,15 @@ export default function SubmitPage() {
         </ul>
       </section>
 
-      <section className="mt-14 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           What happens next
         </h2>
         <dl className="mt-4 space-y-5">
           {questions.map((item) => (
             <div key={item.q}>
-              <dt className="text-[15px] font-medium">{item.q}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dt className="text-[16px] font-medium">{item.q}</dt>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
                 {item.a}
               </dd>
             </div>
@@ -253,7 +253,7 @@ export default function SubmitPage() {
         </dl>
       </section>
 
-      <p className="editorial-justify mt-12 max-w-[62ch] border-t border-border pt-6 text-[12.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 max-w-[62ch] border-t border-border pt-6 text-[13.5px] leading-relaxed text-fg-subtle">
         Corrections to entries that are already here are treated as more urgent
         than new submissions — a wrong licence or a wrong deployment model can
         change an architecture decision. The same issue link works; say which

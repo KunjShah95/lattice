@@ -53,7 +53,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const pageUrl = `${site.url}/${category.slug}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -116,10 +116,10 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           look native here. */}
       {alsoHere.length ? (
         <section className="border-t border-border py-10">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <h2 className="t-h4">
             Also relevant here
           </h2>
-          <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             These tools are indexed in another layer, but they also do{" "}
             {category.title.toLowerCase()}&apos;s job. Each carries its home
             layer&apos;s colour.
@@ -134,7 +134,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                 <TrackLink
                   href={`/${tool.category.slug}/${tool.slug}`}
                   event="second-home"
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
                     aria-hidden="true"
@@ -143,14 +143,14 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                   />
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-[15px] font-medium group-hover:text-accent">
+                      <span className="text-[16px] font-medium group-hover:text-accent">
                         {tool.name}
                       </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                      <span className="font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
                         {tool.category.short}
                       </span>
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {because}
                     </span>
                   </span>
@@ -169,12 +169,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
         {prev ? (
           <Link
             href={`/${prev.slug}`}
-            className="group min-w-0 flex-1 rounded-lg px-3 py-2 transition-colors hover:bg-bg-sunken"
+            className="group min-w-0 flex-1 rounded-[var(--r-control)] px-3 py-2 transition-colors hover:bg-bg-sunken"
           >
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+            <span className="block font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
               Previous
             </span>
-            <span className="mt-1 block truncate text-[14px] font-medium">
+            <span className="mt-1 block truncate text-[15px] font-medium">
               {prev.title}
             </span>
           </Link>
@@ -185,12 +185,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
         {next ? (
           <Link
             href={`/${next.slug}`}
-            className="group min-w-0 flex-1 rounded-lg px-3 py-2 text-right transition-colors hover:bg-bg-sunken"
+            className="group min-w-0 flex-1 rounded-[var(--r-control)] px-3 py-2 text-right transition-colors hover:bg-bg-sunken"
           >
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+            <span className="block font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
               Next
             </span>
-            <span className="mt-1 block truncate text-[14px] font-medium">
+            <span className="mt-1 block truncate text-[15px] font-medium">
               {next.title}
             </span>
           </Link>
@@ -201,7 +201,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
 
       {/* All other sections, so no page is a dead end. */}
       <div className="pt-4">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
+        <h2 className="font-mono text-[13px] uppercase tracking-[0.12em] text-fg-subtle">
           All sections
         </h2>
         <ul className="mt-4 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -209,13 +209,13 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
             <li key={c.slug}>
               <Link
                 href={`/${c.slug}`}
-                className="flex items-baseline gap-2 rounded-md px-2 py-1.5 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+                className="flex items-baseline gap-2 rounded-[var(--r-control)] px-2 py-1.5 text-[14.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
               >
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {c.index}
                 </span>
                 {c.title}
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {c.tools.length}
                 </span>
               </Link>

@@ -14,22 +14,22 @@ export default function NotFound() {
       <div className="flex items-center gap-4">
         <div
           aria-hidden="true"
-          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-md border border-dashed border-border-strong [--crop-inset:-5px]"
+          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-[var(--r-control)] border border-dashed border-border-strong [--crop-inset:-5px]"
         >
-          <span className="font-mono text-[11px] text-fg-subtle">?</span>
+          <span className="font-mono text-[13px] text-fg-subtle">?</span>
         </div>
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
+        <p className="font-mono text-[13px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
           404
           <br />
           Sheet not in set
         </p>
       </div>
 
-      <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
+      <h1 className="mt-5 t-h1">
         Nothing at this address.
       </h1>
 
-      <p className="mt-4 max-w-[48ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+      <p className="mt-4 max-w-[48ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
         The page may have moved, or the link that brought you here was out of
         date. Nothing is broken on your side — the {toolCount}-tool index is
         still where you left it.
@@ -38,21 +38,21 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap gap-2">
         <Link
           href="/"
-          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] font-medium"
+          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-[var(--r-control)] px-4 text-[15px] font-medium"
         >
           <span aria-hidden="true" className="inline-block transition-transform duration-200 ease-[var(--ease-spring)] group-hover:-translate-x-0.5">←</span>
           Back to the index
         </Link>
         <Link
           href="/all"
-          className="btn-paper inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] text-fg-muted hover:text-fg"
+          className="btn-paper inline-flex h-11 items-center gap-2 rounded-[var(--r-control)] px-4 text-[15px] text-fg-muted hover:text-fg"
         >
           Search all {toolCount} tools
         </Link>
       </div>
 
       <div className="mt-12 border-t border-border pt-6">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           Sections
         </h2>
         <ul className="mt-4 flex flex-wrap gap-2">
@@ -60,9 +60,9 @@ export default function NotFound() {
             <li key={c.slug}>
               <Link
                 href={`/${c.slug}`}
-                className="press inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted hover:border-border-strong hover:bg-bg-elevated hover:text-fg"
+                className="press inline-flex min-h-9 items-center gap-1.5 rounded-[var(--r-control)] border border-border px-2.5 py-1.5 text-[14.5px] text-fg-muted hover:border-border-strong hover:bg-bg-elevated hover:text-fg"
               >
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {c.index}
                 </span>
                 {c.short}

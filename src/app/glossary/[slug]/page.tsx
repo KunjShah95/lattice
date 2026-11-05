@@ -61,7 +61,7 @@ export default async function GlossaryTermPage({
     : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -102,7 +102,7 @@ export default async function GlossaryTermPage({
       />
 
       <article>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/glossary" className="transition-colors hover:text-fg-muted">
@@ -136,12 +136,12 @@ export default async function GlossaryTermPage({
             className="mt-2 h-10 w-[3px] shrink-0 rounded-full"
             style={layerStyle(term.layer)}
           />
-          <h1 className="text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[40px]">
+          <h1 className="t-h1">
             {term.term}
           </h1>
         </div>
 
-        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg">
+        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[18px] leading-relaxed text-fg">
           {term.definition}
         </p>
 
@@ -152,17 +152,17 @@ export default async function GlossaryTermPage({
         <Byline fact="Entry last reviewed" date={AS_OF} className="mt-4" />
 
         <div className="mt-8 border-t border-border pt-7">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <h2 className="t-h4">
             What it implies
           </h2>
-          <p className="editorial-justify mt-3 max-w-[64ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[64ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
             {term.detail}
           </p>
         </div>
 
         {tools.length ? (
           <section className="mt-9">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            <h2 className="t-h4">
               Tools in this index
             </h2>
             <ul className="mt-3 flex flex-wrap gap-2">
@@ -170,7 +170,7 @@ export default async function GlossaryTermPage({
                 <li key={t.href}>
                   <Link
                     href={t.href}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                    className="chip min-h-9 px-3"
                   >
                     {t.name}
                   </Link>
@@ -182,7 +182,7 @@ export default async function GlossaryTermPage({
 
         {see.length ? (
           <section className="mt-9">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+            <h2 className="t-h4">
               Related terms
             </h2>
             <ul className="mt-3 space-y-px">
@@ -190,17 +190,17 @@ export default async function GlossaryTermPage({
                 <li key={t.slug}>
                   <Link
                     href={`/glossary/${t.slug}`}
-                    className="group -mx-2 flex items-baseline gap-2 rounded-md px-2 py-2 transition-colors hover:bg-bg-sunken"
+                    className="group -mx-2 flex items-baseline gap-2 rounded-[var(--r-control)] px-2 py-2 transition-colors hover:bg-bg-sunken"
                   >
                     <span
                       aria-hidden="true"
                       className="h-4 w-[3px] shrink-0 self-center rounded-full"
                       style={layerStyle(t.layer)}
                     />
-                    <span className="text-[14px] font-medium group-hover:text-accent">
+                    <span className="text-[15px] font-medium group-hover:text-accent">
                       {t.term}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] text-fg-subtle">
+                    <span className="min-w-0 flex-1 truncate text-[14.5px] text-fg-subtle">
                       {t.definition}
                     </span>
                   </Link>

@@ -61,7 +61,7 @@ export default function CompareBuilderPage() {
   const name = "Compare Builder";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* WebApplication, like `/stack-builder`: a thing a reader operates, not a
           list of pages. */}
       <script
@@ -95,7 +95,7 @@ export default function CompareBuilderPage() {
       />
 
       <header>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -113,13 +113,13 @@ export default function CompareBuilderPage() {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <p className="mt-6 t-label">
           Pick any three
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 t-h1">
           Compare tools that were never meant to be compared.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           The written comparisons cover tools that do the same job. This one takes any
           tools from any layers, shows where they differ, and says so when they are not
           substitutes. Vendors do not publish this page, because each of them sells one

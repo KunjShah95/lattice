@@ -93,7 +93,7 @@ export function ReadingRail({ headings }: { headings: Heading[] }) {
   return (
     <aside className="pointer-events-none absolute left-full top-0 ml-8 hidden h-full w-44 xl:block">
       <nav aria-label="On this page" className="pointer-events-auto sticky top-24">
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">On this page</p>
+        <p className="t-label">On this page</p>
 
         <div className="relative mt-3">
           {/* The track, and the fill that records how far through the essay you are. */}
@@ -109,8 +109,8 @@ export function ReadingRail({ headings }: { headings: Heading[] }) {
                 <a
                   href={`#${h.id}`}
                   aria-current={i === active ? "location" : undefined}
-                  className={`block text-pretty text-[12.5px] leading-snug transition-colors ${
-                    i === active ? "font-medium text-fg" : "text-fg-subtle hover:text-fg-muted"
+                  className={`block text-pretty text-[14px] leading-snug transition-colors ${
+                    i === active ? "font-medium text-fg" : "text-fg-muted hover:text-fg"
                   }`}
                 >
                   {h.text}

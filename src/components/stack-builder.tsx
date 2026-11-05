@@ -411,7 +411,7 @@ export function StackBuilder() {
     <div>
       <div className="mb-6">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <p className="t-label">
             Start from a real case
           </p>
           <div className="flex shrink-0 gap-2">
@@ -420,7 +420,7 @@ export function StackBuilder() {
               onClick={clearCase}
               disabled={isCleared}
               title="Wipe every answer back to a blank slate (keeps the workload)"
-              className="rounded-md border border-border px-3 py-1 text-[12px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg disabled:cursor-default disabled:opacity-40 disabled:hover:border-border disabled:hover:text-fg-muted"
+              className="rounded-[var(--r-control)] border border-border px-3 py-1 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg disabled:cursor-default disabled:opacity-40 disabled:hover:border-border disabled:hover:text-fg-muted"
             >
               Clear
             </button>
@@ -428,7 +428,7 @@ export function StackBuilder() {
               type="button"
               onClick={resetDefaults}
               title="Restore the demo defaults"
-              className="rounded-md border border-border px-3 py-1 text-[12px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+              className="rounded-[var(--r-control)] border border-border px-3 py-1 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
             >
               Reset
             </button>
@@ -440,10 +440,10 @@ export function StackBuilder() {
               key={p.label}
               type="button"
               onClick={() => applyCase(p.state)}
-              className="rounded-md border border-border px-4 py-3 text-left transition-colors hover:border-accent hover:bg-bg-elevated"
+              className="rounded-[var(--r-control)] border border-border px-4 py-3 text-left transition-colors hover:border-accent hover:bg-bg-elevated"
             >
-              <span className="block text-[14px] font-medium">{p.label} →</span>
-              <span className="mt-0.5 block text-[12.5px] text-fg-muted">{p.detail}</span>
+              <span className="block text-[15px] font-medium">{p.label} →</span>
+              <span className="mt-0.5 block text-[13.5px] text-fg-muted">{p.detail}</span>
             </button>
           ))}
         </div>
@@ -461,9 +461,9 @@ export function StackBuilder() {
         }}
         aria-label="Describe your workload"
       >
-      <div className="grid gap-7 rounded-lg border border-border bg-bg-elevated p-5 sm:p-6">
+      <div className="grid gap-8 rounded-[var(--r-card)] border border-border bg-bg-elevated p-6 sm:p-8">
         <fieldset>
-          <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <legend className="t-label text-fg">
             01 — What are you building?
           </legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -473,32 +473,40 @@ export function StackBuilder() {
                 type="button"
                 onClick={() => patch({ workload: w.id })}
                 aria-pressed={workload === w.id}
-                className={`rounded-md border px-4 py-3 text-left transition-colors ${
+                className={`relative rounded-[var(--r-card)] border px-4 py-3.5 text-left transition-colors ${
                   workload === w.id
                     ? "border-accent bg-bg-sunken"
                     : "border-border hover:border-border-strong"
                 }`}
               >
-                <span className="block text-[14px] font-medium">{w.label}</span>
-                <span className="mt-0.5 block text-[12.5px] text-fg-muted">{w.detail}</span>
+                {workload === w.id ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-[var(--r-pill)] bg-fg text-[12px] leading-none text-bg"
+                  >
+                    ✓
+                  </span>
+                ) : null}
+                <span className="block text-[16px] font-medium">{w.label}</span>
+                <span className="mt-1 block text-[14px] leading-relaxed text-fg-muted">{w.detail}</span>
               </button>
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <legend className="t-label text-fg">
             02 — Your case
           </legend>
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
             <label className="block">
-              <span className="flex items-baseline justify-between text-[13px] font-medium">
+              <span className="flex items-baseline justify-between text-[14.5px] font-medium">
                 Requests / month
                 {c.queries !== "" ? (
                   <button
                     type="button"
                     onClick={() => patch({ queries: "" })}
-                    className="text-[12px] font-normal text-fg-subtle underline underline-offset-4 hover:text-fg"
+                    className="text-[13px] font-normal text-fg-subtle underline underline-offset-4 hover:text-fg"
                   >
                     Clear
                   </button>
@@ -509,18 +517,18 @@ export function StackBuilder() {
                 onChange={(e) => patch({ queries: e.target.value.replace(/[^0-9]/g, "") })}
                 inputMode="numeric"
                 placeholder="e.g. 500000"
-                className="mt-2 w-full rounded-md border border-border bg-bg px-3 py-2 font-mono text-[14px]"
+                className="field mt-2 h-11 font-mono tabular-nums"
               />
             </label>
             {retrieval ? (
               <label className="block">
-                <span className="flex items-baseline justify-between text-[13px] font-medium">
+                <span className="flex items-baseline justify-between text-[14.5px] font-medium">
                   Documents in the corpus
                   {c.documents !== "" ? (
                     <button
                       type="button"
                       onClick={() => patch({ documents: "" })}
-                      className="text-[12px] font-normal text-fg-subtle underline underline-offset-4 hover:text-fg"
+                      className="text-[13px] font-normal text-fg-subtle underline underline-offset-4 hover:text-fg"
                     >
                       Clear
                     </button>
@@ -531,7 +539,7 @@ export function StackBuilder() {
                   onChange={(e) => patch({ documents: e.target.value.replace(/[^0-9]/g, "") })}
                   inputMode="numeric"
                   placeholder="e.g. 10000000"
-                  className="mt-2 w-full rounded-md border border-border bg-bg px-3 py-2 font-mono text-[14px]"
+                  className="field mt-2 h-11 font-mono tabular-nums"
                 />
               </label>
             ) : null}
@@ -557,7 +565,7 @@ export function StackBuilder() {
         </fieldset>
 
         <fieldset>
-          <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <legend className="t-label text-fg">
             03 — Constraints
           </legend>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -578,13 +586,13 @@ export function StackBuilder() {
         </fieldset>
 
         <fieldset>
-          <legend className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <legend className="t-label text-fg">
             04 — Priority
           </legend>
           <label className="mt-3 block">
-            <span className="flex justify-between text-[13px] text-fg-muted">
+            <span className="flex justify-between text-[14.5px] text-fg-muted">
               <span>Cost</span>
-              <span className="font-mono text-[11px]">
+              <span className="font-mono text-[13px]">
                 {c.costVsPerf < 0 ? " minimise cost" : c.costVsPerf > 0 ? " maximise performance" : " balanced"}
               </span>
               <span>Performance</span>
@@ -609,8 +617,8 @@ export function StackBuilder() {
           so it stops following once the results are in view.
         */}
         <div className="sticky bottom-0 z-20 -mx-1 mt-4 px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-bg-elevated px-4 py-3 shadow-float">
-            <p className="min-w-0 text-[12.5px] leading-snug text-fg-muted" aria-live="polite">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-card)] bg-bg-elevated px-4 py-3 shadow-float">
+            <p className="min-w-0 text-[14px] leading-snug text-fg-muted" aria-live="polite">
               {built === null ? (
                 <>Answer what applies — nothing is required but the workload.</>
               ) : pending ? (
@@ -628,7 +636,7 @@ export function StackBuilder() {
             <button
               type="submit"
               disabled={!dirty}
-              className="btn-ink group inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-[14px] font-medium disabled:pointer-events-none disabled:opacity-40 sm:w-auto"
+              className="btn-ink group inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-[var(--r-control)] px-5 text-[15.5px] font-medium disabled:pointer-events-none disabled:opacity-40 sm:w-auto"
             >
               {built === null ? "Build my stack" : "Update my stack"}
               <span aria-hidden="true" className="nudge">→</span>
@@ -639,17 +647,17 @@ export function StackBuilder() {
 
       {result === null ? (
         <section aria-labelledby="stack-empty" className="mt-10">
-          <div className="crop crop-static rounded-xl border border-dashed border-border-strong px-6 py-10 text-center [--crop-inset:-6px]">
+          <div className="crop crop-static rounded-[var(--r-card)] border border-dashed border-border-strong px-6 py-10 text-center [--crop-inset:-6px]">
             {/* Nine empty layer slots: the stack, not yet drawn. */}
             <div aria-hidden="true" className="mx-auto flex w-fit flex-col-reverse gap-1">
               {stackLayers.map((s) => (
                 <span key={s.slug} className="block h-1.5 w-24 rounded-full border border-dashed border-border-strong" />
               ))}
             </div>
-            <h2 id="stack-empty" className="mt-6 font-serif text-[20px] font-medium tracking-[-0.01em]">
+            <h2 id="stack-empty" className="mt-6 font-serif text-[24px] font-medium tracking-[-0.015em]">
               Your stack is drawn here.
             </h2>
-            <p className="mx-auto mt-2 max-w-[44ch] text-pretty text-[13px] leading-relaxed text-fg-muted">
+            <p className="mx-auto mt-2 max-w-[44ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
               Pick a workload, answer what applies, then press{" "}
               <span className="font-medium text-fg">Build my stack</span>. Requests per
               month sharpens the cost band; everything else narrows the picks.
@@ -661,32 +669,36 @@ export function StackBuilder() {
         <h2
           ref={resultsRef}
           tabIndex={-1}
-          className="scroll-mt-24 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle outline-none"
+          className="scroll-mt-24 t-h4 outline-none"
         >
           Your stack — built from your answers
         </h2>
-        <p className="mt-2 font-serif text-[20px] leading-snug">{result.summary}</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void copyText(caseUrl(), "link")}
-            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
-          >
-            {copied === "link" ? "✓ Link copied" : "Copy link to this stack"}
-          </button>
+        <p className="mt-2 font-serif text-[26px] leading-snug tracking-[-0.015em]">{result.summary}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => void copyText(stackReportMarkdown(result, reportSource()), "report")}
-            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+            className="btn-paper group inline-flex h-10 items-center gap-2 rounded-[var(--r-control)] px-3.5 text-[14px] font-medium"
           >
-            {copied === "report" ? "✓ Report copied" : "Copy decision report"}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="12" height="12" rx="2" />
+              <path d="M5 15V5a2 2 0 0 1 2-2h8" />
+            </svg>
+            {copied === "report" ? "Report copied" : "Copy decision report"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void copyText(caseUrl(), "link")}
+            className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+          >
+            {copied === "link" ? "Link copied" : "Copy link to this stack"}
           </button>
           <button
             type="button"
             onClick={() => void copyText(stackReportJson(result, reportSource()), "json")}
-            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+            className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
           >
-            {copied === "json" ? "✓ JSON copied" : "Copy JSON"}
+            {copied === "json" ? "JSON copied" : "Copy JSON"}
           </button>
           {/* The same Markdown as "Copy decision report", as a file: an ADR is a
               document that gets committed, and a clipboard is a poor place to
@@ -698,9 +710,9 @@ export function StackBuilder() {
               setCopied("download");
               window.setTimeout(() => setCopied(null), 2000);
             }}
-            className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+            className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
           >
-            {copied === "download" ? "✓ Downloaded" : "Download .md"}
+            {copied === "download" ? "Downloaded" : "Download .md"}
           </button>
         </div>
 
@@ -723,35 +735,35 @@ export function StackBuilder() {
             always describes the last press of the button. */}
         {changes ? (
           <div className="mt-5 border-l-2 border-accent pl-3.5">
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
+            <p className="font-mono text-[12.5px] uppercase tracking-[0.12em] text-fg-subtle">
               Your last build changed
             </p>
             {changes.length ? (
-              <ul className="mt-1.5 space-y-0.5 text-[13.5px] text-fg">
+              <ul className="mt-1.5 space-y-0.5 text-[15px] text-fg">
                 {changes.map((ch) => (
                   <li key={ch.sectionSlug}>{describeChange(ch)}</li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-1.5 text-[13.5px] text-fg-muted">
+              <p className="mt-1.5 text-[15px] text-fg-muted">
                 No pick changed. The same stack still fits.
               </p>
             )}
           </div>
         ) : null}
 
-        <ol className="mt-5 space-y-px overflow-hidden rounded-lg border border-border">
+        <ol className="mt-5 space-y-px overflow-hidden rounded-[var(--r-card)] border border-border">
           {result.picks.map((p) => (
             <li key={p.sectionSlug} className="bg-bg-elevated p-4 sm:p-5">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-fg-muted">
                   {p.section}
                 </span>
-                <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 font-mono text-[10.5px] text-fg-muted">
+                <span className="shrink-0 rounded-full border border-border px-2.5 py-1 font-mono text-[12px] text-fg-muted">
                   {p.fitLabel}
                 </span>
               </div>
-              <Link href={p.url} className="mt-1 block font-serif text-[21px] font-medium hover:text-accent">
+              <Link href={p.url} className="mt-1 block font-serif text-[22px] font-medium hover:text-accent">
                 {p.tool}
               </Link>
               {p.matches.length ? (
@@ -759,21 +771,21 @@ export function StackBuilder() {
                   {p.matches.map((m) => (
                     <li
                       key={m}
-                      className="rounded-full bg-bg-sunken px-2.5 py-0.5 text-[12px] text-fg-muted"
+                      className="rounded-full bg-bg-sunken px-2.5 py-0.5 text-[13px] text-fg-muted"
                     >
                       ✓ {m}
                     </li>
                   ))}
                 </ul>
               ) : null}
-              <p className="mt-2.5 text-[13.5px] leading-relaxed text-fg-muted">
+              <p className="mt-2.5 text-[15px] leading-relaxed text-fg-muted">
                 <span className="font-medium text-fg">Why for you: </span>{p.why}
               </p>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-fg-muted">
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-fg-muted">
                 <span className="font-medium text-fg">Watch out: </span>{p.watchOut}
               </p>
               {p.switchWhen ? (
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-fg-subtle">
+                <p className="mt-1.5 text-[13.5px] leading-relaxed text-fg-subtle">
                   Consider {p.alternative} when {p.switchWhen}.
                 </p>
               ) : null}
@@ -781,35 +793,37 @@ export function StackBuilder() {
           ))}
         </ol>
 
-        <div className="mt-6 grid gap-3 rounded-lg border border-border p-5 sm:grid-cols-3">
-          <div>
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Estimated cost</p>
-            <p className="mt-1 font-serif text-[22px]">
+        <div className="mt-8 grid gap-px overflow-hidden rounded-[var(--r-card)] border border-border bg-border sm:grid-cols-3">
+          <div className="bg-bg-elevated p-5">
+            <p className="t-label">Estimated cost</p>
+            <p className="mt-2 font-mono text-[26px] leading-none tabular-nums tracking-[-0.02em]">
               $<RollingNumber value={result.costLow} />–$<RollingNumber value={result.costHigh} />
-              <span className="text-[13px] text-fg-muted">/mo</span>
+              <span className="text-[14px] text-fg-muted">/mo</span>
             </p>
-            <p className="mt-1 text-[11.5px] text-fg-subtle">
+            <p className="mt-2 text-[13px] leading-relaxed text-fg-muted">
               {result.costDrivers.length
                 ? `Driven by ${result.costDrivers.join(", ")} — the usage-billed picks.`
                 : "No usage-billed picks in this stack."}{" "}
               Heuristic band, not a quote.
             </p>
           </div>
-          <div>
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Confidence</p>
-            <p className="mt-1 flex items-center gap-3 font-serif text-[22px]">
+          <div className="bg-bg-elevated p-5">
+            <p className="t-label">Confidence</p>
+            <p className="mt-2 flex items-center gap-3 font-mono text-[26px] leading-none tabular-nums tracking-[-0.02em]">
               <span>{Math.round(result.confidence * 100)}%</span>
               <Meter value={result.confidence} />
             </p>
-            <p className="mt-1 text-[11.5px] text-fg-subtle">Lower when constraints narrow the field.</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-fg-muted">
+              Lower when constraints narrow the field.
+            </p>
           </div>
-          <div>
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Biggest risk for your case</p>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-fg-muted">{result.risk}</p>
+          <div className="bg-bg-elevated p-5">
+            <p className="t-label">Biggest risk for your case</p>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-fg-muted">{result.risk}</p>
           </div>
         </div>
 
-        <p className="mt-6 text-[13px] text-fg-subtle">
+        <p className="mt-6 text-[14px] text-fg-muted">
           Every why and watch-out comes from the tool&apos;s own use-when / skip-when.{" "}
           <Link href="/methodology" className="underline underline-offset-4 hover:text-fg">Read the method →</Link>
         </p>

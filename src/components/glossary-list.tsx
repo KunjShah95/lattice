@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
-import { layerStyle } from "@/lib/layer";
+import { layerColor } from "@/lib/layer-color";
 import type { GlossaryTerm } from "@/lib/glossary";
 
 /**
@@ -49,7 +49,7 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
           filter bar on /all: a sticky backdrop-filter over a long scrolling list
           re-blurs on every frame, and at 90% opacity the effect is close to
           invisible. */}
-      <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-6 sm:px-6">
+      <div className="sticky top-[calc(4rem+env(safe-area-inset-top))] z-30 -mx-5 mb-6 border-b border-border bg-bg px-5 py-3 sm:-mx-8 sm:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-[12rem] flex-1">
             <svg
@@ -69,12 +69,12 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Filter terms…"
+              placeholder="Search terms — e.g. paged attention"
               aria-label="Filter glossary terms"
-              className="h-9 w-full rounded-md border border-border bg-bg-elevated pl-8 pr-3 text-[13.5px] outline-none placeholder:text-fg-subtle focus:border-border-strong"
+              className="field h-10 pl-9 text-[15px]"
             />
           </div>
-          <span aria-live="polite" className="font-mono text-[11px] text-fg-subtle">
+          <span aria-live="polite" className="font-mono text-[13px] text-fg-subtle">
             {results.length}
             {results.length === terms.length ? "" : ` / ${terms.length}`}
           </span>
@@ -107,7 +107,7 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
       </div>
 
       {results.length === 0 ? (
-        <p className="py-12 text-center text-sm text-fg-subtle">
+        <p className="py-12 text-center text-[15px] text-fg-muted">
           No terms match “{query}”.
         </p>
       ) : (
@@ -126,21 +126,21 @@ export function GlossaryList({ terms }: { terms: GlossaryTerm[] }) {
             beside the whole group.
           */}
           {results.map((t) => (
-            <div key={t.slug} className="py-4 first:pt-0">
+            <div key={t.slug} className="group -mx-2 rounded-[var(--r-control)] px-2 py-4 transition-colors hover:bg-bg-sunken">
               <dt className="flex items-start gap-2.5">
                 <span
                   aria-hidden="true"
                   className="mt-2 h-5 w-[3px] shrink-0 rounded-full"
-                  style={layerStyle(t.layer)}
+                  style={{ backgroundColor: layerColor(t.layer) }}
                 />
                 <Link
                   href={`/glossary/${t.slug}`}
-                  className="text-[16px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:text-accent hover:decoration-border-strong"
+                  className="text-[17px] font-medium underline decoration-transparent underline-offset-2 transition-colors hover:text-accent hover:decoration-border-strong"
                 >
                   {t.term}
                 </Link>
               </dt>
-              <dd className="mt-1 pl-[22px] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dd className="mt-1 pl-[22px] text-pretty text-[15px] leading-relaxed text-fg-muted">
                 {t.definition}
               </dd>
             </div>
@@ -169,21 +169,17 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] transition-colors ${
-        active
-          ? "border-border-strong bg-bg-sunken text-fg"
-          : "border-transparent text-fg-muted hover:bg-bg-sunken hover:text-fg"
-      }`}
+      className="chip min-h-9"
     >
       {swatch != null ? (
         <span
           aria-hidden="true"
-          className="h-2.5 w-[2px] rounded-full"
-          style={layerStyle(swatch)}
+          className="h-2.5 w-[3px] rounded-full"
+          style={{ backgroundColor: layerColor(swatch) }}
         />
       ) : null}
       {label}
-      <span className="font-mono text-[10px] text-fg-subtle">{count}</span>
+      <span className="font-mono text-[12.5px]">{count}</span>
     </button>
   );
 }

@@ -19,7 +19,7 @@ export function InfoPageHeader({
 }) {
   return (
     <>
-      <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+      <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
         <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
           <li>
             <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -33,16 +33,16 @@ export function InfoPageHeader({
 
       <header className="mt-6">
         {eyebrow ? (
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <p className="t-label">
             {eyebrow}
           </p>
         ) : null}
         <h1
-          className={`${eyebrow ? "mt-4 " : ""}text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]`}
+          className={`${eyebrow ? "mt-4 " : ""}t-h1`}
         >
           {title}
         </h1>
-        <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[60ch] text-pretty text-[17px] leading-relaxed text-fg-muted">
           {lede}
         </p>
       </header>
@@ -65,7 +65,7 @@ export function InfoPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <InfoPageHeader breadcrumb={breadcrumb} eyebrow={eyebrow} title={title} lede={lede} />
       {children}
     </div>
@@ -80,11 +80,11 @@ export function InfoSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-12 border-t border-border pt-7">
-      <h2 className="font-serif text-[22px] font-medium leading-snug tracking-[-0.015em]">
+    <section className="mt-14 border-t border-border pt-8">
+      <h2 className="t-h3">
         {title}
       </h2>
-      <div className="prose-lattice mt-4 max-w-[62ch]">{children}</div>
+      <div className="prose-lattice measure mt-4">{children}</div>
     </section>
   );
 }
@@ -102,14 +102,14 @@ export function InfoChannel({
   external?: boolean;
 }) {
   const className =
-    "group flex min-h-[3.25rem] flex-col justify-center rounded-lg border border-border bg-bg-elevated px-4 py-3 transition-colors hover:border-border-strong";
+    "group flex min-h-[3.25rem] flex-col justify-center rounded-[var(--r-card)] border border-border bg-bg-elevated px-4 py-3 transition-colors hover:border-border-strong";
 
   const inner = (
     <>
-      <span className="text-[14px] font-medium text-fg transition-colors group-hover:text-accent">
+      <span className="text-[15px] font-medium text-fg transition-colors group-hover:text-accent">
         {label}
       </span>
-      <span className="mt-0.5 font-mono text-[11px] text-fg-subtle">{detail}</span>
+      <span className="mt-0.5 font-mono text-[13px] text-fg-subtle">{detail}</span>
     </>
   );
 
@@ -131,13 +131,13 @@ export function InfoChannel({
 export function MaintainerNote({ children }: { children: React.ReactNode }) {
   return (
     <aside
-      className="mt-10 rounded-lg border border-dashed border-border-strong bg-bg-elevated/60 px-4 py-3.5"
+      className="mt-10 rounded-[var(--r-card)] border border-dashed border-border-strong bg-bg-elevated/60 px-4 py-3.5"
       aria-label="Maintainer note"
     >
-      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle">
+      <p className="t-label">
         Maintainer
       </p>
-      <p className="mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
+      <p className="mt-2 text-pretty text-[15px] leading-relaxed text-fg-muted">
         {children}
       </p>
     </aside>

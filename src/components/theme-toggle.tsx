@@ -45,7 +45,7 @@ export function ThemeToggle() {
       // Both glyphs occupy the same grid cell and trade places with a quarter
       // turn: the sun sets as the moon rises. Still pure CSS on the `dark`
       // class, so the toggle keeps holding no React state.
-      className="press grid h-9 w-9 place-items-center rounded-md text-fg-muted hover:bg-bg-sunken hover:text-fg [&>svg]:col-start-1 [&>svg]:row-start-1 [&>svg]:transition-[translate,scale,rotate,opacity] [&>svg]:duration-500 [&>svg]:ease-[var(--ease-spring)]"
+      className="press grid h-11 w-11 place-items-center rounded-[var(--r-control)] text-fg-muted hover:bg-bg-sunken hover:text-fg [&>svg]:col-start-1 [&>svg]:row-start-1 [&>svg]:transition-[translate,scale,rotate,opacity] [&>svg]:duration-500 [&>svg]:ease-[var(--ease-spring)]"
     >
       {/* Shown in light mode — offers the switch to dark. */}
       <svg

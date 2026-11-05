@@ -5,6 +5,7 @@ import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
 import { site } from "@/lib/site";
+import { toolCount } from "@/lib/data";
 import {
   absolute,
   breadcrumbNode,
@@ -76,15 +77,8 @@ export default async function StackWorkloadPage({
 
   const questions = stackQuestions(result, meta.label);
 
-  const fitClass = (fit: string) =>
-    fit === "Best fit"
-      ? "text-fg"
-      : fit === "Strong fit"
-        ? "text-fg-muted"
-        : "text-fg-subtle";
-
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -114,7 +108,7 @@ export default async function StackWorkloadPage({
       />
 
       <header>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -135,28 +129,24 @@ export default async function StackWorkloadPage({
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <p className="mt-6 t-label">
           {meta.detail}
         </p>
-        <h1 className="mt-4 text-balance font-serif text-[34px] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[42px]">
+        <h1 className="mt-4 t-h1">
           A {meta.label.toLowerCase()} stack.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           {result.summary}. At the default case — 100k requests a month, no
-          further constraints — drawn from the 112 tools already in the index.
-          Each pick is a tool whose own skip-when is stated, because a stack
-          built on tools it does not know how to overcommit to is a guess.
-        </p>
-        <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
-          This is the default case, stated as such.{" "}
+          further constraints — drawn from the {toolCount} tools already in the
+          index. Each pick is a tool whose own skip-when is stated, because a
+          stack built on tools it does not know how to overcommit to is a guess.{" "}
           <Link
             href={builderPath}
             className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
           >
             Describe your case
           </Link>{" "}
-          to change it — the recommendation recomputes, and anything it assumes
-          comes back in the answer rather than staying silent.
+          to change it.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <CopyButton
@@ -173,14 +163,14 @@ export default async function StackWorkloadPage({
       </header>
 
       <section className="mt-10 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           The picks
         </h2>
-        <ul className="mt-5 space-y-6">
+        <ul className="mt-6 space-y-8">
           {result.picks.map((p) => (
             <li key={p.sectionSlug}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 className="text-balance font-serif text-[20px] font-medium tracking-[-0.01em]">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+                <h3 className="text-balance font-serif text-[22px] font-medium tracking-[-0.012em]">
                   <Link
                     href={p.url}
                     className="transition-colors hover:text-accent"
@@ -188,24 +178,31 @@ export default async function StackWorkloadPage({
                     {p.section} — {p.tool}
                   </Link>
                 </h3>
-                <span className={`font-mono text-[11px] uppercase tracking-[0.1em] ${fitClass(p.fitLabel)}`}>
+                <span className="inline-flex items-center rounded-[var(--r-pill)] border border-border px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted">
                   {p.fitLabel}
                 </span>
               </div>
               {p.matches.length ? (
-                <p className="mt-1 font-mono text-[11px] text-fg-subtle">
-                  {p.matches.join(" · ")}
-                </p>
+                <ul aria-label="Requirements this satisfies" className="mt-2.5 flex flex-wrap gap-1.5">
+                  {p.matches.map((m) => (
+                    <li
+                      key={m}
+                      className="inline-flex items-center rounded-full bg-bg-sunken px-2.5 py-1 text-[13px] text-fg-muted"
+                    >
+                      {m}
+                    </li>
+                  ))}
+                </ul>
               ) : null}
-              <p className="editorial-justify mt-2 text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <p className="editorial-justify mt-2 text-pretty text-[15px] leading-relaxed text-fg-muted">
                 {p.why}
               </p>
-              <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+              <p className="editorial-justify mt-1.5 text-pretty text-[15px] leading-relaxed text-fg-subtle">
                 <span className="text-fg-muted">Watch out: </span>
                 {p.watchOut}
               </p>
               {p.alternative !== "—" && p.switchWhen ? (
-                <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+                <p className="editorial-justify mt-1.5 text-pretty text-[15px] leading-relaxed text-fg-muted">
                   <span className="text-fg-subtle">Consider </span>
                   {p.alternative}
                   <span className="text-fg-subtle"> instead when </span>
@@ -217,55 +214,53 @@ export default async function StackWorkloadPage({
         </ul>
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           The costs and the risks
         </h2>
-        <dl className="mt-5 grid gap-x-8 gap-y-4 text-[14px] sm:grid-cols-2">
-          <div>
-            <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-              Estimated cost
-            </dt>
-            <dd className="mt-1 text-pretty leading-relaxed text-fg-muted">
-              ${result.costLow}–${result.costHigh} per month — a heuristic band
-              from query volume, not a vendor quote.
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="card p-5">
+            <dt className="t-label">Estimated cost</dt>
+            <dd className="mt-2 font-mono text-[28px] leading-none tabular-nums">
+              ${result.costLow}–${result.costHigh}
+            </dd>
+            <dd className="mt-1.5 text-[13px] text-fg-subtle">per month</dd>
+            <dd className="mt-3 text-[14px] leading-relaxed text-fg-muted">
+              A heuristic band from query volume, not a vendor quote.
             </dd>
           </div>
-          <div>
-            <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-              Confidence
-            </dt>
-            <dd className="mt-1 text-pretty leading-relaxed text-fg-muted">
-              {Math.round(result.confidence * 100)}% — lower when constraints
-              narrow the field.
+          <div className="card p-5">
+            <dt className="t-label">Confidence</dt>
+            <dd className="mt-2 font-mono text-[28px] leading-none tabular-nums">
+              {Math.round(result.confidence * 100)}%
+            </dd>
+            <dd className="mt-3 text-[14px] leading-relaxed text-fg-muted">
+              Lower when constraints narrow the field, higher when the workload
+              has a well-worn default.
             </dd>
           </div>
-          {result.costDrivers.length ? (
-            <div className="sm:col-span-2">
-              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
-                Cost drivers
-              </dt>
-              <dd className="mt-1 text-pretty leading-relaxed text-fg-muted">
-                {result.costDrivers.join(", ")}
-              </dd>
-            </div>
-          ) : null}
         </dl>
-        <p className="editorial-justify mt-5 text-pretty text-[14px] leading-relaxed text-fg-muted">
-          <span className="text-fg">Biggest risk at the default case: </span>
+        {result.costDrivers.length ? (
+          <p className="mt-4 text-[14px] leading-relaxed text-fg-muted">
+            <span className="t-label mr-2">Cost drivers</span>
+            {result.costDrivers.join(", ")}
+          </p>
+        ) : null}
+        <p className="mt-5 text-pretty text-[15.5px] leading-relaxed text-fg-muted">
+          <span className="font-medium text-fg">Biggest risk at the default case: </span>
           {result.risk}
         </p>
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Quick answers
         </h2>
         <dl className="mt-4 space-y-5">
           {questions.map((qa) => (
             <div key={qa.question}>
-              <dt className="text-[15px] font-medium">{qa.question}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dt className="text-[16px] font-medium">{qa.question}</dt>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
                 {qa.answer}
               </dd>
             </div>
@@ -273,11 +268,11 @@ export default async function StackWorkloadPage({
         </dl>
       </section>
 
-      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[15px] leading-relaxed text-fg-subtle">
         A starting point, not a prescription. The recommendation at the default
         case is what the engine would tell a stranger with your workload; the
-        recommendation at *your* case is what it tells you once it knows the
-        constraints. The Stack Builder holds both —{" "}
+        recommendation at <em>your</em> case is what it tells you once it knows
+        the constraints. The Stack Builder holds both —{" "}
         <Link
           href={builderPath}
           className="text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"

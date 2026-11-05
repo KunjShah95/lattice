@@ -34,9 +34,9 @@ export function CoverageBars({
         <li key={r.slug} className="grid grid-cols-[7.5rem_1fr_2rem] items-center gap-3 sm:grid-cols-[9.5rem_1fr_2rem]">
           <Link
             href={`/${r.slug}`}
-            className="flex min-w-0 items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
+            className="flex min-w-0 items-baseline gap-2 text-[14.5px] text-fg-muted transition-colors hover:text-fg"
           >
-            <span className="font-mono text-[11px] tabular-nums text-fg-subtle">{r.index}</span>
+            <span className="font-mono text-[13px] tabular-nums text-fg-subtle">{r.index}</span>
             <span className="truncate">{r.short}</span>
           </Link>
           <span aria-hidden="true" className="flex h-3.5 items-stretch">
@@ -52,7 +52,7 @@ export function CoverageBars({
               }}
             />
           </span>
-          <span className="text-right font-mono text-[12px] tabular-nums text-fg">{r.count}</span>
+          <span className="text-right font-mono text-[13px] tabular-nums text-fg">{r.count}</span>
         </li>
       ))}
     </ol>

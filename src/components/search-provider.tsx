@@ -265,7 +265,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             className="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px] [animation:fade_160ms_var(--ease-out)_both]"
           />
 
-          <div className="pop-in relative w-full max-w-xl overflow-hidden rounded-2xl bg-bg-elevated shadow-float">
+          <div className="pop-in relative w-full max-w-xl overflow-hidden rounded-[var(--r-card)] bg-bg-elevated shadow-float">
             <div className="flex items-center gap-3 border-b border-border px-4">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-fg-subtle" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
@@ -295,9 +295,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                     : `${LISTBOX_ID}-${active}`
                 }
                 autoComplete="off"
-                className="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-fg-subtle"
+                className="h-14 w-full bg-transparent text-[18px] outline-none placeholder:text-fg-subtle"
               />
-              <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-fg-subtle sm:block">
+              <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[12.5px] text-fg-subtle sm:block">
                 esc
               </kbd>
             </div>
@@ -351,19 +351,19 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                     </>
                   )}
                 </svg>
-                <p className="mt-3 text-[14px] font-medium text-fg">
+                <p className="mt-3 text-[15px] font-medium text-fg">
                   {loadFailed ? "Search is unavailable right now." : `Nothing matches “${query}”.`}
                 </p>
-                <p className="mx-auto mt-1.5 max-w-[34ch] text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+                <p className="mx-auto mt-1.5 max-w-[34ch] text-pretty text-[13.5px] leading-relaxed text-fg-muted">
                   {loadFailed
                     ? "The index could not be fetched. Every tool is still one click away:"
                     : "Try the problem instead of the product — “slow”, “cost”, “hallucination” — or browse:"}
                 </p>
                 <div className="mt-4 flex justify-center gap-2">
-                  <Link href="/all" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-lg px-3 text-[12.5px] font-medium">
+                  <Link href="/all" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-[var(--r-control)] px-3 text-[13.5px] font-medium">
                     All tools
                   </Link>
-                  <Link href="/fix" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-lg px-3 text-[12.5px] font-medium">
+                  <Link href="/fix" onClick={closePalette} className="btn-paper inline-flex h-8 items-center rounded-[var(--r-control)] px-3 text-[13.5px] font-medium">
                     Fix a symptom
                   </Link>
                 </div>
@@ -393,7 +393,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                       // means; the extra events were pure main-thread cost on the
                       // one interaction this palette exists to serve.
                       onMouseEnter={() => setActive(i)}
-                      className={`relative flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-100 ${
+                      className={`relative flex w-full cursor-pointer items-center gap-3 rounded-[var(--r-control)] px-3 py-2.5 text-left transition-colors duration-100 ${
                         i === active ? "bg-bg-sunken" : ""
                       }`}
                     >
@@ -406,7 +406,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                       />
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="flex min-w-0 items-baseline gap-2">
-                          <span className="truncate text-sm font-medium">
+                          <span className="truncate text-[15.5px] font-medium">
                             {entry.name}
                           </span>
                           {/*
@@ -416,7 +416,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                             fix guide reads like an essay. The pill names the
                             kind so a reader can tell before navigating.
                           */}
-                          <span className="shrink-0 rounded-full border border-border px-1.5 py-px font-mono text-[9.5px] uppercase tracking-[0.08em] text-fg-subtle">
+                          <span className="shrink-0 rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted">
                             {entry.kind === "tool"
                               ? "Tool"
                               : entry.href.startsWith("/fix/")
@@ -430,7 +430,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                                     : "Essay"}
                           </span>
                         </span>
-                        <span className="truncate text-xs text-fg-subtle">
+                        <span className="truncate text-[13px] text-fg-muted">
                           {entry.categoryTitle}
                         </span>
                       </span>
@@ -445,11 +445,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           aria-label={`${entry.name} on the web (opens in a new tab)`}
-                          className="shrink-0 rounded p-0.5 text-fg-subtle hover:text-fg"
+                          className="shrink-0 rounded-[var(--r-control)] p-1.5 text-fg-subtle hover:bg-bg hover:text-fg"
                         >
                           <svg
-                            width="12"
-                            height="12"
+                            width="13"
+                            height="13"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -486,7 +486,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
             {/* Keyboard legend. Hidden on touch, where there are no keys to
                 teach. */}
-            <div aria-hidden="true" className="hidden items-center gap-4 border-t border-border bg-bg-sunken/60 px-4 py-2 font-mono text-[10px] text-fg-subtle sm:flex">
+            <div aria-hidden="true" className="hidden items-center gap-4 border-t border-border bg-bg-sunken/60 px-4 py-2 font-mono text-[12.5px] text-fg-subtle sm:flex">
               <span className="flex items-center gap-1.5">
                 <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">↑</kbd>
                 <kbd className="rounded border border-border bg-bg-elevated px-1 py-px shadow-ink">↓</kbd>
@@ -551,12 +551,12 @@ export function SearchTrigger({
       */
       onMouseEnter={prefetch}
       onFocus={prefetch}
-      aria-label="Search"
-      className={`press group inline-flex h-9 items-center gap-2 rounded-lg bg-bg-elevated px-2.5 text-sm text-fg-subtle shadow-ink hover:text-fg-muted hover:shadow-lift ${
-        compact ? "sm:h-auto sm:px-3 sm:py-1.5" : ""
+      aria-label="Search tools, layers, licences and essays"
+      className={`press group inline-flex h-11 items-center gap-2 rounded-[var(--r-control)] border border-border bg-bg-elevated px-3 text-[14px] text-fg-subtle shadow-ink hover:border-border-strong hover:text-fg-muted hover:shadow-lift ${
+        compact ? "sm:h-10 sm:px-3" : ""
       } ${className}`}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.5-3.5" />
       </svg>
@@ -565,7 +565,7 @@ export function SearchTrigger({
       ) : (
         <>
           <span>Search</span>
-          <kbd className="ml-1 hidden rounded border border-border bg-bg px-1.5 py-0.5 font-mono text-[10px] transition-colors group-hover:border-border-strong sm:inline">
+          <kbd className="ml-1 hidden rounded border border-border bg-bg px-1.5 py-0.5 font-mono text-[12.5px] transition-colors group-hover:border-border-strong sm:inline">
             ⌘K
           </kbd>
         </>

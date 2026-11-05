@@ -33,22 +33,22 @@ export default function Error({
       <div className="flex items-center gap-4">
         <div
           aria-hidden="true"
-          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-md border border-dashed border-border-strong [--crop-inset:-5px]"
+          className="crop crop-static grid h-16 w-16 shrink-0 place-items-center rounded-[var(--r-control)] border border-dashed border-border-strong [--crop-inset:-5px]"
         >
-          <span className="font-mono text-[11px] text-fg-subtle">!</span>
+          <span className="font-mono text-[13px] text-fg-subtle">!</span>
         </div>
-        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
+        <p className="font-mono text-[13px] uppercase leading-relaxed tracking-[0.16em] text-fg-subtle">
           Error
           <br />
           Sheet failed to draw
         </p>
       </div>
 
-      <h1 className="mt-5 text-balance font-serif text-[34px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
+      <h1 className="mt-5 t-h1">
         This page hit a problem.
       </h1>
 
-      <p className="mt-4 max-w-[48ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
+      <p className="mt-4 max-w-[48ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
         Something failed while drawing it. Trying again usually works; if it
         does not, the rest of the index is unaffected.
       </p>
@@ -57,7 +57,7 @@ export default function Error({
         <button
           type="button"
           onClick={() => retry()}
-          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] font-medium"
+          className="btn-ink group inline-flex h-11 items-center gap-2 rounded-[var(--r-control)] px-4 text-[15px] font-medium"
         >
           <span
             aria-hidden="true"
@@ -69,14 +69,14 @@ export default function Error({
         </button>
         <Link
           href="/"
-          className="btn-paper inline-flex h-11 items-center gap-2 rounded-lg px-4 text-[14px] text-fg-muted hover:text-fg"
+          className="btn-paper inline-flex h-11 items-center gap-2 rounded-[var(--r-control)] px-4 text-[15px] text-fg-muted hover:text-fg"
         >
           Back to the index
         </Link>
       </div>
 
       {error.digest ? (
-        <p className="mt-10 border-t border-border pt-4 font-mono text-[11px] text-fg-subtle">
+        <p className="mt-10 border-t border-border pt-4 font-mono text-[13px] text-fg-subtle">
           Reference <span className="text-fg-muted">{error.digest}</span> — quote it if you{" "}
           <Link
             href="/contact"

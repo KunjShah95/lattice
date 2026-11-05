@@ -90,26 +90,31 @@ export default function StartPage() {
         lede="For people who have never shipped one. Pick the tool at each layer, in order, and stop when you have something that answers a question."
       >
         <InfoSection title="The path">
-          <ol className="space-y-4">
+          <ol className="space-y-0">
             {STEPS.map((s) => (
-              <li key={s.n} className="flex gap-4">
-                <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
+              <li key={s.n} className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 sm:gap-4">
+                <span className="pt-0.5 font-mono text-[13px] tabular-nums text-fg-subtle">
                   {s.n}
                 </span>
-                <div>
-                  <p className="text-[15px] font-medium">{s.title}</p>
-                  <p className="mt-1 text-pretty text-[13px] leading-relaxed text-fg-muted">
+                <div className="relative border-l border-border pb-7 pl-4 sm:pl-5">
+                  <span
+                    aria-hidden="true"
+                    className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full bg-border-strong"
+                  />
+                  <p className="text-[17px] font-medium leading-snug">{s.title}</p>
+                  <p className="mt-1 text-pretty text-[15px] leading-relaxed text-fg-muted">
                     {s.body}
                   </p>
-                  <p className="mt-1 font-mono text-[11px] text-fg-subtle">
-                    Tool:{" "}
-                    <Link
-                      href={s.href}
-                      className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-                    >
-                      {s.tool}
-                    </Link>
-                  </p>
+                  <Link
+                    href={s.href}
+                    className="chip mt-2.5 min-h-8 no-underline hover:no-underline"
+                  >
+                    <span className="font-mono text-[12px] uppercase tracking-[0.06em] text-fg-subtle">
+                      Tool
+                    </span>
+                    {s.tool}
+                    <span aria-hidden="true">→</span>
+                  </Link>
                 </div>
               </li>
             ))}

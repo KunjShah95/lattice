@@ -27,7 +27,7 @@ export function StackSpine({ layer }: { layer: number | null }) {
       aria-label="Position in the stack"
       className="flex items-center gap-3 sm:gap-4"
     >
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+      <span className="t-label">
         In the stack
       </span>
 
@@ -46,7 +46,7 @@ export function StackSpine({ layer }: { layer: number | null }) {
                 className={`flex h-7 items-center justify-center rounded-[2px] transition-opacity hover:opacity-100 ${
                   isCurrent
                     ? "opacity-100 outline outline-1 outline-offset-2 outline-accent"
-                    : "opacity-45"
+                    : "opacity-60"
                 }`}
               >
                 <span
@@ -68,7 +68,7 @@ export function StackSpine({ layer }: { layer: number | null }) {
       {/* The band label. Three bands is the thing a reader can hold in
           working memory; nine hues is a rainbow. */}
       {current ? (
-        <span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-subtle sm:inline">
+        <span className="hidden shrink-0 t-label sm:inline">
           {BANDS.find((b) => b.id === bandOf(current.layer))?.title} band
         </span>
       ) : null}

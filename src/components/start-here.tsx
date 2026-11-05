@@ -152,17 +152,19 @@ export function StartHere() {
    */
   const recommended = (() => {
     const order: string[] = [];
+    const labels = new Map<string, string>();
     const seen = new Set<string>();
     for (let i = 0; i < STEPS.length; i++) {
       const pick = picks[i];
       if (pick == null) continue;
       for (const s of STEPS[i].options[pick].sections) {
+        labels.set(s.slug, s.short);
         if (seen.has(s.slug)) continue;
         seen.add(s.slug);
         order.push(s.slug);
       }
     }
-    return order;
+    return { order, labels };
   })();
 
   const whyFor = (slug: string) => {
@@ -180,13 +182,13 @@ export function StartHere() {
     return (
       <div>
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+          <h2 className="t-h2">
             Two questions, answered
           </h2>
           <button
             type="button"
             onClick={reset}
-            className="press group inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono text-[11px] text-fg-subtle hover:bg-bg-sunken hover:text-fg"
+            className="press group inline-flex items-center gap-1.5 rounded-[var(--r-control)] px-2 py-1 font-mono text-[13px] text-fg-subtle hover:bg-bg-sunken hover:text-fg"
           >
             <span aria-hidden="true" className="inline-block transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-180">↺</span>
             Start over
@@ -194,22 +196,22 @@ export function StartHere() {
         </div>
 
         <ol className="mt-5 space-y-3">
-          {recommended.map((slug) => {
+          {recommended.order.map((slug) => {
             const reasons = whyFor(slug);
-            const first = reasons[0];
+            const label = recommended.labels.get(slug) ?? slug;
             return (
               <li key={slug} className="border-t border-border pt-3 first:border-t-0 first:pt-0">
                 <Link
                   href={`/${slug}`}
-                  className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex items-start gap-3 rounded-[var(--r-control)] px-2 py-1.5 transition-colors hover:bg-bg-sunken"
                 >
                   <span className="mt-1.5 h-6 w-[3px] shrink-0 rounded-full" style={layerStyle(slugToLayer(slug))} />
                   <span className="min-w-0">
-                    <span className="flex items-center gap-1.5 text-[15px] font-medium transition-colors group-hover:text-accent">
-                      {first ?? slug}
+                    <span className="flex items-center gap-1.5 text-[16.5px] font-medium transition-colors group-hover:text-accent">
+                      {label}
                       <span aria-hidden="true" className="nudge inline-block text-fg-subtle">→</span>
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {reasons.join(" · ")}
                     </span>
                   </span>
@@ -219,7 +221,7 @@ export function StartHere() {
           })}
         </ol>
 
-        <p className="editorial-justify mt-6 text-pretty text-[13px] leading-relaxed text-fg-subtle">
+        <p className="editorial-justify mt-6 text-pretty text-[14.5px] leading-relaxed text-fg-subtle">
           A starting order, not an architecture. If you are still unsure, read{" "}
           <Link
             href="/blog/evals-are-the-asset"
@@ -236,13 +238,13 @@ export function StartHere() {
   return (
     <div>
       <div className="flex items-baseline gap-3">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
+        <h2 className="t-h2">
           Two questions
         </h2>
         <span aria-hidden="true" className="h-px flex-1 bg-border" />
         {/* Step pips, not just a fraction — the reader sees how far through
             they are at a glance. */}
-        <span className="flex items-center gap-2 font-mono text-[11px] text-fg-subtle">
+        <span className="flex items-center gap-2 font-mono text-[13px] text-fg-subtle">
           <span aria-hidden="true" className="flex gap-1">
             {STEPS.map((s, i) => (
               <span
@@ -257,13 +259,13 @@ export function StartHere() {
         </span>
       </div>
 
-      <p className="mt-5 text-pretty text-[15px] leading-relaxed text-fg-muted">
-        {step.hint}
-      </p>
-
-      <h3 className="mt-4 text-balance font-serif text-[21px] font-medium tracking-[-0.01em]">
+      <h3 className="mt-5 text-balance font-serif text-[24px] font-medium leading-snug tracking-[-0.012em]">
         {step.question}
       </h3>
+
+      <p className="mt-2 text-pretty text-[15px] leading-relaxed text-fg-muted">
+        {step.hint}
+      </p>
 
       <ul className="mt-5 space-y-2.5">
         {step.options.map((option, i) => (
@@ -272,18 +274,18 @@ export function StartHere() {
               type="button"
               onClick={() => choose(i)}
               data-spot=""
-              className="btn-paper crop group relative w-full rounded-xl px-4 py-3.5 text-left [--crop-inset:-5px]"
+              className="btn-paper crop group relative w-full rounded-[var(--r-card)] px-4 py-3.5 text-left [--crop-inset:-5px]"
             >
               <span className="flex items-baseline justify-between gap-3">
                 <span className="flex items-baseline gap-3">
                   {/* Option letters, as on a specification form. */}
                   <span
                     aria-hidden="true"
-                    className="grid h-5 w-5 shrink-0 translate-y-[-1px] place-items-center rounded border border-border font-mono text-[10px] text-fg-subtle transition-colors group-hover:border-fg-subtle group-hover:text-fg"
+                    className="grid h-5 w-5 shrink-0 translate-y-[-1px] place-items-center rounded-[6px] border border-border font-mono text-[12px] text-fg-subtle transition-colors group-hover:border-fg-subtle group-hover:text-fg"
                   >
                     {String.fromCharCode(65 + i)}
                   </span>
-                  <span className="text-[14.5px] font-medium">{option.label}</span>
+                  <span className="text-[15.5px] font-medium">{option.label}</span>
                 </span>
                 <svg
                   width="14"
@@ -300,7 +302,7 @@ export function StartHere() {
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </span>
-              <span className="mt-1 block pl-8 text-pretty text-[13px] leading-relaxed text-fg-muted">
+              <span className="mt-1 block pl-8 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                 {option.detail}
               </span>
             </button>

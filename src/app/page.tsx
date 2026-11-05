@@ -39,61 +39,50 @@ function InkStroke() {
   );
 }
 
-function ArrowUpRight() {
+function Arrow() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="15"
+      height="15"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="nudge nudge-up-right mb-0.5 shrink-0 text-fg-subtle transition-colors group-hover:text-accent"
+      className="nudge shrink-0"
     >
-      <path d="M7 17 17 7M9 7h8v8" />
+      <path d="M5 12h13M13 6l6 6-6 6" />
     </svg>
   );
 }
 
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-5xl px-5 sm:px-6">
+    <div className="page-shell">
       {/* Site-level identity. Every other page references these nodes by @id
           rather than restating them. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd())) }}
       />
-      {/*
-        Hero. The headline does the work; nothing competes with it.
 
-        The `112 tools · hand-picked` eyebrow that used to sit above the h1 is
-        gone. It made three claims that are all already made elsewhere and
-        better: the count is in the diagram header and the footer, and
-        "hand-picked" is exactly what the paragraph below the headline argues
-        ("Most AI tooling directories list products"). An eyebrow directly above
-        a headline is the second-loudest element on the page, and this one was
-        spending that on a number.
-      */}
-      <section className="pb-12 pt-14 sm:pt-20">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
-          <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-            {/*
-              Each word rises out of its own mask, staggered. Transform only —
-              the glyphs are at full ink from the first frame, so LCP and the
-              contrast audit both see the finished headline. The spaces stay as
-              text nodes between the masks, so the heading still reads (and
-              copies) as one sentence.
-            */}
-            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.18em] text-fg-subtle">
-              Sheet 01
-              <span aria-hidden="true" className="px-2 text-border-strong">/</span>
-              A production stack
+      {/* Hero. One idea, one action, one picture. Everything that used to
+          compete here — a sheet number, a second CTA, a trust block, two
+          badges — now lives elsewhere or is gone. */}
+      <section className="pb-14 pt-16 sm:pb-16 sm:pt-24">
+        <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:gap-16">
+          <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
+            <p className="t-label">
+              A curated index
+              <span aria-hidden="true" className="px-2 text-border-strong">
+                /
+              </span>
+              {toolCount} tools, nine layers
             </p>
-            <h1 className="max-w-full text-balance font-serif text-[32px] font-medium leading-[1.06] tracking-[-0.025em] sm:text-[44px] lg:text-[48px]">
+
+            <h1 className="t-display mt-5">
               {HEADLINE.map((word, i) => (
                 <span key={word}>
                   <span className="mask-line">
@@ -110,106 +99,49 @@ export default function HomePage() {
               ))}
             </h1>
 
-            <p className="editorial-justify mt-5 max-w-[46ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
-              Every entry here carries two sentences: when to use it, and when to skip it.
-              Most directories publish the first. Almost none publish the second — it is the
-              one that tells you whether anything on this page is worth your time.
-              If you are choosing AI infrastructure tools for a production AI stack,
-              this is the starting point: every layer, from inference runtimes to evals.
+            <p className="t-lead measure mt-6">
+              Every entry carries two sentences: when to use it, and when to skip
+              it. Most directories publish the first. This one publishes the
+              second, because that is the sentence that tells you whether anything
+              here is worth your time.
             </p>
 
-            {/*
-              One decision per viewport. The hero sets context, the diagram
-              shows the shape, and this says what to actually do — in that
-              order. It was previously absent, so a first-time reader landed on
-              a beautiful diagram and had to infer that scrolling further was
-              the intended action.
-
-              The label names the action rather than the destination. "Start here"
-              would compete with the section below it that is also called Start
-              Here; this says what happens when you click.
-            */}
-            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <Link
                 href="/stack-builder"
-                className="btn-ink group inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium sm:justify-start"
+                className="btn-ink group inline-flex h-12 items-center justify-center gap-2 rounded-[var(--r-control)] px-5 text-[16px] font-medium"
               >
                 Build my stack
-                <span aria-hidden="true" className="nudge">→</span>
+                <Arrow />
               </Link>
-              <a
-                href="#start-here"
-                className="group inline-flex min-h-11 items-center gap-1 text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-              >
-                or find my starting layers
-                <span aria-hidden="true" className="nudge nudge-down inline-block no-underline">↓</span>
-              </a>
               <Link
                 href="/all"
-                className="inline-flex min-h-11 items-center text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--r-control)] border border-border-strong bg-bg-elevated px-5 text-[16px] font-medium text-fg transition-colors hover:bg-bg-sunken sm:justify-start"
               >
-                browse all {toolCount}
+                Browse all {toolCount}
+                <span aria-hidden="true" className="nudge text-fg-subtle">
+                  →
+                </span>
               </Link>
             </div>
 
-            <p className="mt-4 font-mono text-[11px] text-fg-subtle">
-              Never shipped one of these?{" "}
-              <Link
-                href="/start"
-                className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-              >
-                Start with a five-step path to one working RAG app →
-              </Link>
+            <p className="mt-6 flex max-w-[46ch] items-start gap-2.5 text-[14.5px] leading-relaxed text-fg-muted">
+              <span
+                aria-hidden="true"
+                className="pulse-dot mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-band-state"
+              />
+              <span>
+                Licence and cost facts are dated, and the build fails if any entry
+                is more than six months old. A stale entry cannot reach production.
+                <Link
+                  href="/methodology"
+                  className="ml-1 text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+                >
+                  Read the method
+                </Link>
+                .
+              </span>
             </p>
-
-            <ProductHuntBadge className="mt-7" />
-
-            {/*
-              The proof point, placed at first contact rather than in a
-              footer nobody opens.
-
-              "112 hand-picked tools" is the category's opening move and it is
-              why 112 reads as small against directories claiming 50,000. This
-              block is the better number: it is the one claim nobody else in
-              the category can make, because making it means doing it rather
-              than writing it. The six-month gate in `lib/data.ts` throws and
-              stops the deploy, so the date on a page is a receipt, not a
-              promise.
-
-              It also fills what was a large dead zone under the CTA. The
-              alternative was another navigation widget, and this page already
-              has enough of those.
-            */}
-            <div className="mt-9 max-w-[40ch] border-t border-border pt-4">
-              <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
-                {/* The build gate is live, so the marker breathes. */}
-                <span
-                  aria-hidden="true"
-                  className="pulse-dot h-1.5 w-1.5 rounded-full bg-band-state"
-                />
-                Why you can trust the figures
-              </p>
-              <p className="mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
-                Licence, cost and deployment facts go stale, so every entry is dated
-                and the build{" "}
-                <span className="text-fg">fails</span> if any is more than six months
-                old. A stale entry cannot reach production, which is more than
-                &ldquo;updated daily&rdquo; can tell you.
-              </p>
-              <Link
-                href="/methodology"
-                className="group mt-2.5 inline-flex items-center gap-1 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-              >
-                Read the method, including where it is wrong
-                <span aria-hidden="true" className="nudge inline-block">→</span>
-              </Link>
-            </div>
-
-            {/* No search field here. The sticky header already carries one and
-                is visible in the first viewport at every breakpoint, so a
-                second copy below the fold-adjacent hero was a duplicated
-                affordance competing with the diagram — which is the actual
-                pitch on this page, per the note above. */}
           </div>
 
           <StackDiagram />
@@ -217,54 +149,68 @@ export default function HomePage() {
       </section>
 
       {/* Symptom entry. Most readers arrive with a problem, not a category —
-          and no other index in the category routes by symptom. Each card is
-          one click from an ordered checklist through the stack. */}
-      <section aria-labelledby="fix-heading" className="border-t border-border py-12">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 id="fix-heading" className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            Something wrong? Start from the symptom
-          </h2>
-          <Link href="/fix" className="group inline-flex shrink-0 items-center gap-1 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent">
+          and no other index in the category routes by symptom. */}
+      <section aria-labelledby="fix-heading" className="section border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="t-label">Start from the symptom</p>
+            <h2 id="fix-heading" className="t-h2 mt-2">
+              Something is wrong. Where?
+            </h2>
+          </div>
+          <Link
+            href="/fix"
+            className="group inline-flex min-h-10 items-center gap-1.5 text-[14.5px] font-medium text-fg-muted transition-colors hover:text-fg"
+          >
             All symptoms
-            <span aria-hidden="true" className="nudge inline-block">→</span>
+            <span aria-hidden="true" className="nudge">→</span>
           </Link>
         </div>
-        {/* Cells on a sheet rather than floating cards: one hairline grid,
-            shared edges. Hover marks the cell with crop corners and sends the
-            arrow toward the page it opens. */}
-        <ul className="mt-6 grid gap-px overflow-hidden rounded-xl bg-border shadow-ink sm:grid-cols-2 lg:grid-cols-3">
+
+        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {resolvedSymptoms.map((s, i) => (
-            <li key={s.slug} className="bg-bg">
+            <li key={s.slug}>
               <Link
                 href={`/fix/${s.slug}`}
                 data-spot=""
                 style={{ "--spot": bandColor(s.band) } as React.CSSProperties}
-                className="crop group relative flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken"
+                className="crop group relative flex h-full min-h-[9.5rem] flex-col justify-between gap-6 rounded-[var(--r-card)] border border-border bg-bg-elevated p-5 shadow-ink transition-[transform,box-shadow,border-color] duration-200 [--crop-inset:4px] hover:-translate-y-0.5 hover:border-border-strong hover:shadow-lift"
               >
                 <span className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">
-                    <span aria-hidden="true" className="h-2 w-2 rounded-full transition-transform duration-300 ease-[var(--ease-spring)] group-hover:scale-125" style={{ backgroundColor: bandColor(s.band) }} />
+                  <span className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-fg-muted">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 rounded-full transition-transform duration-300 ease-[var(--ease-spring)] group-hover:scale-125"
+                      style={{ backgroundColor: bandColor(s.band) }}
+                    />
                     {s.label}
                   </span>
-                  <span aria-hidden="true" className="font-mono text-[10px] text-fg-subtle">
+                  <span aria-hidden="true" className="font-mono text-[12px] text-fg-subtle">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </span>
-                <span className="mt-auto flex items-end justify-between gap-3">
-                  <span className="text-pretty text-[15px] font-medium leading-snug transition-colors group-hover:text-accent">{s.title}</span>
-                  <ArrowUpRight />
+                <span className="flex items-end justify-between gap-3">
+                  <span className="text-pretty text-[19px] font-medium leading-snug tracking-[-0.012em] transition-colors group-hover:text-accent">
+                    {s.title}
+                  </span>
+                  <Arrow />
                 </span>
               </Link>
             </li>
           ))}
-          <li className="bg-bg-sunken/60">
-            <Link href="/compare" data-spot="" className="crop group relative flex h-full min-h-[7.5rem] flex-col gap-2 p-5 transition-colors duration-200 [--crop-inset:6px] hover:bg-bg-sunken">
-              <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-subtle">Choosing, not fixing</span>
-              <span className="mt-auto flex items-end justify-between gap-3">
-                <span className="text-pretty text-[15px] font-medium leading-snug transition-colors group-hover:text-accent">
-                  Compare tools — including across layers
+          <li>
+            <Link
+              href="/compare"
+              className="crop group relative flex h-full min-h-[9.5rem] flex-col justify-between gap-6 rounded-[var(--r-card)] border border-dashed border-border-strong p-5 transition-[transform,box-shadow,border-color] duration-200 [--crop-inset:4px] hover:-translate-y-0.5 hover:bg-bg-sunken/60 hover:shadow-lift"
+            >
+              <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-fg-muted">
+                Choosing, not fixing
+              </span>
+              <span className="flex items-end justify-between gap-3">
+                <span className="text-pretty text-[19px] font-medium leading-snug tracking-[-0.012em] transition-colors group-hover:text-accent">
+                  Compare tools, including across layers
                 </span>
-                <ArrowUpRight />
+                <Arrow />
               </span>
             </Link>
           </li>
@@ -273,25 +219,31 @@ export default function HomePage() {
 
       {/* Decision path — the index answers "what exists", this answers
           "given what I am building, which parts matter". */}
-      <section id="start-here" className="scroll-mt-20 border-t border-border py-12">
+      <section id="start-here" className="section scroll-mt-20 border-t border-border">
         <StartHere />
       </section>
 
       {/* The index — the legend for the diagram above. */}
       <div id="all" className="scroll-mt-20">
-        <div className="mb-8 flex items-baseline gap-3 border-t border-border pt-6">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle">
-            The index
-          </h2>
-          <span aria-hidden="true" className="h-px flex-1 bg-border" />
-          <span className="font-mono text-[11px] text-fg-subtle">
-            {categories.length} sections
-          </span>
+        <div className="border-t border-border pt-12 sm:pt-14">
+          <p className="t-label">The index</p>
+          <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="t-h2">Nine layers, substrate first.</h2>
+            <span className="font-mono text-[13px] tabular-nums text-fg-subtle">
+              {categories.length} sections · {toolCount} tools
+            </span>
+          </div>
+          <p className="measure mt-3 text-[15.5px] leading-relaxed text-fg-muted">
+            Ordered by where a request passes through, not by popularity. Open a
+            section to see every entry in it.
+          </p>
         </div>
 
-        {categories.map((category) => (
-          <CategorySection key={category.slug} category={category} />
-        ))}
+        <div className="mt-10">
+          {categories.map((category) => (
+            <CategorySection key={category.slug} category={category} collapsible />
+          ))}
+        </div>
       </div>
 
       {/* Colophon.
@@ -302,46 +254,40 @@ export default function HomePage() {
           answer engine can lift the passage whole. Counts come from the
           dataset, not prose, so they cannot drift.
       */}
-      <section className="border-t border-border py-12">
-        <div className="max-w-[62ch]">
-          <h2 className="text-[15px] font-medium">What is AI infrastructure?</h2>
-          <p className="editorial-justify mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
-            AI infrastructure is everything between your product and the model:
-            runtimes that serve weights, gateways that route requests, stores
-            that hold embeddings, frameworks that run agents, and evals that say
-            whether any of it works. Lattice indexes {toolCount} such AI
-            infrastructure tools as one AI stack, ordered by depth —{" "}
-            <Link
-              href="/all"
-              className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
-            >
-              browse every tool
-            </Link>
-            , or{" "}
-            <Link
-              href="/stack-builder"
-              className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
-            >
-              build your stack
-            </Link>
-            .
-          </p>
-        </div>
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="max-w-[46ch]">
-            <h2 className="text-[15px] font-medium">How this list is kept</h2>
-            <p className="editorial-justify mt-2 text-pretty text-[13px] leading-relaxed text-fg-muted">
-              Entries are hand-picked rather than submitted, and ordered by where
-              they sit in a real system rather than by how popular they are. Any
-              licence or cost figure older than six months fails the build, so a
-              stale entry cannot reach production.{" "}
+      <section className="section border-t border-border">
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
+          <div>
+            <h2 className="t-h3">What is AI infrastructure?</h2>
+            <p className="measure mt-3 text-[15.5px] leading-relaxed text-fg-muted">
+              AI infrastructure is everything between your product and the model:
+              runtimes that serve weights, gateways that route requests, stores
+              that hold embeddings, frameworks that run agents, and evals that
+              say whether any of it works. Lattice indexes {toolCount} such tools
+              as one stack, ordered by depth —{" "}
               <Link
-                href="/methodology"
+                href="/all"
                 className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
               >
-                The full method, including what this list gets wrong
+                browse every tool
               </Link>
-              . When something changes, it is listed on{" "}
+              , or{" "}
+              <Link
+                href="/stack-builder"
+                className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+              >
+                build your stack
+              </Link>
+              .
+            </p>
+          </div>
+
+          <div>
+            <h2 className="t-h3">How this list is kept</h2>
+            <p className="measure mt-3 text-[15.5px] leading-relaxed text-fg-muted">
+              Entries are hand-picked rather than submitted, and ordered by where
+              they sit in a real system rather than by how popular they are. Any
+              licence or cost figure older than six months fails the build. When
+              something changes, it is listed on{" "}
               <Link
                 href="/corrections"
                 className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
@@ -350,23 +296,24 @@ export default function HomePage() {
               </Link>
               .
             </p>
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <a
+                href={site.contact.href}
+                className="text-[14.5px] font-medium text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
+              >
+                Suggest a tool
+              </a>
+              <ProductHuntBadge />
+            </div>
           </div>
-          <a
-            href={site.contact.href}
-            className="shrink-0 text-[13px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
-          >
-            Suggest a tool
-          </a>
         </div>
 
-        {/* Reader-facing links only. /feed.xml and /llms.txt are deliberately not
-            linked from anywhere visible: they are for crawlers and agents, which
-            find them via the sitemap (robots.txt cannot list URLs, only rules),
-            and a human clicking "RSS" gets a raw XML document with no
-            explanation of what it is. */}
-        <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-6 font-mono text-[11px] text-fg-subtle">
-          <Link href="/all" className="transition-colors hover:text-fg-muted">
-            All {toolCount} AI infrastructure tools, filterable →
+        <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-6 font-mono text-[13px] text-fg-subtle">
+          <Link href="/all" className="transition-colors hover:text-fg">
+            All {toolCount} tools, filterable →
+          </Link>
+          <Link href="/start" className="transition-colors hover:text-fg">
+            Start with a five-step path →
           </Link>
         </div>
       </section>

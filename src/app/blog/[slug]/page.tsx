@@ -63,7 +63,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-6 sm:pt-16">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         // Structured data for rich results. Content is ours, not user input.
@@ -79,35 +79,35 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         <header className="mb-10">
           <Link
             href="/blog"
-            className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+            className="t-label transition-colors hover:text-fg-muted"
           >
             ← Essays
           </Link>
 
-          <h1 className="mt-5 text-balance font-serif text-[32px] font-medium leading-[1.12] tracking-[-0.02em] sm:text-[42px]">
+          <h1 className="mt-5 t-h1">
             {meta.title}
           </h1>
 
-          <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-4 max-w-[58ch] text-pretty text-[17px] leading-relaxed text-fg-muted">
             {meta.dek}
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-5 font-mono text-[11px] text-fg-subtle">
-            <span>By {bylineName}</span>
-            <span aria-hidden="true">·</span>
-            <time dateTime={meta.date}>{formatDate(meta.date)}</time>
-            <span aria-hidden="true">·</span>
-            <span>{meta.readingTime}</span>
+          <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-border pt-5">
+            <span className="text-[14px] text-fg-muted">By {bylineName}</span>
+            <span aria-hidden="true" className="text-fg-subtle">·</span>
+            <time dateTime={meta.date} className="text-[14px] text-fg-muted">
+              {formatDate(meta.date)}
+            </time>
+            <span className="chip min-h-8">{meta.readingTime}</span>
             {sections.map((c) => (
-              <span key={c.slug} className="inline-flex items-center gap-1.5">
-                <span aria-hidden="true">·</span>
-                <Link
-                  href={`/${c.slug}`}
-                  className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg-muted"
-                >
-                  {c.title}
-                </Link>
-              </span>
+              <Link key={c.slug} href={`/${c.slug}`} className="chip min-h-8">
+                <span
+                  aria-hidden="true"
+                  className="h-2.5 w-[3px] rounded-full"
+                  style={layerStyle(c.layer)}
+                />
+                {c.short}
+              </Link>
             ))}
           </div>
         </header>
@@ -134,10 +134,10 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
       */}
       {sections.length ? (
         <section className="mt-16 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <h2 className="t-h4">
             Where to look next
           </h2>
-          <p className="mt-3 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="mt-3 max-w-[60ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             {sections.length === 1
               ? "This essay is mostly about one layer, so that is where the options are:"
               : "This essay spans several layers. The options live in each:"}
@@ -147,7 +147,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
               <li key={c.slug}>
                 <Link
                   href={`/${c.slug}`}
-                  className="group flex h-full items-start gap-3 rounded-lg border border-border bg-bg-elevated p-3.5 transition-colors hover:border-border-strong"
+                  className="group card flex h-full items-start gap-3 p-4 transition-colors hover:border-border-strong"
                 >
                   <span
                     aria-hidden="true"
@@ -155,13 +155,13 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
                     style={layerStyle(c.layer)}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[14px] font-medium group-hover:text-accent">
+                    <span className="block text-[16px] font-medium group-hover:text-accent">
                       {c.title}
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+                    <span className="mt-1 line-clamp-2 block text-pretty text-[14px] leading-relaxed text-fg-muted">
                       {c.responsibility}
                     </span>
-                    <span className="mt-1.5 block font-mono text-[11px] text-fg-subtle">
+                    <span className="mt-2 block font-mono text-[12.5px] text-fg-subtle">
                       {c.tools.length} tools →
                     </span>
                   </span>
@@ -174,8 +174,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
 
       {/* Related essays — the internal backlink graph. */}
       {related.length ? (
-        <nav aria-label="Related essays" className="mt-12 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <nav aria-label="Related essays" className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">
             Read next
           </h2>
           <ul className="mt-4 space-y-px">
@@ -183,7 +183,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
               <li key={r.meta.slug}>
                 <Link
                   href={`/blog/${r.meta.slug}`}
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
                     aria-hidden="true"
@@ -191,10 +191,10 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
                     style={layerStyle(r.meta.layers[0] ?? null)}
                   />
                   <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
+                    <span className="block text-[17px] font-medium group-hover:text-accent">
                       {r.meta.title}
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {r.meta.dek}
                     </span>
                   </span>

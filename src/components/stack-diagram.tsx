@@ -29,10 +29,10 @@ export function StackDiagram() {
   return (
     <div className="relative">
       <div className="mb-2 flex items-baseline justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+        <span className="t-label">
           The stack
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+        <span className="t-label">
           {stackLayers.length} layers · {offStack.length} off-stack
         </span>
       </div>
@@ -54,20 +54,22 @@ export function StackDiagram() {
       */}
       {/* The frame is a drawing, so it carries permanent crop corners just
           outside its edge — the same marks a row picks up on hover, at rest. */}
-      <div className="crop crop-static relative rounded-xl bg-bg-elevated/70 p-1.5 shadow-ink [--crop-inset:-7px] [--crop:10px]">
+      <div className="crop crop-static relative rounded-[var(--r-card)] bg-bg-elevated/70 p-1.5 shadow-ink [--crop-inset:-7px] [--crop:10px]">
         {bandOrder.map((band) => (
           <section key={band.id} className="mb-1 last:mb-0">
             {/* The band heading carries the symptom it is associated with,
                 because readers arrive with a symptom rather than a layer
                 number. */}
             <h3 className="flex flex-wrap items-baseline gap-x-2.5 px-3 pb-1 pt-2.5">
-              <span
-                className="font-mono text-[9.5px] uppercase tracking-[0.18em]"
-                style={{ color: `var(--band-${band.id})` }}
-              >
+              <span className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.12em] text-fg-muted">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: `var(--band-${band.id})` }}
+                />
                 Band {band.roman} · {band.title}
               </span>
-              <span className="text-[11.5px] text-fg-subtle">
+              <span className="text-[13px] text-fg-subtle">
                 usually sounds like {band.sounds}
               </span>
             </h3>
@@ -96,7 +98,7 @@ export function StackDiagram() {
                             "--spot": layerColor(layer),
                           } as React.CSSProperties
                         }
-                        className="crop group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-lg px-3 py-3 transition-colors duration-200 [--crop-inset:3px] [--crop:6px] hover:bg-bg-sunken sm:gap-4"
+                        className="crop group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-[var(--r-control)] px-3 py-3 transition-colors duration-200 [--crop-inset:3px] [--crop:6px] hover:bg-bg-sunken sm:gap-4"
                       >
                         {/* Full-bleed tint in the layer's own colour. */}
                         <span
@@ -132,18 +134,18 @@ export function StackDiagram() {
                           }}
                         />
 
-                        <span className="relative w-6 shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle transition-colors group-hover:text-fg">
+                        <span className="relative w-6 shrink-0 font-mono text-[13px] tabular-nums text-fg-subtle transition-colors group-hover:text-fg">
                           {category.index}
                         </span>
 
                         <span className="relative min-w-0 flex-1">
                           <span className="flex items-center gap-1.5">
-                            <span className="truncate text-[14px] font-medium">
+                            <span className="truncate text-[15px] font-medium">
                               {category.title}
                             </span>
                             <span
                               aria-hidden="true"
-                              className="-translate-x-1 text-[12px] text-fg-subtle opacity-0 transition-[translate,scale,rotate,opacity] duration-300 ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100"
+                              className="-translate-x-1 text-[13px] text-fg-subtle opacity-0 transition-[translate,scale,rotate,opacity] duration-300 ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100"
                             >
                               →
                             </span>
@@ -154,7 +156,7 @@ export function StackDiagram() {
                               below `sm` keeps the row scannable and the count
                               legible; the full sentence is on the section
                               page either way. */}
-                          <span className="mt-0.5 hidden text-pretty text-[12.5px] leading-relaxed text-fg-muted sm:block">
+                          <span className="mt-0.5 hidden text-pretty text-[13.5px] leading-relaxed text-fg-muted sm:block">
                             {category.responsibility}
                           </span>
                         </span>
@@ -170,7 +172,7 @@ export function StackDiagram() {
                               style={{ width: `${width}%`, ...layerStyle(layer) }}
                             />
                           </span>
-                          <span className="w-6 text-right font-mono text-[12px] tabular-nums text-fg-muted">
+                          <span className="w-6 text-right font-mono text-[13px] tabular-nums text-fg-muted">
                             {category.tools.length}
                           </span>
                         </span>
@@ -184,7 +186,7 @@ export function StackDiagram() {
 
         {/* Substrate marker. */}
         <div className="flex items-center gap-2 px-3 pb-1 pt-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-subtle">
+          <span className="t-label">
             Substrate
           </span>
           <span aria-hidden="true" className="h-px flex-1 bg-border" />
@@ -193,7 +195,7 @@ export function StackDiagram() {
         {/* Title block — the box in the corner of every engineering sheet
             that says what the drawing is, how it is scaled and which way up
             it reads. Here it is the legend for the two encodings above. */}
-        <dl className="mx-1.5 mb-1 mt-2 hidden grid-cols-3 sm:grid overflow-hidden rounded-md border border-border font-mono text-[9.5px] uppercase tracking-[0.12em] text-fg-subtle">
+        <dl className="mx-1.5 mb-1 mt-2 hidden grid-cols-3 sm:grid overflow-hidden rounded-[var(--r-control)] border border-border font-mono text-[12px] uppercase tracking-[0.12em] text-fg-subtle">
           <div className="border-r border-border px-2.5 py-1.5">
             <dt className="sr-only">Orientation</dt>
             <dd>Drawn surface ↑</dd>
@@ -217,21 +219,21 @@ export function StackDiagram() {
         <Link
           key={category.slug}
           href={`/${category.slug}`}
-          className="group mt-3 flex items-center gap-3 rounded-lg border border-dashed border-border-strong px-3 py-2.5 transition-[background-color,border-color] duration-200 hover:border-fg-subtle hover:bg-bg-sunken sm:gap-4"
+          className="group mt-3 flex items-center gap-3 rounded-[var(--r-control)] border border-dashed border-border-strong px-3 py-2.5 transition-[background-color,border-color] duration-200 hover:border-fg-subtle hover:bg-bg-sunken sm:gap-4"
         >
           <span aria-hidden="true" className="h-9 w-[3px] shrink-0 rounded-full bg-fg-subtle opacity-40" />
-          <span className="w-6 shrink-0 font-mono text-[12px] text-fg-subtle">
+          <span className="w-6 shrink-0 font-mono text-[13px] text-fg-subtle">
             {category.index}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-medium text-fg-muted group-hover:text-fg">
+            <span className="block truncate text-[15px] font-medium text-fg-muted group-hover:text-fg">
               {category.title}
             </span>
-            <span className="mt-0.5 block text-pretty text-[12.5px] leading-relaxed text-fg-subtle">
+            <span className="mt-0.5 block text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
               {category.responsibility}
             </span>
           </span>
-          <span className="shrink-0 font-mono text-[12px] tabular-nums text-fg-subtle">
+          <span className="shrink-0 font-mono text-[13px] tabular-nums text-fg-subtle">
             {category.tools.length}
           </span>
         </Link>
