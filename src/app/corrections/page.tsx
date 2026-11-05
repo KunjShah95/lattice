@@ -8,7 +8,7 @@ import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo
 import { toJsonLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
-  title: "Corrections: what this index has got wrong",
+  title: "Corrections — what this index has got wrong",
   description:
     "Every change to the entries, generated from the commit log rather than maintained by hand. What was corrected, when, and which claim it touched.",
   alternates: { canonical: "/corrections" },
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
  *
  * That matters for a specific reason the strategy doc names: stated uncertainty is
  * the one reliably citable signal, because the practitioner who broke through in
- * the category audit got cited for a caveat: "I do not cite GitHub stars as
- * quality because they can be inflated"and not for a list. A caveat only
+ * the category audit got cited for a caveat — "I do not cite GitHub stars as
+ * quality because they can be inflated" — and not for a list. A caveat only
  * earns that if it is visibly acted on. A corrections page with entries on it is
  * the evidence; a prose promise in `/methodology` §06 is not.
  *
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
  * From `git log` over `attributes.ts` and `data.ts`, by
  * `scripts/build-corrections-log.mjs`. A hand-maintained corrections page is a
  * list somebody has to remember to append to, and it goes stale the moment
- * someone forgets: at which point it is worse than absent, because it looks like
+ * someone forgets — at which point it is worse than absent, because it looks like
  * evidence. Derived, it cannot disagree with what happened, and
  * `npm run generate:check` fails the build if the two drift.
  *
@@ -56,7 +56,7 @@ export default function CorrectionsPage() {
   const earliest = dates.length ? dates[dates.length - 1] : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -65,7 +65,7 @@ export default function CorrectionsPage() {
               {
                 // A `Blog` is the closest honest type: a dated, ordered list of
                 // authored entries. `CollectionPage` would imply these are
-                // sub-pages with their own URLs, and they are not: they are rows.
+                // sub-pages with their own URLs, and they are not — they are rows.
                 "@type": "Blog",
                 "@id": pageUrl,
                 url: pageUrl,
@@ -92,8 +92,8 @@ export default function CorrectionsPage() {
         }}
       />
 
-      <header className="hero-head">
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+      <header>
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -105,13 +105,13 @@ export default function CorrectionsPage() {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+        <p className="mt-6 t-label">
           {corrections.length} changes · {earliest ?? AS_OF} onward
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           What this index has got wrong.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Every change to the {toolCount} entries, in order, generated from the
           commit log rather than kept by hand. An index that says it wants to be
           corrected and then shows no corrections has told you nothing.
@@ -119,9 +119,9 @@ export default function CorrectionsPage() {
       </header>
 
       {corrections.length === 0 ? (
-        <p className="mt-10 border-t border-border pt-6 text-[14px] text-fg-subtle">
+        <p className="mt-12 border-t border-border pt-8 text-[15px] text-fg-subtle">
           No entries have been corrected yet. That is a statement about this page
-          having been added after the fact, not about the index being right: {" "}
+          having been added after the fact, not about the index being right —{" "}
           <Link
             href="/methodology"
             className="text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
@@ -131,60 +131,72 @@ export default function CorrectionsPage() {
           says where it is wrong in ways a commit cannot show.
         </p>
       ) : (
-        <ol className="mt-10 space-y-px">
+        <ol className="mt-10">
           {corrections.map((entry) => (
             <li
               key={entry.hash}
-              className="border-t border-border py-4 first:border-t-0 first:pt-0"
+              className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 py-4 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-6"
             >
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <time
-                  dateTime={entry.date}
-                  className="font-mono text-[11px] tabular-nums text-fg-subtle"
-                >
-                  {entry.date}
-                </time>
-                {entry.touched.map((label) => (
-                  <span
-                    key={label}
-                    className="rounded-full border border-border px-1.5 py-px font-mono text-[10px] uppercase tracking-[0.08em] text-fg-subtle"
+              <time
+                dateTime={entry.date}
+                className="pt-0.5 font-mono text-[12.5px] tabular-nums text-fg-subtle"
+              >
+                {entry.date}
+              </time>
+
+              {/* A timeline, not a table: the data is a sequence of events, so
+                  the rule is the form. Each dot is one change and the line is
+                  the history it belongs to. */}
+              <div className="relative border-l border-border pl-4 sm:pl-5">
+                <span
+                  aria-hidden="true"
+                  className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full bg-fg-subtle"
+                />
+                {entry.touched.length ? (
+                  <div className="mb-1.5 flex flex-wrap gap-1.5">
+                    {entry.touched.map((label) => (
+                      <span
+                        key={label}
+                        className="rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted"
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <h2 className="text-balance font-serif text-[20px] font-medium leading-snug tracking-[-0.012em]">
+                  {/* Outbound, `rel="noopener"`, and deliberately not a next/link:
+                      it goes to github.com, and prefetching a commit page on
+                      every row of a list nobody asked for is not worth the
+                      request. */}
+                  <a
+                    href={entry.url}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-fg transition-colors hover:text-accent"
                   >
-                    {label}
-                  </span>
-                ))}
+                    {entry.title}
+                  </a>
+                </h2>
+                <p className="mt-1 font-mono text-[12.5px] text-fg-subtle">
+                  <span className="sr-only">Commit </span>
+                  {entry.hash}
+                </p>
               </div>
-              <h2 className="mt-1.5 text-balance font-display text-[19px] font-medium leading-snug tracking-[-0.01em]">
-                {/* Outbound, `rel="noopener"`, and deliberately not a next/link:
-                    it goes to github.com, and prefetching a commit page on
-                    every row of a list nobody asked for is not worth the
-                    request. */}
-                <a
-                  href={entry.url}
-                  target="_blank"
-                  rel="noopener"
-                  className="text-fg transition-colors hover:text-accent"
-                >
-                  {entry.title}
-                </a>
-              </h2>
-              <p className="mt-1 font-mono text-[11px] text-fg-subtle">
-                <span className="sr-only">Commit </span>
-                {entry.hash}
-              </p>
             </li>
           ))}
         </ol>
       )}
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           How to read this
         </h2>
-        <ul className="mt-4 space-y-3 text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <ul className="mt-4 space-y-3 text-pretty text-[15px] leading-relaxed text-fg-muted">
           <li className="editorial-justify">
             <span className="text-fg">This is a record, not a score.</span> A
             short log means little has needed fixing, or that this page was added
-            late: it is not evidence that the index is right.{" "}
+            late — it is not evidence that the index is right.{" "}
             <Link
               href="/methodology"
               className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"

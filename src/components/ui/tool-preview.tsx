@@ -21,8 +21,8 @@ export function ToolPreview({ tool }: { tool: Tool }) {
 
   return (
     <>
-      <span className="block text-[13px] font-medium text-fg">{tool.name}</span>
-      <span className="mt-1 block text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+      <span className="block text-[14.5px] font-medium text-fg">{tool.name}</span>
+      <span className="mt-1 block text-pretty text-[13.5px] leading-relaxed text-fg-muted">
         {tool.blurb}
       </span>
       <DecisionValve
@@ -33,7 +33,7 @@ export function ToolPreview({ tool }: { tool: Tool }) {
         skipWhen={tool.skipWhen}
       />
       {facts.length ? (
-        <span className="mt-2.5 block font-mono text-[10.5px] text-fg-subtle">
+        <span className="mt-2.5 block font-mono text-[12.5px] text-fg-subtle">
           {facts.join(" · ")}
         </span>
       ) : null}

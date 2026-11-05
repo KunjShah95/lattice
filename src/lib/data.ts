@@ -742,4 +742,8 @@ export const allToolEntries = allTools.map((entry) => ({
   // "also in X" marker and has nowhere to put a clause. The prose lives on the
   // tool page, which is the surface that can actually carry it.
   secondHomes: (entry.secondHomes ?? []).map((h) => h.section),
+  // Right-aligned in the explorer, next to the entry it dates. The build gate
+  // already refuses anything older than six months, so this is a receipt rather
+  // than a warning.
+  asOf: entry.asOf,
 }));

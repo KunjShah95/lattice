@@ -26,10 +26,10 @@ export function SiteHeader() {
     <header className="header-elevate sticky top-0 z-40 border-b border-border bg-bg pt-[env(safe-area-inset-top)]">
       {/* `relative` anchors the mobile drawer, which is absolutely
           positioned at top-full of this bar. */}
-      <div className="relative mx-auto flex h-14 max-w-5xl items-center gap-4 px-5 sm:px-6">
+      <div className="page-shell relative flex h-16 items-center gap-3 sm:gap-5">
         <Link
           href="/"
-          className="press group -ml-1.5 shrink-0 rounded-md px-1.5 py-1 text-[15px] hover:bg-bg-sunken"
+          className="press group -ml-1.5 shrink-0 rounded-[var(--r-control)] px-1.5 py-1 text-[17px] hover:bg-bg-sunken"
         >
           <Logo />
         </Link>
@@ -47,7 +47,7 @@ export function SiteHeader() {
               the mobile drawer, where there is room for it at full width. */}
           <Link
             href="/review"
-            className="btn-ink group ml-1 hidden h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium sm:inline-flex"
+            className="btn-ink group ml-1 hidden h-10 items-center gap-1.5 rounded-[var(--r-control)] px-3.5 text-[14px] font-medium sm:inline-flex"
           >
             Get a review
             <span aria-hidden="true" className="nudge">→</span>

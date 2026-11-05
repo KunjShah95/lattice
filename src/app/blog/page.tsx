@@ -6,7 +6,6 @@ import { getCategory } from "@/lib/data";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Essays on production AI",
@@ -31,11 +30,11 @@ export default function BlogIndexPage() {
   const name = "Essays";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* The essays as an ItemList. The per-post pages each carry Article
           JSON-LD, but nothing joined them: this is the only page that says
           which essays exist, and it links out by rendered <a> alone otherwise.
-          `dek` is the description: the same one each post's own metadata
+          `dek` is the description — the same one each post's own metadata
           uses, so the two cannot disagree. */}
       <script
         type="application/ld+json"
@@ -57,28 +56,28 @@ export default function BlogIndexPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+      <header>
+        <p className="t-label">
           {posts.length} essays
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           Notes on building AI systems that hold up.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           The index tells you what exists. These essays cover the decisions
-          behind it: what to reach for first, what looks like an optimisation
+          behind it — what to reach for first, what looks like an optimisation
           and is actually a rewrite, and where the failure modes live.
         </p>
       </header>
 
-      <ol className="mt-12 space-y-px">
+      <ol className="mt-10 divide-y divide-border">
         {posts.map((post) => {
           const layer = post.meta.layers[0] ?? null;
           return (
             <li key={post.meta.slug}>
               <Link
                 href={`/blog/${post.meta.slug}`}
-                className="group -mx-2 flex gap-4 rounded-md px-2 py-5 transition-colors hover:bg-bg-sunken"
+                className="group -mx-2 flex gap-4 rounded-[var(--r-control)] px-2 py-6 transition-colors hover:bg-bg-sunken"
               >
                 <span
                   aria-hidden="true"
@@ -87,26 +86,37 @@ export default function BlogIndexPage() {
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                    <h2 className="text-balance font-display text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                    <h2 className="t-h3 transition-colors group-hover:text-accent">
                       {post.meta.title}
                     </h2>
-                    <span className="font-mono text-[11px] text-fg-subtle">
-                      {post.meta.readingTime}
-                    </span>
                   </span>
-                  <span className="mt-1.5 block text-pretty text-[14px] leading-relaxed text-fg-muted">
+                  <span className="mt-2 block text-pretty text-[15px] leading-relaxed text-fg-muted">
                     {post.meta.dek}
                   </span>
-                  <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] text-fg-subtle">
-                    <time dateTime={post.meta.date}>
+                  <span className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                    <time
+                      dateTime={post.meta.date}
+                      className="inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] tabular-nums text-fg-muted"
+                    >
                       {formatDate(post.meta.date)}
                     </time>
+                    <span className="inline-flex items-center rounded-[var(--r-pill)] border border-border px-2 py-0.5 font-mono text-[12px] text-fg-muted">
+                      {post.meta.readingTime}
+                    </span>
                     {post.meta.sections.map((slug) => {
                       const category = getCategory(slug);
                       if (!category) return null;
                       return (
-                        <span key={slug}>
-                          <span aria-hidden="true">·</span> {category.title}
+                        <span
+                          key={slug}
+                          className="inline-flex items-center gap-1.5 rounded-[var(--r-pill)] border border-border px-2 py-0.5 text-[12.5px] text-fg-muted"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={layerStyle(category.layer)}
+                          />
+                          {category.short}
                         </span>
                       );
                     })}
@@ -117,9 +127,6 @@ export default function BlogIndexPage() {
           );
         })}
       </ol>
-      <div className="pb-4 pt-16">
-        <CtaBand />
-      </div>
     </div>
   );
 }

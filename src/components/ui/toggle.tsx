@@ -19,9 +19,7 @@ export function Toggle({
       type="button"
       onClick={onToggle}
       aria-pressed={pressed}
-      className={`rounded-full border px-4 py-1.5 text-[13px] transition-colors ${
-        pressed ? "border-accent bg-bg-sunken text-fg" : "border-border text-fg-muted"
-      }`}
+      className="chip min-h-9 px-3.5"
     >
       <span aria-hidden="true">{pressed ? "☑ " : "☐ "}</span>
       {children}

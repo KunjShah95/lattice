@@ -24,14 +24,14 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-24 border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto max-w-5xl px-5 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="page-shell py-16">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Logo />
-            <p className="mt-3 max-w-[30ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
+            <p className="mt-3 max-w-[30ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
               {site.tagline}
             </p>
-            <p className="mt-4 font-mono text-[11px] text-fg-subtle">
+            <p className="mt-4 font-mono text-[13px] tabular-nums text-fg-subtle">
               {toolCount} tools · {layers.length} layers · {glossary.length} terms
             </p>
             <ProductHuntBadge className="mt-4" />
@@ -98,7 +98,7 @@ export function SiteFooter() {
           <FooterColumn title="Layers">
             {layers.map((c) => (
               <FooterLink key={c.slug} href={`/${c.slug}`}>
-                <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
+                <span className="font-mono text-[13px] tabular-nums text-fg-subtle">
                   {c.index}
                 </span>
                 <span className="truncate">{c.short}</span>
@@ -139,20 +139,10 @@ export function SiteFooter() {
             <FooterLink href="/submit">Submit a tool</FooterLink>
             <FooterLink href="https://github.com/KunjShah95/awesome-ai-infrastructure">The list on GitHub</FooterLink>
           </FooterColumn>
-
-          <FooterColumn title="Site">
-            <FooterLink href="/contact">Contact</FooterLink>
-            <FooterLink href="/about">About</FooterLink>
-            <FooterLink href="/returns">Returns &amp; refunds</FooterLink>
-            <FooterLink href="/privacy">Privacy</FooterLink>
-            <FooterLink href="/feed.xml">feed.xml</FooterLink>
-            <FooterLink href="/llms.txt">llms.txt</FooterLink>
-            <FooterLink href="/mcp.json">mcp.json</FooterLink>
-          </FooterColumn>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-[11px] text-fg-subtle">
+          <p className="font-mono text-[13px] text-fg-subtle">
             © {site.copyrightYear} {site.copyrightHolder}
             <span className="px-2" aria-hidden="true">·</span>
             <Link href="/contact" className="transition-colors hover:text-fg-muted">
@@ -166,8 +156,12 @@ export function SiteFooter() {
             <Link href="/privacy" className="transition-colors hover:text-fg-muted">
               Privacy
             </Link>
+            <span className="px-2" aria-hidden="true">·</span>
+            <Link href="/returns" className="transition-colors hover:text-fg-muted">
+              Returns
+            </Link>
           </p>
-          <p className="font-mono text-[11px] text-fg-subtle">
+          <p className="font-mono text-[13px] text-fg-subtle">
             <a
               href={site.contact.href}
               className="transition-colors hover:text-fg-muted"
@@ -202,7 +196,7 @@ export function SiteFooter() {
             ) : null}
           </p>
         </div>
-        <p className="mt-3 font-mono text-[11px] text-fg-subtle">
+        <p className="mt-3 font-mono text-[13px] text-fg-subtle">
           A curated index. All tools belong to their respective authors.
         </p>
       </div>
@@ -219,7 +213,7 @@ function FooterColumn({
 }) {
   return (
     <nav aria-label={title}>
-      <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
+      <h2 className="t-label">
         {title}
       </h2>
       <ul className="mt-3 space-y-2">{children}</ul>
@@ -238,7 +232,7 @@ function FooterLink({
     <li>
       <Link
         href={href}
-        className="group flex min-h-7 items-baseline gap-2 text-[13px] text-fg-muted transition-colors hover:text-fg"
+        className="group flex min-h-9 items-baseline gap-2 text-[14.5px] text-fg-muted transition-colors hover:text-fg"
       >
         {/* A short lead rule draws in ahead of the label on hover, so the
             link being pointed at is marked without a colour shift alone. */}

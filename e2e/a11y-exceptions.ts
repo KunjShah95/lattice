@@ -4,40 +4,33 @@
  * ## Why an allowlist at all
  *
  * `a11y.spec.ts` runs axe against every route family and fails on any violation.
- * The first run reported **499 `color-contrast` failures on `/all` alone**: a
- * real WCAG AA defect, not a false positive: `--fg-subtle` is the site's most
- * used text colour (every metadata line, count, eyebrow and label) and it
- * measures 2.89:1 in light and 3.35:1 in dark against its own background,
- * against a 4.5:1 requirement.
+ * The first run reported **499 `color-contrast` failures on `/all` alone** — a
+ * real WCAG AA defect, not a false positive: `--fg-subtle` was the site's most
+ * used text colour and measured 2.89:1 in light and 3.35:1 in dark against its
+ * own background, against a 4.5:1 requirement.
  *
- * That is a genuine bug and it should be fixed. It is not fixed here because
- * changing it is a design decision, not a mechanical one: `--fg-subtle` is load
- * bearing across the whole palette, and the reason it is quiet is that this site
- * deliberately signals hierarchy through muted labels and hairline rules rather
- * than through weight and size. Reaching 4.5:1 means dropping to roughly
- * `#6b6b73`, which stops reading as "quiet metadata" at all.
+ * ## The list is now empty
  *
- * So rather than deleting the check, which would leave 499 failures invisible
- * again, the known defect is written down here and enforced as a **ratchet**.
+ * `--fg-subtle` and `--fg-muted` were raised in both palettes (see
+ * `src/app/globals.css`), the typographic floor moved from 10px to 12px, and the
+ * colour is mirrored in `src/lib/og.tsx` so share cards agree with the site. The
+ * exception that used to live here has been deleted, which is the only way this
+ * ratchet is meant to shrink: by fixing the defect, not by declaring it.
  *
- * ## What the ratchet does
+ * ## What the ratchet does, if an entry is ever added back
  *
  * 1. Every violation id not in this file fails the suite. A *new* accessibility
  *    problem is still a build failure.
  * 2. Every id in this file must still be present. Removing the token by accident
  *    and declaring victory does not pass.
  * 3. Every id here must not have got worse. `worstContrast` is a floor: pass if
- *    the measured ratio is **at least** this good, fail if it dropped. That is
- *    what makes the list safe to leave in place: it can only be removed by
- *    actually fixing the colour, never by waiting for the problem to worsen.
+ *    the measured ratio is **at least** this good, fail if it dropped.
  *
- * ## To actually fix it
+ * ## To add one
  *
- * Raise `--fg-subtle` in both palettes in `src/app/globals.css`and, because
- * Satori does not read CSS custom properties, in `src/lib/og.tsx` too, or the
- * share cards drift from the site. Then delete the entry here. The suite will
- * tell you it is safe: without the entry, an occurrence fails rather than
- * passing silently.
+ * Raise the colour in both palettes in `globals.css` — and in `src/lib/og.tsx`
+ * too, because Satori does not read CSS custom properties. Only then, if the
+ * defect is genuinely deferred, record it here with the measured floor.
  */
 
 export type A11yException = {
@@ -55,23 +48,7 @@ export type A11yException = {
   worstContrast: number;
 };
 
-export const A11Y_EXCEPTIONS: A11yException[] = [
-  {
-    id: "color-contrast",
-    reason:
-      "--fg-subtle, the site's metadata/count/eyebrow colour, measures below " +
-      "4.5:1 in both themes. Fixing it is a palette change, not a mechanical one.",
-    // Measured across all 20 route families and both themes, worst first:
-    //   2.57:1  `--fg-subtle` at 12px on the home page's layer ordinals
-    //   2.80:1  `--fg-subtle` and `--fg-muted` at 10–11px on `--bg` and `--bg-elevated`
-    //   2.89:1  `--fg-subtle` at 14px on white (the header's "Search" label)
-    //   3.35:1  `--fg-subtle` in dark, on `--bg-elevated`
-    // The floor is the worst measurement across the whole sweep, not the first
-    // page that happened to fail: an earlier draft recorded 2.8 and the ratchet
-    // immediately caught the real figure on `/`.
-    worstContrast: 2.5,
-  },
-];
+export const A11Y_EXCEPTIONS: A11yException[] = [];
 
 /** Ids this suite will tolerate, for a fast lookup. */
 export const EXCEPTION_IDS = new Set(A11Y_EXCEPTIONS.map((e) => e.id));

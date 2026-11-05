@@ -5,12 +5,11 @@ import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons"
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "AI tool comparisons",
   description:
-    "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes (gateway vs evals, retrieval vs fine-tuning), each ending in a recommendation.",
+    "Head-to-head comparisons of genuine substitutes, and cross-layer comparisons no vendor publishes — gateway vs evals, retrieval vs fine-tuning — each ending in a recommendation.",
   alternates: { canonical: "/compare" },
   // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
   // canonical, and an inherited one points at the home page.
@@ -25,10 +24,10 @@ export default function CompareIndexPage() {
   const name = "Comparisons";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* The comparisons as an ItemList, with each one described by its verdict
-          rather than its intro. The verdict is the answer, it is what the page
-          exists to give, and on the page itself it is further down, after the
+          rather than its intro. The verdict is the answer — it is what the page
+          exists to give — and on the page itself it is further down, after the
           case for both sides. A crawler reading only this list gets the
           conclusion. */}
       <script
@@ -51,21 +50,21 @@ export default function CompareIndexPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+      <header>
+        <p className="t-label">
           {resolvedComparisons.length} comparisons
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           When the list is not the answer.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           A directory can tell you what exists. It cannot tell you which of two
           things to pick. These comparisons cover tools that are genuine
           substitutes for one another, and end with a recommendation rather
           than a feature grid.
         </p>
         {/* The written pages cover the pairs somebody wrote; this covers the rest. */}
-        <p className="editorial-justify mt-4 max-w-[56ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Not seeing your pair?{" "}
           <Link
             href="/compare/build"
@@ -88,9 +87,6 @@ export default function CompareIndexPage() {
         dek="Tools that do the same job. Pick one."
         items={substitutes}
       />
-      <div className="pb-4 pt-16">
-        <CtaBand />
-      </div>
     </div>
   );
 }
@@ -106,11 +102,11 @@ function ComparisonGroup({
 }) {
   if (!items.length) return null;
   return (
-    <section className="mt-12 border-t border-border pt-8">
-      <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+    <section className="mt-16 border-t border-border pt-10">
+      <h2 className="t-h4">
         {title} · {items.length}
       </h2>
-      <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+      <p className="editorial-justify mt-2 max-w-[60ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
         {dek}
       </p>
       <ol className="mt-6 space-y-px">
@@ -118,7 +114,7 @@ function ComparisonGroup({
           <li key={c.slug}>
             <Link
               href={`/compare/${c.slug}`}
-              className="group -mx-2 flex gap-4 rounded-md px-2 py-5 transition-colors hover:bg-bg-sunken"
+              className="group -mx-2 flex gap-4 rounded-[var(--r-control)] px-2 py-5 transition-colors hover:bg-bg-sunken"
             >
               {/* One segment per distinct layer, top to bottom in stack order,
                   so a cross-layer entry shows its span at a glance. */}
@@ -128,14 +124,21 @@ function ComparisonGroup({
                 ))}
               </span>
               <span className="min-w-0 flex-1">
-                <h3 className="text-balance font-display text-[19px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                <h3 className="t-h3 transition-colors group-hover:text-accent">
                   {c.title}
                 </h3>
-                <p className="editorial-justify mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">
+                <p className="mt-2 text-[15px] leading-relaxed text-fg-muted">
                   {c.description}
                 </p>
-                <span className="mt-2 font-mono text-[11px] text-fg-subtle">
-                  {c.tools.map((t) => t.name).join(" · ")}
+                <span className="mt-3 flex flex-wrap gap-1.5">
+                  {c.tools.map((t) => (
+                    <span
+                      key={t.name}
+                      className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[12.5px] text-fg-muted"
+                    >
+                      {t.name}
+                    </span>
+                  ))}
                 </span>
               </span>
             </Link>

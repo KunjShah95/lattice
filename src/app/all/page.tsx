@@ -5,12 +5,11 @@ import { allToolEntries, kinds, licenses, selfHostedCount, toolCount } from "@/l
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "All AI infrastructure tools",
   description:
-    `Every AI stack tool in the ${site.name} index: ${toolCount} tools ` +
+    `Every AI stack tool in the ${site.name} index — ${toolCount} tools ` +
     `across ${kinds.length} kinds, filterable by section, deployment model, kind and cost.`,
   alternates: { canonical: "/all" },
   // Next does not derive `og:url` from the canonical, and an inherited one
@@ -27,10 +26,10 @@ export default function AllToolsPage() {
   const name = "All AI infrastructure tools";
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* Every tool in the index, as an ItemList. This is the one page that
           lists all 112 and the only parent of every tool page, so without it the
-          complete set is described nowhere in structured data: a crawler sees
+          complete set is described nowhere in structured data — a crawler sees
           112 links it has to follow rather than 112 entries it can read.
           `blurb` is the description, same field the section pages use. */}
       <script
@@ -53,17 +52,12 @@ export default function AllToolsPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
-          {toolCount} tools · {selfHostedCount} self-hosted · {permissive} permissively
-          licensed
-        </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
-          Every AI infrastructure tool, filterable.
-        </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          The whole index in one list. Use it when you know what you are
-          looking for; use the{" "}
+      <header className="pb-8 pt-14 sm:pt-20">
+        <p className="t-label">The whole index</p>
+        <h1 className="t-h1 mt-3">Every tool, filterable.</h1>
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
+          The whole index in one list. Use it when you know what you are looking
+          for; use the{" "}
           <Link
             href="/"
             className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
@@ -72,12 +66,30 @@ export default function AllToolsPage() {
           </Link>{" "}
           when you do not.
         </p>
+
+        {/* Three figures, set as figures rather than as a sentence. The old
+            header ran them together in one mono line, which made the only
+            quantitative claim on the page read as a caption. */}
+        <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-y border-border py-4">
+          {[
+            { n: toolCount, label: "tools" },
+            { n: selfHostedCount, label: "self-hosted" },
+            { n: permissive, label: "permissively licensed" },
+          ].map((s) => (
+            <div key={s.label}>
+              <dt className="sr-only">{s.label}</dt>
+              <dd className="font-mono text-[28px] leading-none tracking-[-0.02em] tabular-nums">
+                {s.n}
+              </dd>
+              <dd className="mt-1.5 font-mono text-[12px] uppercase tracking-[0.08em] text-fg-subtle">
+                {s.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </header>
 
       <ToolExplorer tools={allToolEntries} />
-      <div className="pb-4 pt-16">
-        <CtaBand />
-      </div>
     </div>
   );
 }

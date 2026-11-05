@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BANDS, bandColor, bandLayers } from "@/lib/layer";
+import { BANDS, bandColor, bandLayers, layerColor } from "@/lib/layer";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "The three bands of the stack",
   // 195 characters. The three failure phrases are the whole hook and each one
   // is a thing people search, so they are kept and the framing around them cut
-  //: a description that hit the ceiling by dropping "unreliable and unmeasured"
+  // — a description that hit the ceiling by dropping "unreliable and unmeasured"
   // would lose the band III is the interesting one.
   description:
     "Nine stack layers, three bands: compute is slow and expensive, state gives wrong answers, control is unreliable and unmeasured.",
@@ -26,9 +25,9 @@ export const metadata: Metadata = {
  *
  * ## Why this needed a route
  *
- * The bands were already load-bearing and already everywhere: the stack diagram
+ * The bands were already load-bearing and already everywhere — the stack diagram
  * colours by them, `/fix` groups symptoms under them, the layer ramp is built
- * from them, and `layer_overlaps` reports them, but they had no URL. So the one
+ * from them, and `layer_overlaps` reports them — but they had no URL. So the one
  * view a reader cannot reach from a link, cannot cite, and cannot send to a
  * colleague was the axis the rest of the site's vocabulary is built on.
  *
@@ -46,9 +45,9 @@ export default function BandsIndexPage() {
   const name = "The three bands";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* The bands as an ItemList. Each is a collection with its own page, so
-          this is the only parent they have, and without it they are prose to a
+          this is the only parent they have — and without it they are prose to a
           crawler. */}
       <script
         type="application/ld+json"
@@ -70,65 +69,95 @@ export default function BandsIndexPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+      <header>
+        <p className="t-label">
           {BANDS.length} bands · {BANDS.reduce((n, b) => n + b.layers.length, 0)} layers
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           Nine layers, three bands.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          The layers are ordered because they are a dependency chain: you cannot
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
+          The layers are ordered because they are a dependency chain — you cannot
           tune weights before you serve them. But a reader rarely arrives with a
           layer in mind; they arrive with a symptom. And almost every production
           problem lives in one of these three places.
         </p>
       </header>
 
-      <ul className="mt-10 space-y-px">
+      <ul className="mt-10 grid gap-4 md:grid-cols-3">
         {BANDS.map((band) => {
           const layers = bandLayers(band.id);
           const tools = layers.reduce((n, c) => n + c.tools.length, 0);
           const symptoms = resolvedSymptoms.filter((s) => s.band === band.id);
           return (
-            <li key={band.id}>
+            <li key={band.id} className="h-full">
               <Link
                 href={`/bands/${band.id}`}
-                className="group -mx-2 block rounded-md px-2 py-5 transition-colors hover:bg-bg-sunken"
+                className="group card flex h-full flex-col overflow-hidden transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-lift"
               >
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h2 className="inline-flex items-center gap-2 font-display text-[22px] font-medium tracking-[-0.01em] group-hover:text-accent">
-                    <span
-                      aria-hidden="true"
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: bandColor(band.id) }}
-                    />
-                    Band {band.roman} · {band.title}
-                  </h2>
-                  <span className="font-mono text-[11px] text-fg-subtle">
-                    {tools} tools · layers {band.layers.join(", ")}
+                {/* The band as a colour field, with its numeral. The title and
+                    every fact sit below it — no text over a tint that a theme
+                    change or a low-contrast display could swallow. */}
+                <div
+                  aria-hidden="true"
+                  className="hatch hatch-span relative flex h-28 items-end justify-between px-5 pb-3"
+                  style={{
+                    color: bandColor(band.id),
+                    backgroundColor: `color-mix(in oklab, ${bandColor(band.id)} 14%, var(--bg-elevated))`,
+                    borderBottom: `2px solid ${bandColor(band.id)}`,
+                  }}
+                >
+                  <span className="font-serif text-[40px] leading-none" style={{ color: "var(--fg)" }}>
+                    {band.roman}
+                  </span>
+                  <span className="font-mono text-[12px] uppercase tracking-[0.08em]" style={{ color: "var(--fg-muted)" }}>
+                    {band.layers.length} layers
                   </span>
                 </div>
-                <p className="mt-1.5 text-pretty text-[14px] leading-relaxed text-fg">
-                  Failure sounds like{" "}
-                  <em className="text-fg not-italic">“{band.sounds}”</em>
-                </p>
-                <p className="mt-1 text-[13px] text-fg-subtle">
-                  {layers.map((c) => c.short).join(" · ")}
-                  {symptoms.length ? ` · ${symptoms.length} symptom guides` : ""}
-                </p>
+
+                <div className="flex flex-1 flex-col p-5">
+                  <h2 className="t-h3">{band.title}</h2>
+                  <p className="mt-2 text-[15px] leading-relaxed text-fg-muted">
+                    Failure sounds like{" "}
+                    <span className="text-fg">“{band.sounds}”</span>
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {layers.map((c) => (
+                      <span
+                        key={c.slug}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[12.5px] text-fg-muted"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: layerColor(c.layer) }}
+                        />
+                        {c.short}
+                      </span>
+                    ))}
+                  </div>
+
+                  <span className="mt-auto flex items-center justify-between gap-3 pt-5 font-mono text-[12.5px] text-fg-subtle">
+                    <span>
+                      {tools} tools
+                      {symptoms.length ? ` · ${symptoms.length} symptoms` : ""}
+                    </span>
+                    <span aria-hidden="true" className="nudge text-fg-muted">→</span>
+                  </span>
+                </div>
               </Link>
             </li>
           );
         })}
       </ul>
 
-      <p className="editorial-justify mt-10 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-12 border-t border-border pt-8 text-pretty text-[15px] leading-relaxed text-fg-subtle">
         The collapse is a simplification, and it hides something:{" "}
         <span className="text-fg-muted">band III is five of the nine layers</span>
         , so the band a reader is in does not tell them how much of the stack is
-        involved. That is the honest shape of the data rather than a defect in it,
-        the tooling market has concentrated in control, but it does mean the
+        involved. That is the honest shape of the data rather than a defect in it
+        — the tooling market has concentrated in control — but it does mean the
         bands are a shortcut and not a taxonomy. The{" "}
         <Link
           href="/methodology"
@@ -138,9 +167,6 @@ export default function BandsIndexPage() {
         </Link>{" "}
         says where else this index is wrong.
       </p>
-      <div className="pb-4 pt-16">
-        <CtaBand />
-      </div>
     </div>
   );
 }

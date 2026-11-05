@@ -15,6 +15,10 @@
  * and fails in strict mode. The browser tests need to address one facet
  * deterministically, and no role or ARIA attribute distinguishes them without also
  * changing what a screen reader announces.
+ *
+ * The count is set in mono and sits at the end of the pill, dimmed a step from
+ * the label: it is the second half of the same fact ("Free · 77") but it is a
+ * figure, and figures line up.
  */
 export function FilterChip({
   active,
@@ -41,25 +45,17 @@ export function FilterChip({
       {...(facetGroup && facetValue
         ? { "data-facet": facetGroup, "data-facet-value": facetValue }
         : {})}
-      className={`press inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2 py-1 text-[12px] sm:min-h-0 ${
-        active
-          ? "border-transparent bg-bg-elevated text-fg shadow-lift"
-          : "border-transparent text-fg-muted hover:bg-bg-sunken hover:text-fg"
-      }`}
+      className="chip min-h-9"
     >
       {tickColor ? (
         <span
           aria-hidden="true"
-          className="h-2.5 w-[2px] rounded-full"
+          className="h-2.5 w-[3px] rounded-full"
           style={{ backgroundColor: tickColor }}
         />
       ) : null}
       {label}
-      <span
-        className={`font-mono text-[10px] transition-colors ${active ? "text-fg-muted" : "text-fg-subtle"}`}
-      >
-        {count}
-      </span>
+      <span className="font-mono text-[12px] tabular-nums">{count}</span>
     </button>
   );
 }

@@ -116,8 +116,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf9f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d0d0f" },
+    { media: "(prefers-color-scheme: light)", color: "#fbfbfa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0c" },
   ],
 };
 
@@ -157,7 +157,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           */}
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:border focus:border-border-strong focus:bg-bg-elevated focus:px-3 focus:py-2 focus:text-[13px] focus:text-fg"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-[var(--r-control)] focus:border focus:border-border-strong focus:bg-bg-elevated focus:px-3 focus:py-2 focus:text-[14.5px] focus:text-fg"
           >
             Skip to content
           </a>

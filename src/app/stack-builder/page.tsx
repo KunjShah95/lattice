@@ -3,12 +3,11 @@ import { StackBuilder } from "@/components/stack-builder";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { ReviewCta } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "AI stack builder",
   description:
-    "Describe your AI system and get a recommended stack of AI infrastructure tools (gateway, retrieval, inference, evals), as a shareable link with cost band, confidence and tradeoffs.",
+    "Describe your AI system and get a recommended stack of AI infrastructure tools — gateway, retrieval, inference, evals — as a shareable link with cost band, confidence and tradeoffs.",
   alternates: { canonical: "/stack-builder" },
   // Next does not derive `og:url` from the canonical, and an inherited one
   // points at the home page. See `absolute()` in lib/seo.ts.
@@ -20,12 +19,12 @@ export default function StackBuilderPage() {
   const name = "Stack Builder";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* WebApplication, not CollectionPage. This is the one route on the site
           that is a tool rather than a list, so it gets the type that says so:
           a thing a reader operates, free, in a browser, with no install.
-          `applicationCategory` is UtilitiesApplication: closest schema.org
-          offers for "not an editor, not a game"and the tool count is stated
+          `applicationCategory` is UtilitiesApplication — closest schema.org
+          offers for "not an editor, not a game" — and the tool count is stated
           because it is the honest bound on what the output can draw from. */}
       <script
         type="application/ld+json"
@@ -56,25 +55,22 @@ export default function StackBuilderPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+      <header>
+        <p className="t-label">
           Tell me what to use
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           Build my AI stack.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
-          Describe your case, or start from a real one below, then press{" "}
-          <span className="text-fg">Build my stack</span>. Every build becomes a
-          shareable link, and the decision copies out as a report. Drawn from the 112 tools already in
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
+          Describe your case — or start from a real one below. The stack updates
+          as you answer, every answer becomes part of a shareable link, and the
+          decision copies out as a report. Drawn from the 112 tools already in
           the index; estimates are heuristic bands, not vendor quotes.
         </p>
       </header>
       <div className="mt-8">
         <StackBuilder />
-        {/* Server-rendered under the builder rather than inside it, so the
-            offer adds nothing to the configurator's client bundle. */}
-        <ReviewCta context="Want a human to check your stack against the real system before you commit?" />
       </div>
     </div>
   );

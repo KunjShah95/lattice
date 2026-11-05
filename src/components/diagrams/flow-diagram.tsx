@@ -84,14 +84,14 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
 
   return (
     <figure className="my-10 not-prose">
-      <div className="overflow-hidden rounded-xl border border-border bg-bg-elevated">
+      <div className="overflow-hidden rounded-[var(--r-card)] border border-border bg-bg-elevated">
         {/* Figure chrome */}
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-muted">
+          <span className="font-mono text-[13px] uppercase tracking-[0.14em] text-fg-muted">
             {spec.title}
           </span>
           {spec.subtitle ? (
-            <span className="font-mono text-[11px] text-fg-subtle">
+            <span className="font-mono text-[13px] text-fg-subtle">
               {spec.subtitle}
             </span>
           ) : null}
@@ -263,7 +263,7 @@ export function FlowDiagram({ spec }: { spec: DiagramSpec }) {
           {spec.notes.map((note) => (
             <p
               key={note}
-              className="flex gap-2 text-pretty text-[13px] leading-relaxed text-fg-muted"
+              className="flex gap-2 text-pretty text-[14.5px] leading-relaxed text-fg-muted"
             >
               <span aria-hidden="true" className="text-fg-subtle">
 

@@ -5,7 +5,6 @@ import { resolvedSymptoms } from "@/lib/symptoms";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
-import { CtaBand } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Fix an AI system by symptom",
@@ -23,9 +22,9 @@ export default function FixIndexPage() {
   const name = "Fix a symptom";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* The symptoms as an ItemList. These five pages are the ones phrased the
-          way people actually type: "why is my LLM app slow"and each carries
+          way people actually type — "why is my LLM app slow" — and each carries
           HowTo + FAQPage. This index is their only parent, and it described none
           of them. `description` is the symptom's own summary, the same line the
           page leads with. */}
@@ -49,14 +48,14 @@ export default function FixIndexPage() {
         }}
       />
 
-      <header className="hero-head">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+      <header>
+        <p className="t-label">
           {resolvedSymptoms.length} symptoms
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           Start from what is wrong.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Nobody opens a directory because they want a vector database. They
           open it because answers are wrong, or slow, or the bill doubled. Pick
           the symptom; each one is an ordered checklist through the stack,
@@ -69,24 +68,35 @@ export default function FixIndexPage() {
         const items = resolvedSymptoms.filter((s) => s.band === band.id);
         if (!items.length) return null;
         return (
-          <section key={band.id} className="mt-12 border-t border-border pt-8">
-            <h2 className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
-              <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: bandColor(band.id) }} />
-              Band {band.roman} · {band.title} · &ldquo;{band.sounds}&rdquo;
+          <section key={band.id} className="mt-16 border-t border-border pt-10">
+            <h2 className="flex flex-wrap items-center gap-2 text-[15px] font-medium">
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 rounded-[var(--r-pill)]"
+                style={{ backgroundColor: bandColor(band.id) }}
+              />
+              <span>
+                Band {band.roman} · {band.title}
+              </span>
+              <span className="font-normal text-fg-muted">— “{band.sounds}”</span>
             </h2>
-            <ul className="mt-5 space-y-px">
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {items.map((s) => (
-                <li key={s.slug}>
+                <li key={s.slug} className="h-full">
                   <Link
                     href={`/fix/${s.slug}`}
-                    className="group -mx-2 block rounded-md px-2 py-4 transition-colors hover:bg-bg-sunken"
+                    className="group card flex h-full flex-col p-5 transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-lift"
                   >
-                    <h3 className="text-balance font-display text-[20px] font-medium tracking-[-0.01em] group-hover:text-accent">
+                    <h3 className="text-[19px] font-medium leading-snug tracking-[-0.012em] transition-colors group-hover:text-accent">
                       {s.title}
                     </h3>
-                    <p className="mt-1.5 text-pretty text-[14px] leading-relaxed text-fg-muted">
+                    <p className="mt-2 line-clamp-3 text-[14.5px] leading-relaxed text-fg-muted">
                       {s.description}
                     </p>
+                    <span className="mt-auto flex items-center justify-between gap-3 pt-4 font-mono text-[12.5px] text-fg-subtle">
+                      <span>{s.checks.length} checks</span>
+                      <span aria-hidden="true" className="nudge text-fg-muted">→</span>
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -94,9 +104,6 @@ export default function FixIndexPage() {
           </section>
         );
       })}
-      <div className="pb-4 pt-16">
-        <CtaBand />
-      </div>
     </div>
   );
 }

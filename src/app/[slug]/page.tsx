@@ -10,7 +10,6 @@ import { AS_OF } from "@/lib/attributes";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, credit, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
-import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -43,8 +42,8 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const siblings = categories.filter((c) => c.slug !== slug);
   // Tools whose home is another layer but which declare this one too. Without
   // this block, a second home is only visible from the tool's own page, so a
-  // reader who arrives at the layer where the tool actually matters (agent
-  // memory under Retrieval, a prompt registry under Prompt Engineering), never
+  // reader who arrives at the layer where the tool actually matters — agent
+  // memory under Retrieval, a prompt registry under Prompt Engineering — never
   // learns it is here.
   const alsoHere = getSecondHomeTools(slug);
   const position = categories.findIndex((c) => c.slug === slug);
@@ -54,7 +53,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
   const pageUrl = `${site.url}/${category.slug}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -98,8 +97,8 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
 
       <CategorySection category={category} headingLevel="h1" />
 
-      {/* The layer page states a responsibility claim about the whole stack,
-          what belongs here and what does not, which is a claim about the
+      {/* The layer page states a responsibility claim about the whole stack —
+          what belongs here and what does not — which is a claim about the
           index, not about a tool. It gets the same attribution the tool pages
           do. Placed after the section rather than inside it because
           `CategorySection` is shared with the home page, where one byline for
@@ -111,16 +110,16 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
       />
 
       {/* Also here from another layer. Same content as the tool page's "Also
-          belongs in", reached from the other end, which is the direction that
+          belongs in", reached from the other end — which is the direction that
           was missing. The swatch is the tool's *home* layer, so the pair reads
           as "this layer, and that one" rather than a second list of tools that
           look native here. */}
       {alsoHere.length ? (
         <section className="border-t border-border py-10">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <h2 className="t-h4">
             Also relevant here
           </h2>
-          <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             These tools are indexed in another layer, but they also do{" "}
             {category.title.toLowerCase()}&apos;s job. Each carries its home
             layer&apos;s colour.
@@ -130,12 +129,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
               <li key={`${tool.category.slug}-${tool.slug}`}>
                 {/* Tracked, but the reverse direction of the tool page's
                     "Also belongs in". Taken together the two counts say whether
-                    the crossing is being read from either end: a field that is
+                    the crossing is being read from either end — a field that is
                     only ever read in one direction is a field nobody needed. */}
                 <TrackLink
                   href={`/${tool.category.slug}/${tool.slug}`}
                   event="second-home"
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
                     aria-hidden="true"
@@ -144,14 +143,14 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
                   />
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-[15px] font-medium group-hover:text-accent">
+                      <span className="text-[16px] font-medium group-hover:text-accent">
                         {tool.name}
                       </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                      <span className="font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
                         {tool.category.short}
                       </span>
                     </span>
-                    <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {because}
                     </span>
                   </span>
@@ -170,12 +169,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
         {prev ? (
           <Link
             href={`/${prev.slug}`}
-            className="group min-w-0 flex-1 rounded-lg px-3 py-2 transition-colors hover:bg-bg-sunken"
+            className="group min-w-0 flex-1 rounded-[var(--r-control)] px-3 py-2 transition-colors hover:bg-bg-sunken"
           >
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+            <span className="block font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
               Previous
             </span>
-            <span className="mt-1 block truncate text-[14px] font-medium">
+            <span className="mt-1 block truncate text-[15px] font-medium">
               {prev.title}
             </span>
           </Link>
@@ -186,12 +185,12 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
         {next ? (
           <Link
             href={`/${next.slug}`}
-            className="group min-w-0 flex-1 rounded-lg px-3 py-2 text-right transition-colors hover:bg-bg-sunken"
+            className="group min-w-0 flex-1 rounded-[var(--r-control)] px-3 py-2 text-right transition-colors hover:bg-bg-sunken"
           >
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+            <span className="block font-mono text-[12.5px] uppercase tracking-wider text-fg-subtle">
               Next
             </span>
-            <span className="mt-1 block truncate text-[14px] font-medium">
+            <span className="mt-1 block truncate text-[15px] font-medium">
               {next.title}
             </span>
           </Link>
@@ -202,7 +201,7 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
 
       {/* All other sections, so no page is a dead end. */}
       <div className="pt-4">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg-subtle">
+        <h2 className="font-mono text-[13px] uppercase tracking-[0.12em] text-fg-subtle">
           All sections
         </h2>
         <ul className="mt-4 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -210,13 +209,13 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
             <li key={c.slug}>
               <Link
                 href={`/${c.slug}`}
-                className="flex items-baseline gap-2 rounded-md px-2 py-1.5 text-[13px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+                className="flex items-baseline gap-2 rounded-[var(--r-control)] px-2 py-1.5 text-[14.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
               >
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {c.index}
                 </span>
                 {c.title}
-                <span className="font-mono text-[11px] text-fg-subtle">
+                <span className="font-mono text-[13px] text-fg-subtle">
                   {c.tools.length}
                 </span>
               </Link>
@@ -224,7 +223,6 @@ export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
           ))}
         </ul>
       </div>
-      <ReviewCta context={`Choosing between these for ${category.title.toLowerCase()}? A review picks one against your traffic, team and the rest of your stack.`} />
     </div>
   );
 }

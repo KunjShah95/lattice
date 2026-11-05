@@ -45,7 +45,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={() => void copy()}
-      className="rounded-md border border-border px-3.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+      className="press inline-flex h-10 items-center gap-1.5 rounded-[var(--r-control)] border border-border px-3.5 text-[14px] text-fg-muted transition-colors hover:border-border-strong hover:bg-bg-sunken hover:text-fg"
     >
       <span aria-live="polite">{copied ? `✓ ${copiedLabel}` : label}</span>
     </button>

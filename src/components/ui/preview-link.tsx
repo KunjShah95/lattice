@@ -164,7 +164,7 @@ export function PreviewLink({
           open ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
-        <span className="block rounded-lg border border-border-strong bg-bg-elevated p-3.5 text-left shadow-float">
+        <span className="block rounded-[var(--r-card)] border border-border-strong bg-bg-elevated p-4 text-left shadow-float">
           {preview}
         </span>
       </span>

@@ -15,13 +15,13 @@ import { COMPARE_EXAMPLES, decodeCompare, encodeCompare, MAX_COMPARE } from "@/l
 import { layerColor } from "@/lib/layer-color";
 
 /**
- * Compare Builder: pick up to three tools from *any* layers and see them side by
+ * Compare Builder — pick up to three tools from *any* layers and see them side by
  * side.
  *
  * Why this exists: `/compare/<slug>` pages are hand-written, narrow, and end in a
  * recommendation. `strategy/02` §4 says the surface no funded competitor can occupy
- * is the cross-layer one: "here is how your gateway compares to your evaluation
- * platform"and there are 112 tools, so far more pairs than anyone will write by
+ * is the cross-layer one — "here is how your gateway compares to your evaluation
+ * platform" — and there are 112 tools, so far more pairs than anyone will write by
  * hand. This lets the reader pose the comparison themselves, and says plainly when
  * the tools are not substitutes.
  *
@@ -29,7 +29,7 @@ import { layerColor } from "@/lib/layer-color";
  * that takes constraints is the Stack Builder, which the result links to.
  *
  * State is the URL, as everywhere else on this site: no account, no storage.
- * Everything below is a pure function of the selected ids: the logic is in
+ * Everything below is a pure function of the selected ids — the logic is in
  * `lib/compare-table` and `lib/compare-url`, where vitest can reach it.
  */
 
@@ -112,7 +112,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
   return (
     <div>
       {/* ---- Picker ---------------------------------------------------- */}
-      <div className="rounded-lg border border-border bg-bg-elevated p-5 sm:p-6">
+      <div className="rounded-[var(--r-card)] border border-border bg-bg-elevated p-6 sm:p-8">
         <Eyebrow as="h2">
           {full ? `${MAX_COMPARE} of ${MAX_COMPARE} chosen` : `Add a tool · ${ids.length} of ${MAX_COMPARE}`}
         </Eyebrow>
@@ -124,19 +124,19 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
             onChange={(e) => setQuery(e.target.value)}
             disabled={full}
             placeholder={full ? "Remove one to add another" : "Search by name or layer, e.g. “qdrant” or “gateway”"}
-            className="h-10 w-full rounded-lg border border-border bg-bg px-3 text-[14px] outline-none transition-[box-shadow,border-color] duration-200 placeholder:text-fg-subtle focus:border-border-strong focus:shadow-[0_0_0_4px_var(--selection)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="field h-11 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
 
         {q ? (
           matches.length ? (
-            <ul aria-label="Matching tools" className="mt-2 divide-y divide-border rounded-md border border-border">
+            <ul aria-label="Matching tools" className="mt-2 divide-y divide-border overflow-hidden rounded-[var(--r-card)] border border-border">
               {matches.map((t) => (
                 <li key={t.id}>
                   <button
                     type="button"
                     onClick={() => add(t.id)}
-                    className="press flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13.5px] transition-colors hover:bg-bg-sunken"
+                    className="press flex w-full items-center gap-2.5 px-3 py-2 text-left text-[15px] transition-colors hover:bg-bg-sunken"
                   >
                     <span
                       aria-hidden="true"
@@ -144,14 +144,14 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                       style={{ backgroundColor: layerColor(t.layer) }}
                     />
                     <span className="font-medium">{t.name}</span>
-                    <span className="font-mono text-[11px] text-fg-subtle">{t.categoryShort}</span>
-                    <span className="ml-auto font-mono text-[11px] text-fg-subtle">add</span>
+                    <span className="font-mono text-[13px] text-fg-subtle">{t.categoryShort}</span>
+                    <span className="ml-auto font-mono text-[13px] text-fg-subtle">add</span>
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-[13px] text-fg-subtle">
+            <p className="mt-2 text-[14.5px] text-fg-subtle">
               Nothing matches &ldquo;{query}&rdquo;. Names and layer names both count.
             </p>
           )
@@ -166,7 +166,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                   <button
                     type="button"
                     onClick={() => setIds(ex.ids.filter((id) => valid.has(id)))}
-                    className="press rounded-md border border-border px-3 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                    className="press chip min-h-9 justify-start px-3.5"
                   >
                     {ex.label}
                   </button>
@@ -180,24 +180,24 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
       {/* ---- Result ---------------------------------------------------- */}
       <section aria-live="polite" className="mt-10">
         <Eyebrow>Side by side</Eyebrow>
-        <p className="editorial-justify mt-2 max-w-[60ch] text-pretty font-display text-[19px] leading-snug">{relation.text}</p>
+        <p className="editorial-justify mt-2 max-w-[60ch] text-pretty font-serif text-[22px] leading-snug tracking-[-0.012em]">{relation.text}</p>
 
         {selected.length >= 2 ? (
-          <p className="mt-1.5 font-mono text-[11px] text-fg-subtle">
+          <p className="mt-2 font-mono text-[13px] text-fg-muted">
             {differingFacts(rows)} of {rows.filter((r) => r.kind === "fact").length} factual rows differ
           </p>
         ) : null}
 
         {selected.length ? (
           <>
-            <div className="mt-5 overflow-x-auto rounded-lg border border-border">
-              <table className="w-full min-w-[34rem] border-collapse text-left text-[13px]">
+            <div className="mt-5 overflow-x-auto rounded-[var(--r-card)] border border-border">
+              <table className="w-full min-w-[34rem] border-collapse text-left text-[14.5px]">
                 <caption className="sr-only">
                   Comparison of {selected.map((t) => t.name).join(", ")}
                 </caption>
                 <thead>
                   <tr className="border-b border-border bg-bg-sunken">
-                    <th scope="col" className="w-28 p-3 align-bottom font-mono text-[10.5px] font-normal uppercase tracking-[0.12em] text-fg-subtle">
+                    <th scope="col" className="w-28 p-3 align-bottom font-mono text-[12px] font-normal uppercase tracking-[0.08em] text-fg-muted">
                       <span className="sr-only">Attribute</span>
                     </th>
                     {selected.map((t) => (
@@ -205,7 +205,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                         <span className="flex items-start justify-between gap-2">
                           <Link
                             href={`/${t.id}`}
-                            className="inline-flex items-center gap-1.5 font-display text-[17px] font-medium hover:text-accent"
+                            className="inline-flex items-center gap-1.5 font-serif text-[18px] font-medium hover:text-accent"
                           >
                             <span
                               aria-hidden="true"
@@ -218,7 +218,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                             type="button"
                             onClick={() => remove(t.id)}
                             aria-label={`Remove ${t.name} from the comparison`}
-                            className="press -mr-1 grid h-6 w-6 shrink-0 place-items-center rounded text-fg-subtle hover:bg-bg hover:text-fg"
+                            className="press -mr-1 grid h-7 w-7 shrink-0 place-items-center rounded-[var(--r-control)] text-fg-subtle hover:bg-bg hover:text-fg"
                           >
                             <span aria-hidden="true">×</span>
                           </button>
@@ -232,13 +232,16 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
                     <tr key={r.label} className="border-b border-border last:border-b-0 align-top">
                       <th
                         scope="row"
-                        className="p-3 font-mono text-[10.5px] font-normal uppercase tracking-[0.1em] text-fg-subtle"
+                        className="p-3 font-mono text-[12px] font-normal uppercase tracking-[0.08em] text-fg-muted"
                       >
                         {r.label}
                         {/* Marked in words as well as position: the row that
                             differs is the one a decision turns on. */}
                         {selected.length >= 2 && r.kind === "fact" && r.differs ? (
-                          <span className="mt-1 block text-accent normal-case tracking-normal">differs</span>
+                          <span className="mt-1 inline-flex items-center gap-1.5 text-[12px] normal-case tracking-normal text-fg">
+                            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
+                            differs
+                          </span>
                         ) : null}
                       </th>
                       {r.values.map((v, i) => (
@@ -270,7 +273,7 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
               />
             </div>
 
-            <p className="editorial-justify mt-6 max-w-[62ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
+            <p className="editorial-justify mt-6 max-w-[62ch] text-pretty text-[14.5px] leading-relaxed text-fg-subtle">
               No winner is declared here: that needs your constraints, and they are not in this
               table. The{" "}
               <Link

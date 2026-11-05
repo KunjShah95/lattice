@@ -15,7 +15,6 @@ import {
 } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { getSymptom, resolvedSymptoms, symptomQuestions } from "@/lib/symptoms";
-import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return resolvedSymptoms.map((s) => ({ slug: s.slug }));
@@ -53,7 +52,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
   const questions = symptomQuestions(s);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -99,33 +98,33 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         }}
       />
 
-      <header className="hero-head" style={{ "--wash": band ? bandColor(band.id) : undefined } as React.CSSProperties}>
+      <header>
         <Link
           href="/fix"
-          className="block w-fit font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+          className="t-label transition-colors hover:text-fg-muted"
         >
           ← Fix a symptom
         </Link>
 
         {band ? (
-          <p className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+          <p className="mt-5 inline-flex items-center gap-2 t-label">
             <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: bandColor(band.id) }} />
             Band {band.roman} · {band.title} · &ldquo;{band.sounds}&rdquo;
           </p>
         ) : null}
 
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           {s.title}
         </h1>
 
         <div className="mt-6 max-w-[62ch] border-l-2 border-accent pl-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <p className="t-label">
             Short answer
           </p>
-          <p className="editorial-justify mt-1.5 text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg">{s.answer}</p>
+          <p className="editorial-justify mt-1.5 text-pretty text-[17px] leading-relaxed text-fg">{s.answer}</p>
         </div>
 
-        <p className="mt-5 font-mono text-[11px] text-fg-subtle">
+        <p className="mt-5 font-mono text-[13px] text-fg-subtle">
           By {bylineName} · Tool facts verified{" "}
           <time dateTime={datasetModified}>{AS_OF}</time> ·{" "}
           <Link href="/methodology" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
@@ -136,36 +135,36 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
 
       {/* The checklist. Ordered cheapest-first, not by layer, so the layer tag
           on each step is what shows the reader where in the stack they are. */}
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Check in this order
         </h2>
         <ol className="mt-6 space-y-10">
           {s.checks.map((c, i) => (
             <li key={c.check} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3">
-              <span className="font-mono text-[13px] text-fg-subtle">{String(i + 1).padStart(2, "0")}</span>
+              <span className="font-mono text-[14.5px] text-fg-subtle">{String(i + 1).padStart(2, "0")}</span>
               <div>
-                <h3 className="text-balance text-[17px] font-medium leading-snug">{c.check}</h3>
-                <p className="mt-1 inline-flex items-center gap-1.5 font-mono text-[11px] text-fg-subtle">
+                <h3 className="text-balance text-[18px] font-medium leading-snug">{c.check}</h3>
+                <p className="mt-1 inline-flex items-center gap-1.5 font-mono text-[13px] text-fg-subtle">
                   <span aria-hidden="true" className="h-3 w-[3px] rounded-full" style={layerStyle(c.layer)} />
                   Layer {String(c.layer).padStart(2, "0")} ·{" "}
                   <Link href={`/${c.section.slug}`} className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
                     {c.section.title}
                   </Link>
                 </p>
-                <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">{c.why}</p>
+                <p className="editorial-justify mt-2 max-w-[62ch] text-pretty text-[15.5px] leading-relaxed text-fg-muted">{c.why}</p>
 
                 {c.tools.length ? (
                   <ul className="mt-4 space-y-3">
                     {c.tools.map((t) => (
-                      <li key={t.name} className="rounded-md border border-border bg-bg-elevated px-3 py-2.5">
-                        <Link href={t.href} className="text-[14px] font-medium underline decoration-border-strong underline-offset-4 hover:text-accent">
+                      <li key={t.name} className="rounded-[var(--r-card)] border border-border bg-bg-elevated p-4">
+                        <Link href={t.href} className="text-[15px] font-medium underline decoration-border-strong underline-offset-4 hover:text-accent">
                           {t.name}
                         </Link>
-                        <dl className="mt-1.5 grid gap-1 text-[13px] leading-relaxed sm:grid-cols-[4.5rem_minmax(0,1fr)]">
-                          <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-fg-subtle">Use when</dt>
+                        <dl className="mt-1.5 grid gap-1 text-[14.5px] leading-relaxed sm:grid-cols-[4.5rem_minmax(0,1fr)]">
+                          <dt className="font-mono text-[13px] uppercase tracking-[0.08em] text-fg-subtle">Use when</dt>
                           <dd className="text-fg-muted">{t.useWhen}</dd>
-                          <dt className="font-mono text-[11px] uppercase tracking-[0.08em] text-fg-subtle">Skip when</dt>
+                          <dt className="font-mono text-[13px] uppercase tracking-[0.08em] text-fg-subtle">Skip when</dt>
                           <dd className="text-fg">{t.skipWhen}</dd>
                         </dl>
                       </li>
@@ -178,13 +177,13 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         </ol>
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Looks like a fix, is not
         </h2>
         <ul className="mt-4 space-y-3">
           {s.notTheFix.map((n) => (
-            <li key={n} className="flex gap-3 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+            <li key={n} className="flex gap-3 text-pretty text-[15.5px] leading-relaxed text-fg-muted">
               <span aria-hidden="true" className="font-mono text-fg-subtle">×</span>
               {n}
             </li>
@@ -192,43 +191,42 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         </ul>
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Quick answers
         </h2>
         <dl className="mt-4 space-y-5">
           {questions.slice(1).map((qa) => (
             <div key={qa.question}>
-              <dt className="text-[15px] font-medium">{qa.question}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">{qa.answer}</dd>
+              <dt className="text-[16px] font-medium">{qa.question}</dt>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">{qa.answer}</dd>
             </div>
           ))}
         </dl>
       </section>
 
-      <nav aria-label="Read next" className="mt-14 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">Read next</h2>
+      <nav aria-label="Read next" className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">Read next</h2>
         <ul className="mt-4 space-y-px">
           {s.comparisons.map((c) => (
             <li key={c.slug}>
-              <Link href={`/compare/${c.slug}`} className="group -mx-2 block rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken">
-                <span className="font-mono text-[11px] text-fg-subtle">Compare · </span>
-                <span className="text-[15px] font-medium group-hover:text-accent">{c.title}</span>
+              <Link href={`/compare/${c.slug}`} className="group -mx-2 block rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken">
+                <span className="font-mono text-[13px] text-fg-subtle">Compare · </span>
+                <span className="text-[16px] font-medium group-hover:text-accent">{c.title}</span>
               </Link>
             </li>
           ))}
           {s.related.map((p) => (
             <li key={p.slug}>
-              <Link href={`/blog/${p.slug}`} className="group -mx-2 block rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken">
-                <span className="font-mono text-[11px] text-fg-subtle">Essay · </span>
-                <span className="text-[15px] font-medium group-hover:text-accent">{p.title}</span>
-                <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">{p.dek}</span>
+              <Link href={`/blog/${p.slug}`} className="group -mx-2 block rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken">
+                <span className="font-mono text-[13px] text-fg-subtle">Essay · </span>
+                <span className="text-[16px] font-medium group-hover:text-accent">{p.title}</span>
+                <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">{p.dek}</span>
               </Link>
             </li>
           ))}
         </ul>
       </nav>
-      <ReviewCta context="Fixed the symptom, but not sure the stack is right? Get the whole system reviewed, layer by layer." />
     </div>
   );
 }

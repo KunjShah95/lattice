@@ -1,5 +1,4 @@
 import type { Heading } from "@/lib/headings";
-import { Eyebrow } from "@/components/ui/eyebrow";
 
 /**
  * An essay's contents as a disclosure, for screens too narrow for the side rail.
@@ -21,16 +20,21 @@ export function EssayContents({ headings }: { headings: Heading[] }) {
 
   return (
     <details className="mb-10 border-l-2 border-border-strong pl-4 xl:hidden">
-      <summary className="cursor-pointer list-none">
-        <Eyebrow as="span" className="transition-colors hover:text-fg-muted">
-          In this essay · {headings.length} sections
-        </Eyebrow>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[14px] font-medium text-fg-muted transition-colors hover:text-fg">
+        <span
+          aria-hidden="true"
+          className="grid h-5 w-5 place-items-center rounded-[var(--r-pill)] border border-border-strong text-[12px] leading-none"
+        >
+          +
+        </span>
+        In this essay
+        <span className="font-mono text-[13px] text-fg-subtle">{headings.length} sections</span>
       </summary>
       <nav aria-label="In this essay">
         <ol className="mt-3 space-y-1.5">
           {headings.map((h, i) => (
-            <li key={h.id} className="flex gap-3 text-[14px] leading-snug">
-              <span aria-hidden="true" className="w-4 shrink-0 text-right font-mono text-[11px] tabular-nums text-fg-subtle">
+            <li key={h.id} className="flex gap-3 text-[15px] leading-snug">
+              <span aria-hidden="true" className="w-4 shrink-0 text-right font-mono text-[13px] tabular-nums text-fg-subtle">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <a

@@ -24,7 +24,6 @@ import {
   graph,
   ids,
 } from "@/lib/seo";
-import { ReviewCta } from "@/components/marketing";
 
 export function generateStaticParams() {
   return resolvedComparisons.map((c) => ({ slug: c.slug }));
@@ -74,7 +73,7 @@ export default async function ComparisonPage({
   const questions = comparisonQuestions(comparison);
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -118,25 +117,25 @@ export default async function ComparisonPage({
         }}
       />
 
-      <header className="hero-head">
+      <header className="mb-10">
         <Link
           href="/compare"
-          className="block w-fit font-mono text-[11px] uppercase tracking-[0.16em] text-fg-subtle transition-colors hover:text-fg-muted"
+          className="t-label transition-colors hover:text-fg-muted"
         >
           ← Comparisons
         </Link>
 
         {crossLayer ? (
-          <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+          <p className="mt-5 t-label">
             Across layers · read in stack order
           </p>
         ) : null}
 
-        <h1 className="mt-5 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-5 t-h1">
           {comparison.title}
         </h1>
 
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[17px] leading-relaxed text-fg-muted">
           {comparison.intro}
         </p>
 
@@ -144,7 +143,7 @@ export default async function ComparisonPage({
             passage: the verdict's opening, self-contained. The full verdict
             still closes the page. */}
         <div className="mt-6 max-w-[62ch] border-l-2 border-accent pl-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <p className="t-label">
             Short answer
           </p>
           <p className="editorial-justify mt-1.5 text-pretty text-[15.5px] leading-relaxed text-fg">
@@ -152,7 +151,7 @@ export default async function ComparisonPage({
           </p>
         </div>
 
-        <p className="mt-5 font-mono text-[11px] text-fg-subtle">
+        <p className="mt-5 font-mono text-[13px] text-fg-subtle">
           By {bylineName} · Licence and cost facts verified{" "}
           <time dateTime={datasetModified}>{AS_OF}</time> ·{" "}
           <Link href="/methodology" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
@@ -160,7 +159,7 @@ export default async function ComparisonPage({
           </Link>
         </p>
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-5 font-mono text-[11px] text-fg-subtle">
+        <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-5 font-mono text-[13px] text-fg-subtle">
           {comparison.sections.map((s) => (
             <span key={s.slug} className="inline-flex items-center gap-1.5">
               <span
@@ -182,7 +181,7 @@ export default async function ComparisonPage({
       {/* The tool strip */}
       <ul className="mb-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {comparison.tools.map((t) => (
-          <li key={t.name} className="rounded-lg border border-border bg-bg-elevated p-3">
+          <li key={t.name} className="rounded-[var(--r-card)] border border-border bg-bg-elevated p-4">
             <span className="flex items-center gap-2">
               <span
                 aria-hidden="true"
@@ -193,17 +192,17 @@ export default async function ComparisonPage({
                 href={t.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="truncate text-[14px] font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent"
+                className="truncate text-[16.5px] font-medium underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent"
               >
                 {t.name}
               </a>
             </span>
             {crossLayer ? (
-              <span className="mt-1.5 block font-mono text-[10.5px] uppercase tracking-[0.1em] text-fg-subtle">
+              <span className="mt-1.5 block font-mono text-[12.5px] uppercase tracking-[0.1em] text-fg-subtle">
                 {stackPosition(t.layer)}
               </span>
             ) : null}
-            <span className="mt-1.5 block text-pretty text-[12.5px] leading-relaxed text-fg-muted">
+            <span className="mt-1.5 block text-pretty text-[13.5px] leading-relaxed text-fg-muted">
               {t.angle}
             </span>
           </li>
@@ -215,7 +214,7 @@ export default async function ComparisonPage({
           `min-w-[640px]` means a phone always scrolls this, so the wrapper
           carries the affordance (`sm:hidden`) rather than leaving the reader
           to discover a hidden column. The first column sticks, so a row's
-          dimension label stays visible while it is read across: without that,
+          dimension label stays visible while it is read across — without that,
           the sticky-header problem is that you cannot tell which row you are
           on after scrolling right. */}
       <div className="overflow-x-auto">
@@ -226,7 +225,7 @@ export default async function ComparisonPage({
           <thead>
             <tr>
               <th scope="col" className="sticky left-0 z-10 w-[9rem] border-b border-border bg-bg pb-3 pr-4 align-bottom">
-                <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-fg-subtle">
+                <span className="font-mono text-[13px] uppercase tracking-[0.1em] text-fg-subtle">
                   Dimension
                 </span>
               </th>
@@ -242,7 +241,7 @@ export default async function ComparisonPage({
                       className="h-3.5 w-[3px] shrink-0 rounded-full"
                       style={layerStyle(t.layer)}
                     />
-                    <span className="text-[13px] font-medium">{t.name}</span>
+                    <span className="text-[14.5px] font-medium">{t.name}</span>
                   </span>
                 </th>
               ))}
@@ -253,14 +252,14 @@ export default async function ComparisonPage({
               <tr key={row.dimension} className="align-top">
                 <th
                   scope="row"
-                  className="sticky left-0 z-10 border-b border-border bg-bg py-3 pr-4 font-mono text-[11px] font-normal uppercase tracking-[0.08em] text-fg-subtle"
+                  className="sticky left-0 z-10 border-b border-border bg-bg py-3 pr-4 font-mono text-[13px] font-normal uppercase tracking-[0.08em] text-fg-subtle"
                 >
                   {row.dimension}
                 </th>
                 {row.values.map((value, i) => (
                   <td
                     key={comparison.tools[i].name}
-                    className="border-b border-border py-3 pr-4 text-pretty text-[13.5px] leading-relaxed text-fg-muted"
+                    className="border-b border-border py-3 pr-4 text-pretty text-[15px] leading-relaxed text-fg-muted"
                   >
                     {value}
                   </td>
@@ -274,18 +273,18 @@ export default async function ComparisonPage({
       {/* Scroll affordance. The table is always wider than a phone, so without
           this the reader sees one and a half tools and has no reason to think
           there are three. */}
-      <p className="mt-2 font-mono text-[11px] text-fg-subtle sm:hidden">
+      <p className="mt-2 font-mono text-[13px] text-fg-subtle sm:hidden">
         Scroll the table sideways to see every tool.
       </p>
 
       {/* Stated limits. Pages that said what they did not measure were the
           ones cited over generic roundups in the category audit. */}
-      <p className="editorial-justify mt-6 max-w-[68ch] text-pretty text-[13px] leading-relaxed text-fg-subtle">
+      <p className="editorial-justify mt-6 max-w-[68ch] text-pretty text-[14.5px] leading-relaxed text-fg-subtle">
         <span className="font-medium text-fg-muted">What this table is not.</span>{" "}
         These are editorial judgements, not benchmarks: Lattice has not run
         these tools head to head, and no cell uses GitHub stars or vendor
         benchmark claims as evidence. Licence and cost facts are re-checked on
-        a schedule the build enforces: {" "}
+        a schedule the build enforces —{" "}
         <a href="/verification.json" className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted">
           the receipt is public
         </a>
@@ -294,11 +293,11 @@ export default async function ComparisonPage({
 
       {/* The recommendation. The heading is the question itself, so the
           verdict below it reads as a direct answer when lifted on its own. */}
-      <section className="mt-12 border-t border-border pt-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <p className="t-label">
           {crossLayer ? "The order" : "The recommendation"}
         </p>
-        <h2 className="mt-2 text-balance text-[17px] font-medium leading-snug">
+        <h2 className="mt-2 t-h3">
           {decision.question}
         </h2>
         <p className="editorial-justify mt-3 max-w-[68ch] text-pretty text-[15.5px] leading-relaxed text-fg">
@@ -308,12 +307,12 @@ export default async function ComparisonPage({
 
       {/* Rules of thumb */}
       <section className="mt-10">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           Rules of thumb
         </h2>
         <ul className="mt-4 space-y-3">
           {comparison.rules.map((rule) => (
-            <li key={rule} className="editorial-justify flex gap-3 text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+            <li key={rule} className="editorial-justify flex gap-3 text-pretty text-[15.5px] leading-relaxed text-fg-muted">
               <span aria-hidden="true" className="mt-2 h-[3px] w-3 shrink-0 rounded-full" style={layerStyle(head?.layer ?? null)} />
               {rule}
             </li>
@@ -323,15 +322,15 @@ export default async function ComparisonPage({
 
       {/* Questions, in the words they are asked. Mirrored in FAQPage JSON-LD;
           the first is the decision, already answered above, so it is skipped. */}
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Quick answers
         </h2>
         <dl className="mt-4 space-y-5">
           {questions.slice(1).map((qa) => (
             <div key={qa.question}>
-              <dt className="text-[15px] font-medium">{qa.question}</dt>
-              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+              <dt className="text-[16px] font-medium">{qa.question}</dt>
+              <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
                 {qa.answer}
               </dd>
             </div>
@@ -341,8 +340,8 @@ export default async function ComparisonPage({
 
       {/* Backlinks */}
       {relatedPosts.length ? (
-        <nav aria-label="Related essays" className="mt-14 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <nav aria-label="Related essays" className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">
             Go deeper
           </h2>
           <ul className="mt-4 space-y-px">
@@ -350,7 +349,7 @@ export default async function ComparisonPage({
               <li key={p.meta.slug}>
                 <Link
                   href={`/blog/${p.meta.slug}`}
-                  className="group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
                   <span
                     aria-hidden="true"
@@ -358,10 +357,10 @@ export default async function ComparisonPage({
                     style={layerStyle(p.meta.layers[0] ?? null)}
                   />
                   <span className="min-w-0">
-                    <span className="block text-[15px] font-medium group-hover:text-accent">
+                    <span className="block text-[16px] font-medium group-hover:text-accent">
                       {p.meta.title}
                     </span>
-                    <span className="editorial-justify mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                    <span className="editorial-justify mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                       {p.meta.dek}
                     </span>
                   </span>
@@ -371,13 +370,11 @@ export default async function ComparisonPage({
           </ul>
         </nav>
       ) : null}
-
-      <ReviewCta context="Still between two of these? A review weighs them against your traffic, team and existing stack." />
     </div>
   );
 }
 
-/** "Layer 02 · Band I Compute"where a column sits, for cross-layer pages. */
+/** "Layer 02 · Band I Compute" — where a column sits, for cross-layer pages. */
 function stackPosition(layer: number | null): string {
   const band = BANDS.find((b) => b.id === bandOf(layer));
   const ordinal = `Layer ${String(layer ?? 0).padStart(2, "0")}`;

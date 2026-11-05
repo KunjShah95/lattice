@@ -13,24 +13,52 @@
   --bg-elevated: #ffffff;
   --bg-sunken: #f4f4f2;
   --fg: #16161a;
-  --fg-muted: #66666e;
-  --fg-subtle: #97979f;
+  /* Both muted tokens were below 4.5:1. Hierarchy is now carried by size
+     and tracking as well as tone, so the quiet tokens can be readable:
+     ~7:1 for muted, ~5.7:1 for subtle on the page background. */
+  --fg-muted: #55555f;
+  --fg-subtle: #63636c;
   --border: #e4e4e0;
   --border-strong: #d0d0ca;
   --accent: oklch(0.56 0.19 32);
   --accent-fg: #ffffff;
   --selection: #f7ddd2;
 
+  /* --- Radii ---------------------------------------------------------
+     One scale with one meaning each. A control is 10px, a card is 16px,
+     a sheet is 22px. Pills are reserved for state — a toggle, a count, a
+     status dot — never for a card or a container, so a rounded shape
+     always tells you what kind of thing you are looking at. */
+  --r-control: 10px;
+  --r-card: 16px;
+  --r-sheet: 22px;
+  --r-pill: 999px;
+
+  /* --- Type scale ----------------------------------------------------
+     Six sizes, used everywhere, nothing in between. Labels are 12px and
+     never smaller: 10px metadata was the single biggest readability cost
+     on the site, and raising the floor also fixed the contrast failures
+     that came with it. */
+  --t-label: 0.75rem;
+  --t-meta: 0.8125rem;
+  --t-small: 0.875rem;
+  --t-body: 0.96875rem;
+  --t-lead: 1.125rem;
+
+  /* Vertical rhythm between page sections. Fluid, so a phone does not get
+     desktop-sized gaps and a wide screen does not get cramped ones. */
+  --section-y: clamp(3.25rem, 6.5vw, 5.5rem);
+
   /* Three bands, not nine colours.
      The nine layers collapse into three families: where compute happens,
      where state lives, where behaviour is decided. A nine-step hue ramp is a
-     rainbow, and a rainbow is decoration: nobody holds nine colours in
+     rainbow, and a rainbow is decoration — nobody holds nine colours in
      working memory, so the ramp stops encoding order and becomes ornament.
      Three families are information, and the band a reader is in is the
      question they arrived with.
 
      Depth still varies inside a band (the substrate stop is the deepest),
-     so order is never lost entirely: it just stops being the main signal. */
+     so order is never lost entirely — it just stops being the main signal. */
   --band-compute: oklch(0.62 0.13 72);
   --band-state:    oklch(0.58 0.10 143);
   --band-control:  oklch(0.53 0.11 248);
@@ -81,7 +109,7 @@
     0 2px 4px oklch(0.2 0 0 / 0.04),
     0 12px 24px -6px oklch(0.2 0 0 / 0.12),
     0 32px 64px -16px oklch(0.2 0 0 / 0.18);
-  /* The 1px light edge on the top of a filled button: the detail that
+  /* The 1px light edge on the top of a filled button — the detail that
      makes ink look pressed into the page rather than printed on it. */
   --edge-highlight: inset 0 1px 0 oklch(1 0 0 / 0.16);
 
@@ -94,8 +122,8 @@
   --bg-elevated: #131316;
   --bg-sunken: #08080a;
   --fg: #ededf0;
-  --fg-muted: #9a9aa3;
-  --fg-subtle: #68686f;
+  --fg-muted: #b6b6bf;
+  --fg-subtle: #9a9aa4;
   --border: #232327;
   --border-strong: #36363c;
   --accent: oklch(0.72 0.17 34);
@@ -156,8 +184,8 @@
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
   --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
-  /* Headings outside the essays. Sans, set tight: the index is a working
-     product, and the serif now belongs to long-form reading only. */
+  /* Headings on the conversion pages. Sans, set tight; the serif belongs to
+     long-form reading. Kept so the marketing block below can resolve it. */
   --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -176,8 +204,40 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
+    /* Body copy at 15.5px rather than the browser's 16px default is a
+       deliberate optical choice for Plex Sans at this measure; every
+       smaller size is one of the five tokens above, not an ad-hoc value. */
+    font-size: var(--t-body);
+    line-height: 1.6;
+    letter-spacing: -0.002em;
   }
 
+  /* Drafting grid rather than a soft glow — the page should read as a working
+     surface with structure, not a marketing backdrop.
+
+     Painted on a fixed pseudo-element rather than on `body` with
+     `background-attachment: fixed`. The two are visually identical, but not
+     computationally: a fixed attachment on the scrolling body has to be
+     re-rastered against the viewport on every scroll frame, and that raster
+     work runs on the main thread — the same thread INP is measured on. A
+     `position: fixed` element is promoted to its own composited layer,
+     rastered once, and re-used as the page scrolls, so the grid goes from a
+     per-frame cost to a one-off.
+
+     `z-index: -1` sits it behind the content (body's own background has
+     propagated to the canvas, which paints beneath everything regardless) and
+     `pointer-events: none` keeps it from ever intercepting a click. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
 
   ::selection {
     background: var(--selection);
@@ -186,7 +246,6 @@
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
-    border-radius: 2px;
   }
 
   /* Firefox scrollbar parity. */
@@ -194,16 +253,21 @@
     scrollbar-color: var(--border-strong) transparent;
   }
 
-  /* Nothing on this site is meant to scroll sideways. Invisible-until-
-     hovered previews sit past the right edge on narrow screens, and without
-     this a phone can drag the page sideways into empty space.
+  /* Native disclosure triangles are a second marker language the site does
+     not use anywhere else; the summary carries its own glyph instead. */
+  summary::-webkit-details-marker {
+    display: none;
+  }
 
-     On <main>, not <body>: overflow set on body is propagated to the
-     viewport, where `clip` degrades to `hidden` and mobile Safari ignores it.
-     `clip`, not `hidden`: it creates no scroll container, so the sticky
-     filter bar inside main still sticks. */
-  #main {
-    overflow-x: clip;
+  summary {
+    list-style: none;
+  }
+
+  /* Native controls inherit the site's accent rather than the OS blue. */
+  input[type="range"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--accent);
   }
 
   body {
@@ -211,8 +275,18 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Mono only ever sets counts, ordinals and labels, figures that sit in
-     columns, so it is always tabular. A "1" that is narrower than an "8"
+  /* Nothing here should scroll sideways. Invisible-until-hovered previews and
+     the marketing marquees can sit past the right edge on narrow screens, and
+     without this a phone can drag the page into empty space. On `<main>`, not
+     `<body>`: overflow on body propagates to the viewport, and `clip` there
+     degrades to `hidden`. `clip` creates no scroll container, so the sticky
+     filter bars inside main still stick. */
+  #main {
+    overflow-x: clip;
+  }
+
+  /* Mono only ever sets counts, ordinals and labels — figures that sit in
+     columns — so it is always tabular. A "1" that is narrower than an "8"
      makes a column of counts look ragged. */
   .font-mono {
     font-variant-numeric: tabular-nums slashed-zero;
@@ -228,7 +302,7 @@
 
 @layer utilities {
   /* The header nav scrolls horizontally when space is tight. The scrollbar
-     itself is noise there: the cut-off item is the affordance. */
+     itself is noise there — the cut-off item is the affordance. */
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -288,7 +362,7 @@
     opacity: 0.1;
   }
 
-  /* Spans the stack: dashed, the way a section line is dashed when it
+  /* Spans the stack — dashed, the way a section line is dashed when it
      indicates something that is not part of the material. */
   .hatch-span::after {
     background-image: repeating-linear-gradient(
@@ -315,7 +389,7 @@
   /* --- Crop marks -----------------------------------------------------
      The print-shop registration corners that tell a pressman where a sheet
      is trimmed. On hover they close in on the element, so the interactive
-     surface is "selected" the way a draughtsman would mark it: a drafting
+     surface is "selected" the way a draughtsman would mark it — a drafting
      convention doing the job a generic glow or lift usually does.
 
      Eight one-pixel gradients on a single pseudo-element: two strokes per
@@ -365,7 +439,7 @@
 
   /* --- Drawn underline ------------------------------------------------
      The rule is drawn left-to-right on hover rather than toggled, and
-     retracts to the right on leave: the pen continues in the direction it
+     retracts to the right on leave — the pen continues in the direction it
      was travelling instead of rewinding. */
   .link-draw {
     background-image: linear-gradient(currentColor, currentColor);
@@ -430,7 +504,7 @@
   /* A wash of the surface's own colour, following the pointer.
      `--spot` is set per row (a layer or a band). Without it, the accent
      is the fallback so unmarked controls still answer the cursor.
-     Only painted for a fine pointer: a stuck :hover after a tap would
+     Only painted for a fine pointer — a stuck :hover after a tap would
      leave a phone with a permanent glow. */
   [data-spot] {
     --mx: 50%;
@@ -454,7 +528,7 @@
   }
 
   /* Type stays above the wash. Absolute fills (layer tint, hatch) are
-     left alone: forcing them to `relative` would collapse the diagram. */
+     left alone — forcing them to `relative` would collapse the diagram. */
   [data-spot] > :not(.absolute) {
     position: relative;
     z-index: 2;
@@ -718,7 +792,7 @@
   }
 
   /* --- Skeleton -------------------------------------------------------
-     A sheen that crosses the block once a second and a bit: slow enough
+     A sheen that crosses the block once a second and a bit — slow enough
      to read as "working", not "broken". */
   .skeleton {
     position: relative;
@@ -772,12 +846,223 @@
 }
 
 @layer components {
+  /* ------------------------------------------------------------------
+     Type primitives
+
+     Every label, paragraph and heading on the site is one of these. They
+     replace hand-written `text-[10px] font-mono uppercase tracking-[0.16em]`
+     strings, which had drifted into nine sizes and four trackings. If a
+     surface needs a new size, it needs a new decision, not a new class.
+
+     Labels are 12px minimum. Metadata is 13px. Nothing readable is
+     smaller than 12px anywhere, at any breakpoint.
+     ------------------------------------------------------------------ */
+  .t-display {
+    font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+    font-size: clamp(2.5rem, 5.4vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .t-h1 {
+    font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+    font-size: clamp(2.1rem, 3.9vw, 2.9rem);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .t-h2 {
+    font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+    font-size: clamp(1.6rem, 2.5vw, 2rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .t-h3 {
+    font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+  }
+
+  /* Secondary section heading: smaller than a page title, larger than a
+     label. Sans, not serif, so a page has exactly one display voice. */
+  .t-h4 {
+    font-size: 1.1875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.012em;
+    color: var(--fg);
+  }
+
+  .t-lead {
+    font-size: var(--t-lead);
+    line-height: 1.62;
+    color: var(--fg-muted);
+    text-wrap: pretty;
+  }
+
+  .t-body {
+    font-size: var(--t-body);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .t-small {
+    font-size: var(--t-small);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .t-meta {
+    font-size: var(--t-meta);
+    line-height: 1.45;
+    color: var(--fg-muted);
+  }
+
+  /* The section label. Uppercase mono is still the site's voice for this,
+     but at 12px with a normal-ish tracking it reads as a signpost rather
+     than as microprint. */
+  .t-label {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: var(--t-label);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .t-label-strong {
+    color: var(--fg);
+  }
+
+  /* A labelled block: signpost, then content. The gap is part of the
+     primitive so two sections cannot acquire different rhythms. */
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  /* --- Page shell ----------------------------------------------------
+     One column width and one gutter for every route. The site used to
+     ship five different max-widths, which is why moving between pages felt
+     like moving between sites. Reading measure is constrained inside the
+     shell by `.measure`, not by shrinking the shell itself. */
+  .page-shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 64rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .page-shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .measure {
+    max-width: 66ch;
+  }
+
+  .measure-wide {
+    max-width: 78ch;
+  }
+
+  /* --- Surfaces ------------------------------------------------------
+     Card is 16px and lifted off the paper by a hairline plus the ink
+     shadow. Panel is the same box without elevation, for content that is
+     nested inside a card. Neither is a pill and neither is square. */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-ink);
+  }
+
+  .panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+  }
+
+  /* Text field. One height, one radius, one focus treatment, so the search
+     field, the palette input and every filter input agree. */
+  .field {
+    height: 2.75rem;
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-control);
+    background: var(--bg-elevated);
+    padding-inline: 0.9rem;
+    font-size: var(--t-small);
+    color: var(--fg);
+    box-shadow: var(--shadow-ink);
+    transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+  }
+
+  .field::placeholder {
+    color: var(--fg-subtle);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: var(--fg-subtle);
+    box-shadow: 0 0 0 4px var(--selection);
+  }
+
+  /* --- Chips ---------------------------------------------------------
+     A chip is a state, not a button and not a card: hence the pill. Every
+     facet, every active filter and every kind marker uses this one shape,
+     which is what makes "this is a value you can add or remove" legible
+     without a legend. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.7rem;
+    font-size: var(--t-meta);
+    line-height: 1.2;
+    color: var(--fg-muted);
+    background: transparent;
+    transition: color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .chip:hover {
+    border-color: var(--border-strong);
+    color: var(--fg);
+  }
+
+  .chip[aria-pressed="true"],
+  .chip.is-active {
+    background: var(--fg);
+    border-color: var(--fg);
+    color: var(--bg);
+  }
+}
+
+@layer components {
   /* Long-form essay body. Scoped rather than global so the index and hero
      stay unaffected. */
   .prose-lattice {
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: var(--t-lead);
+    line-height: 1.72;
     color: var(--fg-muted);
+    /* Reading measure. The shell widened to one consistent column, so the
+       prose sets its own line length rather than inheriting 1024px of it. */
+    max-width: 68ch;
   }
 
   /* The article column is wide enough for editorial justification on larger
@@ -914,6 +1199,30 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--fg-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    /* Staggered entrances hold their start frame for the length of their
+       delay; with the motion gone, that would be a pause for nothing. */
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* The sheen and pulse are ambient motion with no end state worth
+     showing — remove them rather than freeze them mid-sweep. */
+  .skeleton::after,
+  .pulse-dot::after {
+    display: none;
   }
 }
 
@@ -1126,4 +1435,3 @@
     display: none;
   }
 }
-

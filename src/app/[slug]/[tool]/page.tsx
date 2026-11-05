@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { layerColor, layerStyle } from "@/lib/layer";
+import { layerStyle } from "@/lib/layer";
 import { roleTitle, rolesInOrder } from "@/lib/roles";
 import { StackSpine } from "@/components/stack-spine";
 import {
@@ -39,7 +39,6 @@ import {
   toolMetaDescription,
   toolQuestions,
 } from "@/lib/seo";
-import { ReviewCta } from "@/components/marketing";
 
 /**
  * The build date, fixed once per build. The freshness meter shows the entry's
@@ -58,7 +57,7 @@ const BUILT_AT = new Date();
  * rather than merely searchable.
  *
  * The first segment reuses the `slug` name already used by `app/[slug]`.
- * Next.js requires one name per dynamic position at a given depth: naming
+ * Next.js requires one name per dynamic position at a given depth — naming
  * this one `category` builds cleanly and then 500s at runtime with
  * "different slug names for the same dynamic path".
  */
@@ -90,7 +89,7 @@ export async function generateMetadata({
     alternates: { canonical: `/${category.slug}/${tool.slug}` },
     openGraph: {
       type: "article",
-      title: `${tool.name}: ${category.title}`,
+      title: `${tool.name} — ${category.title}`,
       description: tool.blurb,
       url: `${site.url}/${category.slug}/${tool.slug}`,
     },
@@ -114,7 +113,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   const alternativeTo = getAlternativeTo(categorySlug, toolSlug);
   const secondHomes = getSecondHomes(categorySlug, toolSlug);
 
-  // Comparisons that include this tool: the most valuable links on the page,
+  // Comparisons that include this tool — the most valuable links on the page,
   // because they are the only place a tool appears in a decision context.
   const inComparisons = resolvedComparisons.filter((c) =>
     c.tools.some((t) => t.name === tool.name),
@@ -135,7 +134,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
   );
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -162,7 +161,7 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
                 { name: site.name, path: "" },
                 { name: category.title, path: `/${category.slug}` },
                 // One role in the trail when the tool has a single owner, all of
-                // them when it does not: a breadcrumb that named one role for a
+                // them when it does not — a breadcrumb that named one role for a
                 // two-role tool would be a small false claim in structured data.
                 ...rolesInOrder(tool.roles).map((r) => ({
                   name: roleTitle(r),
@@ -176,9 +175,9 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         }}
       />
 
-      <header className="hero-head" style={{ "--wash": layerColor(category.layer) } as React.CSSProperties}>
+      <header>
         {/* Breadcrumb doubles as the section backlink. */}
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -197,34 +196,46 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </ol>
         </nav>
 
-        <div className="mt-6 flex items-start gap-3.5">
+        <div className="mt-7 flex items-start gap-4">
           <span
             aria-hidden="true"
-            className="mt-2 h-10 w-[3px] shrink-0 rounded-full"
+            className="mt-2.5 h-12 w-[4px] shrink-0 rounded-full"
             style={layerStyle(category.layer)}
           />
           <div className="min-w-0">
-            <h1 className="text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
-              {tool.name}
-            </h1>
-            <p className="mt-2 font-mono text-[12px] text-fg-subtle">
-              {tool.domain}
-              <span aria-hidden="true"> · </span>
-              {tool.kind}
+            <h1 className="t-h1">{tool.name}</h1>
+            {/* Three facts, three shapes. They used to be one mono line at one
+                size and one colour, which made the name and its metadata read
+                as the same rank. */}
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-elevated px-2.5 py-1 font-mono text-[12px] uppercase tracking-[0.06em] text-fg-muted">
+                {tool.kind}
+              </span>
               {tool.deployment ? (
-                <>
-                  <span aria-hidden="true"> · </span>
-                  {tool.deployment}
-                </>
+                <span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[12.5px] text-fg-muted">
+                  {tool.deployment === "self-hosted"
+                    ? "Self-hosted"
+                    : tool.deployment === "saas"
+                      ? "SaaS"
+                      : "Managed"}
+                </span>
               ) : null}
-            </p>
+              <a
+                href={tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full px-1 py-1 font-mono text-[12.5px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
+              >
+                {tool.domain}
+              </a>
+            </div>
           </div>
         </div>
 
         {/* What it is, as a sentence that names its subject. Answer engines
-            lift passages, not layouts: "Paged-attention inference engine…"
+            lift passages, not layouts — "Paged-attention inference engine…"
             on its own does not say what it is describing. */}
-        <p className="editorial-justify mt-6 text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-7 text-[18px] leading-relaxed text-fg-muted">
           {toolDefinition(tool, category)}
         </p>
 
@@ -240,36 +251,41 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
             It is not metadata: the build throws if any entry is more than six
             months old, so the date on this page is the receipt for a check
             that actually happened. No competitor in this category can show
-            you one: the nearest, ToolDirectory, re-checks every 90 days by
+            you one — the nearest, ToolDirectory, re-checks every 90 days by
             hand. Saying so is the cheapest trust the site can buy. */}
-        <dl className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border py-3 font-mono text-[11.5px]">
+        {/* The facts a decision turns on. Four labelled values, each with the
+            label dropped back to 12px mono and the value at reading size —
+            the old row set all of it in one 13px line and asked the reader to
+            parse punctuation to tell which word was which. */}
+        <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 border-y border-border py-5 sm:grid-cols-4">
           {tool.license ? (
-            <div className="flex gap-1.5">
-              <dt className="text-fg-subtle">licence</dt>
-              <dd className="text-fg-muted">{tool.license}</dd>
+            <div>
+              <dt className="t-label">Licence</dt>
+              <dd className="mt-1.5 text-[15px] text-fg">{tool.license}</dd>
             </div>
           ) : null}
           {tool.language ? (
-            <div className="flex gap-1.5">
-              <dt className="text-fg-subtle">language</dt>
-              <dd className="text-fg-muted">{tool.language}</dd>
+            <div>
+              <dt className="t-label">Language</dt>
+              <dd className="mt-1.5 text-[15px] text-fg">{tool.language}</dd>
             </div>
           ) : null}
-          <div className="flex gap-1.5">
-            <dt className="text-fg-subtle">cost</dt>
-            <dd className="text-fg-muted">{tool.cost}</dd>
+          <div>
+            <dt className="t-label">Cost</dt>
+            <dd className="mt-1.5 text-[15px] capitalize text-fg">
+              {tool.cost.replace("-", " ")}
+            </dd>
           </div>
           {/* Who owns this, which is the question a reader who has found a tool
-              by search cannot yet answer. Links back into the role view so the
-              axis is reachable from the page people actually land on. */}
-          <div className="flex gap-1.5">
-            <dt className="text-fg-subtle">owned by</dt>
-            <dd className="flex flex-wrap gap-1">
+              by search cannot yet answer. */}
+          <div>
+            <dt className="t-label">Owned by</dt>
+            <dd className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[15px]">
               {rolesInOrder(tool.roles).map((r) => (
                 <Link
                   key={r}
                   href={`/roles/${r}`}
-                  className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                  className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
                 >
                   {roleTitle(r)}
                 </Link>
@@ -279,26 +295,26 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
         </dl>
 
         {/* Calibration stamp + stack position. The stamp is the guard made
-            visible: when this was checked, how many months the build still
-            accepts it, and the month it starts refusing it. */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+            visible: when this was checked and when the build starts refusing
+            it. */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
           <FreshnessStamp
             asOf={tool.asOf}
             now={BUILT_AT}
             windowMonths={STALE_AFTER_MONTHS}
           />
-          <div className="min-w-[15rem] flex-1">
+          <div className="min-w-[14rem] flex-1">
             <StackSpine layer={category.layer} />
           </div>
         </div>
 
-        {/* The decision pair: the site's whole thesis, per tool.
+        {/* The decision pair — the site's whole thesis, per tool.
 
             Rendered as one object with two states rather than two equal
             cards. Two equal rounded cards read as two features; the reader
             is meant to feel a valve. `use` is the active state and sits in
             full ink; `skip` is the constraint and recedes. Equal weight would
-            imply the two are equally worth knowing, which is false: almost
+            imply the two are equally worth knowing, which is false — almost
             every competitor in this category publishes a "best for" line and
             not one of them publishes the "skip when" half. That second
             sentence is the reason to trust the first. */}
@@ -309,25 +325,21 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           skipWhen={tool.skipWhen}
         />
 
-        <p className="editorial-justify mt-6 max-w-[60ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+        <p className="mt-5 text-[14.5px] leading-relaxed text-fg-muted">
           <span className="text-fg">{category.responsibility}</span>{" "}
-          <span className="text-fg-muted">
-that is what this layer of the stack is answerable for. See the
-            full{" "}
-            <Link
-              href={`/${category.slug}`}
-              className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
-            >
-              {category.title}
-            </Link>{" "}
-            section for the rest of the options.
-          </span>
+          <Link
+            href={`/${category.slug}`}
+            className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+          >
+            See every {category.short.toLowerCase()} tool
+          </Link>
+          .
         </p>
 
         {/* Second homes. A layer-ordered index that pretends every tool has
-            exactly one layer is convenient and wrong: the tools that span two (
-            an agent runtime whose memory is a vector store, an eval platform
-            whose registry versions prompts), are the ones a reader most needs
+            exactly one layer is convenient and wrong: the tools that span two
+            — an agent runtime whose memory is a vector store, an eval platform
+            whose registry versions prompts — are the ones a reader most needs
             to find from the *other* direction. The reason is shown, because an
             unexplained cross-reference reads as a mistake. */}
         {secondHomes.length ? (
@@ -339,7 +351,7 @@ that is what this layer of the stack is answerable for. See the
               {secondHomes.map(({ section, because }) => (
                 <li
                   key={section.slug}
-                  className="flex flex-wrap items-baseline gap-x-2 text-[13.5px] leading-relaxed text-fg-muted"
+                  className="flex flex-wrap items-baseline gap-x-2 text-[15px] leading-relaxed text-fg-muted"
                 >
                   <span
                     aria-hidden="true"
@@ -348,7 +360,7 @@ that is what this layer of the stack is answerable for. See the
                   />
                   {/* Tracked, because whether anyone follows a second home is the
                       only evidence that the taxonomy's overlaps are the thing
-                      readers actually want: the claim `layer_overlaps` and this
+                      readers actually want — the claim `layer_overlaps` and this
                       field were added to serve. */}
                   <TrackLink
                     href={`/${section.slug}`}
@@ -370,46 +382,52 @@ that is what this layer of the stack is answerable for. See the
             readers actually reach a provider is the metric
             `strategy/04-monetisation.md` §7 cannot answer from a page view
             alone. */}
-        <TrackLink
-          href={tool.url}
-          event="outbound"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-7 inline-flex items-center gap-2 rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-[14px] font-medium transition-colors hover:border-accent hover:text-accent"
-        >
-          Visit {tool.domain}
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        {/* Two exits, ranked. Visiting the project is the primary action; the
+            comparison builder is the secondary one, and it used to be a bare
+            underlined word with `ml-3` holding it beside the button. */}
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <TrackLink
+            href={tool.url}
+            event="outbound"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ink group inline-flex h-12 items-center justify-center gap-2 rounded-[var(--r-control)] px-5 text-[16px] font-medium"
           >
-            <path d="M7 17 17 7M9 7h8v8" />
-          </svg>
-        </TrackLink>
+            Visit {tool.domain}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="nudge nudge-up-right"
+            >
+              <path d="M7 17 17 7M9 7h8v8" />
+            </svg>
+          </TrackLink>
 
-        {/* Straight into the cross-layer builder with this tool already chosen.
-            Plain `Link`, not `TrackLink`: the builder is a page, not a funnel
-            step, and `/signal` only accepts the four events the strategy's
-            metrics need. */}
-        <Link
-          href={`/compare/build?tools=${category.slug}/${tool.slug}`}
-          className="mt-7 ml-3 inline-flex items-center gap-1.5 px-1 py-2 text-[13.5px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
-        >
-          Compare with another tool
-        </Link>
+          <Link
+            href={`/compare/build?tools=${category.slug}/${tool.slug}`}
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-[var(--r-control)] border border-border-strong bg-bg-elevated px-5 text-[16px] font-medium transition-colors hover:bg-bg-sunken"
+          >
+            Compare with another tool
+            <span aria-hidden="true" className="nudge text-fg-subtle">→</span>
+          </Link>
+        </div>
 
         {/* A badge a README can carry: when this entry's facts were last
             confirmed. A disclosure, not a block, so it costs the page nothing
             for the reader who does not maintain a README. No popularity figure
-            on it, on purpose: see `lib/badge.ts`. */}
-        <details className="mt-6 max-w-md border-l-2 border-border-strong pl-3.5">
-          <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle transition-colors hover:text-fg-muted">
+            on it, on purpose — see `lib/badge.ts`. */}
+        <details className="mt-8 max-w-md">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-2 text-[13.5px] font-medium text-fg-muted transition-colors hover:text-fg">
+            <span aria-hidden="true" className="grid h-5 w-5 place-items-center rounded-full border border-border-strong text-[12px] leading-none">
+              ↓
+            </span>
             Badge this entry
           </summary>
           <div className="mt-3">
@@ -419,7 +437,7 @@ that is what this layer of the stack is answerable for. See the
               alt={`Lattice badge: ${tool.name} verified ${tool.asOf}`}
               height={20}
             />
-            <pre className="mt-3 max-w-full whitespace-pre-wrap break-all rounded-md border border-border bg-bg-sunken p-3 font-mono text-[11.5px] leading-relaxed text-fg-muted">
+            <pre className="mt-3 overflow-x-auto rounded-[var(--r-control)] border border-border bg-bg-sunken p-3 font-mono text-[13px] leading-relaxed text-fg-muted">
               <code>{badgeText}</code>
             </pre>
             <div className="mt-2">
@@ -432,13 +450,13 @@ that is what this layer of the stack is answerable for. See the
       {/* Quick answers: the remaining questions people ask about a tool,
           each a self-contained passage. Mirrored in the FAQPage JSON-LD. */}
       {answerBlocks.length ? (
-        <section className="mt-14 border-t border-border pt-8">
-          <Eyebrow as="h2">Quick answers</Eyebrow>
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">Quick answers</h2>
           <dl className="mt-4 space-y-5">
             {answerBlocks.map((qa) => (
               <div key={qa.question}>
-                <dt className="text-[15px] font-medium">{qa.question}</dt>
-                <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+                <dt className="text-[16px] font-medium">{qa.question}</dt>
+                <dd className="editorial-justify mt-1 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
                   {qa.answer}
                 </dd>
               </div>
@@ -450,12 +468,12 @@ that is what this layer of the stack is answerable for. See the
       {/* Appears-in: the decision contexts, which is what makes this page
           more than a link with a sentence on it. */}
       {inComparisons.length ? (
-        <section className="mt-14 border-t border-border pt-8">
-          <Eyebrow as="h2">Compared in</Eyebrow>
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">Compared in</h2>
           <ul className="mt-4 space-y-px">
             {inComparisons.map((c) => (
               <li key={c.slug}>
-                {/* Tracked because this is the exit into the cross-layer wedge:
+                {/* Tracked because this is the exit into the cross-layer wedge —
                     the comparison surface `strategy/02` §4 says no funded
                     competitor can occupy. Whether anyone walks from a tool into
                     one is the only direct evidence the wedge is being used. */}
@@ -474,8 +492,8 @@ that is what this layer of the stack is answerable for. See the
 
       {/* Reading on this layer */}
       {sectionPosts.length ? (
-        <section className="mt-12">
-          <Eyebrow as="h2">Reading on {category.short.toLowerCase()}</Eyebrow>
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">Reading on {category.short.toLowerCase()}</h2>
           <ul className="mt-4 space-y-px">
             {sectionPosts.map((p) => (
               <li key={p.meta.slug}>
@@ -491,12 +509,12 @@ that is what this layer of the stack is answerable for. See the
         </section>
       ) : null}
 
-      {/* Alternatives: the peer graph, which is what a reader comparing
+      {/* Alternatives — the peer graph, which is what a reader comparing
           options actually wants next. */}
       {alternatives.length ? (
-        <section className="mt-12">
+        <section className="mt-16 border-t border-border pt-10">
           <div className="flex items-baseline justify-between gap-4">
-            <Eyebrow as="h2">Alternatives to {tool.name}</Eyebrow>
+            <h2 className="t-h4">Alternatives to {tool.name}</h2>
             {/* A dedicated page carries the reverse edges and marks which
                 entries are adjacent rather than real substitutes, neither of
                 which fits in a list on this page. */}
@@ -508,7 +526,7 @@ that is what this layer of the stack is answerable for. See the
               <TrackLink
                 href={`/${categorySlug}/${toolSlug}/alternatives`}
                 event="alternatives"
-                className="shrink-0 font-mono text-[11px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                className="shrink-0 font-mono text-[13px] text-fg-subtle underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
               >
                 compare {alternatives.length} →
               </TrackLink>
@@ -531,8 +549,8 @@ that is what this layer of the stack is answerable for. See the
 
       {/* Reverse edge: who else points here as a substitute. */}
       {alternativeTo.length ? (
-        <section className="mt-10">
-          <Eyebrow as="h2">Listed as an alternative to</Eyebrow>
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">Listed as an alternative to</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {alternativeTo.map(({ tool: other, category: c }) => (
               <li key={`${c.slug}-${other.slug}`}>
@@ -549,10 +567,10 @@ that is what this layer of the stack is answerable for. See the
         </section>
       ) : null}
 
-      {/* Siblings: the crawl graph that keeps a section connected. */}
+      {/* Siblings — the crawl graph that keeps a section connected. */}
       {siblings.length ? (
-        <section className="mt-12">
-          <Eyebrow as="h2">Also in {category.short.toLowerCase()}</Eyebrow>
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">Also in {category.short.toLowerCase()}</h2>
           <ul className="mt-4 flex flex-wrap gap-2">
             {siblings.map((s) => (
               <li key={s.slug}>
@@ -568,8 +586,6 @@ that is what this layer of the stack is answerable for. See the
           </ul>
         </section>
       ) : null}
-
-      <ReviewCta context={`Weighing ${tool.name} for a production stack? Get it checked against the rest of your system.`} />
     </div>
   );
 }

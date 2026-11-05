@@ -29,12 +29,17 @@ export function Byline({
   className?: string;
 }) {
   return (
-    <p className={`font-mono text-[11px] text-fg-subtle ${className}`}>
-      By {bylineName} · {fact}{" "}
-      <time dateTime={datasetModified}>{date}</time> ·{" "}
+    <p className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] text-fg-muted ${className}`}>
+      <span>By {bylineName}</span>
+      <span aria-hidden="true" className="text-fg-subtle">·</span>
+      <span>{fact}</span>
+      <time dateTime={datasetModified} className="font-mono tabular-nums">
+        {date}
+      </time>
+      <span aria-hidden="true" className="text-fg-subtle">·</span>
       <Link
         href="/methodology"
-        className="underline decoration-border-strong underline-offset-4 hover:text-fg-muted"
+        className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
       >
         method
       </Link>

@@ -7,12 +7,11 @@ import { roleTitle } from "@/lib/roles";
 import { toJsonLd } from "@/lib/jsonld";
 import { absolute, breadcrumbNode, datasetModified, graph, ids } from "@/lib/seo";
 import { site } from "@/lib/site";
-import { ReviewCta } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Compare any AI infrastructure tools side by side",
   description:
-    "Pick up to three tools from any layers of the stack and see where they differ: licence, deployment, cost, and when each is the wrong choice. No winner is declared.",
+    "Pick up to three tools from any layers of the stack and see where they differ — licence, deployment, cost, and when each is the wrong choice. No winner is declared.",
   alternates: { canonical: "/compare/build" },
   // See `absolute()` in lib/seo.ts: Next does not derive `og:url` from the
   // canonical, and an inherited one points at the home page.
@@ -44,7 +43,7 @@ const pool: CompareTool[] = allTools.map((t) => ({
 }));
 
 /**
- * /compare/build: an interactive cross-layer comparison.
+ * /compare/build — an interactive cross-layer comparison.
  *
  * `strategy/02` §4: the surface no funded competitor can occupy is the comparison
  * across layers, because every vendor sells one of the options. The hand-written
@@ -62,7 +61,7 @@ export default function CompareBuilderPage() {
   const name = "Compare Builder";
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       {/* WebApplication, like `/stack-builder`: a thing a reader operates, not a
           list of pages. */}
       <script
@@ -95,8 +94,8 @@ export default function CompareBuilderPage() {
         }}
       />
 
-      <header className="hero-head">
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+      <header>
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -114,13 +113,13 @@ export default function CompareBuilderPage() {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+        <p className="mt-6 t-label">
           Pick any three
         </p>
-        <h1 className="mt-4 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-4 t-h1">
           Compare tools that were never meant to be compared.
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           The written comparisons cover tools that do the same job. This one takes any
           tools from any layers, shows where they differ, and says so when they are not
           substitutes. Vendors do not publish this page, because each of them sells one
@@ -131,7 +130,6 @@ export default function CompareBuilderPage() {
       <div className="mt-8">
         <CompareBuilder tools={pool} />
       </div>
-      <ReviewCta context="Comparison done, decision not? Get it weighed against your real system." />
     </div>
   );
 }

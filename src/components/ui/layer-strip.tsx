@@ -52,7 +52,7 @@ export function LayerStrip({ cells }: { cells: LayerCell[] }) {
                   : undefined
               }
             />
-            <span className="mt-1 block truncate font-mono text-[10px] tabular-nums text-fg-subtle">
+            <span className="mt-1 block truncate font-mono text-[12.5px] tabular-nums text-fg-subtle">
               {c.index}
             </span>
             {/* The full name and the pick, for anyone who cannot see the colour. */}
@@ -62,7 +62,7 @@ export function LayerStrip({ cells }: { cells: LayerCell[] }) {
           </li>
         ))}
       </ol>
-      <figcaption className="mt-2 text-[12px] leading-relaxed text-fg-subtle">
+      <figcaption className="mt-2.5 text-[13px] leading-relaxed text-fg-muted">
         {filled} of {cells.length} layers filled. A dashed layer is one this
         workload does not call for, not one that is missing.
       </figcaption>

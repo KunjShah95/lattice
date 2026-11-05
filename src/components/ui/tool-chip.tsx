@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { layerStyle } from "@/lib/layer";
 
 export const CHIP =
-  "inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg";
+  "inline-flex min-h-9 items-center gap-1.5 rounded-[var(--r-control)] border border-border px-3 py-1.5 text-[14px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg";
 
 /** The layer tick. Shared with `PreviewToolChip`, so the two cannot drift apart. */
 export function ChipTick({ layer }: { layer: number | null }) {

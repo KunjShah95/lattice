@@ -846,7 +846,7 @@ export const comparisons: Comparison[] = [
       "A fine-tuned model is a new artefact you have to serve and retrain. Budget for that before you start.",
     ],
     sections: ["fine-tuning"],
-    related: ["prompt-or-finetune", "retrieval-finetuning-prompting", "evals-are-the-asset"],
+    related: ["prompt-or-finetune", "evals-are-the-asset"],
   },
   {
     slug: "multi-agent-frameworks",

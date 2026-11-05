@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BANDS, bandColor, bandLayers, bandMeta } from "@/lib/layer";
+import { BANDS, bandColor, bandLayers, bandMeta, layerStyle } from "@/lib/layer";
 import { getSecondHomeTools } from "@/lib/data";
 import { resolvedSymptoms } from "@/lib/symptoms";
 import { roleTitle, ROLES } from "@/lib/roles";
@@ -15,8 +15,6 @@ import {
 } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
 import type { Band } from "@/lib/layer";
-import { ReviewCta } from "@/components/marketing";
-import { ToolCard } from "@/components/tool-card";
 
 /**
  * One band: the layers it owns, the tools in them, the symptoms it explains and
@@ -48,7 +46,7 @@ export async function generateMetadata({
   const layers = bandLayers(meta.id);
   const tools = layers.reduce((n, c) => n + c.tools.length, 0);
   return {
-    title: `Band ${meta.roman} · ${meta.title}: ${tools} tools for when it is ${meta.sounds}`,
+    title: `Band ${meta.roman} · ${meta.title} — ${tools} tools for when it is ${meta.sounds}`,
     description:
       `Layers ${meta.layers.join(" and ")} of the AI stack: ${tools} tools, ` +
       `grouped by what each is accountable for. Use it when the failure sounds like ` +
@@ -90,7 +88,7 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pt-2 sm:px-6 sm:pt-4">
+    <div className="page-shell pt-14 sm:pt-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -136,8 +134,8 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         }}
       />
 
-      <header className="hero-head" style={{ "--wash": bandColor(meta.id) } as React.CSSProperties}>
-        <nav aria-label="Breadcrumb" className="font-mono text-[11px]">
+      <header>
+        <nav aria-label="Breadcrumb" className="font-mono text-[13px]">
           <ol className="flex flex-wrap items-center gap-1.5 text-fg-subtle">
             <li>
               <Link href="/" className="transition-colors hover:text-fg-muted">
@@ -153,20 +151,22 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
           </ol>
         </nav>
 
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-muted hero-pill">
+        <div className="mt-6 flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="h-1.5 w-1.5 shrink-0 rounded-full"
+            className="h-3 w-3 shrink-0 rounded-full"
             style={{ backgroundColor: bandColor(meta.id) }}
           />
-          Band {meta.roman} · {meta.title}
-        </p>
+          <p className="t-label">
+            Band {meta.roman} · {meta.title}
+          </p>
+        </div>
 
-        <h1 className="mt-3 text-balance font-display font-medium text-[34px] leading-[1.06] tracking-[-0.025em] sm:text-[48px]">
+        <h1 className="mt-3 t-h1">
           When it fails, it fails like{" "}
           <em className="text-fg-subtle not-italic">“{meta.sounds}”</em>
         </h1>
-        <p className="editorial-justify mt-4 max-w-[62ch] text-pretty text-[16px] sm:text-[17px] leading-relaxed text-fg-muted">
+        <p className="measure mt-4 text-[17px] leading-relaxed text-fg-muted">
           Band {meta.roman} is layers{" "}
           {meta.layers.map((l, i) => (
             <span key={l}>
@@ -184,23 +184,24 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </p>
 
         {symptoms.length ? (
-          <div className="mt-6 rounded-md border border-border p-4">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+          <div className="mt-6 rounded-[var(--r-card)] border border-border bg-bg-elevated p-5">
+            <p className="t-label">
               Start from the symptom instead
             </p>
-            <ul className="mt-2.5 space-y-1.5">
+            <ul className="mt-3 space-y-2">
               {symptoms.map((s) => (
                 <li key={s.slug}>
                   <Link
                     href={`/fix/${s.slug}`}
-                    className="text-[14px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                    className="group inline-flex items-baseline gap-1.5 text-[15.5px] text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
                   >
                     {s.title}
+                    <span aria-hidden="true" className="nudge text-fg-subtle">→</span>
                   </Link>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-fg-subtle">
+            <p className="mt-3 text-[13.5px] leading-relaxed text-fg-subtle">
               Each is an ordered checklist through the stack, cheapest check first.
             </p>
           </div>
@@ -209,13 +210,13 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
 
       {/* Who owns this band. Counted from the dataset rather than written, so it
           cannot claim a role owns the band when no tool in it carries that role. */}
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           Who ends up owning it
         </h2>
-        <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+        <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
           A band is a property of the stack; a role is a property of a person.
-          They correlate but are not the same question, which is why the count is
+          They correlate but are not the same question — which is why the count is
           derived rather than asserted.
         </p>
         <ul className="mt-4 flex flex-wrap gap-2">
@@ -223,12 +224,10 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
             <li key={role.id}>
               <Link
                 href={`/roles/${role.id}`}
-                className="inline-flex items-baseline gap-1.5 rounded-full border border-border px-3 py-1 text-[13px] text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                className="chip min-h-9 gap-2 px-3"
               >
                 {roleTitle(role.id)}
-                <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
-                  {count}
-                </span>
+                <span className="font-mono text-[12px] tabular-nums">{count}</span>
               </Link>
             </li>
           ))}
@@ -236,15 +235,15 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
       </section>
 
       {/* The layers, with their tools. */}
-      <section className="mt-12 border-t border-border pt-8">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+      <section className="mt-16 border-t border-border pt-10">
+        <h2 className="t-h4">
           The layers
         </h2>
         {layers.map((category) => (
           <div key={category.slug} className="mt-7">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3 className="inline-flex items-baseline gap-2.5 font-display text-[20px] font-medium tracking-[-0.01em]">
-                <span className="font-mono text-[11px] tabular-nums text-fg-subtle">
+              <h3 className="inline-flex items-baseline gap-2.5 font-serif text-[21px] font-medium tracking-[-0.01em]">
+                <span className="font-mono text-[13px] tabular-nums text-fg-subtle">
                   {category.index}
                 </span>
                 <Link
@@ -254,27 +253,34 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
                   {category.title}
                 </Link>
               </h3>
-              <span className="font-mono text-[11px] text-fg-subtle">
+              <span className="font-mono text-[13px] text-fg-subtle">
                 {category.tools.length} tools
               </span>
             </div>
-            <p className="editorial-justify mt-1.5 text-pretty text-[13.5px] leading-relaxed text-fg-muted">
+            <p className="editorial-justify mt-1.5 text-pretty text-[15px] leading-relaxed text-fg-muted">
               {category.responsibility}. {category.description}
             </p>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            <ul className="mt-4 space-y-px">
               {category.tools.map((tool) => (
                 <li key={tool.slug}>
-                  <ToolCard
-                    variant="full"
+                  <Link
                     href={`/${category.slug}/${tool.slug}`}
-                    name={tool.name}
-                    layer={category.layer}
-                    blurb={tool.blurb}
-                    kind={tool.kind}
-                    license={tool.license}
-                    useWhen={tool.useWhen}
-                    skipWhen={tool.skipWhen}
-                  />
+                    className="group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-1 h-8 w-[3px] shrink-0 rounded-full"
+                      style={layerStyle(category.layer)}
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-[15px] font-medium text-fg group-hover:text-accent">
+                        {tool.name}
+                      </span>
+                      <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
+                        {tool.skipWhen}
+                      </span>
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -284,16 +290,16 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
 
       {/* The crossings. Only rendered when there are any, because an empty
           "also reaches this band" block reads as a broken lookup rather than an
-          honest absence, and `layer_overlaps` reports the same crossings. */}
+          honest absence — and `layer_overlaps` reports the same crossings. */}
       {crossings.length ? (
-        <section className="mt-12 border-t border-border pt-8">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <section className="mt-16 border-t border-border pt-10">
+          <h2 className="t-h4">
             Indexed elsewhere, but serving this band
           </h2>
-          <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          <p className="editorial-justify mt-3 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-fg-muted">
             The problem is in band {meta.roman} and the tool you need is filed
             under a different layer. These are the crossings, each with the
-            reason it belongs here too: a bare cross-reference reads as a
+            reason it belongs here too — a bare cross-reference reads as a
             mistake, so the reason is the whole payload.
           </p>
           <ul className="mt-5 space-y-px">
@@ -301,15 +307,15 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
               <li key={`${c.homeSlug}/${c.toolSlug}`}>
                 <Link
                   href={`/${c.homeSlug}/${c.toolSlug}`}
-                  className="group -mx-2 block rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken"
+                  className="group -mx-2 block rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken"
                 >
-                  <span className="block text-[14px] font-medium text-fg group-hover:text-accent">
+                  <span className="block text-[15px] font-medium text-fg group-hover:text-accent">
                     {c.tool.name}
-                    <span className="ml-2 font-mono text-[11px] font-normal text-fg-subtle">
+                    <span className="ml-2 font-mono text-[13px] font-normal text-fg-subtle">
                       {c.homeSection}
                     </span>
                   </span>
-                  <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+                  <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
                     {c.because}
                   </span>
                 </Link>
@@ -319,8 +325,8 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </section>
       ) : null}
 
-      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[13.5px] leading-relaxed text-fg-subtle">
-        Bands are a shortcut, not a taxonomy: {" "}
+      <p className="editorial-justify mt-12 border-t border-border pt-6 text-pretty text-[15px] leading-relaxed text-fg-subtle">
+        Bands are a shortcut, not a taxonomy —{" "}
         <span className="text-fg-muted">
           band {meta.roman} covers {meta.layers.length} of nine layers
         </span>
@@ -334,7 +340,6 @@ export default async function BandPage({ params }: PageProps<"/bands/[band]">) {
         </Link>{" "}
         says where else this index is wrong.
       </p>
-      <ReviewCta context="Problems living in this band? A review finds which layer is the cause and what to change." />
     </div>
   );
 }

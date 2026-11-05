@@ -28,8 +28,8 @@ export function Segmented<V extends string>({
 }) {
   return (
     <div>
-      <p className="text-[13px] font-medium">{label}</p>
-      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={label}>
+      <p className="text-[14.5px] font-medium">{label}</p>
+      <div className="mt-2.5 flex flex-wrap gap-2" role="group" aria-label={label}>
         {options.map((o) => (
           <button
             key={o.value}
@@ -37,11 +37,7 @@ export function Segmented<V extends string>({
             onClick={() => onPick(o.value)}
             aria-pressed={value === o.value}
             title={o.hint}
-            className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-colors ${
-              value === o.value
-                ? "border-accent bg-bg-sunken text-fg"
-                : "border-border text-fg-muted hover:border-border-strong"
-            }`}
+            className="chip min-h-9 px-3.5"
           >
             {o.label}
           </button>

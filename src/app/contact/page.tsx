@@ -99,7 +99,7 @@ export default function ContactPage() {
       </MaintainerNote>
 
       <section className="mt-10">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-subtle">
+        <h2 className="t-h4">
           People
         </h2>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">

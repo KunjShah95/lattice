@@ -30,7 +30,7 @@ export function LinkRow({
   event?: TrackEvent;
 }) {
   const className =
-    "group -mx-2 flex gap-3 rounded-md px-2 py-3 transition-colors hover:bg-bg-sunken";
+    "group -mx-2 flex gap-3 rounded-[var(--r-control)] px-2 py-3 transition-colors hover:bg-bg-sunken";
   const body = (
     <>
       <span
@@ -39,9 +39,9 @@ export function LinkRow({
         style={layerStyle(layer)}
       />
       <span className="min-w-0">
-        <span className="block text-[15px] font-medium group-hover:text-accent">{title}</span>
+        <span className="block text-[17px] font-medium leading-snug group-hover:text-accent">{title}</span>
         {description ? (
-          <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-fg-muted">
+          <span className="mt-0.5 block text-pretty text-[14.5px] leading-relaxed text-fg-muted">
             {description}
           </span>
         ) : null}
