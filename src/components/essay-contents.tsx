@@ -27,7 +27,8 @@ export function EssayContents({ headings }: { headings: Heading[] }) {
         >
           +
         </span>
-        In this essay
+        In this essay{" "}
+        <span aria-hidden="true">·</span>{" "}
         <span className="font-mono text-[13px] text-fg-subtle">{headings.length} sections</span>
       </summary>
       <nav aria-label="In this essay">

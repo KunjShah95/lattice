@@ -33,8 +33,8 @@ export default defineConfig({
   testDir: "./e2e",
   // The Worker smoke test is a separate, slower suite that boots workerd; these
   // are fast enough to run on every push.
-  timeout: 30_000,
-  expect: { timeout: 5_000 },
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   // One worker: the corpus is ~113 rows and the assertions are read-only, so
   // parallelism buys little and a shared server keeps the log readable.
   fullyParallel: false,

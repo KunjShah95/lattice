@@ -226,5 +226,7 @@ jobs:
           # `npm run og:render -- --base`: npm parses `--base` as its own flag
           # and errors out before the script runs.
           node scripts/render-og.mjs --base http://localhost:3111
+          # ubuntu-latest no longer ships Pillow, and the bounds checker imports it.
+          python -m pip install --quiet pillow
           python scripts/check-og-bounds.py og-out || fail=1
           exit $fail
