@@ -1,0 +1,120 @@
+export const meta = {
+  slug: "when-not-to-use-an-agent-framework",
+  title: "When not to use an agent framework",
+  description:
+    "Most LLM features are a fixed sequence of calls, not an agent. When plain code beats LangChain and its peers, when a framework earns its dependency, and what to check before adopting one.",
+  dek: "If you can draw the steps before the model runs, you are writing a workflow, not an agent. Workflows do not need an agent framework.",
+  date: "2026-11-05",
+  readingTime: "7 min",
+  layers: [5, 6],
+  sections: ["agent-frameworks", "workflow-orchestration"],
+  related: ["agents-need-a-durable-host", "context-is-a-budget", "evals-are-the-asset"],
+  keywords: [
+    "when not to use an agent framework",
+    "when not to use LangChain",
+    "do I need an agent framework",
+    "agent framework vs plain code",
+  ],
+  rules: [
+    "Start with a single model call and plain code. Add an agent framework when the control flow genuinely depends on the model's output.",
+    "If you can draw the steps before the model runs, it is a workflow. Write it as code and keep the model out of the control flow.",
+    "A framework you cannot debug is a framework you cannot ship. Read the prompt it sends before you trust the answer it returns.",
+  ],
+  faq: [
+    {
+      question: "When should you not use an agent framework?",
+      answer:
+        "When the steps are known in advance, when the task is a single model call with tools, when you need to see and control exactly what is sent to the model, or when the team will spend more time learning the framework's abstractions than writing the feature.",
+    },
+    {
+      question: "Do I need LangChain to build an LLM app?",
+      answer:
+        "No. Provider SDKs support tool calling and structured output directly, and many production apps are a few model calls in ordinary code. A framework helps when you need its integrations, its agent loop, or a team-wide convention, and costs you a layer of abstraction to debug.",
+    },
+    {
+      question: "What is the difference between an agent and a workflow?",
+      answer:
+        "In a workflow, code decides the sequence of steps and the model fills in each step. In an agent, the model decides which step or tool comes next at runtime. Workflows are easier to test and debug; agents handle tasks whose steps cannot be known in advance.",
+    },
+    {
+      question: "When is an agent framework worth it?",
+      answer:
+        "When the model must choose among many tools over many steps, when you need memory, handoffs or human approval built in, or when several teams need one shared convention for building agents. Pair it with durable execution if runs last longer than a request.",
+    },
+  ],
+};
+
+The short answer: do not use an agent framework when you can write down the
+steps before the model runs. That is a workflow, and a workflow is best
+written as ordinary code that calls a model. Reach for a framework when the
+model genuinely has to decide what happens next, across several tools and
+steps, and you want that loop, its memory and its error handling built for
+you.
+
+## Most features are workflows
+
+Summarise a document. Classify a ticket and route it. Extract fields from an
+invoice. Answer a question from retrieved passages. Each of these is a fixed
+sequence: fetch, prompt, parse, store. The model does the hard part of each
+step, but code decides the order.
+
+Written as plain code, that sequence is a handful of functions. You can read
+it, unit-test it, put a breakpoint in it and see the exact prompt that went
+to the model. Wrapped in an agent framework, the same sequence becomes
+chains, runnables or graphs, and the prompt the model receives is assembled
+somewhere you did not write.
+
+Anthropic, OpenAI and other providers' SDKs now handle
+[tool calling](/glossary/tool-calling) and structured output directly. The
+gap that early frameworks filled, gluing a model to tools at all, has mostly
+closed.
+
+## Four signs you do not need one
+
+**You can draw the flowchart in advance.** If the branches are known, code
+them. Let the model fill in steps, not choose them.
+
+**It is one call with tools.** A single request in which the model may call a
+search tool or a calculator is a loop of a few lines. You do not need a
+framework to run it.
+
+**You need to see the prompt.** Debugging an LLM feature mostly means reading
+what was sent and what came back. Every abstraction between you and that
+payload makes the bug harder to find. If a framework hides the prompt, the
+debugging cost lands in production.
+
+**The framework is bigger than the feature.** If adopting it means the team
+learns a new vocabulary of chains, nodes and runnables to ship three model
+calls, the learning cost exceeds the code it saves.
+
+## When a framework earns its place
+
+The calculus flips when the control flow really is decided at runtime:
+
+- The model chooses among **many tools over many steps**, and the number of
+  steps is not known in advance.
+- You need **memory, handoffs between agents, or human approval** in the loop,
+  and would otherwise build them yourself.
+- **Several teams** are building agents and need one convention for tracing,
+  tools and evaluation.
+- You want the framework's **integrations**: loaders, vector stores and
+  providers that would each be a small project to write.
+
+Even then, prefer a framework that stays close to plain code and lets you see
+every prompt. The [agent framework comparison](/compare/agent-frameworks)
+sets the main options side by side, including when to skip each.
+
+## The part frameworks do not fix
+
+Whatever you choose, an agent that runs for more than a request needs
+somewhere durable to live. A process restart mid-loop loses its state, and a
+retried tool call can charge a card twice. That is a job for
+[durable execution](/glossary/durable-execution) and
+[idempotency keys](/glossary/idempotency-key), not for the agent framework.
+[Agents need a durable host](/blog/agents-need-a-durable-host) covers that
+layer.
+
+And whatever you choose, measure it. An agent that cannot be evaluated cannot
+be improved, because every change is a guess. Start with the
+[eval set](/blog/evals-are-the-asset), then decide how much framework you
+need.

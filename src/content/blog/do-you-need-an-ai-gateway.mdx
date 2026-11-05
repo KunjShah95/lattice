@@ -1,0 +1,124 @@
+export const meta = {
+  slug: "do-you-need-an-ai-gateway",
+  title: "Do you need an AI gateway?",
+  description:
+    "An AI gateway earns its place once you have a second provider, a spend limit or a fallback policy. Before that, a thin wrapper does the job. How to tell which side you are on.",
+  dek: "Every team needs one place where model calls go through. Not every team needs a gateway product to be that place, yet.",
+  date: "2026-11-05",
+  readingTime: "6 min",
+  layers: [2, 9],
+  sections: ["routing-gateways", "evaluation-observability"],
+  related: ["the-gateway-is-the-product", "choosing-a-model", "the-cost-model"],
+  keywords: [
+    "do I need an AI gateway",
+    "do I need an LLM gateway",
+    "what is an AI gateway",
+    "LLM gateway vs SDK",
+  ],
+  rules: [
+    "Route every model call through one function from day one. Whether that function is a gateway product is a later decision.",
+    "Adopt a gateway when a second provider, a spend limit or a fallback policy appears. Each is a cross-cutting rule that should not live in every call site.",
+    "A gateway is in the request path, so it adds latency to every call. Measure that overhead before you add policy to it.",
+  ],
+  faq: [
+    {
+      question: "What is an AI gateway?",
+      answer:
+        "A proxy between your application and model providers. It gives one endpoint and key store for many providers, and one place for retries, fallbacks, rate limits, budgets, caching and logging, so those rules are not repeated in application code.",
+    },
+    {
+      question: "Do I need an AI gateway?",
+      answer:
+        "You need a single place where every model call goes through. You need a gateway product once you call more than one provider, must enforce spend limits per team or customer, need automatic fallbacks during outages, or need central logs across services. Before that, a thin internal wrapper is enough.",
+    },
+    {
+      question: "What is the difference between an AI gateway and an SDK?",
+      answer:
+        "An SDK is a library inside one application. A gateway is a separate service that every application calls, so policy such as budgets, keys and fallbacks is enforced in one place across all of them, at the cost of one extra network hop.",
+    },
+    {
+      question: "Does an AI gateway add latency?",
+      answer:
+        "Yes, every request takes an extra hop through it. Self-hosted gateways placed near your application usually add little, but measure it at your traffic, because caching or guardrail checks inside the gateway add more.",
+    },
+  ],
+};
+
+The short answer: every team needs one place that all model calls go
+through, from the first day. Whether that place is a gateway product depends
+on three triggers: a second model provider, a spend limit you must enforce, or
+a fallback policy for outages. Before any of those appear, a thin internal
+wrapper does the job with less to operate.
+
+## What a gateway actually does
+
+An AI gateway sits between your code and the model providers and exposes one
+endpoint for all of them. What it adds is not the proxying; it is the rules
+that apply to every call:
+
+- **Keys and providers in one place**, so application code never holds a
+  provider credential.
+- **Retries and fallbacks**, including switching provider when one is down.
+- **Budgets and rate limits** per team, feature or customer.
+- **Caching**, including a [semantic cache](/glossary/semantic-cache) for
+  repeated questions.
+- **Logs and traces** of every request, response, model and cost.
+
+[The gateway is the product](/blog/the-gateway-is-the-product) argues that
+these decisions are where much of the real engineering in an LLM system
+lives. That is true. It does not follow that you need to buy or deploy a
+gateway to make them on day one.
+
+## When a thin wrapper is enough
+
+If all of these hold, a function in your codebase that every call goes
+through is the right size:
+
+- You call **one provider**, through its official SDK.
+- **One service** makes model calls, so there is nowhere for policy to drift.
+- You have **no per-customer or per-team spend limits** to enforce in real
+  time.
+- An outage of that provider is **acceptable downtime**, not an incident.
+
+Make the wrapper do three things: attach an identity to every call, log
+model, tokens, latency and cost, and keep the provider-specific code in one
+file. That is most of the value of a gateway, and it is an afternoon of work.
+When the triggers below arrive, you replace the inside of one function rather
+than every call site.
+
+## The triggers that mean you need one
+
+**A second provider.** The moment two providers are in play, request and
+response shapes, error codes and rate-limit behaviour diverge. A gateway
+normalises them. Writing that normalisation yourself is how teams end up
+maintaining a worse gateway.
+
+**A spend limit that must hold.** A budget is only real where it is enforced
+before the call, not in a report afterwards. When finance or a customer
+contract requires a cap, it belongs in the request path, once.
+
+**An outage that is an incident.** Failing over to another provider or model
+needs health tracking, a [circuit breaker](/glossary/circuit-breaker) and
+retries with jitter. These are fiddly to get right and easy to get wrong
+under pressure.
+
+**Several services calling models.** Once three teams each call providers
+directly, keys, logging and limits drift apart. A gateway is the cheapest way
+to get them back into one place.
+
+## Self-hosted or managed
+
+A self-hosted gateway such as LiteLLM keeps traffic and logs inside your
+network and avoids a third party in the request path. A managed one removes
+the operations work and often bundles analytics. The trade is the same one as
+anywhere else in the stack: control and data residency against the cost of
+running another service. The [LLM gateway comparison](/compare/llm-gateways)
+lays out the options and when to skip each.
+
+## What not to do
+
+Do not route between models on price before you can measure quality. A
+cheaper model that fails your eval set is not cheaper, and a gateway makes
+that mistake very easy to deploy at scale. Build the
+[eval set first](/compare/gateway-guardrails-evals), then let the gateway
+route on what it shows.

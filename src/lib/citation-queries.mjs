@@ -118,16 +118,31 @@ export const CITATION_QUERIES = [
  * those, and a query with an empty target is a content gap, not a ranking loss.
  */
 export const SKIP_WHEN_QUERIES = [
-  { id: 101, query: "when not to use a vector database", target: "", claim: "skip-when" },
-  { id: 102, query: "do I need an AI gateway", target: "", claim: "skip-when" },
+  { id: 101, query: "when not to use a vector database", target: "/blog/when-not-to-use-a-vector-database", claim: "skip-when" },
+  { id: 102, query: "do I need an AI gateway", target: "/blog/do-you-need-an-ai-gateway", claim: "skip-when" },
   { id: 103, query: "when is RAG the wrong choice", target: "/fix/llm-wrong-answers", claim: "skip-when" },
-  { id: 104, query: "when not to use an agent framework", target: "", claim: "skip-when" },
+  { id: 104, query: "when not to use an agent framework", target: "/blog/when-not-to-use-an-agent-framework", claim: "skip-when" },
   { id: 105, query: "is self-hosting an LLM worth it", target: "/compare/cutting-inference-cost", claim: "skip-when" },
-  { id: 106, query: "when do I not need evals", target: "", claim: "skip-when" },
+  { id: 106, query: "when do I not need evals", target: "/blog/when-you-do-not-need-evals", claim: "skip-when" },
+];
+
+/**
+ * Head-term variants of the four skip-when gaps above, added with the essays
+ * written to close them. The 10x ids keep the original wording as the series
+ * of record; these measure whether the same pages are cited for the phrasing
+ * people more often type.
+ */
+export const KEYWORD_QUERIES = [
+  { id: 201, query: "do I need a vector database", target: "/blog/when-not-to-use-a-vector-database", claim: "skip-when" },
+  { id: 202, query: "is pgvector enough", target: "/blog/when-not-to-use-a-vector-database", claim: "skip-when" },
+  { id: 203, query: "what is an AI gateway", target: "/blog/do-you-need-an-ai-gateway", claim: "skip-when" },
+  { id: 204, query: "do I need LangChain", target: "/blog/when-not-to-use-an-agent-framework", claim: "skip-when" },
+  { id: 205, query: "agent vs workflow LLM", target: "/blog/when-not-to-use-an-agent-framework", claim: "skip-when" },
+  { id: 206, query: "how many examples in an LLM eval set", target: "/blog/when-you-do-not-need-evals", claim: "skip-when" },
 ];
 
 /** Every tracked query, in id order. */
-export const ALL_QUERIES = [...CITATION_QUERIES, ...SKIP_WHEN_QUERIES].sort(
+export const ALL_QUERIES = [...CITATION_QUERIES, ...SKIP_WHEN_QUERIES, ...KEYWORD_QUERIES].sort(
   (a, b) => a.id - b.id,
 );
 
