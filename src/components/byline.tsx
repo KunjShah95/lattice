@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { datasetModified } from "@/lib/seo";
 import { bylineName } from "@/lib/seo";
+import { site } from "@/lib/site";
 
 /**
  * The byline every page making a factual claim carries under its lead.
@@ -30,7 +31,23 @@ export function Byline({
 }) {
   return (
     <p className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] text-fg-muted ${className}`}>
-      <span>By {bylineName}</span>
+      <span>
+        By{" "}
+        {/* The name links to the maintainer's site: a byline on every
+            factual page is the most natural place for the link, and
+            `rel="author"` says what it is. */}
+        {site.author?.url ? (
+          <a
+            href={site.author.url}
+            rel="author"
+            className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
+          >
+            {bylineName}
+          </a>
+        ) : (
+          bylineName
+        )}
+      </span>
       <span aria-hidden="true" className="text-fg-subtle">·</span>
       <span>{fact}</span>
       <time dateTime={datasetModified} className="font-mono tabular-nums">

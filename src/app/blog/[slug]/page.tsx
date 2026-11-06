@@ -95,7 +95,20 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-border pt-5">
-            <span className="text-[14px] text-fg-muted">By {bylineName}</span>
+            <span className="text-[14px] text-fg-muted">
+              By{" "}
+              {site.author?.url ? (
+                <a
+                  href={site.author.url}
+                  rel="author"
+                  className="underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg"
+                >
+                  {bylineName}
+                </a>
+              ) : (
+                bylineName
+              )}
+            </span>
             <span aria-hidden="true" className="text-fg-subtle">·</span>
             <time dateTime={meta.date} className="text-[14px] text-fg-muted">
               {formatDate(meta.date)}

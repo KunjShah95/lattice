@@ -288,9 +288,10 @@ export function siteJsonLd() {
             "@id": ids.founder,
             name: site.author.name,
             ...(site.author.url ? { url: site.author.url } : {}),
-            // The GitHub account the repo lives under: the public trail of the
-            // work behind the byline.
-            sameAs: [`https://github.com/${site.repo.split("/")[3]}`],
+            // The maintainer's site and every public profile, matching the
+            // `sameAs` kunjshah.in publishes, so the two sites agree on who
+            // the byline is.
+            sameAs: [...site.authorProfiles],
           },
         ]
       : []),
