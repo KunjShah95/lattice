@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { announcePopup, onOtherPopup } from "@/lib/popups";
 
 /**
  * The header is deliberately short. The stack diagram on the index is a far
@@ -166,6 +167,10 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
   const isActive = useIsActive();
 
+  // One header popup at a time: opening the drawer closes the Copy / Ask AI
+  // menu, and opening that menu closes the drawer.
+  useEffect(() => onOtherPopup("mobile-nav", () => setOpen(false)), []);
+
   // Lock the page behind the panel and let Escape dismiss it.
   useEffect(() => {
     if (!open) return;
@@ -187,7 +192,10 @@ export function MobileNav() {
     <div className="lg:hidden">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open) announcePopup("mobile-nav");
+          setOpen(!open);
+        }}
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label={open ? "Close menu" : "Open menu"}

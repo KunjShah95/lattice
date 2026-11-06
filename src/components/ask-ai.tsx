@@ -1,32 +1,11 @@
+import { askLinks } from "@/lib/ask-ai";
+
 /**
- * "Ask an AI about this page": one prefilled link per assistant.
- *
- * Plain links, no client code: each assistant accepts the question in its own
- * URL, so there is nothing to run in the browser and nothing added to the
- * bundle budget. The prompt names the canonical URL and asks for a citation,
- * so an answer built from it points back here.
- *
- * Gemini's own app has no supported way to prefill a question from a link, so
- * the Google entry opens Google AI Mode (which runs on Gemini) instead of an
- * empty Gemini chat that would ignore the question.
+ * "Ask an AI about this page", at the foot of every page: one prefilled link
+ * per assistant. Plain server-rendered links, so crawlers see them and no
+ * client code ships. The header's Copy / Ask AI menu offers the same links at
+ * the top of the page; the question itself lives in `lib/ask-ai.ts`.
  */
-const ASSISTANTS: Array<{ name: string; href: (q: string) => string }> = [
-  { name: "ChatGPT", href: (q) => `https://chatgpt.com/?hints=search&q=${q}` },
-  { name: "Claude", href: (q) => `https://claude.ai/new?q=${q}` },
-  { name: "Perplexity", href: (q) => `https://www.perplexity.ai/search?q=${q}` },
-  { name: "Google AI Mode", href: (q) => `https://www.google.com/search?udm=50&q=${q}` },
-  { name: "Grok", href: (q) => `https://grok.com/?q=${q}` },
-];
-
-export function askPrompt(url: string): string {
-  return `Read ${url} and summarise what it recommends and why, in plain terms. Cite the page.`;
-}
-
-export function askLinks(url: string) {
-  const q = encodeURIComponent(askPrompt(url));
-  return ASSISTANTS.map((a) => ({ name: a.name, href: a.href(q) }));
-}
-
 export function AskAi({
   url,
   className = "mt-16 border-t border-border pt-10",
