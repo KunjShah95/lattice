@@ -148,6 +148,22 @@ export const site = {
    * one entity instead of four unrelated strings. Only pages the project
    * actually controls belong here.
    */
+  /**
+   * The maintainer's own profiles, for the founder `Person.sameAs`. The same
+   * list the maintainer's site (kunjshah.in) publishes in its JSON-LD, so
+   * both sites resolve the byline to one person rather than two namesakes.
+   */
+  authorProfiles: [
+    "https://kunjshah.in",
+    "https://github.com/KunjShah95",
+    "https://github.com/KunjShah01",
+    "https://www.linkedin.com/in/kunjshah05",
+    "https://x.com/kunjshah_dev",
+    "https://huggingface.co/kunjshah01",
+    "https://peerlist.io/kunjshah",
+    "https://medium.com/@kkshah2005",
+    "https://www.producthunt.com/@kunj_shah3",
+  ],
   profiles: [
     "https://www.producthunt.com/products/lattice-12",
     "https://usefulshelf.co/apps/lattice-9fc3de",
