@@ -142,7 +142,10 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-[13px] text-fg-subtle">
+          {/* A wrapping flex row: JSX drops the whitespace between these
+              links, so as plain inline text the line had no break points and
+              ran 28px off a 320px phone. */}
+          <p className="flex flex-wrap items-center gap-y-1 font-mono text-[13px] text-fg-subtle">
             © {site.copyrightYear} {site.copyrightHolder}
             <span className="px-2" aria-hidden="true">·</span>
             <Link href="/contact" className="transition-colors hover:text-fg-muted">

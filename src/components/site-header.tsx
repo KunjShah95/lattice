@@ -38,7 +38,9 @@ export function SiteHeader() {
 
         <DesktopNav />
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+        {/* `gap-1` below 380px: with the Ask AI trigger icon-only, the
+            tighter gap is what keeps the row inside a 320px phone. */}
+        <div className="ml-auto flex shrink-0 items-center gap-1 min-[380px]:gap-1.5">
           {/* `compact` collapses to an icon below `sm`. This used to be
               `hidden sm:inline-flex`, which left the palette, the fastest way
               to find anything on a 113-tool index, completely unreachable on

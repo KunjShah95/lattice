@@ -698,3 +698,92 @@ test.describe("@e2e verified badge", () => {
   });
 });
 
+
+test.describe("@e2e Copy / Ask AI menu", () => {
+  const trigger = (page: Page) => page.getByRole("button", { name: "Copy page or ask an AI" });
+  const menu = (page: Page) => page.getByRole("menu", { name: /Copy this page or ask an AI/ });
+
+  test("opens with focus on the first item; arrows, End and Escape work", async ({ page }) => {
+    await page.goto("/compare/vector-databases");
+    await trigger(page).focus();
+    await page.keyboard.press("Enter");
+    await expect(menu(page)).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /Copy page/ })).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("menuitem", { name: /Copy link/ })).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(page.getByRole("menuitem", { name: /Open in Grok/ })).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("menuitem", { name: /Copy page/ })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(menu(page)).toBeHidden();
+    // Focus returns to the trigger, not to the top of the document.
+    await expect(trigger(page)).toBeFocused();
+  });
+
+  test("ArrowUp on the trigger opens on the last item", async ({ page }) => {
+    await page.goto("/");
+    await trigger(page).focus();
+    await page.keyboard.press("ArrowUp");
+    await expect(page.getByRole("menuitem", { name: /Open in Grok/ })).toBeFocused();
+  });
+
+  test("Copy link keeps the query string of a built comparison", async ({ page }) => {
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    const built = "/compare/build?tools=routing-gateways/litellm,evaluation-observability/langfuse";
+    await page.goto(built);
+    await trigger(page).click();
+    await page.getByRole("menuitem", { name: /Copy link/ }).click();
+    await expect(page.getByRole("menuitem", { name: /Link copied/ })).toBeVisible();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied.endsWith(built)).toBe(true);
+  });
+
+  test("does not reopen after Back and Forward", async ({ page }) => {
+    await page.goto("/compare");
+    await trigger(page).click();
+    await expect(menu(page)).toBeVisible();
+    await page.goto("/fix");
+    await page.goBack();
+    await expect(page).toHaveURL(/\/compare$/);
+    await expect(menu(page)).toBeHidden();
+    await page.goForward();
+    await page.goBack();
+    await expect(menu(page)).toBeHidden();
+  });
+
+  test("stays inside a 320px phone, closed and open", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    // Not the home page: its hero and stack diagram overflow a 320px phone on
+    // their own, which is a separate layout fix. The header and footer are
+    // shared, so any other page measures them.
+    await page.goto("/compare");
+    const overflow = () =>
+      page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    // Every header control sits inside the viewport.
+    const rights = await page
+      .locator("header button:visible, header a:visible")
+      .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right));
+    expect(Math.max(...rights)).toBeLessThanOrEqual(320);
+    expect(await overflow()).toBeLessThanOrEqual(0);
+    await trigger(page).click();
+    const box = await menu(page).boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+    expect(await overflow()).toBeLessThanOrEqual(0);
+  });
+
+  test("only one of the drawer and the menu is open at a time", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const drawer = page.locator("#mobile-nav");
+    await expect(drawer).toBeVisible();
+    await trigger(page).click();
+    await expect(menu(page)).toBeVisible();
+    await expect(drawer).toBeHidden();
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await expect(drawer).toBeVisible();
+    await expect(menu(page)).toBeHidden();
+  });
+});
