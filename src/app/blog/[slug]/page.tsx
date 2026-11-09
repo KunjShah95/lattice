@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { EssayContents } from "@/components/essay-contents";
 import { ReadingRail } from "@/components/reading-rail";
@@ -12,6 +11,7 @@ import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import { authorNode, breadcrumbNode, bylineName, faqPageJsonLd, graph, ids } from "@/lib/seo";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export function generateStaticParams() {
@@ -188,8 +188,6 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         </section>
       ) : null}
 
-      <ReviewCta context={`Applying “${meta.title}” to your own stack? Get it reviewed layer by layer.`} />
-
       {/* Related essays — the internal backlink graph. */}
       {related.length ? (
         <nav aria-label="Related essays" className="mt-16 border-t border-border pt-10">
@@ -226,6 +224,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         rules={meta.rules ?? PAGE_GUIDANCE.blogPost.rules}
         answers={meta.faq ?? PAGE_GUIDANCE.blogPost.answers}
       />
+      <ReviewCta context="Want this argument applied to your own system rather than the general case?" />
     </div>
   );
 }

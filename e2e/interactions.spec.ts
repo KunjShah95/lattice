@@ -792,7 +792,7 @@ test.describe("@e2e review card", () => {
   test("records which content page a review click came from", async ({ page }) => {
     await page.goto("/compare/vector-databases");
     const card = page.getByRole("complementary", { name: "Stack review" });
-    await expect(card).toContainText("Still deciding");
+    await expect(card).toContainText("Still torn on");
     // The beacon is the measurement: assert its payload, not just that a
     // request was made, because a beacon with the wrong `to` looks identical
     // to a working one in a status-only check.

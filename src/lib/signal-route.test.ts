@@ -42,6 +42,17 @@ describe("POST /signal", () => {
     });
   });
 
+  it("logs the landing channel when the beacon carries one", async () => {
+    const res = await postJson({ event: "review", from: "/compare/x", to: "/review", channel: "ai" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ kind: "review", channel: "ai", to: "/review" });
+  });
+
+  it("omits the channel key when the beacon has none", async () => {
+    const body = await (await postJson({ event: "tool", from: "/all", to: "/all" })).json();
+    expect(body).not.toHaveProperty("channel");
+  });
+
   it("stamps a parseable time", async () => {
     // The log is queried by date, so an unparseable stamp makes the whole record
     // unfilterable rather than merely untidy.

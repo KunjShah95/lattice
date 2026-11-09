@@ -4,6 +4,7 @@
 // sibling `.mjs` modules.
 import { allowedEvents, MAX_SIGNAL_BYTES, parseSignal } from "@/lib/signal.mjs";
 import { isRateLimited } from "@/lib/rate-limit.mjs";
+import { CHANNELS } from "@/lib/channel.mjs";
 
 /**
  * `/signal`receives navigation beacons and writes one structured line per click.
@@ -121,6 +122,10 @@ const record = {
   kind: parsed.event,
   from: parsed.from,
   to: parsed.to,
+  // The landing channel, when the browser could classify it. Spread rather than
+  // `channel: parsed.channel`, so a beacon without one logs no `channel: null`
+  // key for every query to filter around.
+  ...(parsed.channel ? { channel: parsed.channel } : {}),
   at: new Date().toISOString(),
 };
 
@@ -138,7 +143,7 @@ export async function GET() {
     {
       endpoint: "/signal",
       method: "POST",
-      accepts: { event: allowedEvents },
+      accepts: { event: allowedEvents, channel: CHANNELS },
     },
     { status: 405, headers: { ...CORS, Allow: "POST, OPTIONS" } },
   );

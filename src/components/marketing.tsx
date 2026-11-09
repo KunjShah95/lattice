@@ -156,7 +156,7 @@ export function CtaBand({
 
 /**
  * A compact offer card for the end of a content page (a tool, a comparison,
- * an essay, a Stack Builder result). `context` names what the reader was just
+ * a symptom, an essay, a workload stack). `context` names what the reader was just
  * looking at, so the ask follows from it rather than interrupting it.
  */
 export function ReviewCta({ context }: { context: string }) {
@@ -176,8 +176,10 @@ export function ReviewCta({ context }: { context: string }) {
           where a tool sits in this index.
         </p>
       </div>
-      {/* Tracked: this card is the site's one conversion, and the `from` on
-          the beacon says which kind of page sent the reader. */}
+      {/* Tracked as `review`: the one conversion this site has. With the
+          landing channel attached by `TrackLink`, the log can say which kind
+          of traffic (an AI answer, a search, a launch post) actually walks
+          from a content page into the offer. */}
       <TrackLink
         href="/review"
         event="review"

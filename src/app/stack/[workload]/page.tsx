@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/stacks";
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import { rulesForSections } from "@/lib/guidance";
 import { site } from "@/lib/site";
 import { toolCount } from "@/lib/data";
@@ -255,8 +255,6 @@ export default async function StackWorkloadPage({
         </p>
       </section>
 
-      <ReviewCta context={`Want this ${meta.label} stack checked against your real volumes and constraints?`} />
-
       <PageGuidance url={pageUrl}
         rules={rulesForSections(result.picks.map((p) => p.sectionSlug))}
         answers={questions}
@@ -275,6 +273,7 @@ export default async function StackWorkloadPage({
         </Link>{" "}
         preselects this workload and starts with your volumes from here.
       </p>
+      <ReviewCta context={`This is the default stack for a ${meta.label}. Want it checked against your traffic, budget and constraints?`} />
     </div>
   );
 }

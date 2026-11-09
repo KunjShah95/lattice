@@ -68,6 +68,20 @@ describe("parseSignal", () => {
     }
   });
 
+  it("carries a landing channel from the closed set", () => {
+    expect(parseSignal(JSON.stringify({ ...ok, channel: "ai" }))).toEqual({ ...ok, channel: "ai" });
+    // Absent is fine: an edge without a channel is still an edge.
+    expect(parseSignal(JSON.stringify(ok))).toEqual(ok);
+  });
+
+  it("rejects a channel outside the closed set", () => {
+    // Same rule as `event`: a free-text field in the log is how it gets poisoned
+    // or used to smuggle a referrer URL in under another name.
+    for (const bad of ["AI", "https://chatgpt.com/", "email", 1, ""]) {
+      expect(parseSignal(JSON.stringify({ ...ok, channel: bad })), `channel: ${bad}`).toBeNull();
+    }
+  });
+
   it("rejects an endpoint that is not a site-absolute path", () => {
     for (const bad of ["", "compare/x", "https://evil.com", "javascript:alert(1)"]) {
       expect(parseSignal(JSON.stringify({ ...ok, to: bad })), `to: ${bad}`).toBeNull();

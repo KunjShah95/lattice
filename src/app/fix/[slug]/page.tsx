@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { AS_OF } from "@/lib/attributes";
 import { BANDS, bandColor, layerStyle } from "@/lib/layer";
 import { toJsonLd } from "@/lib/jsonld";
 import { rulesFromComparisons } from "@/lib/guidance";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import {
   authorNode,
   breadcrumbNode,
@@ -194,8 +194,6 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
         </ul>
       </section>
 
-      <ReviewCta context={`${s.label} even after these checks? Send the setup and get the layer that is actually failing named.`} />
-
       <PageGuidance url={pageUrl}
         rules={rulesFromComparisons(s.comparisons.map((c) => c.slug))}
         answers={questions.slice(1)}
@@ -223,6 +221,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           ))}
         </ul>
       </nav>
+      <ReviewCta context={`${s.title.replace(/\?$/, "")}? Send the setup and get the cause traced layer by layer.`} />
     </div>
   );
 }
