@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useEffect, type ReactNode } from "react";
+import { classifyArrival, isChannel, type Channel } from "@/lib/channel.mjs";
 
 /**
  * An internal link that reports where it was clicked from.
@@ -48,11 +49,20 @@ import { useCallback, type ReactNode } from "react";
  * Clicking the link in a real browser and reading what went over the wire is what
  * caught it.
  *
+ Also sent, when known: `channel`, one word from a closed set of five (`ai`,
+ * `search`, `social`, `direct`, `referral`) naming the *kind* of place the reader
+ * landed from. It is classified in the browser by `lib/channel.mjs` and is the
+ * only way to ask the log which source of traffic converts (does a reader who
+ * arrived from an AI answer book a review more often than one from a launch
+ * post?). The referrer itself never leaves the page.
+ *
  * Not sent: referrer, user agent, anything identifying, anything cross-site. There
- * is no session and no cookie, so the log cannot be joined into a profile, which
- * is what makes it safe to keep indefinitely and possible to publish. The
- * alternative to collecting this is a third-party analytics script, which would
- * collect strictly more and send it elsewhere.
+ * is no cookie and no identifier, so the log cannot be joined into a profile, which
+ * is what makes it safe to keep indefinitely and possible to publish. The landing
+ * channel is remembered in `sessionStorage` for the tab, because the referrer is
+ * gone after the first full page load; it never leaves the browser except as that
+ * one word. The alternative to collecting this is a third-party analytics script,
+ * which would collect strictly more and send it elsewhere.
  *
  * ## It is best-effort on purpose
  *
@@ -67,7 +77,51 @@ export type TrackEvent =
   | "compare"
   | "second-home"
   | "tool"
-  | "outbound";
+  | "outbound"
+  | "review";
+
+const CHANNEL_KEY = "lattice.channel";
+
+/**
+ * The channel this tab landed from: first touch, remembered for the tab.
+ *
+ * First touch rather than last, because an internal full-page load replaces
+ * `document.referrer` with this site's own URL, and a reader who arrived from
+ * an AI answer is still that reader three pages later. `sessionStorage` rather
+ * than a cookie: it is per tab, it is never sent with a request, and it is gone
+ * when the tab closes. Every access is guarded, because storage throws in some
+ * private modes and the link must work regardless.
+ */
+function landingChannel(): Channel | null {
+  try {
+    const stored = sessionStorage.getItem(CHANNEL_KEY);
+    if (isChannel(stored)) return stored;
+  } catch {
+    // Storage blocked: classify from what this page knows, and do not persist.
+  }
+  const channel = classifyArrival(document.referrer, location.search, location.hostname);
+  if (channel) {
+    try {
+      sessionStorage.setItem(CHANNEL_KEY, channel);
+    } catch {
+      // Not persisted; the next page classifies again.
+    }
+  }
+  return channel;
+}
+
+/**
+ * Record the landing channel as soon as a page mounts, not on first click.
+ * Next's client navigation keeps `document.referrer` from the landing, but a
+ * reader who reloads before clicking anything would otherwise lose it. Mount
+ * this once, in the root layout.
+ */
+export function ChannelCapture() {
+  useEffect(() => {
+    landingChannel();
+  }, []);
+  return null;
+}
 
 export function TrackLink({
   href,
@@ -111,7 +165,7 @@ export function TrackLink({
 
       navigator.sendBeacon(
         "/signal",
-        JSON.stringify({ event, from: location.pathname, to }),
+        JSON.stringify({ event, from: location.pathname, to, channel: landingChannel() ?? undefined }),
       );
     } catch {
       // No `sendBeacon` (older browser), or a CSP that forbids it. Either way the

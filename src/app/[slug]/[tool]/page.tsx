@@ -19,6 +19,7 @@ import { postsForSection } from "@/lib/posts";
 import { resolvedComparisons } from "@/lib/comparisons";
 import { hasAlternativesPage } from "@/lib/alternatives";
 import { TrackLink } from "@/components/track-link";
+import { ReviewCta } from "@/components/marketing";
 import { Byline } from "@/components/byline";
 import { DecisionValve } from "@/components/ui/decision-valve";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -579,6 +580,9 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
           </ul>
         </section>
       ) : null}
+      {/* The offer, at the point of highest intent: a reader who read a whole
+          tool page is mid-decision about this layer. */}
+      <ReviewCta context={`Running ${tool.name} in production, or still deciding whether it fits your stack?`} />
     </div>
   );
 }

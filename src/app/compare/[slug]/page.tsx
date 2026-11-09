@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AskAi } from "@/components/ask-ai";
+import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { BANDS, bandOf, layerStyle } from "@/lib/layer";
 import {
@@ -373,6 +374,7 @@ export default async function ComparisonPage({
           </ul>
         </nav>
       ) : null}
+      <ReviewCta context={`Still torn on ${comparison.title}? Get the call made for your workload, not the general case.`} />
     </div>
   );
 }

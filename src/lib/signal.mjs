@@ -21,10 +21,20 @@
  * 4. **Length caps.** 512 bytes for the body, 200 for each path. A cap is not a
  *    security control here; it is a refusal to allocate memory on behalf of
  *    whoever POSTs.
+ *
+ * A fifth, optional field: `channel`, the coarse kind of place the reader landed
+ * from (`lib/channel.mjs`). It is the one way to read the log by source of
+ * traffic, which is what makes "does answer-engine traffic convert better than
+ * a social burst" a query rather than a guess. Optional, because a beacon from a
+ * browser that could not classify its landing is still a valid edge. Present
+ * but outside the closed set, it rejects the beacon: same rule as `event`, for
+ * the same reasons.
  */
 
+import { isChannel } from "./channel.mjs";
+
 /** The only events that mean anything. Adding one is a deliberate change. */
-export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound"];
+export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound", "review"];
 
 /** Exposed for the route's `GET`, which describes the endpoint honestly. */
 export const allowedEvents = ALLOWED_EVENTS;
@@ -91,7 +101,9 @@ export function parseSignal(raw) {
   const to = event === "outbound" ? cleanHost(body.to) : cleanPath(body.to);
   if (!from || !to) return null;
 
-  return { event, from, to };
+  if (body.channel === undefined || body.channel === null) return { event, from, to };
+  if (!isChannel(body.channel)) return null;
+  return { event, from, to, channel: body.channel };
 }
 
 /**

@@ -5,6 +5,7 @@ import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import { rulesForSections } from "@/lib/guidance";
 import { site } from "@/lib/site";
 import { toolCount } from "@/lib/data";
@@ -272,6 +273,7 @@ export default async function StackWorkloadPage({
         </Link>{" "}
         preselects this workload and starts with your volumes from here.
       </p>
+      <ReviewCta context={`This is the default stack for a ${meta.label}. Want it checked against your traffic, budget and constraints?`} />
     </div>
   );
 }
