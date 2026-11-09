@@ -241,6 +241,51 @@ To read any of it:
 npx wrangler tail --format pretty   # then filter for the two event names above
 ```
 
+### 7a. Which traffic converts: a rate, never a count
+
+*Added 9 November 2026.* The other rows ask whether the index is used. This one asks
+where to spend hours: posting for a social burst, or writing for answer engines.
+
+**Compare rates, not volume.** Answer-engine traffic will always be the smaller
+number; the claim worth testing is that it converts better, because the reader
+arrives mid-decision with the question already asked. A raw count of AI visits
+against social visits answers nothing.
+
+Every beacon may carry `channel`, one of `ai`, `search`, `social`, `direct`,
+`referral`, classified in the browser (`lib/channel.mjs`) from, in order: an
+explicit `?src=<channel>` on a link we seeded, then `utm_source` (ChatGPT tags its
+citations `utm_source=chatgpt.com` and often sends no referrer), then the referrer's
+host. The referrer itself never leaves the page.
+
+| Number | Log query (`event: "lattice.signal"`) |
+| --- | --- |
+| Sessions, per channel (denominator) | `kind: "land"`, grouped by `channel` |
+| CTA conversions | `kind: "review"`, grouped by `channel` |
+| Tool completions | `kind: "stack-built"` or `"compare-built"`, grouped by `channel` |
+
+`land` is sent once per tab, the first time it classifies its arrival, and not at
+all when storage is blocked (one per page would inflate the denominator).
+`compare-built` counts only a comparison the reader assembled, not a pasted link.
+`review` is a click on the offer; the booking itself happens off-site and is not
+seen, so it is a proxy for a booked call, not the call.
+
+**The decision rule.** Same 30-day window for both channels.
+
+- Trust a gap only once each channel has **~15–20 conversions**, not ~100 sessions.
+  At a 1–3% rate, 100 sessions is one to three conversions, and "3× better" is then
+  three against one: noise.
+- If `ai` converts at ~3× the `social` rate on a quarter of the traffic, it wins:
+  keep posting socially for indexing and the occasional burst, and spend the hours
+  on answerable pages.
+- If `ai` is still **under ~10 sessions a week after a month**, that is not a
+  ranking problem but a content-surface problem: the site is not answerable to the
+  queries people actually type. `kind: "land"` grouped by `to` shows which pages
+  answer engines do send people to; write more of those.
+
+Seed `?src=` only on links posted where we control the link (a launch post, an
+AI-facing page we wrote). **Never** in `llms.txt`, `tools.json` or `/mcp`: every
+agent that cites Lattice would ship the tag (§4).
+
 **A neutral tiebreaker that nobody cites and nobody queries is worth less than a small paid
 directory everyone uses.** If the citation tracker is flat after six months of honest effort, the
 answer is more surface area, not a sponsor.

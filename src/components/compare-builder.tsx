@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { sendSignal } from "@/lib/beacon";
 import { CopyButton } from "@/components/copy-button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import {
@@ -98,7 +99,18 @@ export function CompareBuilder({ tools }: { tools: CompareTool[] }) {
         .slice(0, MAX_RESULTS)
     : [];
 
+  // `compare-built` goes out once per visit, the first time the reader's own
+  // picks make a comparison (two tools). A pasted link or an example preset
+  // that already holds two is not counted: the reader did nothing, and a
+  // completion they did not perform would flatter every channel's rate.
+  const reportedBuilt = useRef(false);
+
   const add = (id: string) => {
+    const grows = !ids.includes(id) && ids.length < MAX_COMPARE;
+    if (grows && ids.length + 1 >= 2 && !reportedBuilt.current) {
+      reportedBuilt.current = true;
+      sendSignal("compare-built", "/compare/build");
+    }
     setIds((prev) => (prev.includes(id) || prev.length >= MAX_COMPARE ? prev : [...prev, id]));
     setQuery("");
   };

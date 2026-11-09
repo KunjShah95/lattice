@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, type ReactNode } from "react";
-import { classifyArrival, isChannel, type Channel } from "@/lib/channel.mjs";
+import { captureLanding, sendSignal, type SignalEvent } from "@/lib/beacon";
 
 /**
  * An internal link that reports where it was clicked from.
@@ -72,53 +72,21 @@ import { classifyArrival, isChannel, type Channel } from "@/lib/channel.mjs";
  * dropped request would cost a page load.
  */
 
-export type TrackEvent =
-  | "alternatives"
-  | "compare"
-  | "second-home"
-  | "tool"
-  | "outbound"
-  | "review";
-
-const CHANNEL_KEY = "lattice.channel";
+/** Events a link can report. Completion events are sent by the tools themselves. */
+export type TrackEvent = Extract<
+  SignalEvent,
+  "alternatives" | "compare" | "second-home" | "tool" | "outbound" | "review"
+>;
 
 /**
- * The channel this tab landed from: first touch, remembered for the tab.
- *
- * First touch rather than last, because an internal full-page load replaces
- * `document.referrer` with this site's own URL, and a reader who arrived from
- * an AI answer is still that reader three pages later. `sessionStorage` rather
- * than a cookie: it is per tab, it is never sent with a request, and it is gone
- * when the tab closes. Every access is guarded, because storage throws in some
- * private modes and the link must work regardless.
- */
-function landingChannel(): Channel | null {
-  try {
-    const stored = sessionStorage.getItem(CHANNEL_KEY);
-    if (isChannel(stored)) return stored;
-  } catch {
-    // Storage blocked: classify from what this page knows, and do not persist.
-  }
-  const channel = classifyArrival(document.referrer, location.search, location.hostname);
-  if (channel) {
-    try {
-      sessionStorage.setItem(CHANNEL_KEY, channel);
-    } catch {
-      // Not persisted; the next page classifies again.
-    }
-  }
-  return channel;
-}
-
-/**
- * Record the landing channel as soon as a page mounts, not on first click.
- * Next's client navigation keeps `document.referrer` from the landing, but a
- * reader who reloads before clicking anything would otherwise lose it. Mount
- * this once, in the root layout.
+ * Classify the landing once per tab, and send the `land` beacon the first
+ * time: the denominator every conversion rate divides by. Mounted once, in the
+ * root layout, so a reader who never clicks anything is still counted.
+ * Renders nothing; see `lib/beacon.ts`.
  */
 export function ChannelCapture() {
   useEffect(() => {
-    landingChannel();
+    captureLanding();
   }, []);
   return null;
 }
@@ -144,8 +112,8 @@ export function TrackLink({
 }) {
   const onClick = useCallback(() => {
     try {
-      // `from` is read from `location`, because it is the page the click happened
-      // on: the one thing the href cannot tell us.
+      // `from` is read from `location` by `sendSignal`, because it is the page
+      // the click happened on: the one thing the href cannot tell us.
       //
       // `to` is resolved against the origin rather than passed through, so the
       // destination is always a bare path. The validator rejects anything not
@@ -162,14 +130,9 @@ export function TrackLink({
       // like a comparison exit while proving only that a comparison link existed.
       const to =
         event === "outbound" ? new URL(href).hostname : new URL(href, location.origin).pathname;
-
-      navigator.sendBeacon(
-        "/signal",
-        JSON.stringify({ event, from: location.pathname, to, channel: landingChannel() ?? undefined }),
-      );
+      sendSignal(event, to);
     } catch {
-      // No `sendBeacon` (older browser), or a CSP that forbids it. Either way the
-      // link still works, which is the only thing that matters here.
+      // A malformed href. The link still works, which is the only thing that matters.
     }
   }, [event, href]);
 

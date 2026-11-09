@@ -127,19 +127,32 @@ export function channelForHost(host) {
  * The channel of a landing, from what the browser knows at that moment.
  *
  * @param {string} referrer `document.referrer` (may be empty)
- * @param {string} search `location.search` (may be empty)
+ * @param {string} search `location.search` (may be empty); `src` and `utm_source` are read
  * @param {string} ownHost `location.hostname`, so internal hops return null
  * @returns {string | null} one of `CHANNELS`, or null for a same-origin hop
  */
 export function classifyArrival(referrer, search, ownHost) {
-  // A campaign tag is the stronger signal: it survives `noreferrer` links and
-  // apps that strip the header, which is most of how AI and social clicks land.
-  let utm = null;
+  let params;
   try {
-    utm = new URLSearchParams(search || "").get("utm_source");
+    params = new URLSearchParams(search || "");
   } catch {
-    utm = null;
+    params = new URLSearchParams();
   }
+
+  // An explicit tag on a link this site seeded (`?src=ai` on a link posted
+  // into an AI-facing page, `?src=social` on a launch post) is the strongest
+  // signal there is: it is a statement, not an inference. Accepted only from the
+  // closed set, so an arbitrary value falls through to the rules below rather
+  // than inventing a channel.
+  //
+  // Not for the canonical citation URLs in `llms.txt`, `tools.json` or `/mcp`:
+  // every agent that cites Lattice would ship the tag. `04-monetisation.md` §4.
+  const src = params.get("src")?.trim().toLowerCase() ?? "";
+  if (isChannel(src)) return src;
+
+  // A campaign tag is the next strongest: it survives `noreferrer` links and
+  // apps that strip the header, which is most of how AI and social clicks land.
+  const utm = params.get("utm_source");
   if (utm && AI_UTM.test(utm.trim())) return "ai";
 
   let refHost = "";

@@ -13,6 +13,20 @@ import { CHANNELS, channelForHost, classifyArrival, isChannel } from "./channel.
 const OWN = "lattice.kunjshah.in";
 
 describe("classifyArrival", () => {
+  it("trusts an explicit src tag from the closed set above everything else", () => {
+    // A seeded link is a statement, not an inference: it wins over a referrer
+    // that says otherwise and over a campaign tag.
+    expect(classifyArrival("https://t.co/x", "?src=ai", OWN)).toBe("ai");
+    expect(classifyArrival("", "?src=social&utm_source=chatgpt.com", OWN)).toBe("social");
+    expect(classifyArrival("", "?src=AI", OWN)).toBe("ai");
+  });
+
+  it("ignores a src tag outside the closed set", () => {
+    // Falls through to the ordinary rules rather than inventing a channel.
+    expect(classifyArrival("https://www.bing.com/", "?src=newsletter", OWN)).toBe("search");
+    expect(classifyArrival("", "?src=", OWN)).toBe("direct");
+  });
+
   it("files answer engines as ai", () => {
     for (const ref of [
       "https://chatgpt.com/",

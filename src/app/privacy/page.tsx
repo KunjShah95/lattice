@@ -64,11 +64,15 @@ export default function PrivacyPage() {
 
       <InfoSection title="Click signals">
         <p>
-          A few links (into comparisons, alternatives, tool homepages and the
-          review page) send a small beacon to this site when clicked: the page
-          you were on, where the link goes, and one word for the kind of place
-          you first arrived from: <code>ai</code>, <code>search</code>,{" "}
-          <code>social</code>, <code>direct</code> or <code>referral</code>.
+          This site sends a small beacon to itself at a few moments: once when
+          a browser tab first arrives, when you follow certain links (into
+          comparisons, alternatives, tool homepages and the review page), and
+          when you finish building a stack or a comparison. Each beacon holds
+          the page you were on, a page path for where it led (for a built
+          stack, only the workload type, never what you typed), and one word
+          for the kind of place you first arrived from: <code>ai</code>,{" "}
+          <code>search</code>, <code>social</code>, <code>direct</code> or{" "}
+          <code>referral</code>.
           That word is worked out in your browser. The referring URL itself is
           never sent, and there is no cookie and no identifier, so the record
           cannot be tied to you or joined across visits. The word is kept in
