@@ -787,3 +787,19 @@ test.describe("@e2e Copy / Ask AI menu", () => {
     await expect(menu(page)).toBeHidden();
   });
 });
+
+test.describe("@e2e review card", () => {
+  test("records which content page a review click came from", async ({ page }) => {
+    await page.goto("/compare/vector-databases");
+    const card = page.getByRole("complementary", { name: "Stack review" });
+    await expect(card).toContainText("Still torn on");
+    // The beacon is the measurement: assert its payload, not just that a
+    // request was made, because a beacon with the wrong `to` looks identical
+    // to a working one in a status-only check.
+    const beacon = page.waitForRequest((r) => r.url().endsWith("/signal") && r.method() === "POST");
+    await card.getByRole("link", { name: /See how it works/ }).click();
+    const body = JSON.parse((await beacon).postData() ?? "{}");
+    expect(body).toMatchObject({ event: "review", from: "/compare/vector-databases", to: "/review" });
+    await expect(page).toHaveURL(/\/review$/);
+  });
+});
