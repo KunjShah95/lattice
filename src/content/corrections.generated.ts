@@ -76,7 +76,52 @@ export const corrections: Correction[] = [
     "hash": "f9765d4",
     "url": "https://github.com/KunjShah95/lattice/commit/f9765d4fd34f83ae59b93cff98020d64876d2864",
     "touched": [
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-10-01",
+    "title": "Classify every tool with structured attributes and an alternatives graph",
+    "hash": "9381e64",
+    "url": "https://github.com/KunjShah95/lattice/commit/9381e64e3cca20311de8807bc1c8bf1960c41b60",
+    "touched": [
       "classification",
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "title": "Add per-tool pages, a filterable all-tools view, a decision path, and RSS",
+    "hash": "2b516cb",
+    "url": "https://github.com/KunjShah95/lattice/commit/2b516cb51afed63ec4f2d2ddbbc3deda586f1f6c",
+    "touched": [
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "title": "checkpoint: uncommitted essays, diagrams, OG images, comparisons",
+    "hash": "66b7533",
+    "url": "https://github.com/KunjShah95/lattice/commit/66b753309febfc26877f8e946d70a6991e4ff058",
+    "touched": [
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "title": "Add MDX essay section, architecture diagrams, cover images, and SEO",
+    "hash": "1d7c350",
+    "url": "https://github.com/KunjShah95/lattice/commit/1d7c350d65aae7cdf6ff939463ccce35cc2162f4",
+    "touched": [
+      "the index"
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "title": "Lattice: initial commit: AI tooling directory",
+    "hash": "81f85fe",
+    "url": "https://github.com/KunjShah95/lattice/commit/81f85fe8a9b1f30c00140ae41216ebba9326f967",
+    "touched": [
       "the index"
     ]
   }
