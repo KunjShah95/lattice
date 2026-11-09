@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lattice reel</title>
+<!--
+  One template for every reel. Reads out/<id>/timing.json (written by voice.py)
+  and draws its beats on that clock, so picture and voice cannot drift.
+
+    reel.html?id=02-slow-llm-app&t=6.2     scrub a frame in a browser
+
+  Rendered by `node launch/reels/render.mjs`. 1080x1920, the site's dark
+  palette, and every word inside the Reels safe area: nothing that matters
+  above ~250px (account row) or below ~1560px (caption and buttons), and
+  clear of the right-hand action rail.
+
+  Beat types: hook, say, item, verdict, stack, cta.
+-->
+<style>
+@font-face { font-family: Plex Sans; src: url(../fonts/plex-sans-latin.woff2) format("woff2"); font-weight: 400 600; }
+@font-face { font-family: Plex Serif; src: url(../fonts/plex-serif-500-latin.woff2) format("woff2"); font-weight: 500; }
+@font-face { font-family: Plex Mono; src: url(../fonts/plex-mono-400-latin.woff2) format("woff2"); font-weight: 400; }
+@font-face { font-family: Plex Mono; src: url(../fonts/plex-mono-500-latin.woff2) format("woff2"); font-weight: 500; }
+
+:root {
+  /* globals.css, dark theme */
+  --bg: #0b0b0c; --elev: #131316; --fg: #ededf0; --muted: #b6b6bf; --subtle: #9a9aa4; --border: #232327;
+  --accent: oklch(0.72 0.17 34);
+  --l1: oklch(0.70 0.12 66); --l2: oklch(0.80 0.13 78); --l3: oklch(0.70 0.09 138);
+  --l4: oklch(0.80 0.10 148); --l5: oklch(0.70 0.09 236); --l6: oklch(0.77 0.10 228);
+  --l7: oklch(0.72 0.10 212); --l8: oklch(0.69 0.11 254); --l9: oklch(0.76 0.13 270);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+body { font-family: "Plex Sans", system-ui, sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+.abs { position: absolute; will-change: transform, opacity; }
+
+#grid { inset: -64px; background-image:
+  linear-gradient(to right, rgb(237 237 240 / .045) 1px, transparent 1px),
+  linear-gradient(to bottom, rgb(237 237 240 / .045) 1px, transparent 1px);
+  background-size: 64px 64px; mask-image: radial-gradient(ellipse 85% 70% at 50% 48%, #000 25%, transparent 100%); }
+#wash { left: 50%; top: 50%; width: 1500px; height: 1700px; margin: -850px 0 0 -750px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--wash, oklch(0.72 0.17 34 / .16)), transparent); }
+
+/* brand row: the reel's constant, so a viewer learns the account */
+#brand { left: 80px; top: 262px; display: flex; align-items: center; gap: 18px; font: 500 24px/1 "Plex Mono"; letter-spacing: .28em; text-transform: uppercase; color: var(--subtle); }
+#brand .m { display: grid; grid-template-columns: repeat(3, 10px); gap: 3px; }
+#brand .m i { width: 10px; height: 10px; border-radius: 2px; background: var(--fg); }
+#brand .m i.d { background: transparent; } #brand .m i.j { background: var(--accent); }
+#brand b { font-weight: 500; color: var(--fg); }
+
+/* progress: one segment per numbered item */
+#prog { left: 80px; right: 160px; top: 330px; display: flex; gap: 10px; }
+#prog i { flex: 1; height: 6px; border-radius: 3px; background: rgb(237 237 240 / .14); overflow: hidden; position: relative; }
+#prog i s { position: absolute; inset: 0; transform-origin: 0 50%; background: var(--fg); }
+
+.beat { left: 80px; right: 150px; top: 0; height: 1920px; visibility: hidden; }
+.w { display: inline-block; will-change: transform, opacity; white-space: pre; }
+.ln { display: block; }
+.acc { color: var(--accent); }
+
+.hook { top: 660px; font: 500 112px/1.03 "Plex Serif"; letter-spacing: -0.035em; text-wrap: balance; }
+.say { top: 780px; font: 500 82px/1.1 "Plex Serif"; letter-spacing: -0.03em; text-wrap: balance; }
+
+.item .num { position: absolute; top: 600px; left: 0; font: 500 168px/1 "Plex Mono"; letter-spacing: -0.04em; }
+.item .chip { position: absolute; top: 800px; left: 0; display: inline-flex; align-items: center; gap: 14px; height: 54px; padding: 0 24px;
+  border-radius: 999px; border: 1.5px solid currentColor; font: 500 22px/1 "Plex Mono"; letter-spacing: .2em; text-transform: uppercase; }
+.item .chip b { width: 12px; height: 12px; border-radius: 3px; background: currentColor; }
+.item .ttl { position: absolute; top: 910px; left: 0; right: 0; font: 500 92px/1.06 "Plex Serif"; letter-spacing: -0.03em; color: var(--fg); text-wrap: balance; }
+.item .sub { position: absolute; left: 0; right: 0; font: 400 44px/1.3 "Plex Sans"; color: var(--muted); text-wrap: pretty; }
+/* "→ Tool": the answer is the payoff, so it reads as one */
+.item .sub.ans { font: 500 64px/1.15 "Plex Serif"; letter-spacing: -0.02em; color: currentColor; }
+
+.verdict .lbl { position: absolute; top: 640px; left: 0; display: inline-flex; align-items: center; gap: 14px; height: 60px; padding: 0 28px; border-radius: 999px;
+  background: var(--accent); color: var(--bg); font: 500 24px/1 "Plex Mono"; letter-spacing: .2em; text-transform: uppercase; }
+.verdict .card { position: absolute; top: 760px; left: 0; right: 0; padding: 52px 52px 56px 64px; border-radius: 28px; background: var(--elev);
+  box-shadow: 0 0 0 1.5px var(--border), 0 50px 120px -40px rgb(0 0 0 / .8); font: 500 76px/1.12 "Plex Serif"; letter-spacing: -0.028em; text-wrap: balance; overflow: hidden; }
+.verdict .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: var(--accent); transform-origin: 50% 0; transform: scaleY(var(--bar, 1)); }
+
+.stack .row { position: absolute; left: 0; right: 0; height: 104px; display: flex; align-items: center; gap: 26px; padding: 0 30px; border-radius: 18px;
+  background: var(--elev); box-shadow: inset 0 0 0 1.5px var(--border); font: 500 50px/1 "Plex Serif"; letter-spacing: -0.02em; }
+.stack .row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 18px 0 0 18px; background: var(--c); }
+.stack .row span { font: 500 26px/1 "Plex Mono"; letter-spacing: .1em; color: var(--c); width: 52px; padding-left: 10px; }
+
+.cta .head { position: absolute; top: 1060px; left: -80px; right: -150px; text-align: center; font: 500 30px/1 "Plex Mono"; letter-spacing: .3em; text-transform: uppercase; color: var(--subtle); }
+.cta .url { position: absolute; top: 1120px; left: -80px; right: -150px; text-align: center; font: 500 76px/1 "Plex Serif"; letter-spacing: -0.02em; white-space: nowrap; }
+.cta .path { position: absolute; top: 1220px; left: -80px; right: -150px; text-align: center; font: 500 38px/1.2 "Plex Mono"; color: var(--accent); white-space: nowrap; }
+.cta .pills { position: absolute; top: 1360px; left: -80px; right: -150px; display: flex; justify-content: center; gap: 22px; }
+.pill { display: inline-flex; align-items: center; gap: 14px; height: 76px; padding: 0 34px; border-radius: 999px; font: 500 26px/1 "Plex Mono"; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.pill.solid { background: var(--fg); color: var(--bg); }
+.pill.line { box-shadow: inset 0 0 0 2px rgb(237 237 240 / .35); color: var(--fg); }
+.pill b { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+
+#mark { left: 0; top: 0; width: 0; height: 0; }
+.cell { position: absolute; width: 64px; height: 64px; border-radius: 8px; background: var(--fg); }
+.cell.joint { background: var(--accent); }
+.cell.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--subtle); }
+
+#fade { inset: 0; background: var(--bg); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wash" class="abs"></div>
+  <div id="grid" class="abs"></div>
+  <div id="brand" class="abs"><span class="m"><i></i><i class="d"></i><i class="d"></i><i></i><i class="d"></i><i class="d"></i><i class="j"></i><i></i><i></i></span><b>Lattice</b><span>· AI infra, decided</span></div>
+  <div id="prog" class="abs"></div>
+  <div id="beats"></div>
+  <div id="mark" class="abs"></div>
+  <div id="fade" class="abs"></div>
+</div>
+
+<script src="../motion.js"></script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const LAYERS = [null, "Inference", "Routing", "Retrieval", "Training", "Agents", "Workflows", "Guardrails", "Prompts", "Evals"];
+const SITE = "lattice.kunjshah.in";
+
+/** Words wrapped for animation; the `accent` phrase is coloured. */
+function words(text, accent = "") {
+  const ws = text.split(/\s+/).filter(Boolean);
+  const acc = accent.split(/\s+/).filter(Boolean);
+  let from = -1;
+  if (acc.length) {
+    for (let i = 0; i + acc.length <= ws.length; i++) {
+      if (acc.every((a, k) => ws[i + k] === a)) { from = i; break; }
+    }
+  }
+  return ws.map((w, i) => `<span class="w${from >= 0 && i >= from && i < from + acc.length ? " acc" : ""}">${w}</span>`).join(" ");
+}
+
+const el = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; };
+
+function build(beat) {
+  const { type } = beat;
+  let node;
+  if (type === "hook" || type === "say") {
+    node = el(`<div class="beat abs ${type}">${words(beat.text, beat.accent)}</div>`);
+  } else if (type === "item") {
+    const c = `var(--l${beat.layer})`;
+    node = el(`<div class="beat abs item" style="color:${c}">
+      <div class="num">${String(beat.n).padStart(2, "0")}</div>
+      <div class="chip"><b></b>Layer ${beat.layer} · ${LAYERS[beat.layer]}</div>
+      <div class="ttl">${words(beat.text)}</div>
+      <div class="sub${beat.sub.startsWith("→") ? " ans" : ""}">${beat.sub}</div></div>`);
+  } else if (type === "verdict") {
+    node = el(`<div class="beat abs verdict"><div class="lbl">${beat.label}</div><div class="card">${words(beat.text)}</div></div>`);
+  } else if (type === "stack") {
+    node = el(`<div class="beat abs stack"></div>`);
+    for (let l = 1; l <= 9; l++) {
+      const r = el(`<div class="row" style="--c:var(--l${l})"><span>${String(l).padStart(2, "0")}</span>${LAYERS[l]}</div>`);
+      r.style.top = 1540 - (l - 1) * 118 - 104 + "px";
+      node.appendChild(r);
+    }
+  } else if (type === "cta") {
+    node = el(`<div class="beat abs cta">
+      <div class="head">${beat.text}</div>
+      <div class="url">${SITE}</div>
+      <div class="path">${PATH === "/" ? "" : PATH}</div>
+      <div class="pills"><span class="pill solid"><b></b>Link in bio</span><span class="pill line">Follow for more</span></div></div>`);
+  }
+  $("#beats").appendChild(node);
+  return node;
+}
+
+let T, PATH, BEATS, ITEMS, poseMark;
+
+/** Words rise in on a stagger; a beat leaves by rising out. */
+function riseWords(node, t, b, { stagger = 0.06, dist = 120, dur = 0.55 } = {}) {
+  const out = b.last ? 0 : prog(t, b.end - 0.28, b.end, easeIn);
+  $$(".w", node).forEach((w, i) => {
+    const p = prog(t, b.start + 0.02 + i * stagger, b.start + 0.02 + i * stagger + dur);
+    pose(w, { y: (1 - p) * dist - out * 80, o: clamp(p * 1.6) * (1 - out) });
+  });
+  return out;
+}
+
+window.renderFrame = function (t) {
+  pose($("#grid"), { x: (t * 8) % 64, y: (t * 5) % 64 });
+  pose($("#wash"), { s: 1 + 0.06 * Math.sin(t * 0.7), o: 1 });
+
+  // Which beat is on screen tints the wash: layer colour on an item.
+  const cur = BEATS.find((b) => t >= b.start && t < b.end) ?? BEATS[BEATS.length - 1];
+  $("#wash").style.setProperty("--wash", cur.type === "item"
+    ? `color-mix(in oklch, var(--l${cur.layer}) 20%, transparent)` : "oklch(0.72 0.17 34 / .15)");
+
+  for (const b of BEATS) {
+    const node = b.node;
+    const on = t >= b.start - 0.02 && (b.last || t < b.end + 0.02);
+    node.style.visibility = on ? "visible" : "hidden";
+    if (!on) continue;
+
+    if (b.type === "hook") {
+      const out = riseWords(node, t, b, { stagger: 0.055, dist: 160, dur: 0.5 });
+      // The accent words get a pulse as the voice reaches the end of the line.
+      const pulse = prog(t, b.voEnd - 0.5, b.voEnd - 0.2) * (1 - prog(t, b.voEnd - 0.2, b.voEnd + 0.3));
+      $$(".acc", node).forEach((w) => { w.style.transform += ` scale(${1 + pulse * 0.06})`; });
+    } else if (b.type === "say") {
+      riseWords(node, t, b, { stagger: 0.045, dist: 110 });
+    } else if (b.type === "item") {
+      const p = prog(t, b.start, b.start + 0.6), out = prog(t, b.end - 0.28, b.end, easeIn);
+      const num = $(".num", node), chip = $(".chip", node), sub = $(".sub", node);
+      pose(num, { x: (1 - p) * -80, o: p * (1 - out), y: -out * 60 });
+      const pc = spring(t, b.start + 0.12, 0.8);
+      pose(chip, { s: lerp(0.8, 1, clamp(pc)), o: clamp(pc * 1.5) * (1 - out), y: -out * 60 });
+      riseWords($(".ttl", node), t, { ...b, start: b.start + 0.1 }, { stagger: 0.05, dist: 100 });
+      // Sub sits under however many lines the title wrapped to.
+      sub.style.top = 910 + $(".ttl", node).offsetHeight + 40 + "px";
+      const ps = prog(t, b.voStart + 0.5, b.voStart + 1.1);
+      pose(sub, { y: (1 - ps) * 40 - out * 60, o: ps * (1 - out) });
+    } else if (b.type === "verdict") {
+      const pl = spring(t, b.start, 0.8), out = b.last ? 0 : prog(t, b.end - 0.28, b.end, easeIn);
+      pose($(".lbl", node), { s: lerp(0.7, 1, clamp(pl)), o: clamp(pl * 1.5) * (1 - out) });
+      const card = $(".card", node), pc = prog(t, b.start + 0.1, b.start + 0.7);
+      pose(card, { y: (1 - pc) * 90 - out * 80, o: pc * (1 - out) });
+      card.style.setProperty("--bar", prog(t, b.start + 0.3, b.start + 1.1, easeInOut));
+      riseWords(card, t, { ...b, start: b.start + 0.25 }, { stagger: 0.035, dist: 60 });
+    } else if (b.type === "stack") {
+      // One bar per layer, bottom up, spread across the spoken list.
+      const out = prog(t, b.end - 0.3, b.end, easeIn);
+      const span = (b.voEnd - b.voStart) / 9;
+      $$(".row", node).forEach((r, i) => {
+        const sp = spring(t, b.voStart + i * span - 0.1, 0.75);
+        pose(r, { x: (1 - clamp(sp)) * -140, y: -out * 80 - (1 - clamp(sp)) * 10, s: lerp(0.94, 1, clamp(sp)), o: clamp(sp * 1.8) * (1 - out) });
+      });
+    } else if (b.type === "cta") {
+      const ph = prog(t, b.start + 0.5, b.start + 1.0), pu = prog(t, b.start + 0.65, b.start + 1.3), pp = prog(t, b.start + 0.85, b.start + 1.4);
+      pose($(".head", node), { y: (1 - ph) * 30, o: ph });
+      const u = $(".url", node);
+      u.style.clipPath = `inset(-30% 0 ${(1 - pu) * 100}% 0)`;
+      pose(u, { y: (1 - pu) * 60 });
+      pose($(".path", node), { y: (1 - pp) * 30, o: pp });
+      const pills = $$(".pill", node);
+      pills.forEach((p, i) => {
+        const s = spring(t, b.start + 1.2 + i * 0.15, 0.9);
+        pose(p, { s: lerp(0.7, 1, clamp(s)), o: clamp(s * 2), y: (1 - clamp(s)) * 20 });
+      });
+      const beat = (t * 1.2) % 1;
+      $(".pill.solid b", node).style.boxShadow = `0 0 0 ${5 + 8 * beat}px oklch(0.72 0.17 34 / ${0.4 * (1 - beat)})`;
+    }
+  }
+
+  // The mark assembles over the CTA.
+  const cta = BEATS.find((b) => b.type === "cta");
+  $("#mark").style.opacity = cta && t > cta.start - 0.05 ? 1 : 0;
+  if (cta && t > cta.start - 0.05) poseMark(t, { cx: 540, cy: 840, scale: 1.7, appear: cta.start });
+
+  // Brand row and progress segments are the constants.
+  pose($("#brand"), { o: prog(t, 0.15, 0.6) * (cta ? 1 - prog(t, cta.start, cta.start + 0.4) : 1) });
+  const prow = $("#prog");
+  pose(prow, { o: ITEMS.length ? prog(t, ITEMS[0].start - 0.2, ITEMS[0].start + 0.3) * (1 - prog(t, ITEMS.at(-1).end, ITEMS.at(-1).end + 0.4)) : 0 });
+  ITEMS.forEach((b, i) => {
+    const f = clamp((t - b.start) / (b.end - b.start));
+    $$("#prog s")[i].style.transform = `scaleX(${f})`;
+  });
+
+  $("#fade").style.opacity = Math.max(1 - prog(t, 0, 0.12), prog(t, T.duration - 0.35, T.duration, easeInOut));
+};
+
+const q = new URLSearchParams(location.search);
+window.ready = fetch(`out/${q.get("id")}/timing.json`).then((r) => r.json()).then(async (timing) => {
+  T = timing; PATH = timing.path; BEATS = timing.beats;
+  BEATS.at(-1).last = true;
+  BEATS.forEach((b) => (b.node = build(b)));
+  ITEMS = BEATS.filter((b) => b.type === "item");
+  $("#prog").innerHTML = ITEMS.map(() => "<i><s></s></i>").join("");
+  poseMark = createMark($("#mark"));
+  await document.fonts.ready;
+  window.DURATION = T.duration;
+  window.renderFrame(q.has("t") ? +q.get("t") : 0);
+  return T.duration;
+});
+</script>
+</body>
+</html>

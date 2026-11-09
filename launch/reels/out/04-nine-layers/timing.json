@@ -1,0 +1,55 @@
+{
+  "id": "04-nine-layers",
+  "path": "/",
+  "duration": 18.94,
+  "beats": [
+    {
+      "type": "hook",
+      "text": "Every AI app runs on the same nine layers.",
+      "accent": "nine layers.",
+      "vo": "Every A I app runs on the same nine layers.",
+      "start": 0.0,
+      "end": 2.572,
+      "voStart": 0.12,
+      "voEnd": 2.252
+    },
+    {
+      "type": "stack",
+      "text": "",
+      "vo": "Inference. Routing. Retrieval. Training. Agents. Workflows. Guardrails. Prompts. And evals.",
+      "start": 2.572,
+      "end": 9.025,
+      "voStart": 2.652,
+      "voEnd": 8.105
+    },
+    {
+      "type": "say",
+      "text": "112 tools, sorted by the layer they live in.",
+      "accent": "112 tools,",
+      "vo": "Lattice sorts a hundred and twelve tools by the layer they live in.",
+      "start": 9.025,
+      "end": 12.752,
+      "voStart": 9.105,
+      "voEnd": 12.432
+    },
+    {
+      "type": "say",
+      "text": "And every one tells you when to skip it.",
+      "accent": "skip",
+      "vo": "And every one tells you when to skip it.",
+      "start": 12.752,
+      "end": 14.824,
+      "voStart": 12.832,
+      "voEnd": 14.504
+    },
+    {
+      "type": "cta",
+      "text": "Find your layer",
+      "vo": "Find your layer. Link in bio.",
+      "start": 14.824,
+      "end": 18.69,
+      "voStart": 14.904,
+      "voEnd": 16.77
+    }
+  ]
+}

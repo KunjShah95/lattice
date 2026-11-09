@@ -68,3 +68,7 @@ launch/out/
 launch/voiceover.wav
 __pycache__/
 launch/music.wav
+# reels: intermediates (timing.json and soundtrack.m4a are kept, so a reel
+# re-renders without the voice model)
+launch/reels/out/*/*.wav
+launch/reels/out/*/still-*.png

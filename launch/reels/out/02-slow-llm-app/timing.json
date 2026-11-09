@@ -1,0 +1,111 @@
+{
+  "id": "02-slow-llm-app",
+  "path": "/fix/llm-app-too-slow",
+  "duration": 30.0,
+  "beats": [
+    {
+      "type": "hook",
+      "text": "Your LLM app is slow. It's probably not the model.",
+      "accent": "not",
+      "vo": "Your L L M app is slow. It's probably not the model.",
+      "start": 0.0,
+      "end": 3.638,
+      "voStart": 0.12,
+      "voEnd": 3.318
+    },
+    {
+      "type": "say",
+      "text": "Check these five. In this order.",
+      "accent": "In this order.",
+      "vo": "Check these five, in this order.",
+      "start": 3.638,
+      "end": 5.568,
+      "voStart": 3.718,
+      "voEnd": 5.248
+    },
+    {
+      "type": "item",
+      "n": 1,
+      "of": 5,
+      "layer": 9,
+      "text": "Trace one slow request end to end",
+      "sub": "You can't shorten a span you haven't seen.",
+      "vo": "One. Trace one slow request, end to end.",
+      "start": 5.568,
+      "end": 8.331,
+      "voStart": 5.648,
+      "voEnd": 8.011
+    },
+    {
+      "type": "item",
+      "n": 2,
+      "of": 5,
+      "layer": 8,
+      "text": "Count the output tokens. Ask for fewer.",
+      "sub": "Often the largest single win, and free to try.",
+      "vo": "Two. Count the output tokens, and ask for fewer.",
+      "start": 8.331,
+      "end": 11.477,
+      "voStart": 8.411,
+      "voEnd": 11.157
+    },
+    {
+      "type": "item",
+      "n": 3,
+      "of": 5,
+      "layer": 5,
+      "text": "Run independent calls in parallel",
+      "sub": "Sequential tool calls multiply latency.",
+      "vo": "Three. Run independent calls in parallel.",
+      "start": 11.477,
+      "end": 14.053,
+      "voStart": 11.557,
+      "voEnd": 13.733
+    },
+    {
+      "type": "item",
+      "n": 4,
+      "of": 5,
+      "layer": 2,
+      "text": "Cache repeats. Add a faster fallback.",
+      "sub": "A repeated prompt should never reach a model.",
+      "vo": "Four. Cache repeated prompts, and add a faster fallback.",
+      "start": 14.053,
+      "end": 17.343,
+      "voStart": 14.133,
+      "voEnd": 17.023
+    },
+    {
+      "type": "item",
+      "n": 5,
+      "of": 5,
+      "layer": 1,
+      "text": "Only then, tune the serving runtime",
+      "sub": "The most expensive place to look first.",
+      "vo": "Five. Only then, tune the serving runtime.",
+      "start": 17.343,
+      "end": 19.97,
+      "voStart": 17.423,
+      "voEnd": 19.65
+    },
+    {
+      "type": "verdict",
+      "label": "Not the fix",
+      "text": "Buying a bigger GPU before measuring where the time goes.",
+      "vo": "Not the fix: buying a bigger G P U before you've measured where the time goes.",
+      "start": 19.97,
+      "end": 25.05,
+      "voStart": 20.05,
+      "voEnd": 24.38
+    },
+    {
+      "type": "cta",
+      "text": "The full checklist",
+      "vo": "The full checklist is on Lattice. Link in bio.",
+      "start": 25.05,
+      "end": 29.752,
+      "voStart": 25.13,
+      "voEnd": 27.832
+    }
+  ]
+}

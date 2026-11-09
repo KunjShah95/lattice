@@ -1,0 +1,101 @@
+{
+  "id": "03-llm-bill",
+  "path": "/fix/llm-costs-too-high",
+  "duration": 32.22,
+  "beats": [
+    {
+      "type": "hook",
+      "text": "Cutting your LLM bill? Do it in this order.",
+      "accent": "this order.",
+      "vo": "Cutting your L L M bill? Do it in this order.",
+      "start": 0.0,
+      "end": 3.005,
+      "voStart": 0.12,
+      "voEnd": 2.685
+    },
+    {
+      "type": "say",
+      "text": "Spend is never even. A few features, long prompts or silent retries dominate it.",
+      "accent": "silent retries",
+      "vo": "Spend is never even. A few features, long prompts, or silent retries usually dominate it.",
+      "start": 3.005,
+      "end": 9.022,
+      "voStart": 3.085,
+      "voEnd": 8.702
+    },
+    {
+      "type": "item",
+      "n": 1,
+      "of": 5,
+      "layer": 9,
+      "text": "Attribute spend per feature",
+      "sub": "The only cut with zero quality risk.",
+      "vo": "One. Attribute spend per request and feature.",
+      "start": 9.022,
+      "end": 11.798,
+      "voStart": 9.102,
+      "voEnd": 11.478
+    },
+    {
+      "type": "item",
+      "n": 2,
+      "of": 5,
+      "layer": 8,
+      "text": "Shrink the prompt and context",
+      "sub": "Input tokens are paid on every call.",
+      "vo": "Two. Shrink the prompt, and the context you send.",
+      "start": 11.798,
+      "end": 14.592,
+      "voStart": 11.878,
+      "voEnd": 14.272
+    },
+    {
+      "type": "item",
+      "n": 3,
+      "of": 5,
+      "layer": 2,
+      "text": "Cache repeats. Enforce budgets.",
+      "sub": "A cache hit is a call you don't pay for.",
+      "vo": "Three. Cache repeats, and enforce budgets at the gateway.",
+      "start": 14.592,
+      "end": 18.051,
+      "voStart": 14.672,
+      "voEnd": 17.731
+    },
+    {
+      "type": "item",
+      "n": 4,
+      "of": 5,
+      "layer": 2,
+      "text": "Route easy queries to cheaper models",
+      "sub": "With an eval first: it trades quality for cost.",
+      "vo": "Four. Route easy queries to a cheaper model. With an eval first.",
+      "start": 18.051,
+      "end": 22.126,
+      "voStart": 18.131,
+      "voEnd": 21.806
+    },
+    {
+      "type": "item",
+      "n": 5,
+      "of": 5,
+      "layer": 1,
+      "text": "Self-host last",
+      "sub": "Only when utilisation is high and steady.",
+      "vo": "Five. Self host last, and only when utilisation is high and steady.",
+      "start": 22.126,
+      "end": 26.571,
+      "voStart": 22.206,
+      "voEnd": 26.251
+    },
+    {
+      "type": "cta",
+      "text": "Every step, with tools",
+      "vo": "Every step, with the tools for it, is on Lattice. Link in bio.",
+      "start": 26.571,
+      "end": 31.967,
+      "voStart": 26.651,
+      "voEnd": 30.047
+    }
+  ]
+}

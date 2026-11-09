@@ -1,0 +1,98 @@
+{
+  "id": "05-agent-frameworks",
+  "path": "/compare/agent-frameworks",
+  "duration": 29.43,
+  "beats": [
+    {
+      "type": "hook",
+      "text": "Stop picking agent frameworks by GitHub stars.",
+      "accent": "GitHub stars.",
+      "vo": "Stop picking agent frameworks by GitHub stars.",
+      "start": 0.0,
+      "end": 3.148,
+      "voStart": 0.12,
+      "voEnd": 2.829
+    },
+    {
+      "type": "say",
+      "text": "Pick by the shape of the job.",
+      "accent": "shape of the job.",
+      "vo": "Pick by the shape of the job.",
+      "start": 3.148,
+      "end": 4.937,
+      "voStart": 3.228,
+      "voEnd": 4.617
+    },
+    {
+      "type": "item",
+      "n": 1,
+      "of": 4,
+      "layer": 5,
+      "text": "Retrieval is the product",
+      "sub": "\u2192 LlamaIndex",
+      "vo": "Retrieval is the product? Llama Index.",
+      "start": 4.937,
+      "end": 7.679,
+      "voStart": 5.017,
+      "voEnd": 7.359
+    },
+    {
+      "type": "item",
+      "n": 2,
+      "of": 4,
+      "layer": 5,
+      "text": "Tool calls must be schema-safe",
+      "sub": "\u2192 Pydantic AI",
+      "vo": "Tool calls must be schema safe? Pydantic A I.",
+      "start": 7.679,
+      "end": 10.825,
+      "voStart": 7.759,
+      "voEnd": 10.505
+    },
+    {
+      "type": "item",
+      "n": 3,
+      "of": 4,
+      "layer": 5,
+      "text": "A small loop with handoffs",
+      "sub": "\u2192 OpenAI Agents SDK",
+      "vo": "A small loop with handoffs built in? The Open A I Agents S D K.",
+      "start": 10.825,
+      "end": 15.269,
+      "voStart": 10.905,
+      "voEnd": 14.949
+    },
+    {
+      "type": "item",
+      "n": 4,
+      "of": 4,
+      "layer": 5,
+      "text": "The widest integrations",
+      "sub": "\u2192 LangChain, and pay the abstraction tax",
+      "vo": "The widest integrations? Lang Chain. And you'll pay the abstraction tax.",
+      "start": 15.269,
+      "end": 19.875,
+      "voStart": 15.349,
+      "voEnd": 19.555
+    },
+    {
+      "type": "verdict",
+      "label": "Either way",
+      "text": "Run the loop on a durable host and trace every tool call.",
+      "vo": "Either way, run the loop on a durable host, and trace every tool call.",
+      "start": 19.875,
+      "end": 24.388,
+      "voStart": 19.955,
+      "voEnd": 23.718
+    },
+    {
+      "type": "cta",
+      "text": "The full comparison",
+      "vo": "The full comparison is on Lattice. Link in bio.",
+      "start": 24.388,
+      "end": 29.181,
+      "voStart": 24.468,
+      "voEnd": 27.261
+    }
+  ]
+}

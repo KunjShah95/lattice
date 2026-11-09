@@ -1,0 +1,85 @@
+{
+  "id": "01-vector-db",
+  "path": "/compare/vector-databases",
+  "duration": 33.73,
+  "beats": [
+    {
+      "type": "hook",
+      "text": "Your RAG app probably doesn't need a vector database.",
+      "accent": "doesn't",
+      "vo": "Your RAG app probably doesn't need a vector database.",
+      "start": 0.0,
+      "end": 3.681,
+      "voStart": 0.12,
+      "voEnd": 3.361
+    },
+    {
+      "type": "say",
+      "text": "Most teams add one before checking if Postgres can do the job.",
+      "accent": "Postgres",
+      "vo": "Most teams add one before checking if Postgres can already do the job.",
+      "start": 3.681,
+      "end": 7.982,
+      "voStart": 3.761,
+      "voEnd": 7.662
+    },
+    {
+      "type": "item",
+      "n": 1,
+      "of": 3,
+      "layer": 3,
+      "text": "Filtering by users or permissions?",
+      "sub": "A SQL join beats a copy you keep in sync.",
+      "vo": "Filtering by users or permissions? A join beats a copy you have to keep in sync.",
+      "start": 7.982,
+      "end": 12.979,
+      "voStart": 8.062,
+      "voEnd": 12.659
+    },
+    {
+      "type": "item",
+      "n": 2,
+      "of": 3,
+      "layer": 3,
+      "text": "Under a few million vectors?",
+      "sub": "pgvector handles it. No new service to run.",
+      "vo": "Under a few million vectors? P G vector handles it, with no new service to run.",
+      "start": 12.979,
+      "end": 18.185,
+      "voStart": 13.059,
+      "voEnd": 17.865
+    },
+    {
+      "type": "item",
+      "n": 3,
+      "of": 3,
+      "layer": 3,
+      "text": "Bad search results?",
+      "sub": "Usually chunking or embeddings. Not the database.",
+      "vo": "Bad results are usually chunking or embeddings. Not the database.",
+      "start": 18.185,
+      "end": 22.4,
+      "voStart": 18.265,
+      "voEnd": 22.08
+    },
+    {
+      "type": "verdict",
+      "label": "The call",
+      "text": "Start on pgvector. Move to Qdrant or Pinecone when vector search becomes the workload.",
+      "vo": "Start on P G vector. Move to Quadrant or Pinecone when vector search becomes the workload.",
+      "start": 22.4,
+      "end": 28.684,
+      "voStart": 22.48,
+      "voEnd": 28.014
+    },
+    {
+      "type": "cta",
+      "text": "Full comparison",
+      "vo": "The full comparison is on Lattice. Link in bio.",
+      "start": 28.684,
+      "end": 33.478,
+      "voStart": 28.764,
+      "voEnd": 31.558
+    }
+  ]
+}

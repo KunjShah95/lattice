@@ -1,0 +1,72 @@
+{
+  "_comment": "Reel scripts. `text` is what is on screen; `vo` is what the voice says (spelled for the TTS: 'P G vector', 'L L M'). Every claim comes from the site's own data: comparisons.ts, symptoms.ts and data.ts. Timing is not written here: voice.py measures each spoken line and lays the beats out to fit it.",
+  "reels": [
+    {
+      "id": "01-vector-db",
+      "path": "/compare/vector-databases",
+      "beats": [
+        { "type": "hook", "text": "Your RAG app probably doesn't need a vector database.", "accent": "doesn't", "vo": "Your RAG app probably doesn't need a vector database." },
+        { "type": "say", "text": "Most teams add one before checking if Postgres can do the job.", "accent": "Postgres", "vo": "Most teams add one before checking if Postgres can already do the job." },
+        { "type": "item", "n": 1, "of": 3, "layer": 3, "text": "Filtering by users or permissions?", "sub": "A SQL join beats a copy you keep in sync.", "vo": "Filtering by users or permissions? A join beats a copy you have to keep in sync." },
+        { "type": "item", "n": 2, "of": 3, "layer": 3, "text": "Under a few million vectors?", "sub": "pgvector handles it. No new service to run.", "vo": "Under a few million vectors? P G vector handles it, with no new service to run." },
+        { "type": "item", "n": 3, "of": 3, "layer": 3, "text": "Bad search results?", "sub": "Usually chunking or embeddings. Not the database.", "vo": "Bad results are usually chunking or embeddings. Not the database." },
+        { "type": "verdict", "label": "The call", "text": "Start on pgvector. Move to Qdrant or Pinecone when vector search becomes the workload.", "vo": "Start on P G vector. Move to Quadrant or Pinecone when vector search becomes the workload." },
+        { "type": "cta", "text": "Full comparison", "vo": "The full comparison is on Lattice. Link in bio." }
+      ]
+    },
+    {
+      "id": "02-slow-llm-app",
+      "path": "/fix/llm-app-too-slow",
+      "beats": [
+        { "type": "hook", "text": "Your LLM app is slow. It's probably not the model.", "accent": "not", "vo": "Your L L M app is slow. It's probably not the model." },
+        { "type": "say", "text": "Check these five. In this order.", "accent": "In this order.", "vo": "Check these five, in this order." },
+        { "type": "item", "n": 1, "of": 5, "layer": 9, "text": "Trace one slow request end to end", "sub": "You can't shorten a span you haven't seen.", "vo": "One. Trace one slow request, end to end." },
+        { "type": "item", "n": 2, "of": 5, "layer": 8, "text": "Count the output tokens. Ask for fewer.", "sub": "Often the largest single win, and free to try.", "vo": "Two. Count the output tokens, and ask for fewer." },
+        { "type": "item", "n": 3, "of": 5, "layer": 5, "text": "Run independent calls in parallel", "sub": "Sequential tool calls multiply latency.", "vo": "Three. Run independent calls in parallel." },
+        { "type": "item", "n": 4, "of": 5, "layer": 2, "text": "Cache repeats. Add a faster fallback.", "sub": "A repeated prompt should never reach a model.", "vo": "Four. Cache repeated prompts, and add a faster fallback." },
+        { "type": "item", "n": 5, "of": 5, "layer": 1, "text": "Only then, tune the serving runtime", "sub": "The most expensive place to look first.", "vo": "Five. Only then, tune the serving runtime." },
+        { "type": "verdict", "label": "Not the fix", "text": "Buying a bigger GPU before measuring where the time goes.", "vo": "Not the fix: buying a bigger G P U before you've measured where the time goes." },
+        { "type": "cta", "text": "The full checklist", "vo": "The full checklist is on Lattice. Link in bio." }
+      ]
+    },
+    {
+      "id": "03-llm-bill",
+      "path": "/fix/llm-costs-too-high",
+      "beats": [
+        { "type": "hook", "text": "Cutting your LLM bill? Do it in this order.", "accent": "this order.", "vo": "Cutting your L L M bill? Do it in this order." },
+        { "type": "say", "text": "Spend is never even. A few features, long prompts or silent retries dominate it.", "accent": "silent retries", "vo": "Spend is never even. A few features, long prompts, or silent retries usually dominate it." },
+        { "type": "item", "n": 1, "of": 5, "layer": 9, "text": "Attribute spend per feature", "sub": "The only cut with zero quality risk.", "vo": "One. Attribute spend per request and feature." },
+        { "type": "item", "n": 2, "of": 5, "layer": 8, "text": "Shrink the prompt and context", "sub": "Input tokens are paid on every call.", "vo": "Two. Shrink the prompt, and the context you send." },
+        { "type": "item", "n": 3, "of": 5, "layer": 2, "text": "Cache repeats. Enforce budgets.", "sub": "A cache hit is a call you don't pay for.", "vo": "Three. Cache repeats, and enforce budgets at the gateway." },
+        { "type": "item", "n": 4, "of": 5, "layer": 2, "text": "Route easy queries to cheaper models", "sub": "With an eval first: it trades quality for cost.", "vo": "Four. Route easy queries to a cheaper model. With an eval first." },
+        { "type": "item", "n": 5, "of": 5, "layer": 1, "text": "Self-host last", "sub": "Only when utilisation is high and steady.", "vo": "Five. Self host last, and only when utilisation is high and steady." },
+        { "type": "cta", "text": "Every step, with tools", "vo": "Every step, with the tools for it, is on Lattice. Link in bio." }
+      ]
+    },
+    {
+      "id": "04-nine-layers",
+      "path": "/",
+      "beats": [
+        { "type": "hook", "text": "Every AI app runs on the same nine layers.", "accent": "nine layers.", "vo": "Every A I app runs on the same nine layers." },
+        { "type": "stack", "text": "", "vo": "Inference. Routing. Retrieval. Training. Agents. Workflows. Guardrails. Prompts. And evals." },
+        { "type": "say", "text": "112 tools, sorted by the layer they live in.", "accent": "112 tools,", "vo": "Lattice sorts a hundred and twelve tools by the layer they live in." },
+        { "type": "say", "text": "And every one tells you when to skip it.", "accent": "skip", "vo": "And every one tells you when to skip it." },
+        { "type": "cta", "text": "Find your layer", "vo": "Find your layer. Link in bio." }
+      ]
+    },
+    {
+      "id": "05-agent-frameworks",
+      "path": "/compare/agent-frameworks",
+      "beats": [
+        { "type": "hook", "text": "Stop picking agent frameworks by GitHub stars.", "accent": "GitHub stars.", "vo": "Stop picking agent frameworks by GitHub stars." },
+        { "type": "say", "text": "Pick by the shape of the job.", "accent": "shape of the job.", "vo": "Pick by the shape of the job." },
+        { "type": "item", "n": 1, "of": 4, "layer": 5, "text": "Retrieval is the product", "sub": "→ LlamaIndex", "vo": "Retrieval is the product? Llama Index." },
+        { "type": "item", "n": 2, "of": 4, "layer": 5, "text": "Tool calls must be schema-safe", "sub": "→ Pydantic AI", "vo": "Tool calls must be schema safe? Pydantic A I." },
+        { "type": "item", "n": 3, "of": 4, "layer": 5, "text": "A small loop with handoffs", "sub": "→ OpenAI Agents SDK", "vo": "A small loop with handoffs built in? The Open A I Agents S D K." },
+        { "type": "item", "n": 4, "of": 4, "layer": 5, "text": "The widest integrations", "sub": "→ LangChain, and pay the abstraction tax", "vo": "The widest integrations? Lang Chain. And you'll pay the abstraction tax." },
+        { "type": "verdict", "label": "Either way", "text": "Run the loop on a durable host and trace every tool call.", "vo": "Either way, run the loop on a durable host, and trace every tool call." },
+        { "type": "cta", "text": "The full comparison", "vo": "The full comparison is on Lattice. Link in bio." }
+      ]
+    }
+  ]
+}
