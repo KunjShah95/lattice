@@ -8,6 +8,7 @@ import { RollingNumber } from "@/components/ui/rolling-number";
 import { Segmented, type Option } from "@/components/ui/segmented";
 import { Toggle } from "@/components/ui/toggle";
 import { stackLayers } from "@/lib/data";
+import { sendSignal } from "@/lib/beacon";
 import { describeChange, diffPicks, type PickChange } from "@/lib/stack-diff";
 import {
   WORKLOADS,
@@ -320,6 +321,10 @@ export function StackBuilder() {
     setChanges(result ? diffPicks(result.picks, next.picks) : null);
     setBuilt(c);
     setCopied(null);
+    // A completed free tool: the conversion the Stack Builder exists for.
+    // `to` is the workload's own stack page, so completions split by workload
+    // without sending anything the reader typed (volumes, constraints).
+    sendSignal("stack-built", `/stack/${c.workload}`);
     requestAnimationFrame(() => {
       resultsRef.current?.focus({ preventScroll: true });
       resultsRef.current?.scrollIntoView({ block: "start" });

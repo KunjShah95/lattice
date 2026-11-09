@@ -34,7 +34,21 @@
 import { isChannel } from "./channel.mjs";
 
 /** The only events that mean anything. Adding one is a deliberate change. */
-export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound", "review"];
+export const ALLOWED_EVENTS = [
+  // Navigation edges: a link was followed.
+  "alternatives",
+  "compare",
+  "second-home",
+  "tool",
+  "outbound",
+  // Conversion numerators: the review CTA, and a free tool actually completed.
+  "review",
+  "stack-built",
+  "compare-built",
+  // The denominator: one per tab, at landing. `from` and `to` are both the
+  // landing path. See `lib/beacon.ts`.
+  "land",
+];
 
 /** Exposed for the route's `GET`, which describes the endpoint honestly. */
 export const allowedEvents = ALLOWED_EVENTS;

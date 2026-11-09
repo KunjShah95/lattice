@@ -6,7 +6,8 @@ export const CHANNELS: Channel[];
 export function channelForHost(host: string | null | undefined): Channel;
 
 /**
- * The channel of a landing, from `document.referrer`, `location.search` and the
+ * The channel of a landing, from an explicit `?src=` in the closed set, then
+ * `utm_source`, then `document.referrer`, given `location.search` and the
  * site's own hostname. Null for a same-origin hop, which says nothing about
  * where the reader came from.
  */
