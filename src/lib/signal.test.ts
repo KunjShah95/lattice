@@ -63,8 +63,22 @@ describe("parseSignal", () => {
     // A component emitting an event the validator rejects loses data silently,
     // which looks identical to nobody clicking. Asserted against the component's
     // own union so adding an event without adding it here fails here.
-    for (const event of ["alternatives", "compare", "second-home", "tool", "outbound"]) {
+    for (const event of ["alternatives", "compare", "second-home", "tool", "outbound", "review"]) {
       expect(ALLOWED_EVENTS, `component sends "${event}"`).toContain(event);
+    }
+  });
+
+  it("carries a landing channel from the closed set", () => {
+    expect(parseSignal(JSON.stringify({ ...ok, channel: "ai" }))).toEqual({ ...ok, channel: "ai" });
+    // Absent is fine: an edge without a channel is still an edge.
+    expect(parseSignal(JSON.stringify(ok))).toEqual(ok);
+  });
+
+  it("rejects a channel outside the closed set", () => {
+    // Same rule as `event`: a free-text field in the log is how it gets poisoned
+    // or used to smuggle a referrer URL in under another name.
+    for (const bad of ["AI", "https://chatgpt.com/", "email", 1, ""]) {
+      expect(parseSignal(JSON.stringify({ ...ok, channel: bad })), `channel: ${bad}`).toBeNull();
     }
   });
 

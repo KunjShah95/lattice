@@ -136,30 +136,36 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // for the review fixes (menu-button keyboard pattern, one-popup-at-a-time
 // with the mobile drawer, failed-copy reporting). The foot-of-page links are
 // server-rendered and cost nothing.
+// +0.5 KB on every route for the landing-channel classifier (`lib/channel.mjs`)
+// that `TrackLink` and the layout's `ChannelCapture` share: a closed list of
+// answer-engine, search and social hosts, so conversion beacons can be read by
+// source (ai / search / social / direct / referral) without sending the
+// referrer. Measured +0.0 to +0.3 KB; it has to run in the browser, because the
+// referrer must not leave the page.
 const BUDGETS = {
-  "/": 167_656,
-  "/stack-builder": 175_680, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
-  "/all": 170_560, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
-  "/glossary": 166_656,
-  "/methodology": 164_656,
-  "/verification": 164_656,
-  "/submit": 164_656,
-  "/blog": 164_656,
-  "/compare": 164_656,
-  "/compare/build": 169_656, // measured 157.7 KB; headroom left for the picker to grow
-  "/fix": 164_656,
-  "/roles": 164_656,
-  "/bands": 164_656,
-  "/[slug]": 165_156,
-  "/[slug]/[tool]": 166_156,
-  "/[slug]/[tool]/alternatives": 164_656,
-  "/roles/[role]": 164_656,
-  "/bands/[band]": 164_656,
-  "/stack/[workload]": 165_156,
-  "/blog/[slug]": 165_656,
-  "/compare/[slug]": 164_656,
-  "/fix/[slug]": 164_656,
-  "/glossary/[slug]": 164_656,
+  "/": 168_168,
+  "/stack-builder": 176_192, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
+  "/all": 171_072, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
+  "/glossary": 167_168,
+  "/methodology": 165_168,
+  "/verification": 165_168,
+  "/submit": 165_168,
+  "/blog": 165_168,
+  "/compare": 165_168,
+  "/compare/build": 170_168, // measured 157.7 KB; headroom left for the picker to grow
+  "/fix": 165_168,
+  "/roles": 165_168,
+  "/bands": 165_168,
+  "/[slug]": 165_668,
+  "/[slug]/[tool]": 166_668,
+  "/[slug]/[tool]/alternatives": 165_168,
+  "/roles/[role]": 165_168,
+  "/bands/[band]": 165_168,
+  "/stack/[workload]": 165_668,
+  "/blog/[slug]": 166_168,
+  "/compare/[slug]": 165_168,
+  "/fix/[slug]": 165_168,
+  "/glossary/[slug]": 165_168,
 };
 
 const NEXT = join(root, ".next");

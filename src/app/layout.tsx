@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { SearchProvider, earlyShortcutScript } from "@/components/search-provider";
 import { SiteFooter } from "@/components/site-footer";
+import { ChannelCapture } from "@/components/track-link";
 import { SiteHeader } from "@/components/site-header";
 import { SpotLight } from "@/components/spot-light";
 import { themeInitScript } from "@/components/theme-toggle";
@@ -226,6 +227,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           navigation are tracked by the component's route listener.
         */}
         <Analytics />
+        {/*
+          Classifies the landing channel (ai / search / social / direct /
+          referral) once per tab, so conversion beacons can be read by source.
+          Renders nothing; see `track-link.tsx`.
+        */}
+        <ChannelCapture />
       </body>
     </html>
   );

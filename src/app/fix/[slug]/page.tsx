@@ -6,6 +6,7 @@ import { BANDS, bandColor, layerStyle } from "@/lib/layer";
 import { toJsonLd } from "@/lib/jsonld";
 import { rulesFromComparisons } from "@/lib/guidance";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import {
   authorNode,
   breadcrumbNode,
@@ -220,6 +221,7 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           ))}
         </ul>
       </nav>
+      <ReviewCta context={`${s.title.replace(/\?$/, "")}? Send the setup and get the cause traced layer by layer.`} />
     </div>
   );
 }

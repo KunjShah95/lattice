@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FAQ, bookingHref, bookingIsExternal } from "@/lib/offer";
+import { TrackLink } from "@/components/track-link";
 
 /**
  * Building blocks for the conversion surfaces (`/` and `/review`).
@@ -155,7 +156,7 @@ export function CtaBand({
 
 /**
  * A compact offer card for the end of a content page (a tool, a comparison,
- * an essay, a Stack Builder result). `context` names what the reader was just
+ * a symptom, an essay, a workload stack). `context` names what the reader was just
  * looking at, so the ask follows from it rather than interrupting it.
  */
 export function ReviewCta({ context }: { context: string }) {
@@ -175,13 +176,18 @@ export function ReviewCta({ context }: { context: string }) {
           where a tool sits in this index.
         </p>
       </div>
-      <Link
+      {/* Tracked as `review`: the one conversion this site has. With the
+          landing channel attached by `TrackLink`, the log can say which kind
+          of traffic (an AI answer, a search, a launch post) actually walks
+          from a content page into the offer. */}
+      <TrackLink
         href="/review"
+        event="review"
         className="btn-ink group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium"
       >
         See how it works
         <span aria-hidden="true" className="nudge">→</span>
-      </Link>
+      </TrackLink>
     </aside>
   );
 }

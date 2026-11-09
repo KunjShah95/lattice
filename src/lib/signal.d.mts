@@ -1,3 +1,5 @@
+import type { Channel } from "./channel.mjs";
+
 export const ALLOWED_EVENTS: string[];
 export const allowedEvents: string[];
 export const MAX_SIGNAL_BYTES: number;
@@ -11,4 +13,4 @@ export const MAX_SIGNAL_BYTES: number;
  */
 export function parseSignal(
   raw: string | null | undefined,
-): { event: string; from: string; to: string } | null;
+): { event: string; from: string; to: string; channel?: Channel } | null;

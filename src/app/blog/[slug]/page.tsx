@@ -11,6 +11,7 @@ import { site } from "@/lib/site";
 import { toJsonLd } from "@/lib/jsonld";
 import { authorNode, breadcrumbNode, bylineName, faqPageJsonLd, graph, ids } from "@/lib/seo";
 import { PageGuidance } from "@/components/page-guidance";
+import { ReviewCta } from "@/components/marketing";
 import { PAGE_GUIDANCE } from "@/lib/guidance";
 
 export function generateStaticParams() {
@@ -223,6 +224,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         rules={meta.rules ?? PAGE_GUIDANCE.blogPost.rules}
         answers={meta.faq ?? PAGE_GUIDANCE.blogPost.answers}
       />
+      <ReviewCta context="Want this argument applied to your own system rather than the general case?" />
     </div>
   );
 }

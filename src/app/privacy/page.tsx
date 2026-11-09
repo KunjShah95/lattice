@@ -62,6 +62,20 @@ export default function PrivacyPage() {
         </p>
       </InfoSection>
 
+      <InfoSection title="Click signals">
+        <p>
+          A few links (into comparisons, alternatives, tool homepages and the
+          review page) send a small beacon to this site when clicked: the page
+          you were on, where the link goes, and one word for the kind of place
+          you first arrived from: <code>ai</code>, <code>search</code>,{" "}
+          <code>social</code>, <code>direct</code> or <code>referral</code>.
+          That word is worked out in your browser. The referring URL itself is
+          never sent, and there is no cookie and no identifier, so the record
+          cannot be tied to you or joined across visits. The word is kept in
+          your tab&apos;s session storage until the tab closes.
+        </p>
+      </InfoSection>
+
       <InfoSection title="Third-party links and badges">
         <p>
           Pages link out to tool vendors, GitHub, and badge providers (for example
