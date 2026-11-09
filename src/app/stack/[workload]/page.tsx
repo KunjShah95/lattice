@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/stacks";
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
@@ -253,6 +254,8 @@ export default async function StackWorkloadPage({
           {result.risk}
         </p>
       </section>
+
+      <ReviewCta context={`Want this ${meta.label} stack checked against your real volumes and constraints?`} />
 
       <PageGuidance url={pageUrl}
         rules={rulesForSections(result.picks.map((p) => p.sectionSlug))}

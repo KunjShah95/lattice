@@ -24,7 +24,7 @@ import { isRateLimited } from "@/lib/rate-limit.mjs";
  * It is an unauthenticated public endpoint that anything on the internet can POST
  * to. Three rules, all of them cheap:
  *
- * 1. **A closed vocabulary of events.** `event` must be one of four. An arbitrary
+ * 1. **A closed vocabulary of events.** `event` must be one of `ALLOWED_EVENTS`. An arbitrary
  *    string in a log is a log-injection vector and an analytics-poisoning one.
  * 2. **A path shape, not a path value.** `to` must start with `/` and must not
  *    start with `//`which would make the value usable as an open redirect the
@@ -52,7 +52,7 @@ import { isRateLimited } from "@/lib/rate-limit.mjs";
  *
  * Both statuses are 2xx, so neither pollutes request analytics. `sendBeacon` does
  * not read a response, so nothing about the client changes. And the body is only
- * ever the validated record: an event from a closed set of four, and two paths
+ * ever the validated record: an event from the closed set, and two paths
  * that already passed the shape checks, so there is nothing here to reflect.
  */
 export const dynamic = "force-dynamic";

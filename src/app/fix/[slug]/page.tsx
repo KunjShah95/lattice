@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { AS_OF } from "@/lib/attributes";
 import { BANDS, bandColor, layerStyle } from "@/lib/layer";
@@ -192,6 +193,8 @@ export default async function SymptomPage({ params }: PageProps<"/fix/[slug]">) 
           ))}
         </ul>
       </section>
+
+      <ReviewCta context={`${s.label} even after these checks? Send the setup and get the layer that is actually failing named.`} />
 
       <PageGuidance url={pageUrl}
         rules={rulesFromComparisons(s.comparisons.map((c) => c.slug))}

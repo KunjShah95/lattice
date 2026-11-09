@@ -24,7 +24,11 @@
  */
 
 /** The only events that mean anything. Adding one is a deliberate change. */
-export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound"];
+//
+// `review` is a click on the end-of-page review card: the one conversion this
+// site has. Recording which page it came from answers whether comparison,
+// symptom, essay or tool readers are the ones who ask for a review.
+export const ALLOWED_EVENTS = ["alternatives", "compare", "second-home", "tool", "outbound", "review"];
 
 /** Exposed for the route's `GET`, which describes the endpoint honestly. */
 export const allowedEvents = ALLOWED_EVENTS;

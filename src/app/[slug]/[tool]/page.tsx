@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { layerStyle } from "@/lib/layer";
 import { categoryGuidance } from "@/lib/guidance";
@@ -452,6 +453,8 @@ export default async function ToolPage({ params }: PageProps<"/[slug]/[tool]">) 
       {/* Rules of thumb for the decision this tool sits inside, then the
           remaining questions people ask about it. Each answer is a
           self-contained passage, mirrored in the FAQPage JSON-LD. */}
+      <ReviewCta context={`Deciding whether ${tool.name} fits your stack? Get a second opinion before you commit.`} />
+
       <PageGuidance url={pageUrl}
         rules={categoryGuidance(category.slug).rules}
         answers={answerBlocks}

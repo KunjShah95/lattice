@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FAQ, bookingHref, bookingIsExternal } from "@/lib/offer";
+import { TrackLink } from "@/components/track-link";
 
 /**
  * Building blocks for the conversion surfaces (`/` and `/review`).
@@ -175,13 +176,16 @@ export function ReviewCta({ context }: { context: string }) {
           where a tool sits in this index.
         </p>
       </div>
-      <Link
+      {/* Tracked: this card is the site's one conversion, and the `from` on
+          the beacon says which kind of page sent the reader. */}
+      <TrackLink
         href="/review"
+        event="review"
         className="btn-ink group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-medium"
       >
         See how it works
         <span aria-hidden="true" className="nudge">→</span>
-      </Link>
+      </TrackLink>
     </aside>
   );
 }

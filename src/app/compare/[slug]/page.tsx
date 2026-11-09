@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewCta } from "@/components/marketing";
 import { AskAi } from "@/components/ask-ai";
 import { notFound } from "next/navigation";
 import { BANDS, bandOf, layerStyle } from "@/lib/layer";
@@ -338,6 +339,10 @@ export default async function ComparisonPage({
           ))}
         </dl>
       </section>
+
+      {/* The site's one conversion, at the point a reader has the verdict and
+          has to apply it to their own stack. */}
+      <ReviewCta context={`Still deciding: ${comparison.title}? Get the call made against your own stack.`} />
 
       <AskAi url={pageUrl} />
 

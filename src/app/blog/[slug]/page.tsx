@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewCta } from "@/components/marketing";
 import { notFound } from "next/navigation";
 import { EssayContents } from "@/components/essay-contents";
 import { ReadingRail } from "@/components/reading-rail";
@@ -186,6 +187,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </ul>
         </section>
       ) : null}
+
+      <ReviewCta context={`Applying “${meta.title}” to your own stack? Get it reviewed layer by layer.`} />
 
       {/* Related essays — the internal backlink graph. */}
       {related.length ? (

@@ -67,7 +67,8 @@ export type TrackEvent =
   | "compare"
   | "second-home"
   | "tool"
-  | "outbound";
+  | "outbound"
+  | "review";
 
 export function TrackLink({
   href,
