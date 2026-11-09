@@ -796,7 +796,16 @@ test.describe("@e2e review card", () => {
     // The beacon is the measurement: assert its payload, not just that a
     // request was made, because a beacon with the wrong `to` looks identical
     // to a working one in a status-only check.
-    const beacon = page.waitForRequest((r) => r.url().endsWith("/signal") && r.method() === "POST");
+    //
+    // Matched on the event, not just the URL: every page also sends a `land`
+    // beacon once per tab after hydration, and on a slow runner that can land
+    // after `goto` resolves, so "the next /signal POST" is not always the click.
+    const beacon = page.waitForRequest(
+      (r) =>
+        r.url().endsWith("/signal") &&
+        r.method() === "POST" &&
+        (r.postData() ?? "").includes('"event":"review"'),
+    );
     await card.getByRole("link", { name: /See how it works/ }).click();
     const body = JSON.parse((await beacon).postData() ?? "{}");
     expect(body).toMatchObject({ event: "review", from: "/compare/vector-databases", to: "/review" });
