@@ -25,9 +25,11 @@ import {
 import {
   decodeStackInput,
   encodeStackInput,
+  stackPostText,
   stackReportJson,
   stackReportMarkdown,
 } from "@/lib/stack-url";
+import { withSource, xIntentUrl } from "@/lib/share.mjs";
 
 /**
  * Stack Builder — answer the questions, then build. Answers edit a draft; the
@@ -704,6 +706,26 @@ export function StackBuilder() {
             className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
           >
             {copied === "json" ? "JSON copied" : "Copy JSON"}
+          </button>
+          {/* Opens the X compose window with the stack as text and this case as
+              the link. The link is tagged `?src=social`, because the X app
+              strips the referrer and the visitors a post brings back would
+              otherwise be counted as "direct". "Copy link" above stays
+              untagged: nobody knows where a copied link gets pasted. Nothing
+              is posted by this click; the reader edits and sends it, or not. */}
+          <button
+            type="button"
+            onClick={() => {
+              sendSignal("stack-shared", `/stack/${built?.workload ?? workload}`);
+              window.open(
+                xIntentUrl(stackPostText(result), withSource(caseUrl(), "social")),
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+            className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+          >
+            Post to X
           </button>
           {/* The same Markdown as "Copy decision report", as a file: an ADR is a
               document that gets committed, and a clipboard is a poor place to

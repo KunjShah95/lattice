@@ -563,6 +563,34 @@
     animation-delay: calc(var(--i, 0) * 55ms + 120ms);
   }
 
+  /* --- The hero's built stack ------------------------------------------
+     A workload picked in the hero marks each diagram row `in` or `out`
+     (`hero-builder.tsx`). The one animation is the pick rising into its
+     row, staggered substrate-first: `--i` on a row counts down from the
+     surface (0) to layer 1 (8), so `8 - i` starts at the bottom. That is
+     the order a request meets the layers, which is what the ordering of
+     the whole index claims. Same mask-and-rise as the headline: full ink
+     from the first frame, never a fade. */
+  .hero-pick {
+    animation: rise 420ms var(--ease-out) both;
+    animation-delay: calc((8 - var(--i, 0)) * 55ms);
+  }
+
+  /* In: the layer's own tint at hover strength, held. */
+  [data-hero="in"] .hero-tint {
+    opacity: 0.2;
+  }
+
+  /* Out: no tint and no meter. The text keeps its full contrast, because
+     the layer still exists and its link still works. */
+  [data-hero="out"] .hero-tint {
+    opacity: 0;
+  }
+
+  [data-hero="out"] .hero-meter {
+    visibility: hidden;
+  }
+
   /* A hand-drawn stroke under a word, inked after the headline lands. */
   .ink-stroke path {
     stroke-dasharray: 1;

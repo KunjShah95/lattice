@@ -75,6 +75,35 @@ export function decodeStackInput(search: string): Omit<Required<StackInput>, "si
   };
 }
 
+/** What fits in a post once X has taken 23 characters for the link and one for the space. */
+export const POST_TEXT_LIMIT = 256;
+
+/**
+ * A built stack as the text of a post: the workload, then one line per pick.
+ *
+ * Tool names only, in the order the report lists them. No "why", no cost: a
+ * post is the hook and the link is the argument, and the link opens this
+ * exact case with every skip-when attached. The closing line is the one claim
+ * the rest of the category cannot make.
+ *
+ * Held under `POST_TEXT_LIMIT` by dropping picks from the end and saying how
+ * many were dropped, never by cutting a name in half. No current workload
+ * needs it; the guard is for the day a section is added.
+ */
+export function stackPostText(result: StackResult): string {
+  const title = result.summary.split(" · ")[0];
+  const head = `My ${title} stack, from the Lattice Stack Builder:`;
+  const tail = "Every pick comes with when to skip it.";
+  const lines = result.picks.map((p) => `${p.section}: ${p.tool}`);
+  const compose = (shown: string[], dropped: number) =>
+    [head, "", ...shown, ...(dropped ? [`and ${dropped} more`] : []), "", tail].join("\n");
+  let shown = lines;
+  while (shown.length > 1 && compose(shown, lines.length - shown.length).length > POST_TEXT_LIMIT) {
+    shown = shown.slice(0, -1);
+  }
+  return compose(shown, lines.length - shown.length);
+}
+
 /**
  * Where an exported report came from. Optional because the report is built
  * on the server too, and a relative `/section/tool` path pasted into an ADR

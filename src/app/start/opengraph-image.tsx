@@ -3,7 +3,7 @@ import { site } from "@/lib/site";
 import { OG_FONTS, OG_SIZE, OgCard } from "@/lib/og";
 
 export const runtime = "nodejs";
-export const alt = "Your first working RAG app, in five steps";
+export const alt = "AI infrastructure from zero: a nine-lesson path";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -19,9 +19,9 @@ export default function OpengraphImage() {
       <OgCard
         variant="plain"
         eyebrow="Start here"
-        title="Your first working RAG app, in five steps."
-        subtitle="For people who have never shipped one. Pick the tool at each layer, in order, and stop when you have something that answers a question."
-        meta="5 steps · One model call to one working app"
+        title="AI infrastructure from zero."
+        subtitle="Nine short lessons, one for each layer of the stack, in the order you will need them. What it is, one thing to try, and when to leave it alone."
+        meta="9 lessons · then one working app in 5 steps"
         layer={null}
         footNote="For first-timers"
         siteName={site.name}

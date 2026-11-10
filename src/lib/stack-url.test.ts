@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { decodeStackInput, encodeStackInput, stackReportJson, stackReportMarkdown } from "./stack-url";
-import { recommendStack } from "./stacks";
+import {
+  POST_TEXT_LIMIT,
+  decodeStackInput,
+  encodeStackInput,
+  stackPostText,
+  stackReportJson,
+  stackReportMarkdown,
+} from "./stack-url";
+import { WORKLOADS, recommendStack } from "./stacks";
 
 describe("stack URL state", () => {
   it("round-trips a full case through the query string", () => {
@@ -133,5 +140,42 @@ describe("stack decision report", () => {
     const result = recommendStack({ workload: "agent", queriesPerMonth: 100000 });
     expect(stackReportMarkdown(result)).not.toContain("Lattice entry:");
     expect(JSON.parse(stackReportJson(result))).not.toHaveProperty("caseUrl");
+  });
+});
+
+describe("stack post text", () => {
+  it("names the workload and every pick, one per line", () => {
+    const result = recommendStack({ workload: "rag", queriesPerMonth: 200_000, documents: 1_000_000 });
+    const text = stackPostText(result);
+    expect(text.startsWith("My RAG application stack, from the Lattice Stack Builder:")).toBe(true);
+    for (const p of result.picks) expect(text).toContain(`${p.section}: ${p.tool}`);
+    expect(text.endsWith("Every pick comes with when to skip it.")).toBe(true);
+  });
+
+  it("fits in a post beside the link, for every workload at any volume", () => {
+    for (const w of WORKLOADS) {
+      for (const queriesPerMonth of [0, 10_000, 200_000, 20_000_000]) {
+        const text = stackPostText(recommendStack({ workload: w.id, queriesPerMonth, documents: 5_000_000 }));
+        expect(text.length, `${w.id} at ${queriesPerMonth}`).toBeLessThanOrEqual(POST_TEXT_LIMIT);
+      }
+    }
+  });
+
+  it("drops whole picks rather than cutting a name when a stack is too long", () => {
+    const result = recommendStack({ workload: "agent", queriesPerMonth: 200_000 });
+    const long = {
+      ...result,
+      picks: Array.from({ length: 12 }, (_, i) => ({
+        ...result.picks[0],
+        section: `A section with a long name ${i}`,
+        tool: `Tool${i}`,
+      })),
+    };
+    const text = stackPostText(long);
+    expect(text.length).toBeLessThanOrEqual(POST_TEXT_LIMIT);
+    expect(text).toMatch(/and \d+ more/);
+    for (const line of text.split("\n").filter((l) => l.startsWith("A section"))) {
+      expect(line).toMatch(/^A section with a long name \d+: Tool\d+$/);
+    }
   });
 });

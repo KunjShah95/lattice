@@ -328,7 +328,7 @@ export const PAGE_GUIDANCE = {
       {
         question: "Where should I start?",
         answer:
-          "Use the five-step path on the Start page if you are building your first AI feature, or the Stack Builder if you already know your workload and constraints.",
+          "Use the nine-lesson path on the Start page if you are new to AI infrastructure or building your first AI feature, or the Stack Builder if you already know your workload and constraints.",
       },
     ],
   },

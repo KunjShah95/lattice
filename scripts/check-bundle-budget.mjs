@@ -142,9 +142,21 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // source (ai / search / social / direct / referral) without sending the
 // referrer. Measured +0.0 to +0.3 KB; it has to run in the browser, because the
 // referrer must not leave the page.
+// +1 KB on `/` for the hero's mini Stack Builder (`components/hero-builder.tsx`):
+// a context, the workload chips and the three leaves that light up the stack
+// diagram. Measured +1.0 KB (164.1 -> 165.1 KB). The engine and the dataset are
+// not in it: every stack is computed at build time (`lib/hero-stacks.ts`) and
+// arrives as props, which is what kept this from being +8 KB. The diagram is
+// still a server component.
+// +1 KB on `/stack-builder` for "Post to X": the post text (`stackPostText`),
+// the `?src=` tagger (`lib/share.mjs`) and the `stack-shared` event. Measured
+// +0.6 KB (171.9 -> 172.5 KB).
+// Mirroring the funnel to Vercel costs +0.2 KB on every route and needed no
+// ceiling raised: `lib/beacon.ts` pushes onto the queue `<Analytics />` already
+// ships, where importing `track` from `@vercel/analytics` measured +0.5 KB.
 const BUDGETS = {
-  "/": 168_168,
-  "/stack-builder": 176_192, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state
+  "/": 169_192,
+  "/stack-builder": 177_216, // +1 KB: explicit Build/Update submit bar, pending-answer count and pre-build empty state; +1 KB: Post to X
   "/all": 171_072, // +1 KB: the explorer's list/cards toggle, exposed sort chips and per-row use/skip disclosure replace main's ToolCard grid
   "/glossary": 167_168,
   "/methodology": 165_168,

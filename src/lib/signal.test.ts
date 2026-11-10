@@ -63,7 +63,7 @@ describe("parseSignal", () => {
     // A component emitting an event the validator rejects loses data silently,
     // which looks identical to nobody clicking. Asserted against the component's
     // own union so adding an event without adding it here fails here.
-    for (const event of ["alternatives", "compare", "second-home", "tool", "outbound", "review", "land", "stack-built", "compare-built"]) {
+    for (const event of ["alternatives", "compare", "second-home", "tool", "outbound", "review", "land", "stack-built", "compare-built", "hero-stack", "stack-shared"]) {
       expect(ALLOWED_EVENTS, `component sends "${event}"`).toContain(event);
     }
   });
