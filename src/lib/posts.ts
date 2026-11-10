@@ -51,6 +51,7 @@ import Ctor13, { meta as m13 } from "@/content/blog/do-you-need-an-ai-gateway.md
 import Ctor14, { meta as m14 } from "@/content/blog/when-not-to-use-an-agent-framework.mdx";
 import Ctor15, { meta as m15 } from "@/content/blog/when-you-do-not-need-evals.mdx";
 import Ctor16, { meta as m16 } from "@/content/blog/continuous-batching-from-first-principles.mdx";
+import Ctor17, { meta as m17 } from "@/content/blog/production-ai-architecture-checklist.mdx";
 
 /**
  * Every essay is registered here. MDX cannot be glob-imported at build time
@@ -74,6 +75,7 @@ const registry: Array<[PostMeta, ComponentType<Record<string, unknown>>]> = [
   [m14, Ctor14],
   [m15, Ctor15],
   [m16, Ctor16],
+  [m17, Ctor17],
 ];
 
 export const posts: Post[] = registry

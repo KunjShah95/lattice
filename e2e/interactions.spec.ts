@@ -376,6 +376,19 @@ test.describe("@e2e Stack Builder sharing", () => {
     await expect(page.locator("body")).toContainText(/Workflow/i);
   });
 
+  test("offers the card as a PNG download where it can be drawn, and it is the stack's own", async ({ page }) => {
+    // The share path is rendered per request, so it sees the runtime flag; the
+    // static builder bakes it at build time.
+    await page.goto("/stack-builder/share?workload=chatbot&q=200000&lang=python&safety=pii");
+    const save = page.getByRole("link", { name: "Save card (PNG)" });
+    await expect(save).toHaveAttribute("download", "lattice-stack-chatbot.png");
+    const href = (await save.getAttribute("href"))!;
+    expect(href).toMatch(/^\/stack-card\?workload=chatbot&q=200000/);
+    const res = await page.request.get(href);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+  });
+
   test("a link with no valid stack gets the generic card, and the card route refuses it", async ({ page, request }) => {
     await page.goto("/stack-builder/share?workload=nonsense");
     expect(new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!).pathname).toBe(

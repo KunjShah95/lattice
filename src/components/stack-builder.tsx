@@ -267,7 +267,7 @@ function changedAnswers(a: Case, b: Case): number {
   return (Object.keys(x) as Array<keyof StackInput>).filter((k) => x[k] !== y[k]).length;
 }
 
-export function StackBuilder() {
+export function StackBuilder({ cardsEnabled = false }: { cardsEnabled?: boolean }) {
   /** The draft: what the form shows. Editing it computes nothing. */
   const [c, setC] = useState<Case>(readInitialCase);
   /**
@@ -716,6 +716,19 @@ export function StackBuilder() {
           >
             Post to X
           </button>
+          {/* The share card as a file, for a slide, a README or a post that is not
+              on X. Only where the runtime can draw one (`cardsEnabled`, from
+              `perCaseCardsEnabled()` on the server): elsewhere the route answers
+              404 and a button that downloads an error page is worse than none. */}
+          {cardsEnabled && encoded ? (
+            <a
+              href={`/stack-card?${encoded}`}
+              download={`lattice-stack-${workload}.png`}
+              className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+            >
+              Save card (PNG)
+            </a>
+          ) : null}
           {/* The same Markdown as "Copy decision report", as a file: an ADR is a
               document that gets committed, and a clipboard is a poor place to
               keep one. Named for the workload so two downloads do not collide. */}

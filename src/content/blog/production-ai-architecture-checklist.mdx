@@ -1,0 +1,124 @@
+export const meta = {
+  slug: "production-ai-architecture-checklist",
+  title: "A production AI architecture checklist: nine questions, one per layer",
+  description:
+    "Before an AI feature takes real traffic, nine questions decide whether it survives: one per layer of the stack, each with what ready looks like and when to skip it.",
+  dek: "Most AI systems fail at a layer nobody asked about. Answer one question per layer, mark the ones you are knowingly skipping, and you will know where the system breaks first.",
+  date: "2026-11-10",
+  readingTime: "7 min",
+  layers: [9, 7],
+  sections: ["evaluation-observability", "guardrails-safety", "routing-gateways", "workflow-orchestration"],
+  related: ["evals-are-the-asset", "where-guardrails-belong", "the-cost-model"],
+  keywords: [
+    "production AI architecture checklist",
+    "LLM production readiness checklist",
+    "what do I need before launching an AI feature",
+    "AI system architecture layers",
+  ],
+  rules: [
+    "A skipped layer is a decision, not an omission. Write down which ones you are skipping and what would make you stop.",
+    "Check the layers in the order a failure reaches a user: answers first, then reliability, then cost. A cheap system that gives wrong answers has not saved money.",
+    "Do the evaluation layer before the rest. Every other answer on this list is a guess until you can measure.",
+  ],
+  faq: [
+    {
+      question: "What do I need before launching an AI feature to real users?",
+      answer:
+        "At minimum: a set of real test cases you run on every change, a way to see what each request did, a limit on what the model and its tools may do, and a plan for the model provider being slow or down. Retrieval, agents, routing and self-hosting each depend on what the feature does.",
+    },
+    {
+      question: "Do I need every layer of the AI stack in production?",
+      answer:
+        "No. Most systems use four or five. Each layer has a moment when it starts to matter, and a way to tell you are not there yet. The checklist marks both, so skipping a layer is a decision you can defend.",
+    },
+    {
+      question: "Which layer should I check first?",
+      answer:
+        "Evaluation. Without a way to measure whether a change helped, every other answer on the list is a guess, and the first regression will be found by a user.",
+    },
+  ],
+};
+
+The short answer: before an AI feature takes real traffic, answer one question for each layer of the stack. Each question has a point at which it stops being optional and a point before which it is wasted effort. The list below gives both, so you can tell the layers you need from the ones you are right to skip.
+
+Use it as a checklist in a design doc. Copy the page as Markdown, delete the layers that do not apply, and write the reason next to each one you removed.
+
+## 1. Evaluation: can you tell whether a change made it better?
+
+- [ ] You have a fixed set of real inputs, with a written expectation for each.
+- [ ] The set runs on every change to a prompt, a model or a retrieval setting.
+- [ ] A failing case in production becomes a new case in the set.
+
+**Skip while** nothing depends on the output. The first time a change could break something a user relies on, this stops being optional. [Evals are the asset](/blog/evals-are-the-asset) covers building the set, and [when you do not need evals](/blog/when-you-do-not-need-evals) covers the opposite case.
+
+## 2. Observability: can you see what each request did?
+
+- [ ] Every request leaves a trace: the prompt, the model, each tool call, the latency, the cost.
+- [ ] You can find the trace for one specific bad answer a user reports.
+- [ ] Personal data is redacted before it reaches the trace store.
+
+**Skip while** you have a handful of requests a day and read every one. Logging a request is not the same as being able to find one, which is why [observability is not logging](/blog/observability-is-not-logging).
+
+## 3. Prompts: are they versioned like code?
+
+- [ ] Prompts live in version control, not inside a handler.
+- [ ] A change to a prompt is reviewed and compared with the version before it.
+- [ ] The prompt a given response used can be recovered after the fact.
+
+**Skip a prompt management tool until** more than one person edits prompts, or you need to change one without a deploy.
+
+## 4. Guardrails: what may the model and its tools do?
+
+- [ ] Text you do not control is treated as untrusted input, not as instructions.
+- [ ] Every tool the model can call has a narrow permission, enforced in your code and not requested in the prompt.
+- [ ] The output is checked for the shape your code expects before anything acts on it.
+
+**Skip a guardrail product until** you can name the failure it would stop. Checking the structure of the output yourself comes first. [Where guardrails belong](/blog/where-guardrails-belong) explains why the permission layer matters more than the filter.
+
+## 5. Routing: what happens when the provider is slow or down?
+
+- [ ] Requests go through one place that holds the keys and logs the calls.
+- [ ] There is a timeout, a retry limit and a decision about what a user sees on failure.
+- [ ] You can attribute cost to a feature, not just to the account.
+
+**Skip a gateway while** you have one provider, one app and a bill you can read. It starts paying for itself with the second provider, or the first outage. See [do you need an AI gateway](/blog/do-you-need-an-ai-gateway).
+
+## 6. Retrieval: does the right passage reach the model?
+
+- [ ] For ten real questions, you have read the passages retrieved and the right one is among them.
+- [ ] You know how the index is updated when a document changes or is deleted.
+- [ ] Filtering by tenant or permission is enforced at retrieval, not afterward.
+
+**Skip a dedicated vector database until** the collection outgrows the database you already run. Most disappointing answers are ranking problems, which is the argument in [fix the ranking, not the prompt](/blog/fix-the-ranking-not-the-prompt).
+
+## 7. Agents and workflows: what survives a crash halfway?
+
+- [ ] A run interrupted by a deploy resumes where it stopped.
+- [ ] A step with a side effect, such as sending an email or charging a card, cannot run twice.
+- [ ] There is a limit on how long and how many steps one run may take.
+
+**Skip an agent framework while** the steps are fixed and known: a function that calls the model twice is not an agent. **Skip a durable workflow engine while** every run finishes inside one request and can be retried from the start without harm. [Agents need a durable host](/blog/agents-need-a-durable-host) covers the cases that cannot.
+
+## 8. Serving: should you run the model yourself?
+
+- [ ] You can name the reason: data that cannot leave your network, a model you tuned, or steady volume that makes a rented GPU cheaper than paying per token.
+- [ ] You measured throughput at your own concurrency, not a single stream.
+- [ ] You have a plan for the GPU being the thing that is down.
+
+**Skip self-hosting until** one of those reasons is real and measured. A hosted API is the right first answer for nearly everyone. [Continuous batching, from first principles](/blog/continuous-batching-from-first-principles) explains why throughput at your concurrency is the number that matters.
+
+## 9. Fine-tuning: have you exhausted the cheaper options?
+
+- [ ] The behaviour you want does not hold with a better prompt and examples in the prompt.
+- [ ] You have a hundred or more pairs of input and ideal output, and a held-out set to judge the result.
+- [ ] The thing you are teaching is behaviour, not facts that change.
+
+**Skip it for facts.** Knowledge that changes belongs in retrieval, and a model tuned on last month's facts is wrong this month. See [prompt or fine-tune](/blog/prompt-or-finetune).
+
+## Reading your result
+
+Count the unchecked boxes in the layers you decided to keep, not the layers you removed. A layer you skipped on purpose, with a reason written next to it, is a finished item. A layer you never considered is where the first incident will come from.
+
+Two patterns are worth watching for. If evaluation and observability are both empty, you cannot learn from anything else on the list. And if serving or fine-tuning is full while evaluation is empty, you are spending the most effort on the layers whose benefit you cannot measure.
+
+To turn the answers into a concrete stack, the [Stack Builder](/stack-builder) picks one tool per layer for your workload and gives each pick its own skip-when. For a learning order instead of a launch order, [start here](/start).

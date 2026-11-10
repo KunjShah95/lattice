@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { StackBuilder } from "@/components/stack-builder";
+import { perCaseCardsEnabled } from "@/lib/stack-card";
 import { site } from "@/lib/site";
 import { absolute, breadcrumbNode, datasetModified, graph, ids, faqPageJsonLd } from "@/lib/seo";
 import { toJsonLd } from "@/lib/jsonld";
@@ -88,7 +89,7 @@ export default function StackBuilderPage() {
         </p>
       </header>
       <div className="mt-8">
-        <StackBuilder />
+        <StackBuilder cardsEnabled={perCaseCardsEnabled()} />
       </div>
       <div className="pb-16">
         <PageGuidance url={pageUrl} rules={PAGE_GUIDANCE.stackBuilder.rules} answers={PAGE_GUIDANCE.stackBuilder.answers} />
