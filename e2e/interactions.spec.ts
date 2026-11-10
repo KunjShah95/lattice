@@ -325,7 +325,8 @@ test.describe("@e2e Stack Builder sharing", () => {
     expect(intent.origin + intent.pathname).toBe("https://x.com/intent/tweet");
     expect(intent.searchParams.get("text")).toMatch(/^My RAG application stack/);
     const shared = new URL(intent.searchParams.get("url")!);
-    expect(shared.pathname).toBe("/stack-builder");
+    // The share path, not the builder's: it is the address that unfurls as this stack.
+    expect(shared.pathname).toBe("/stack-builder/share");
     expect(shared.searchParams.get("workload")).toBe("rag");
     expect(shared.searchParams.get("docs")).toBe("10000000");
     expect(shared.searchParams.get("src")).toBe("social");
@@ -337,7 +338,60 @@ test.describe("@e2e Stack Builder sharing", () => {
     await page.getByRole("button", { name: /Copy link to this stack/ }).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(copied).toContain("workload=rag");
+    expect(copied).toContain("/stack-builder/share?");
     expect(copied).not.toContain("src=");
+  });
+
+  test("a shared stack unfurls as that stack, with a real card", async ({ page, request }) => {
+    const path = "/stack-builder/share?workload=agent&q=50000&lang=python&dur=hours&safety=strict";
+    await page.goto(path);
+    const og = async (prop: string) =>
+      page.locator(`meta[property="${prop}"]`).getAttribute("content");
+
+    expect(await og("og:title")).toBe("AI agent stack, built with Lattice");
+    const image = (await og("og:image"))!;
+    expect(new URL(image).pathname).toBe("/stack-card");
+    expect(new URL(image).searchParams.get("workload")).toBe("agent");
+    // og:url is the shared link itself: Facebook and LinkedIn re-fetch it, and
+    // pointing it at the builder would swap this card for the generic one.
+    expect(new URL((await og("og:url"))!).pathname).toBe("/stack-builder/share");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/stack-builder$/);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+
+    // The image is a PNG, 1200 by 630, and cacheable: that is what a crawler checks.
+    const local = `${new URL(page.url()).origin}${new URL(image).pathname}${new URL(image).search}`;
+    const res = await request.get(local);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+    expect(res.headers()["cache-control"]).toContain("s-maxage");
+    const png = await res.body();
+    expect(png.readUInt32BE(16)).toBe(1200);
+    expect(png.readUInt32BE(20)).toBe(630);
+  });
+
+  test("the same page is the builder: the shared stack is on screen", async ({ page }) => {
+    await page.goto("/stack-builder/share?workload=agent&q=50000&dur=hours&safety=strict");
+    await expect(page.getByRole("heading", { name: /Your stack: built/i })).toBeVisible();
+    await expect(page.locator("body")).toContainText(/Workflow/i);
+  });
+
+  test("a link with no valid stack gets the generic card, and the card route refuses it", async ({ page, request }) => {
+    await page.goto("/stack-builder/share?workload=nonsense");
+    expect(new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!).pathname).toBe(
+      "/stack-card/default",
+    );
+    expect((await request.get("/stack-card?workload=nonsense")).status()).toBe(404);
+    expect((await request.get("/stack-card")).status()).toBe(404);
+  });
+
+  test("the plain builder keeps its prerendered card, and it renders", async ({ page, request }) => {
+    await page.goto("/stack-builder");
+    const image = new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!);
+    expect(image.pathname).toBe("/stack-card/default");
+    const res = await request.get(image.pathname);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
   });
 });
 

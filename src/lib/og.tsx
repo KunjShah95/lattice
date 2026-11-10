@@ -35,6 +35,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { MARK_CELLS } from "@/components/logo";
+import type { StackCardData } from "@/lib/stack-card";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -925,6 +926,203 @@ export function OgHomeCard({
               {siteHost.toUpperCase()}
             </Label>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** `#rrggbb` as `rgba(...)`. Satori takes the colour literally, so a tint is built, not styled. */
+function tint(hex: string, alpha: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
+/**
+ * The share card for one stack: the nine layers, surface first, each row with
+ * the tool picked for it, and the cost band beside them.
+ *
+ * It is the stack diagram from the home page redrawn to fit a feed: the same
+ * order, the same three band colours, a layer the workload does not use left
+ * recessive rather than removed, so two different stacks have the same shape
+ * and the eye compares them by which rows are lit. The picks are the content;
+ * everything else is the frame that tells a stranger what they are looking at.
+ *
+ * Satori rules from the top of this file apply: flex everywhere, margins for
+ * spacing, every string clamped. The row height is the budget: nine rows of
+ * 46px is the one number that has to move if the masthead or footer grows.
+ */
+export function StackCard({
+  card,
+  siteName,
+  siteHost,
+}: {
+  card: StackCardData;
+  siteName: string;
+  siteHost: string;
+}) {
+  const title = `${card.label} stack.`;
+  const titleFont = title.length <= 16 ? 64 : title.length <= 24 ? 54 : 46;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: C.bg,
+        backgroundImage: `linear-gradient(152deg, ${C.bgLift} 0%, ${C.bg} 44%, #08080a 100%), linear-gradient(${C.grid} 1px, transparent 1px), linear-gradient(90deg, ${C.grid} 1px, transparent 1px)`,
+        backgroundSize: "100% 100%, 64px 64px, 64px 64px",
+        padding: "54px 64px 50px",
+        fontFamily: SANS,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <Glyph joint={C.accent} />
+        <div style={{ display: "flex", marginLeft: 15 }}>
+          <Label color={C.fg} size={22} tracking={2}>
+            {siteName.toUpperCase()}
+          </Label>
+        </div>
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Label color={C.muted} size={20} tracking={1.8}>
+            STACK BUILDER
+          </Label>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "row", marginTop: 28 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            width: 372,
+            height: 414,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Label color={C.accent} size={21} tracking={3}>
+              A STACK, BUILT
+            </Label>
+            <div
+              style={{
+                display: "flex",
+                marginTop: 16,
+                fontFamily: SERIF,
+                fontSize: titleFont,
+                lineHeight: 1.06,
+                letterSpacing: -1.5,
+                color: C.fg,
+              }}
+            >
+              {clamp(title, 40)}
+            </div>
+            <div style={{ display: "flex", marginTop: 22 }}>
+              <Label color={C.muted} size={19} tracking={0.4}>
+                {clamp(card.case, 64)}
+              </Label>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Label color={C.subtle} size={17} tracking={2.4}>
+              ABOUT
+            </Label>
+            <div
+              style={{
+                display: "flex",
+                marginTop: 8,
+                fontFamily: SERIF,
+                // A four-figure band ("$1,400 to $3,825 a month") would wrap to two lines.
+                fontSize: card.cost.length > 22 ? 28 : 34,
+                lineHeight: 1.1,
+                letterSpacing: -0.8,
+                color: C.fg,
+              }}
+            >
+              {card.cost}
+            </div>
+            <div style={{ display: "flex", marginTop: 8 }}>
+              <Label color={C.subtle} size={16} tracking={0.4}>
+                a heuristic from volume, not a quote
+              </Label>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", marginLeft: 36, width: 664 }}>
+          {card.rows.map((row) => {
+            const hex = bandHex(bandOf(row.layer));
+            const used = row.tool !== null;
+            return (
+              <div
+                key={row.index}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  height: 42,
+                  marginBottom: 4,
+                  borderRadius: 8,
+                  backgroundColor: used ? tint(hex, 0.14) : "transparent",
+                  border: `1px solid ${used ? tint(hex, 0.32) : C.border}`,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    width: 4,
+                    height: 24,
+                    borderRadius: 2,
+                    marginLeft: 12,
+                    backgroundColor: hex,
+                    opacity: used ? 1 : 0.35,
+                  }}
+                />
+                <div style={{ display: "flex", width: 44, marginLeft: 14 }}>
+                  <Label color={used ? C.muted : C.faint} size={17}>
+                    {row.index}
+                  </Label>
+                </div>
+                <div style={{ display: "flex", width: 150 }}>
+                  <Label color={used ? C.muted : C.faint} size={17} tracking={0.4}>
+                    {clamp(row.name, 14).toUpperCase()}
+                  </Label>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flex: 1,
+                    fontFamily: SANS,
+                    fontSize: 25,
+                    color: used ? C.fg : C.faint,
+                  }}
+                >
+                  {used ? clamp(row.tool as string, 26) : "-"}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: 20,
+        }}
+      >
+        <Label color={C.subtle} size={18} tracking={0.6}>
+          {siteHost}
+        </Label>
+        <div style={{ display: "flex", marginLeft: "auto" }}>
+          <Label color={C.muted} size={18} tracking={0.4}>
+            Every pick comes with when to skip it
+          </Label>
         </div>
       </div>
     </div>

@@ -14,7 +14,10 @@ Once a week:
    end to end, with one measurement. An evening, not a project.
 2. **Get the stack link.** Open the case in `/stack-builder`, press **Post to X**.
    It fills the compose window with the picks and a link to that exact case,
-   tagged `?src=social`.
+   tagged `?src=social`. The link is `/stack-builder/share?...`, which unfurls on
+   X as a card of that stack: the nine layers, the pick in each, the cost band.
+   Use the `/share` address for every stack link you paste by hand, or the post
+   shows the generic builder card instead.
 3. **Add what happened.** One or two replies under the first post: the number you
    measured, and the thing that broke. This is the part nobody else can write
    and the reason to follow the account.
@@ -52,7 +55,7 @@ conversions (§7a again).
 ## Week 1: RAG over 10M documents, heavy filtering
 
 Link (already tagged):
-`https://lattice.kunjshah.in/stack-builder?workload=rag&q=500000&docs=10000000&filtering=heavy&freshness=daily&latency=fast&lock=1&src=social`
+`https://lattice.kunjshah.in/stack-builder/share?workload=rag&q=500000&docs=10000000&filtering=heavy&freshness=daily&latency=fast&lock=1&src=social`
 
 **Post 1**
 
@@ -87,7 +90,7 @@ before and after, and what you changed.
 ## Week 2: an agent that runs for hours under a strict tool policy
 
 Link:
-`https://lattice.kunjshah.in/stack-builder?workload=agent&q=50000&lang=python&dur=hours&safety=strict&lock=1&src=social`
+`https://lattice.kunjshah.in/stack-builder/share?workload=agent&q=50000&lang=python&dur=hours&safety=strict&lock=1&src=social`
 
 **Post 1**
 
@@ -121,7 +124,7 @@ Link:
 ## Week 3: a support chatbot with personal data in the conversation
 
 Link:
-`https://lattice.kunjshah.in/stack-builder?workload=chatbot&q=200000&latency=fast&lang=python&safety=pii&lock=1&src=social`
+`https://lattice.kunjshah.in/stack-builder/share?workload=chatbot&q=200000&latency=fast&lang=python&safety=pii&lock=1&src=social`
 
 **Post 1**
 

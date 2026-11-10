@@ -79,6 +79,10 @@ export default defineConfig({
    */
   webServer: {
     command: `npx next start -p ${PORT}`,
+    // Turns on the share card for an arbitrary stack (`lib/stack-card.ts`),
+    // which production gets from running on Vercel. Without it the suite would
+    // only ever see the prerendered fallback and never draw a card.
+    env: { LATTICE_DYNAMIC_CARDS: "1" },
     url: `${BASE}/robots.txt`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

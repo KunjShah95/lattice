@@ -3,6 +3,8 @@ import {
   POST_TEXT_LIMIT,
   decodeStackInput,
   encodeStackInput,
+  neutraliseStackInput,
+  stackInputFromSearch,
   stackPostText,
   stackReportJson,
   stackReportMarkdown,
@@ -177,5 +179,44 @@ describe("stack post text", () => {
     for (const line of text.split("\n").filter((l) => l.startsWith("A section"))) {
       expect(line).toMatch(/^A section with a long name \d+: Tool\d+$/);
     }
+  });
+});
+
+/**
+ * The rule for which answers count is shared by the builder's form and by the
+ * share card, so a card can only ever draw the stack the builder shows for the
+ * same link. These pin the rule itself.
+ */
+describe("neutralising answers a workload does not ask", () => {
+  it("drops retrieval answers for a workload with no retrieval", () => {
+    const input = stackInputFromSearch("?workload=chatbot&q=200000&docs=5000000&filtering=heavy&freshness=realtime");
+    expect(input).toMatchObject({ documents: 0, filtering: "none", freshness: "static" });
+  });
+
+  it("keeps them for a workload that retrieves", () => {
+    const input = stackInputFromSearch("?workload=rag&q=200000&docs=5000000&filtering=heavy");
+    expect(input).toMatchObject({ documents: 5_000_000, filtering: "heavy" });
+  });
+
+  it("drops latency for a fine-tuned model and safety for search", () => {
+    expect(stackInputFromSearch("?workload=finetuned&q=1&latency=realtime")?.latency).toBe("flexible");
+    expect(stackInputFromSearch("?workload=search&q=1&safety=strict")?.safety).toBe("none");
+  });
+
+  it("derives the simplicity dial from self-hosted, as the builder does", () => {
+    expect(stackInputFromSearch("?workload=rag&q=1&self=1")?.simplicityVsControl).toBe(2);
+    expect(stackInputFromSearch("?workload=rag&q=1")?.simplicityVsControl).toBe(0);
+  });
+
+  it("returns null for a link that carries no valid case", () => {
+    expect(stackInputFromSearch("")).toBeNull();
+    expect(stackInputFromSearch("?workload=nonsense&q=1")).toBeNull();
+  });
+
+  it("is the identity on an input that is already neutral", () => {
+    const once = stackInputFromSearch("?workload=agent&q=50000&lang=python&dur=hours&safety=strict")!;
+    const { simplicityVsControl: _drop, ...rest } = once;
+    void _drop;
+    expect(neutraliseStackInput(rest)).toEqual(once);
   });
 });

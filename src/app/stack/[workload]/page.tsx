@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { recommendStack, stackQuestions, WORKLOADS, type Workload } from "@/lib/stacks";
+import { WORKLOAD_PAGE_CASE } from "@/lib/stack-card";
 import { encodeStackInput, stackReportJson, stackReportMarkdown } from "@/lib/stack-url";
 import { CopyButton } from "@/components/copy-button";
 import { PageGuidance } from "@/components/page-guidance";
@@ -40,7 +41,7 @@ import { toJsonLd } from "@/lib/jsonld";
  * less honest makes these pages look like answers rather than starting points.
  */
 
-const DEFAULT_CASE = { queriesPerMonth: 100_000 } as const;
+const DEFAULT_CASE = WORKLOAD_PAGE_CASE;
 
 export function generateStaticParams() {
   return WORKLOADS.map((w) => ({ workload: w.id }));
