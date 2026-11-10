@@ -684,3 +684,27 @@ describe("share image coverage", () => {
     expect(onDemand).toEqual([]);
   });
 });
+
+/**
+ * The per-tool alternatives pages are most of the site and the query they are
+ * written for ("X alternatives") is the one a searcher types after deciding to
+ * leave. A result is cut at about 60 characters of title and 160 of
+ * description, and the site template adds " · Lattice" to every title, so
+ * these have to fit with the suffix on. They did not: 121 were over.
+ */
+describe("alternatives pages: fit in a search result", () => {
+  it("keeps every title, with the site suffix, within 60 characters", async () => {
+    for (const p of allAlternativesPages()) {
+      const meta = await alternativesMetadata({ params: Promise.resolve({ slug: p.slug, tool: p.tool }) } as never);
+      const full = `${meta.title as string} · Lattice`;
+      expect(full.length, full).toBeLessThanOrEqual(60);
+    }
+  });
+
+  it("keeps every description within 160 characters", async () => {
+    for (const p of allAlternativesPages()) {
+      const meta = await alternativesMetadata({ params: Promise.resolve({ slug: p.slug, tool: p.tool }) } as never);
+      expect((meta.description as string).length, `${p.slug}/${p.tool}`).toBeLessThanOrEqual(160);
+    }
+  });
+});
