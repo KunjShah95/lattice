@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BANDS, bandOf, hatchClass, layerColor, layerStyle } from "@/lib/layer";
 import { maxCategoryCount, offStack, stackLayers } from "@/lib/data";
+import { HeroCaption, HeroPick, HeroRow } from "@/components/hero-builder";
 
 /**
  * The hero. This is a map of a production AI system, not a pitch: nine
@@ -13,6 +14,13 @@ import { maxCategoryCount, offStack, stackLayers } from "@/lib/data";
  * the shortest path from a symptom ("it is slow", "the answers are wrong")
  * to the two sections worth reading. The grouping is stated rather than
  * implied, so the palette does work instead of decorating.
+ *
+ * It is also the output of the hero's mini builder. Each row is wrapped in a
+ * `HeroRow` and its second line in a `HeroPick` (`hero-builder.tsx`): at rest
+ * they render exactly what was here before, and once a reader picks a workload
+ * the rows that workload needs carry the tool chosen for them. Those are the
+ * only client pieces; this component, and the dataset it reads, stay on the
+ * server.
  *
  * Off-stack material is deliberately rendered outside the stack frame —
  * reading material is not a layer, and pretending otherwise is the kind of
@@ -33,7 +41,9 @@ export function StackDiagram() {
           The stack
         </span>
         <span className="t-label">
-          {stackLayers.length} layers · {offStack.length} off-stack
+          <HeroCaption total={stackLayers.length}>
+            {stackLayers.length} layers · {offStack.length} off-stack
+          </HeroCaption>
         </span>
       </div>
 
@@ -85,7 +95,7 @@ export function StackDiagram() {
                   const isCrosscutting = category.role === "crosscutting";
 
                   return (
-                    <li key={category.slug}>
+                    <HeroRow key={category.slug} slug={category.slug}>
                       {/* `--i` staggers the meter and rule draw-on by depth,
                           so the stack assembles surface-down on load. Crop
                           marks sit inside the row (`overflow-hidden`). */}
@@ -103,7 +113,7 @@ export function StackDiagram() {
                         {/* Full-bleed tint in the layer's own colour. */}
                         <span
                           aria-hidden="true"
-                          className="pointer-events-none absolute inset-0 opacity-[0.07] transition-opacity duration-300 group-hover:opacity-[0.16]"
+                          className="hero-tint pointer-events-none absolute inset-0 opacity-[0.07] transition-opacity duration-300 group-hover:opacity-[0.16]"
                           style={layerStyle(layer)}
                         />
                         {/* Hatch encodes position rather than colour: a layer
@@ -156,9 +166,11 @@ export function StackDiagram() {
                               below `sm` keeps the row scannable and the count
                               legible; the full sentence is on the section
                               page either way. */}
-                          <span className="mt-0.5 hidden text-pretty text-[13.5px] leading-relaxed text-fg-muted sm:block">
-                            {category.responsibility}
-                          </span>
+                          <HeroPick slug={category.slug}>
+                            <span className="mt-0.5 hidden text-pretty text-[13.5px] leading-relaxed text-fg-muted sm:block">
+                              {category.responsibility}
+                            </span>
+                          </HeroPick>
                         </span>
 
                         {/* Density meter — width is the tool count, so the shape
@@ -166,7 +178,7 @@ export function StackDiagram() {
                             The count is always shown; only the meter bar drops
                             below `sm`, where it would be too thin to read. */}
                         <span className="relative flex shrink-0 items-center gap-2">
-                          <span className="hidden h-[3px] w-24 overflow-hidden rounded-full bg-border sm:block">
+                          <span className="hero-meter hidden h-[3px] w-24 overflow-hidden rounded-full bg-border sm:block">
                             <span
                               className="draw-x block h-full rounded-full"
                               style={{ width: `${width}%`, ...layerStyle(layer) }}
@@ -177,7 +189,7 @@ export function StackDiagram() {
                           </span>
                         </span>
                       </Link>
-                    </li>
+                    </HeroRow>
                   );
                 })}
             </ul>

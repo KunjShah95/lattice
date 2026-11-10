@@ -40,6 +40,10 @@ import { allAlternativesPages } from "@/lib/alternatives";
  * else keeps the same information on its own tool page.
  */
 
+/** `site.titleTemplate` appends " · Lattice"; a result title is cut near 60. */
+const SUFFIX_LENGTH = " · Lattice".length;
+const TITLE_LIMIT = 60;
+
 export function generateStaticParams() {
   return allAlternativesPages();
 }
@@ -60,11 +64,19 @@ export async function generateMetadata({
   // worth more than a cleverer title.
   return {
     // Year of the last verification, not the build: it has to stay true.
-    title: `${entry.name} alternatives (${AS_OF.slice(0, 4)}): ${subs.length} substitutes compared`,
+    // The longest wording that still fits beside the site's " · Lattice"
+    // suffix in 60 characters, because a result is cut there and the title is
+    // the one thing a searcher reads before deciding to click. The query words
+    // lead in every variant, so what a long name costs is the year and the
+    // count, never "X alternatives".
+    title: [
+      `${entry.name} alternatives (${AS_OF.slice(0, 4)}): ${subs.length} compared`,
+      `${entry.name} alternatives (${AS_OF.slice(0, 4)})`,
+      `${entry.name} alternatives`,
+    ].find((t) => t.length + SUFFIX_LENGTH <= TITLE_LIMIT) ?? `${entry.name} alternatives`,
     description:
-      `${subs.length} recorded substitutes for ${entry.name}, with what each one is ` +
-      `for and when it is not a real swap. Compared on layer, deployment and licence — ` +
-      `plus when to skip each one.`,
+      `${subs.length} recorded substitutes for ${entry.name}: what each is for, ` +
+      `when it is not a real swap, and when to skip it. Compared on layer and licence.`,
     alternates: { canonical: `/${category.slug}/${entry.slug}/alternatives` },
     openGraph: {
       type: "article",

@@ -217,6 +217,184 @@ test.describe("@e2e /all explorer", () => {
   });
 });
 
+test.describe("@e2e hero builder", () => {
+  // The hero is the product: a visitor says what they are building and the
+  // stack diagram answers, without leaving the page. These pin the three things
+  // that would make it a decoration instead: the diagram not changing, the
+  // button opening a different stack from the one shown, and the pick not
+  // being counted.
+  test("picking a workload fills the diagram and retargets the one button", async ({ page }) => {
+    await page.goto("/");
+    const cta = page.locator("main a.btn-ink").first();
+    await expect(cta).toHaveText(/Build my stack/);
+    await expect(cta).toHaveAttribute("href", "/stack-builder");
+    await expect(page.locator('[data-hero="in"]')).toHaveCount(0);
+
+    await page.getByRole("button", { name: "RAG application" }).click();
+    await expect(page.getByRole("button", { name: "RAG application" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    // Some layers are in this stack and some are not: nine rows, split.
+    const inRows = page.locator('[data-hero="in"]');
+    await expect(inRows).not.toHaveCount(0);
+    expect((await inRows.count()) + (await page.locator('[data-hero="out"]').count())).toBe(9);
+    await expect(page.locator('[data-hero="in"] .hero-pick').first()).toBeVisible();
+    await expect(cta).toHaveText(/Tune this stack/);
+    await expect(cta).toHaveAttribute("href", /^\/stack-builder\?workload=rag&/);
+
+    // The picks are also said in words beside the chips, for a phone where the
+    // diagram is below the fold, and they are the tools in the lit rows.
+    const picked = await page.locator('[data-hero="in"] .hero-pick > span:first-child').allTextContents();
+    const answer = page.locator('main p[aria-live="polite"]').first();
+    for (const tool of picked) await expect(answer).toContainText(tool);
+  });
+
+  test("the button opens the builder on the stack the hero showed", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "AI agent" }).click();
+    const picked = await page.locator('[data-hero="in"] .hero-pick > span:first-child').allTextContents();
+    expect(picked.length).toBeGreaterThan(2);
+
+    await page.locator("main a.btn-ink").first().click();
+    await expect(page).toHaveURL(/\/stack-builder\?workload=agent/);
+    // A shared link counts as built, so the stack is on screen without a submit.
+    const results = page.locator("section", { has: page.getByRole("heading", { name: /Your stack: built/i }) });
+    for (const tool of picked) await expect(results).toContainText(tool);
+  });
+
+  test("pressing the chosen workload again puts the map back", async ({ page }) => {
+    await page.goto("/");
+    const chip = page.getByRole("button", { name: "AI search" });
+    await chip.click();
+    await expect(page.locator('[data-hero="in"]')).not.toHaveCount(0);
+    await chip.click();
+    await expect(chip).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator("[data-hero]")).toHaveCount(0);
+    await expect(page.locator("main a.btn-ink").first()).toHaveAttribute("href", "/stack-builder");
+  });
+
+  test("a pick is counted once, as hero-stack, and mirrored to the Vercel queue", async ({ page }) => {
+    const beacons: Array<Record<string, unknown>> = [];
+    page.on("request", (r) => {
+      if (r.url().endsWith("/signal") && r.method() === "POST") beacons.push(JSON.parse(r.postData() ?? "{}"));
+    });
+    await page.goto("/?src=social");
+    await page.getByRole("button", { name: "LLM API" }).click();
+    await expect
+      .poll(() => beacons.filter((b) => b.event === "hero-stack"))
+      .toEqual([{ event: "hero-stack", from: "/", to: "/stack/llm-api", channel: "social" }]);
+
+    // The denominator and the pick both reach `window.vaq`, whichever of the
+    // layout's two effects ran first.
+    const queued = await page.evaluate(() =>
+      ((window as unknown as { vaq?: unknown[][] }).vaq ?? [])
+        .filter((e) => e[0] === "event")
+        .map((e) => (e[1] as { name: string }).name),
+    );
+    expect(queued).toEqual(["land", "hero-stack"]);
+  });
+
+  test("stays inside a 390px phone with a stack showing", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Fine-tuned model" }).click();
+    await expect(page.locator('[data-hero="in"]')).not.toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+    ).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("@e2e Stack Builder sharing", () => {
+  test("Post to X opens a compose window with a link tagged for the channel", async ({ page }) => {
+    // `window.open` is replaced before the page's scripts run, so the test
+    // reads where the compose window would have gone without opening x.com.
+    await page.addInitScript(() => {
+      (window as unknown as { __opened: string[] }).__opened = [];
+      window.open = (url) => {
+        (window as unknown as { __opened: string[] }).__opened.push(String(url));
+        return null;
+      };
+    });
+    await page.goto("/stack-builder?workload=rag&q=500000&docs=10000000");
+    await page.getByRole("button", { name: "Post to X" }).click();
+    const opened = await page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
+    expect(opened).toHaveLength(1);
+    const intent = new URL(opened[0]);
+    expect(intent.origin + intent.pathname).toBe("https://x.com/intent/tweet");
+    expect(intent.searchParams.get("text")).toMatch(/^My RAG application stack/);
+    const shared = new URL(intent.searchParams.get("url")!);
+    // The share path, not the builder's: it is the address that unfurls as this stack.
+    expect(shared.pathname).toBe("/stack-builder/share");
+    expect(shared.searchParams.get("workload")).toBe("rag");
+    expect(shared.searchParams.get("docs")).toBe("10000000");
+    expect(shared.searchParams.get("src")).toBe("social");
+  });
+
+  test("Copy link stays untagged: nobody knows where it will be pasted", async ({ page }) => {
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/stack-builder?workload=rag&q=500000&docs=10000000");
+    await page.getByRole("button", { name: /Copy link to this stack/ }).click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toContain("workload=rag");
+    expect(copied).toContain("/stack-builder/share?");
+    expect(copied).not.toContain("src=");
+  });
+
+  test("a shared stack unfurls as that stack, with a real card", async ({ page, request }) => {
+    const path = "/stack-builder/share?workload=agent&q=50000&lang=python&dur=hours&safety=strict";
+    await page.goto(path);
+    const og = async (prop: string) =>
+      page.locator(`meta[property="${prop}"]`).getAttribute("content");
+
+    expect(await og("og:title")).toBe("AI agent stack, built with Lattice");
+    const image = (await og("og:image"))!;
+    expect(new URL(image).pathname).toBe("/stack-card");
+    expect(new URL(image).searchParams.get("workload")).toBe("agent");
+    // og:url is the shared link itself: Facebook and LinkedIn re-fetch it, and
+    // pointing it at the builder would swap this card for the generic one.
+    expect(new URL((await og("og:url"))!).pathname).toBe("/stack-builder/share");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/stack-builder$/);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+
+    // The image is a PNG, 1200 by 630, and cacheable: that is what a crawler checks.
+    const local = `${new URL(page.url()).origin}${new URL(image).pathname}${new URL(image).search}`;
+    const res = await request.get(local);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+    expect(res.headers()["cache-control"]).toContain("s-maxage");
+    const png = await res.body();
+    expect(png.readUInt32BE(16)).toBe(1200);
+    expect(png.readUInt32BE(20)).toBe(630);
+  });
+
+  test("the same page is the builder: the shared stack is on screen", async ({ page }) => {
+    await page.goto("/stack-builder/share?workload=agent&q=50000&dur=hours&safety=strict");
+    await expect(page.getByRole("heading", { name: /Your stack: built/i })).toBeVisible();
+    await expect(page.locator("body")).toContainText(/Workflow/i);
+  });
+
+  test("a link with no valid stack gets the generic card, and the card route refuses it", async ({ page, request }) => {
+    await page.goto("/stack-builder/share?workload=nonsense");
+    expect(new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!).pathname).toBe(
+      "/stack-card/default",
+    );
+    expect((await request.get("/stack-card?workload=nonsense")).status()).toBe(404);
+    expect((await request.get("/stack-card")).status()).toBe(404);
+  });
+
+  test("the plain builder keeps its prerendered card, and it renders", async ({ page, request }) => {
+    await page.goto("/stack-builder");
+    const image = new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!);
+    expect(image.pathname).toBe("/stack-card/default");
+    const res = await request.get(image.pathname);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+  });
+});
+
 test.describe("@e2e Stack Builder", () => {
   test("builds on submit, and the URL reproduces it", async ({ page }) => {
     // The URL is the save: there is no account and no storage, so the link is

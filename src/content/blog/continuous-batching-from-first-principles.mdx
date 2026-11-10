@@ -1,0 +1,195 @@
+export const meta = {
+  slug: "continuous-batching-from-first-principles",
+  title: "Continuous batching, from first principles",
+  description:
+    "Why vLLM serves many times more tokens per GPU than one request at a time: the memory-bandwidth arithmetic behind batching, what paged KV memory adds, and when none of it helps.",
+  dek: "A GPU decoding one request is mostly waiting on memory, not arithmetic. Batching spends the idle arithmetic. Everything a modern runtime does is in service of keeping that batch full.",
+  date: "2026-11-10",
+  readingTime: "8 min",
+  layers: [1],
+  sections: ["inference-serving"],
+  related: ["choosing-an-inference-runtime", "the-cost-model"],
+  keywords: [
+    "how does continuous batching work",
+    "why is vLLM faster",
+    "vLLM vs naive serving",
+    "what is PagedAttention",
+    "LLM inference throughput explained",
+  ],
+  rules: [
+    "Judge a runtime by tokens per second at your concurrency, not by the speed of one stream. A single stream measures memory bandwidth and nothing else.",
+    "Budget KV cache memory before you budget GPUs. The batch you can hold, not the model, sets the throughput ceiling.",
+    "With one user at a time, batching buys nothing. Use the simplest runtime that loads the model.",
+  ],
+  faq: [
+    {
+      question: "Why is vLLM faster than serving one request at a time?",
+      answer:
+        "Because decoding one sequence leaves most of a GPU's arithmetic idle. Each decode step has to read every model weight from memory once, and that read takes about the same time whether it serves one sequence or thirty. vLLM keeps many sequences in every step, so the same read produces many tokens.",
+    },
+    {
+      question: "What is continuous batching?",
+      answer:
+        "Scheduling at the level of a single decode step, not a whole request. After every step, finished sequences leave the batch and waiting requests join it, so the batch stays full without anyone waiting for a slow neighbour to finish.",
+    },
+    {
+      question: "What does PagedAttention add?",
+      answer:
+        "It allocates KV cache memory in small fixed-size blocks as a sequence grows, the way an operating system pages memory, so nothing is reserved for output that never gets generated. More sequences fit on the same GPU, which means a larger batch.",
+    },
+    {
+      question: "When does batching not help?",
+      answer:
+        "When there is nothing to batch: a single user, a local tool, or traffic so sparse that requests rarely overlap. It also raises the time per token for each individual stream, so a strict per-stream speed target limits how far you can push it.",
+    },
+  ],
+};
+
+The short answer: a GPU that decodes one request at a time spends nearly all of
+each step reading the model's weights out of memory, and almost none of it on
+arithmetic. Serving a second request in the same step reuses that read. A
+runtime such as vLLM is faster than a model wrapped in a request handler
+because it keeps dozens of sequences in every step, and the rest of its design
+exists to keep that batch full.
+
+This essay derives that from the hardware up. The numbers are a model with
+round figures, not a benchmark. The shape is what matters, and you can check it
+on your own GPU in ten minutes.
+
+## One token costs one pass over every weight
+
+A decoder produces one token per forward pass. That pass multiplies the current
+state by every weight matrix in the model, so every weight has to travel from
+GPU memory to the arithmetic units once per token.
+
+Take a 7-billion-parameter model at 16 bits per weight: 14 GB. Take a GPU whose
+memory can deliver about 1 TB per second. Reading 14 GB takes 14 ms. Nothing
+you do in software makes one sequence decode faster than that on this card:
+about 70 tokens per second, set by memory bandwidth alone.
+
+Now count the arithmetic. One token needs roughly two floating-point operations
+per weight, so 14 billion operations. A GPU in this class performs tens of
+trillions per second. The arithmetic for one token is done in well under a
+millisecond.
+
+So at a batch of one, the expensive part of the chip is idle for more than
+nine-tenths of every step, waiting on memory. That idle arithmetic is the whole
+opportunity.
+
+## The second sequence is nearly free
+
+Put two sequences in the same forward pass. The weights are read once and
+applied to both. What the second sequence adds is its own arithmetic, which is
+small, and a read of its own KV cache: the stored keys and values for every
+token it has seen so far, which attention consults at every step.
+
+That gives a simple model of a decode step:
+
+`step time = weight read + batch size × per-sequence cost`
+
+For the model above with 1,000-token contexts, a reasonable per-sequence cost is
+0.8 ms. Then:
+
+| Batch | Step time | Tokens/s, total | Tokens/s, each stream |
+| --- | --- | --- | --- |
+| 1 | 14.8 ms | 68 | 68 |
+| 8 | 20.4 ms | 392 | 49 |
+| 32 | 39.6 ms | 808 | 25 |
+
+Twelve times the output from the same GPU, and the price is visible in the last
+column: each stream slows down. Batching is a trade of per-stream speed for
+total throughput, and the curve flattens as the per-sequence cost starts to
+dominate the weight read.
+
+That is the entire reason a serving runtime exists. What follows is three
+obstacles between this table and a real server, and how each is removed.
+
+## Obstacle one: requests do not arrive or finish together
+
+The obvious implementation is static batching: wait until eight requests have
+arrived, run them as a batch, return all eight. It fails twice.
+
+The first request waits for the eighth before anything starts. And outputs
+differ in length: one answer is 20 tokens, another is 800. The batch runs until
+its longest member finishes, so seven slots sit empty for most of the run,
+doing padding.
+
+Continuous batching fixes both by moving the scheduling decision from the
+request to the step. After every decode step the runtime looks at the batch: a
+sequence that has emitted its end token leaves, and a waiting request takes
+its slot at the very next step. Nobody waits for a batch to form, and no slot
+idles behind a long answer. The idea was published as iteration-level
+scheduling in the Orca paper (OSDI 2022) and is now standard in vLLM, TGI,
+SGLang and TensorRT-LLM.
+
+## Obstacle two: memory runs out before arithmetic does
+
+The batch you can run is capped by the KV cache, and the cache is large. In a
+model shaped like Llama 2 7B (32 layers, hidden size 4,096, 16-bit values)
+each token stores a key and a value per layer:
+
+`2 × 32 × 4,096 × 2 bytes ≈ 0.5 MB per token`
+
+A 2,000-token conversation holds 1 GB. On a 24 GB card with 14 GB of weights,
+that is about ten conversations.
+
+A naive server makes this worse by reserving a contiguous slab for the longest
+output a request might produce. Most requests stop far short of it, so most of
+the reserved memory is never written, and the batch is capped by space nobody
+is using.
+
+PagedAttention, the idea vLLM was built around (SOSP 2023), treats the cache
+the way an operating system treats RAM. Memory is handed out in small
+fixed-size blocks as a sequence actually grows, and the blocks need not be
+adjacent. Nothing is reserved on speculation, so more sequences fit and the
+batch is larger. The paper reports two to four times the throughput of
+FasterTransformer and Orca at the same latency. That is the authors'
+measurement against those two systems, on their workloads, not ours, and the
+gap narrows against runtimes that have since adopted the same ideas.
+
+## Obstacle three: the prompt and the answer are different jobs
+
+Reading a prompt (prefill) processes all of its tokens in one parallel pass.
+It is already arithmetic-bound and already efficient. Generating an answer
+(decode) is the memory-bound loop described above.
+
+They compete. A 6,000-token prompt arriving mid-flight is one large pass that
+stalls every stream currently decoding. Runtimes handle this by splitting long
+prefills into chunks and interleaving them with decode steps, which protects
+the time per token of running streams at some cost to the newcomer's time to
+first token. It is a setting, and which way to set it depends on whether your
+users notice a slow start or a stutter more.
+
+## When none of this helps
+
+Batching needs overlap. Where there is none, it buys nothing:
+
+- **One user at a time.** A local assistant or a developer tool is always at
+  batch one. A lighter runtime is the right choice; see
+  [vLLM vs llama.cpp](/compare/vllm-vs-llama-cpp).
+- **Sparse traffic.** If requests rarely overlap, the batch is usually one and
+  you are paying for a GPU to wait. That is a question for
+  [the cost model](/blog/the-cost-model), not for the runtime.
+- **Offline jobs.** If you hold every prompt in advance, sort by length and run
+  static batches. There is no arrival process to schedule around.
+- **A hard per-stream speed target.** The last column of the table is a real
+  cost. If each stream must stay above 50 tokens per second, the batch is
+  capped near eight in the model above, whatever the runtime.
+
+## Measure the knee on your own hardware
+
+The model predicts a curve that rises steeply, then bends. The bend is your
+capacity. To find it, send the same prompts at concurrency 1, 2, 4, 8, 16, 32
+and 64, and record two numbers at each level: total tokens per second, and the
+95th-percentile time per token.
+
+Throughput at concurrency 1 should land near weight size divided by memory
+bandwidth. If it is far below, something other than the model is slow. Where
+doubling concurrency stops adding much throughput, you have found the knee,
+and whether you can operate there is decided by the time per token your users
+will accept. The sweep in
+[Choosing an inference runtime](/blog/choosing-an-inference-runtime) is a
+script for exactly this.
+
+Runtimes that implement these ideas are in
+[Inference & Serving](/inference-serving), each with when to skip it.

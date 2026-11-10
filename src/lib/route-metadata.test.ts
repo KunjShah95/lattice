@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
@@ -28,6 +28,7 @@ import { metadata as privacyMetadata } from "@/app/privacy/page";
 import { metadata as returnsMetadata } from "@/app/returns/page";
 import { generateMetadata as categoryMetadata } from "@/app/[slug]/page";
 import { generateMetadata as toolMetadata } from "@/app/[slug]/[tool]/page";
+import { generateMetadata as shareMetadata } from "@/app/stack-builder/share/page";
 import { generateMetadata as alternativesMetadata } from "@/app/[slug]/[tool]/alternatives/page";
 import { generateMetadata as comparisonMetadata } from "@/app/compare/[slug]/page";
 import { generateMetadata as symptomMetadata } from "@/app/fix/[slug]/page";
@@ -298,7 +299,6 @@ const SEGMENTS_WITH_CARDS = [
   "roles/[role]",
   "bands",
   "bands/[band]",
-  "stack-builder",
   "stack/[workload]",
   "review",
   "start",
@@ -682,5 +682,79 @@ describe("share image coverage", () => {
       );
     });
     expect(onDemand).toEqual([]);
+  });
+});
+
+/**
+ * The per-tool alternatives pages are most of the site and the query they are
+ * written for ("X alternatives") is the one a searcher types after deciding to
+ * leave. A result is cut at about 60 characters of title and 160 of
+ * description, and the site template adds " · Lattice" to every title, so
+ * these have to fit with the suffix on. They did not: 121 were over.
+ */
+describe("alternatives pages: fit in a search result", () => {
+  it("keeps every title, with the site suffix, within 60 characters", async () => {
+    for (const p of allAlternativesPages()) {
+      const meta = await alternativesMetadata({ params: Promise.resolve({ slug: p.slug, tool: p.tool }) } as never);
+      const full = `${meta.title as string} · Lattice`;
+      expect(full.length, full).toBeLessThanOrEqual(60);
+    }
+  });
+
+  it("keeps every description within 160 characters", async () => {
+    for (const p of allAlternativesPages()) {
+      const meta = await alternativesMetadata({ params: Promise.resolve({ slug: p.slug, tool: p.tool }) } as never);
+      expect((meta.description as string).length, `${p.slug}/${p.tool}`).toBeLessThanOrEqual(160);
+    }
+  });
+});
+
+
+/**
+ * A built stack unfurls as that stack. The card is named in the page's head, so
+ * that is what is asserted: a social crawler reads HTML and runs no script.
+ */
+describe("stack builder share cards", () => {
+  const share = (query: Record<string, string>) =>
+    shareMetadata({ searchParams: Promise.resolve(query) } as never);
+  const imageOf = (m: Metadata) => (m.openGraph?.images as Array<{ url: string }>)[0].url;
+
+  it("names the prerendered default card on the plain builder page", () => {
+    expect(imageOf(stackBuilderMetadata as Metadata)).toBe(`${site.url}/stack-card/default`);
+    expect(stackBuilderMetadata.twitter).toMatchObject({ card: "summary_large_image" });
+  });
+
+  it("names a card for the stack in the link when the runtime can draw one", async () => {
+    vi.stubEnv("LATTICE_DYNAMIC_CARDS", "1");
+    const m = await share({ workload: "rag", q: "200000", docs: "1000000" });
+    expect(imageOf(m)).toMatch(new RegExp(`^${site.url}/stack-card\\?workload=rag&q=200000&docs=1000000`));
+    expect(m.openGraph?.title).toBe("RAG application stack, built with Lattice");
+    expect(String(m.twitter?.images)).toContain("/stack-card?");
+    vi.unstubAllEnvs();
+  });
+
+  it("falls back to the default card where fonts cannot be read", async () => {
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("LATTICE_DYNAMIC_CARDS", "");
+    const m = await share({ workload: "rag", q: "200000" });
+    expect(imageOf(m)).toBe(`${site.url}/stack-card/default`);
+    // The text still describes the stack: only the picture is generic.
+    expect(m.openGraph?.title).toBe("RAG application stack, built with Lattice");
+    vi.unstubAllEnvs();
+  });
+
+  it("uses the generic card for a link that carries no valid case", async () => {
+    vi.stubEnv("LATTICE_DYNAMIC_CARDS", "1");
+    expect(imageOf(await share({ workload: "nonsense" }))).toBe(`${site.url}/stack-card/default`);
+    expect(imageOf(await share({}))).toBe(`${site.url}/stack-card/default`);
+    vi.unstubAllEnvs();
+  });
+
+  it("canonicalises to the builder, keeps the exact link as og:url, and stays out of the index", async () => {
+    const m = await share({ workload: "agent", q: "50000", utm_source: "x" });
+    expect(m.alternates?.canonical).toBe("/stack-builder");
+    expect(m.robots).toMatchObject({ index: false });
+    // og:url is the shared URL with only the case in it: a stray parameter is not carried.
+    expect(m.openGraph?.url).toBe(`${site.url}/stack-builder/share?workload=agent&q=50000`);
   });
 });

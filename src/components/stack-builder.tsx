@@ -25,9 +25,13 @@ import {
 import {
   decodeStackInput,
   encodeStackInput,
+  neutraliseStackInput,
+  stackPostText,
   stackReportJson,
   stackReportMarkdown,
+  workloadAsks,
 } from "@/lib/stack-url";
+import { withSource, xIntentUrl } from "@/lib/share.mjs";
 
 /**
  * Stack Builder — answer the questions, then build. Answers edit a draft; the
@@ -215,48 +219,33 @@ function readUrlCase(): Case | null {
   };
 }
 
-/**
- * Which questions a workload actually asks. One definition, read by the form (to
- * decide what to render) and by `caseToInput` (to decide what to send the engine),
- * so a question that is hidden can never still be steering the answer.
- */
-function asks(workload: Workload) {
-  return {
-    retrieval: workload === "rag" || workload === "search",
-    language: workload === "agent" || workload === "chatbot" || workload === "finetuned",
-    durability: workload === "agent" || workload === "voice" || workload === "finetuned",
-    safety:
-      workload === "agent" || workload === "chatbot" || workload === "llm-api" || workload === "voice",
-    latency: workload !== "finetuned",
-  };
-}
+/** Which questions a workload asks: shared with the share card, see `stack-url.ts`. */
+const asks = workloadAsks;
 
 /**
  * The form's state as engine input.
  *
  * Pulled out of the component so the same function can price a *hypothetical*
  * case: `patch` runs it on the case a click is about to produce, to tell the
- * reader which pick that click moved. Hidden questions are neutralised here, so a
- * stale answer to a question the workload no longer asks does not leak through.
+ * reader which pick that click moved. The neutralising of hidden questions is
+ * `neutraliseStackInput`, shared with the share card.
  */
 function caseToInput(c: Case): StackInput {
-  const a = asks(c.workload);
-  return {
+  return neutraliseStackInput({
     workload: c.workload,
     queriesPerMonth: Number(c.queries) || 0,
-    documents: a.retrieval ? Number(c.documents) || 0 : 0,
+    documents: Number(c.documents) || 0,
     openSource: c.openSource,
     selfHosted: c.selfHosted,
     avoidLockIn: c.avoidLockIn,
     costVsPerf: c.costVsPerf,
-    simplicityVsControl: c.selfHosted ? 2 : 0,
-    filtering: a.retrieval ? c.filtering : "none",
-    freshness: a.retrieval ? c.freshness : "static",
-    latency: a.latency ? c.latency : "flexible",
-    language: a.language ? c.language : "any",
-    durability: a.durability ? c.durability : "stateless",
-    safety: a.safety ? c.safety : "none",
-  };
+    filtering: c.filtering,
+    freshness: c.freshness,
+    latency: c.latency,
+    language: c.language,
+    durability: c.durability,
+    safety: c.safety,
+  });
 }
 
 /** Save a string as a file. Browser-only; called from a click handler, never at render. */
@@ -394,7 +383,9 @@ export function StackBuilder() {
     c.costVsPerf === 0;
 
   // Read at click time, not render: `window` does not exist on the server.
-  const caseUrl = () => `${window.location.origin}${window.location.pathname}?${encoded ?? ""}`;
+  // Always the share path, whichever page the reader is on: it is the address
+  // that unfurls as this stack (`app/stack-builder/share/page.tsx`).
+  const caseUrl = () => `${window.location.origin}/stack-builder/share?${encoded ?? ""}`;
   const reportSource = () => ({ origin: window.location.origin, caseUrl: caseUrl() });
 
   async function copyText(text: string, which: "link" | "report" | "json") {
@@ -704,6 +695,26 @@ export function StackBuilder() {
             className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
           >
             {copied === "json" ? "JSON copied" : "Copy JSON"}
+          </button>
+          {/* Opens the X compose window with the stack as text and this case as
+              the link. The link is tagged `?src=social`, because the X app
+              strips the referrer and the visitors a post brings back would
+              otherwise be counted as "direct". "Copy link" above stays
+              untagged: nobody knows where a copied link gets pasted. Nothing
+              is posted by this click; the reader edits and sends it, or not. */}
+          <button
+            type="button"
+            onClick={() => {
+              sendSignal("stack-shared", `/stack/${built?.workload ?? workload}`);
+              window.open(
+                xIntentUrl(stackPostText(result), withSource(caseUrl(), "social")),
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+            className="press inline-flex h-10 items-center rounded-[var(--r-control)] px-3 text-[13.5px] text-fg-muted transition-colors hover:bg-bg-sunken hover:text-fg"
+          >
+            Post to X
           </button>
           {/* The same Markdown as "Copy decision report", as a file: an ADR is a
               document that gets committed, and a clipboard is a poor place to

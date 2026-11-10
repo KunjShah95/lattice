@@ -45,6 +45,62 @@ export function encodeStackInput(input: StackInput): string {
 }
 
 /**
+ * Which questions a workload actually asks. One definition, read by the Stack
+ * Builder's form (to decide what to render), by `neutraliseStackInput` (to decide
+ * what to send the engine) and so by the share card, so a question that is
+ * hidden can never still be steering an answer anywhere.
+ */
+export function workloadAsks(workload: Workload) {
+  return {
+    retrieval: workload === "rag" || workload === "search",
+    language: workload === "agent" || workload === "chatbot" || workload === "finetuned",
+    durability: workload === "agent" || workload === "voice" || workload === "finetuned",
+    safety:
+      workload === "agent" || workload === "chatbot" || workload === "llm-api" || workload === "voice",
+    latency: workload !== "finetuned",
+  };
+}
+
+/**
+ * A full set of answers as the engine should see them: every question the
+ * workload does not ask reset to neutral, and the simplicity/control dial
+ * derived from "self-hosted".
+ *
+ * This is the one place that rule lives. The Stack Builder runs its form state
+ * through it, and the share card runs a decoded link through it, so the card
+ * can only ever show the stack the builder shows for the same link. They had
+ * been two copies of the same logic, which is how a card ends up drawing a
+ * stack the reader never sees.
+ */
+export function neutraliseStackInput(
+  input: Omit<Required<StackInput>, "simplicityVsControl">,
+): Required<StackInput> {
+  const a = workloadAsks(input.workload);
+  return {
+    workload: input.workload,
+    queriesPerMonth: input.queriesPerMonth,
+    documents: a.retrieval ? input.documents : 0,
+    openSource: input.openSource,
+    selfHosted: input.selfHosted,
+    avoidLockIn: input.avoidLockIn,
+    costVsPerf: input.costVsPerf,
+    simplicityVsControl: input.selfHosted ? 2 : 0,
+    filtering: a.retrieval ? input.filtering : "none",
+    freshness: a.retrieval ? input.freshness : "static",
+    latency: a.latency ? input.latency : "flexible",
+    language: a.language ? input.language : "any",
+    durability: a.durability ? input.durability : "stateless",
+    safety: a.safety ? input.safety : "none",
+  };
+}
+
+/** A query string as engine input, exactly as the builder would read it; null for no valid case. */
+export function stackInputFromSearch(search: string): Required<StackInput> | null {
+  const decoded = decodeStackInput(search);
+  return decoded ? neutraliseStackInput(decoded) : null;
+}
+
+/**
  * Parse a query string back into engine input. Unknown or malformed values
  * fall back to defaults rather than throwing: a hand-edited URL degrades
  * to a nearby valid case, never a 500.
@@ -73,6 +129,35 @@ export function decodeStackInput(search: string): Omit<Required<StackInput>, "si
     avoidLockIn: p.get("lock") === "1",
     costVsPerf: Number.isFinite(cost) ? Math.max(-2, Math.min(2, Math.round(cost))) : 0,
   };
+}
+
+/** What fits in a post once X has taken 23 characters for the link and one for the space. */
+export const POST_TEXT_LIMIT = 256;
+
+/**
+ * A built stack as the text of a post: the workload, then one line per pick.
+ *
+ * Tool names only, in the order the report lists them. No "why", no cost: a
+ * post is the hook and the link is the argument, and the link opens this
+ * exact case with every skip-when attached. The closing line is the one claim
+ * the rest of the category cannot make.
+ *
+ * Held under `POST_TEXT_LIMIT` by dropping picks from the end and saying how
+ * many were dropped, never by cutting a name in half. No current workload
+ * needs it; the guard is for the day a section is added.
+ */
+export function stackPostText(result: StackResult): string {
+  const title = result.summary.split(" · ")[0];
+  const head = `My ${title} stack, from the Lattice Stack Builder:`;
+  const tail = "Every pick comes with when to skip it.";
+  const lines = result.picks.map((p) => `${p.section}: ${p.tool}`);
+  const compose = (shown: string[], dropped: number) =>
+    [head, "", ...shown, ...(dropped ? [`and ${dropped} more`] : []), "", tail].join("\n");
+  let shown = lines;
+  while (shown.length > 1 && compose(shown, lines.length - shown.length).length > POST_TEXT_LIMIT) {
+    shown = shown.slice(0, -1);
+  }
+  return compose(shown, lines.length - shown.length);
 }
 
 /**

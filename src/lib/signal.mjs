@@ -45,6 +45,11 @@ export const ALLOWED_EVENTS = [
   "review",
   "stack-built",
   "compare-built",
+  // A step short of a completion: a workload picked in the home page's mini
+  // builder. `to` is that workload's `/stack/<id>` page.
+  "hero-stack",
+  // A built stack sent to the X compose window. `to` is `/stack/<id>`.
+  "stack-shared",
   // The denominator: one per tab, at landing. `from` and `to` are both the
   // landing path. See `lib/beacon.ts`.
   "land",

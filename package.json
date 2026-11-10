@@ -29,6 +29,7 @@
     "generate": "node scripts/build-essay-text.mjs && node scripts/build-corrections-log.mjs && node scripts/generate-awesome-list.mjs",
     "generate:check": "node scripts/build-essay-text.mjs --check && node scripts/build-corrections-log.mjs --check && node scripts/generate-awesome-list.mjs --check",
     "indexnow": "node scripts/indexnow.mjs",
+    "share": "node scripts/share-link.mjs",
     "test:submissions": "node scripts/triage-harness.mjs",
     "test:worker": "node scripts/worker-smoke.mjs",
     "cite": "node scripts/cite-check.mjs",

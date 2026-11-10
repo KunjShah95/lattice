@@ -5,6 +5,8 @@ import { QuickAnswers, RulesOfThumb } from "@/components/page-guidance";
 import { PAGE_GUIDANCE } from "@/lib/guidance";
 import { ProductHuntBadge } from "@/components/product-hunt-badge";
 import { StackDiagram } from "@/components/stack-diagram";
+import { HeroBuilder, HeroPicker } from "@/components/hero-builder";
+import { HERO_VOLUME_LABEL, heroStacks } from "@/lib/hero-stacks";
 import { StartHere } from "@/components/start-here";
 import { categories, toolCount } from "@/lib/data";
 import { toJsonLd } from "@/lib/jsonld";
@@ -71,10 +73,13 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: toJsonLd(graph(siteJsonLd(), faqPageJsonLd(PAGE_GUIDANCE.home.answers, site.url))) }}
       />
 
-      {/* Hero. One idea, one action, one picture. Everything that used to
-          compete here — a sheet number, a second CTA, a trust block, two
-          badges — now lives elsewhere or is gone. */}
+      {/* Hero. One idea, one action, one picture, and the picture answers.
+          The action is no longer a link to the Stack Builder: the reader says
+          what they are building here, and the diagram fills in with the stack
+          for it (`hero-builder.tsx`). The one button then opens the full
+          builder on that stack. */}
       <section className="pb-14 pt-16 sm:pb-16 sm:pt-24">
+        <HeroBuilder stacks={heroStacks}>
         <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:gap-16">
           <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
             <p className="t-label">
@@ -109,24 +114,20 @@ export default function HomePage() {
               here is worth your time.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <Link
-                href="/stack-builder"
-                className="btn-ink group inline-flex h-12 items-center justify-center gap-2 rounded-[var(--r-control)] px-5 text-[16px] font-medium"
-              >
-                Build my stack
-                <Arrow />
-              </Link>
-              <Link
-                href="/all"
-                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--r-control)] border border-border-strong bg-bg-elevated px-5 text-[16px] font-medium text-fg transition-colors hover:bg-bg-sunken sm:justify-start"
-              >
-                Browse all {toolCount}
-                <span aria-hidden="true" className="nudge text-fg-subtle">
-                  →
-                </span>
-              </Link>
-            </div>
+            <HeroPicker
+              volume={HERO_VOLUME_LABEL}
+              browse={
+                <Link
+                  href="/all"
+                  className="group inline-flex min-h-11 items-center gap-1.5 text-[15px] font-medium text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent"
+                >
+                  or browse all {toolCount}
+                  <span aria-hidden="true" className="nudge">
+                    →
+                  </span>
+                </Link>
+              }
+            />
 
             <p className="mt-6 flex max-w-[46ch] items-start gap-2.5 text-[14.5px] leading-relaxed text-fg-muted">
               <span
@@ -149,6 +150,7 @@ export default function HomePage() {
 
           <StackDiagram />
         </div>
+        </HeroBuilder>
       </section>
 
       {/* Symptom entry. Most readers arrive with a problem, not a category —
@@ -316,7 +318,7 @@ export default function HomePage() {
             All {toolCount} tools, filterable →
           </Link>
           <Link href="/start" className="transition-colors hover:text-fg">
-            Start with a five-step path →
+            Learn the nine layers from zero →
           </Link>
         </div>
       </section>

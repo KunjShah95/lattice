@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recommendStack, WORKLOADS } from "./stacks";
+import { claims, recommendStack, WORKLOADS } from "./stacks";
 import { allTools, categories, getToolByName } from "./data";
 
 const sectionOf = (toolName: string) =>
@@ -119,5 +119,61 @@ describe("recommendStack: genuine subsystem search", () => {
     expect(retrieval!.matches).toContain("self-hosted");
     expect(retrieval!.watchOut.length).toBeGreaterThan(10);
     expect(retrieval!.fitLabel.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * A tool's prose is read for what it claims to be for, not for every word in
+ * it. Before this, the skip-when was pooled in, so a scale word in "skip it if
+ * you need maximum concurrent throughput" earned llama.cpp a scale bonus, and
+ * it was recommended for inference at 200K requests a month in every workload
+ * that includes inference. These pin the reading, and the outcome it fixed.
+ */
+describe("recommendStack: reading a tool's prose", () => {
+  it("never reads the skip-when as a claim", () => {
+    for (const { name } of allTools) {
+      const tool = getToolByName(name);
+      const claimed = claims(tool);
+      const skipOnly = tool.skipWhen
+        .toLowerCase()
+        .split(/\W+/)
+        .filter((w) => w.length > 6 && !`${tool.blurb} ${tool.useWhen}`.toLowerCase().includes(w));
+      for (const word of skipOnly) expect(claimed, `${name}: "${word}" is only in its skip-when`).not.toContain(word);
+    }
+  });
+
+  it("drops a signal the tool disclaims", () => {
+    // "The constraint is hardware, not throughput" says the opposite of a scale claim.
+    expect(claims(getToolByName("llama.cpp"))).not.toContain("throughput");
+    expect(claims(getToolByName("vLLM"))).toContain("high-concurrency");
+  });
+
+  it("does not recommend an edge-and-CPU runtime for datacentre volume", () => {
+    for (const workload of ["rag", "agent", "chatbot", "search"] as const) {
+      const r = recommendStack({ workload, queriesPerMonth: 200_000, documents: 1_000_000, latency: "fast" });
+      const inference = r.picks.find((p) => p.sectionSlug === "inference-serving");
+      expect(inference?.tool, workload).not.toBe("llama.cpp");
+      expect(inference?.watchOut, workload).not.toMatch(/maximum concurrent throughput/);
+    }
+  });
+});
+
+describe("recommendStack: ties", () => {
+  it("reports a tie with the runner-up, and only a real one", () => {
+    for (const w of WORKLOADS) {
+      for (const queriesPerMonth of [10_000, 200_000, 20_000_000]) {
+        const r = recommendStack({ workload: w.id, queriesPerMonth, documents: 1_000_000 });
+        for (const p of r.picks) {
+          if (p.tiedWith) expect(p.tiedWith, `${w.id}/${p.sectionSlug}`).toBe(p.alternative);
+        }
+      }
+    }
+  });
+
+  it("breaks a tie by name, so adding a tool elsewhere cannot move a pick", () => {
+    const r = recommendStack({ workload: "rag", queriesPerMonth: 200_000, documents: 1_000_000, latency: "fast" });
+    const inference = r.picks.find((p) => p.sectionSlug === "inference-serving")!;
+    expect(inference.tiedWith).toBe("vLLM");
+    expect(inference.tool.localeCompare("vLLM")).toBeLessThan(0);
   });
 });

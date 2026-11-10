@@ -13,7 +13,22 @@ export const metadata: Metadata = {
   alternates: { canonical: "/stack-builder" },
   // Next does not derive `og:url` from the canonical, and an inherited one
   // points at the home page. See `absolute()` in lib/seo.ts.
-  openGraph: { url: absolute("/stack-builder") },
+  // The card is named here rather than found by the `opengraph-image` file
+  // convention, which outranks the metadata API and would stop
+  // `/stack-builder/share` from naming a different card for a built stack. The
+  // default card is `/stack-card/default`.
+  openGraph: {
+    url: absolute("/stack-builder"),
+    images: [
+      {
+        url: absolute("/stack-card/default"),
+        width: 1200,
+        height: 630,
+        alt: "Stack Builder: tell me what infrastructure to use",
+      },
+    ],
+  },
+  twitter: { card: "summary_large_image", images: [absolute("/stack-card/default")] },
 };
 
 export default function StackBuilderPage() {

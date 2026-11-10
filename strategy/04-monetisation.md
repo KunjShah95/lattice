@@ -282,6 +282,41 @@ seen, so it is a proxy for a booked call, not the call.
   queries people actually type. `kind: "land"` grouped by `to` shows which pages
   answer engines do send people to; write more of those.
 
+*Added 10 November 2026: three things the first 30 days of dashboard data forced.*
+
+**The funnel is now visible where it gets looked at.** Vercel Analytics reported
+"No custom events" while every conversion above was being logged, because the log
+was the only place they went. `lib/beacon.ts` now mirrors the funnel, and only the
+funnel, to Vercel as custom events: `land`, `review`, `stack-built`,
+`compare-built`, and the two below. Each carries the same two properties the
+beacon does (`to`, `channel`) and nothing else. Navigation edges stay in the log;
+a custom event per link click would spend the plan's event quota on a number
+nobody reads from a chart. If the Events panel stays empty after a deploy, the
+plan does not include custom events: the Worker log is unaffected.
+
+| Number | Event | What it is |
+| --- | --- | --- |
+| Hero engagement | `hero-stack` | A workload picked in the home page's mini builder. Interest, not a completion: it is deliberately not `stack-built` |
+| The loop closing | `stack-shared` | A built stack sent to the X compose window, with a `?src=social` link |
+
+**The hero is the product.** 304 visitors saw the home page and 25 reached
+`/stack-builder`: the product sat one click away and nine in ten never clicked. The
+hero now asks the builder's first question itself and answers in the stack
+diagram (`components/hero-builder.tsx`, stacks precomputed in
+`lib/hero-stacks.ts`). The number to watch is `hero-stack` over home-page `land`,
+then `/stack-builder` visitors over home-page visitors against the old 8%.
+
+**Read the dashboard with the bots taken out.** In those 30 days 49% of visitors
+were in China, with five Baidu referrals between them, and the second most visited
+page was `/compare/build`, a parameterised builder. That pattern is almost certainly crawler
+traffic, which `robots.ts` invites on purpose. Filter to the countries real
+readers come from before reading bounce rate or any per-page count; the
+unfiltered 79% bounce rate is inflated by an unknown amount.
+
+`lib/share.mjs` is now the one place that writes a `?src=` tag: the builder's
+"Post to X" uses it, and `npm run share -- <path> [channel]` tags a link pasted by
+hand. The weekly routine that uses both is `gtm/build-log.md`.
+
 Seed `?src=` only on links posted where we control the link (a launch post, an
 AI-facing page we wrote). **Never** in `llms.txt`, `tools.json` or `/mcp`: every
 agent that cites Lattice would ship the tag (§4).

@@ -53,6 +53,7 @@ export function GET() {
     // index an agent can use and a sitemap it has to walk.
     `- [${site.url}/methodology]: How entries are selected and checked, the six-month build gate on licence and cost data, and an explicit list of what this index gets wrong.`,
     `- [${site.url}/]#start-here: Two questions that narrow 9 layers to the 3 worth reading first.`,
+    `- [${site.url}/start]: AI infrastructure from zero: nine short lessons, one per layer, in the order a newcomer needs them, each with when to skip the layer.`,
     `- [${site.url}/fix]: Start from a symptom (slow, expensive, wrong answers, unreliable agent): an ordered checklist through the stack.`,
     `- [${site.url}/compare]: Head-to-head comparisons with a recommendation and the conditions it depends on.`,
     `- [${site.url}/roles]: The index cut by engineering specialisation rather than stack layer: what each role is accountable for.`,

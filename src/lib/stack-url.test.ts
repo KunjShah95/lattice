@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { decodeStackInput, encodeStackInput, stackReportJson, stackReportMarkdown } from "./stack-url";
-import { recommendStack } from "./stacks";
+import {
+  POST_TEXT_LIMIT,
+  decodeStackInput,
+  encodeStackInput,
+  neutraliseStackInput,
+  stackInputFromSearch,
+  stackPostText,
+  stackReportJson,
+  stackReportMarkdown,
+} from "./stack-url";
+import { WORKLOADS, recommendStack } from "./stacks";
 
 describe("stack URL state", () => {
   it("round-trips a full case through the query string", () => {
@@ -133,5 +142,81 @@ describe("stack decision report", () => {
     const result = recommendStack({ workload: "agent", queriesPerMonth: 100000 });
     expect(stackReportMarkdown(result)).not.toContain("Lattice entry:");
     expect(JSON.parse(stackReportJson(result))).not.toHaveProperty("caseUrl");
+  });
+});
+
+describe("stack post text", () => {
+  it("names the workload and every pick, one per line", () => {
+    const result = recommendStack({ workload: "rag", queriesPerMonth: 200_000, documents: 1_000_000 });
+    const text = stackPostText(result);
+    expect(text.startsWith("My RAG application stack, from the Lattice Stack Builder:")).toBe(true);
+    for (const p of result.picks) expect(text).toContain(`${p.section}: ${p.tool}`);
+    expect(text.endsWith("Every pick comes with when to skip it.")).toBe(true);
+  });
+
+  it("fits in a post beside the link, for every workload at any volume", () => {
+    for (const w of WORKLOADS) {
+      for (const queriesPerMonth of [0, 10_000, 200_000, 20_000_000]) {
+        const text = stackPostText(recommendStack({ workload: w.id, queriesPerMonth, documents: 5_000_000 }));
+        expect(text.length, `${w.id} at ${queriesPerMonth}`).toBeLessThanOrEqual(POST_TEXT_LIMIT);
+      }
+    }
+  });
+
+  it("drops whole picks rather than cutting a name when a stack is too long", () => {
+    const result = recommendStack({ workload: "agent", queriesPerMonth: 200_000 });
+    const long = {
+      ...result,
+      picks: Array.from({ length: 12 }, (_, i) => ({
+        ...result.picks[0],
+        section: `A section with a long name ${i}`,
+        tool: `Tool${i}`,
+      })),
+    };
+    const text = stackPostText(long);
+    expect(text.length).toBeLessThanOrEqual(POST_TEXT_LIMIT);
+    expect(text).toMatch(/and \d+ more/);
+    for (const line of text.split("\n").filter((l) => l.startsWith("A section"))) {
+      expect(line).toMatch(/^A section with a long name \d+: Tool\d+$/);
+    }
+  });
+});
+
+/**
+ * The rule for which answers count is shared by the builder's form and by the
+ * share card, so a card can only ever draw the stack the builder shows for the
+ * same link. These pin the rule itself.
+ */
+describe("neutralising answers a workload does not ask", () => {
+  it("drops retrieval answers for a workload with no retrieval", () => {
+    const input = stackInputFromSearch("?workload=chatbot&q=200000&docs=5000000&filtering=heavy&freshness=realtime");
+    expect(input).toMatchObject({ documents: 0, filtering: "none", freshness: "static" });
+  });
+
+  it("keeps them for a workload that retrieves", () => {
+    const input = stackInputFromSearch("?workload=rag&q=200000&docs=5000000&filtering=heavy");
+    expect(input).toMatchObject({ documents: 5_000_000, filtering: "heavy" });
+  });
+
+  it("drops latency for a fine-tuned model and safety for search", () => {
+    expect(stackInputFromSearch("?workload=finetuned&q=1&latency=realtime")?.latency).toBe("flexible");
+    expect(stackInputFromSearch("?workload=search&q=1&safety=strict")?.safety).toBe("none");
+  });
+
+  it("derives the simplicity dial from self-hosted, as the builder does", () => {
+    expect(stackInputFromSearch("?workload=rag&q=1&self=1")?.simplicityVsControl).toBe(2);
+    expect(stackInputFromSearch("?workload=rag&q=1")?.simplicityVsControl).toBe(0);
+  });
+
+  it("returns null for a link that carries no valid case", () => {
+    expect(stackInputFromSearch("")).toBeNull();
+    expect(stackInputFromSearch("?workload=nonsense&q=1")).toBeNull();
+  });
+
+  it("is the identity on an input that is already neutral", () => {
+    const once = stackInputFromSearch("?workload=agent&q=50000&lang=python&dur=hours&safety=strict")!;
+    const { simplicityVsControl: _drop, ...rest } = once;
+    void _drop;
+    expect(neutraliseStackInput(rest)).toEqual(once);
   });
 });
