@@ -61,7 +61,7 @@ Link (already tagged):
 >
 > Routing: Envoy AI Gateway
 > Retrieval: Qdrant
-> Inference: llama.cpp
+> Inference: Text Generation Inference
 > Prompts: Agenta
 > Evals: Arize Phoenix
 >
@@ -73,7 +73,7 @@ Link (already tagged):
 >
 > Qdrant: skip if you want no new datastore to operate.
 > Envoy AI Gateway: skip if you want a gateway you can configure without a data plane.
-> llama.cpp: skip if you need maximum concurrent throughput on datacentre GPUs.
+> Text Generation Inference: skip if the model fits on one GPU, where it is overkill.
 
 **Post 3**
 

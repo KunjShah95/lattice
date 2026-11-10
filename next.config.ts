@@ -23,6 +23,11 @@ const withMDX = createMDX({
     // is not serialisable. The options object is plain data, so this passes and
     // the worker imports the module itself.
     remarkPlugins: [
+      // GitHub-flavoured Markdown: tables, strikethrough, task lists. By name,
+      // not imported, for the same serialisation reason as the plugin below.
+      // Without it a pipe table in an essay renders as one line of raw text, and
+      // `context-is-a-budget` had been shipping that.
+      "remark-gfm",
       [
         path.resolve(process.cwd(), "src/lib/remark-link-tools.mjs"),
         { tools: linkableTools, terms: glossaryLinkMap },

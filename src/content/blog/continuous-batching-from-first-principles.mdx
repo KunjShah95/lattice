@@ -90,12 +90,11 @@ That gives a simple model of a decode step:
 For the model above with 1,000-token contexts, a reasonable per-sequence cost is
 0.8 ms. Then:
 
-```text
-batch   step time   tokens/s, total   tokens/s, each stream
-    1     14.8 ms                68                      68
-    8     20.4 ms               392                      49
-   32     39.6 ms               808                      25
-```
+| Batch | Step time | Tokens/s, total | Tokens/s, each stream |
+| --- | --- | --- | --- |
+| 1 | 14.8 ms | 68 | 68 |
+| 8 | 20.4 ms | 392 | 49 |
+| 32 | 39.6 ms | 808 | 25 |
 
 Twelve times the output from the same GPU, and the price is visible in the last
 column: each stream slows down. Batching is a trade of per-stream speed for
@@ -143,9 +142,10 @@ PagedAttention, the idea vLLM was built around (SOSP 2023), treats the cache
 the way an operating system treats RAM. Memory is handed out in small
 fixed-size blocks as a sequence actually grows, and the blocks need not be
 adjacent. Nothing is reserved on speculation, so more sequences fit and the
-batch is larger. The paper reports two to four times the throughput of the
-systems it compared against at the same latency. That figure is the authors'
-measurement, not ours, and it depends on the workload.
+batch is larger. The paper reports two to four times the throughput of
+FasterTransformer and Orca at the same latency. That is the authors'
+measurement against those two systems, on their workloads, not ours, and the
+gap narrows against runtimes that have since adopted the same ideas.
 
 ## Obstacle three: the prompt and the answer are different jobs
 

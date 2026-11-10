@@ -215,6 +215,28 @@ function haystack(tool: Tool): string {
   return `${tool.blurb} ${tool.useWhen} ${tool.skipWhen}`.toLowerCase();
 }
 
+/**
+ * What a tool claims to be for: its blurb and use-when, lower-cased.
+ *
+ * The skip-when is left out on purpose. It used to be pooled with the rest, and
+ * a skip-when is the tool saying what it is wrong for, so a scale word in it
+ * gave the tool a scale bonus: llama.cpp ("skip it if you need maximum
+ * concurrent throughput") was the most recommended inference runtime at 200K
+ * requests a month. It cannot simply be counted the other way either, because
+ * the same words mean opposite things there: "skip if you need production
+ * throughput" and "skip if traffic is low-concurrency" are both scale words in
+ * a skip-when, and a keyword match cannot tell them apart. So it is not read.
+ *
+ * A word directly after "not", "no" or "without" is dropped, for the same
+ * reason in the other direction: "the constraint is hardware, not throughput"
+ * is a tool disclaiming a signal, not claiming it.
+ */
+export function claims(tool: Tool): string {
+  return `${tool.blurb} ${tool.useWhen}`
+    .toLowerCase()
+    .replace(/\b(?:not|no|without)\s+\w+/g, " # ");
+}
+
 function countHits(text: string, words: string[]): number {
   let n = 0;
   for (const w of words) if (text.includes(w)) n++;
@@ -251,8 +273,9 @@ function scoreTool(tool: Tool, input: Required<StackInput>, profile: WorkloadPro
   const big = q >= 200_000;
   const huge = q >= 2_000_000;
   if (big) {
-    score -= countHits(text, PROTOTYPE_WORDS) * 0.7;
-    score += Math.min(0.9, countHits(text, SCALE_WORDS) * 0.3);
+    const claimed = claims(tool);
+    score -= countHits(claimed, PROTOTYPE_WORDS) * 0.7;
+    score += Math.min(0.9, countHits(claimed, SCALE_WORDS) * 0.3);
   }
   if (huge && tool.deployment === "saas") score += 0.3;
   if (huge && tool.deployment === "self-hosted") score += 0.2;
