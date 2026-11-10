@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getCategory } from "./data";
 import { HERO_WORKLOADS, heroInput, heroStacks } from "./hero-stacks";
 import { decodeStackInput } from "./stack-url";
-import { WORKLOADS, recommendStack } from "./stacks";
+import { VOICE_CAVEAT, WORKLOADS, recommendStack } from "./stacks";
 
 /**
  * The hero shows a stack and links to the builder. The one promise that has
@@ -16,8 +16,19 @@ describe("hero stacks", () => {
     expect(heroStacks.map((s) => s.id)).toEqual([...HERO_WORKLOADS]);
   });
 
-  it("leaves voice to the full builder, where its caveat fits", () => {
-    expect(HERO_WORKLOADS).not.toContain("voice");
+  it("offers voice only with the engine's caveat attached", () => {
+    const voice = heroStacks.find((s) => s.id === "voice");
+    expect(voice?.note).toBe(VOICE_CAVEAT);
+    expect(heroStacks.filter((s) => s.id !== "voice").every((s) => s.note === null)).toBe(true);
+  });
+
+  it("says so when a pick is a tie the engine cannot break", () => {
+    for (const stack of heroStacks) {
+      const shown = recommendStack(heroInput(stack.id));
+      for (const p of shown.picks) {
+        expect(stack.picks[p.sectionSlug].tiedWith, `${stack.id}/${p.sectionSlug}`).toBe(p.tiedWith);
+      }
+    }
   });
 
   it("links to a builder case that reproduces the picks it shows", () => {

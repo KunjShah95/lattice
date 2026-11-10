@@ -157,3 +157,23 @@ describe("recommendStack: reading a tool's prose", () => {
     }
   });
 });
+
+describe("recommendStack: ties", () => {
+  it("reports a tie with the runner-up, and only a real one", () => {
+    for (const w of WORKLOADS) {
+      for (const queriesPerMonth of [10_000, 200_000, 20_000_000]) {
+        const r = recommendStack({ workload: w.id, queriesPerMonth, documents: 1_000_000 });
+        for (const p of r.picks) {
+          if (p.tiedWith) expect(p.tiedWith, `${w.id}/${p.sectionSlug}`).toBe(p.alternative);
+        }
+      }
+    }
+  });
+
+  it("breaks a tie by name, so adding a tool elsewhere cannot move a pick", () => {
+    const r = recommendStack({ workload: "rag", queriesPerMonth: 200_000, documents: 1_000_000, latency: "fast" });
+    const inference = r.picks.find((p) => p.sectionSlug === "inference-serving")!;
+    expect(inference.tiedWith).toBe("vLLM");
+    expect(inference.tool.localeCompare("vLLM")).toBeLessThan(0);
+  });
+});

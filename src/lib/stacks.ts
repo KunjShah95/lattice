@@ -73,6 +73,13 @@ export type StackPick = {
   /** The tool's own skip-when: the concrete failure mode to watch for. */
   watchOut: string;
   alternative: string;
+  /**
+   * The runner-up's name when it scored exactly the same, otherwise null. The
+   * engine has no signal to separate the two, and the order between them is
+   * alphabetical by name (deterministic, and unchanged by adding a tool to the
+   * dataset), so a pick that is really a coin flip should say so.
+   */
+  tiedWith: string | null;
   /** When the runner-up would be the better call, in its own words. */
   switchWhen: string | null;
   /** Which of the user's stated requirements this pick actually satisfies. */
@@ -198,6 +205,10 @@ const OPEN_LICENSES = new Set([
   "PostgreSQL",
   "Elastic-License-2.0",
 ]);
+
+/** Said wherever a voice stack is shown: the index has no voice layer to pick from. */
+export const VOICE_CAVEAT =
+  "Lattice has no dedicated voice layer: inference latency and streaming orchestration dominate, and this pick is a starting proxy, not a verdict.";
 
 /** Generic scale signals read off a tool's own prose: same list for every section. */
 const PROTOTYPE_WORDS = ["prototyp", "afternoon", "desktop", "notebook", "experiment", "local model"];
@@ -363,7 +374,7 @@ function composeRisk(result: StackPick[], input: Required<StackInput>): string {
   }
   if (input.workload === "voice") {
     parts.push(
-      "Lattice has no dedicated voice layer: inference latency and streaming orchestration dominate, and this pick is a starting proxy, not a verdict.",
+      VOICE_CAVEAT,
     );
   }
   if (!parts.length) {
@@ -542,6 +553,7 @@ export function recommendStack(raw: StackInput): StackResult {
       why: winner.tool.useWhen,
       watchOut: winner.tool.skipWhen,
       alternative: runner ? runner.tool.name : "–",
+      tiedWith: runner && runner.fit === winner.fit ? runner.tool.name : null,
       switchWhen: runner ? lowerFirst(runner.tool.useWhen) : null,
       matches: matchChips(winner.tool, input, sectionSlug),
     });

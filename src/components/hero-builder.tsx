@@ -136,12 +136,13 @@ export function HeroPicker({ volume, browse }: { volume: string; browse: ReactNo
           two lines on a phone, so the button under it does not jump. */}
       <p
         aria-live="polite"
-        className="mt-4 min-h-[4.5rem] max-w-[52ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted sm:min-h-[3rem]"
+        className="mt-4 min-h-[4.5rem] max-w-[52ch] text-pretty text-[14.5px] leading-relaxed text-fg-muted sm:min-h-[4.5rem]"
       >
         {active ? (
           <>
             <span className="font-medium text-fg">{active.tools.join(", ")}.</span>{" "}
             About {active.cost} at {volume}, as a heuristic.
+            {active.note ? <> {active.note}</> : null}
           </>
         ) : (
           <>Pick one and the stack fills in with a tool for each layer it needs. No sign-up.</>
@@ -195,6 +196,7 @@ export function HeroPick({ slug, children }: { slug: string; children: ReactNode
         <span className="text-[14.5px] font-medium text-fg">{pick.tool}</span>
         <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-fg-muted">
           {pick.fit}
+          {pick.tiedWith ? ` · tied with ${pick.tiedWith}` : ""}
         </span>
       </span>
     </span>

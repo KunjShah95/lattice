@@ -1,6 +1,6 @@
 import { stackLayers } from "./data";
 import { encodeStackInput } from "./stack-url";
-import { WORKLOADS, recommendStack, type StackInput, type Workload } from "./stacks";
+import { VOICE_CAVEAT, WORKLOADS, recommendStack, type StackInput, type Workload } from "./stacks";
 
 /**
  * The stacks behind the home page's mini builder, computed at build time.
@@ -27,10 +27,10 @@ import { WORKLOADS, recommendStack, type StackInput, type Workload } from "./sta
 /**
  * The workloads offered in the hero, in the order they are shown.
  *
- * Voice is left out on purpose. The engine's own risk note for it says Lattice
- * "has no dedicated voice layer" and that the pick "is a starting proxy, not a
- * verdict". The full builder has room to print that caveat next to the stack;
- * a hero chip does not, and showing the stack without it would overclaim.
+ * Voice is offered, with the engine's own caveat (`VOICE_CAVEAT`) printed
+ * under the chips whenever it is chosen: Lattice has no voice layer, so the
+ * stack is "a starting proxy, not a verdict", and the hero says so in the
+ * same breath as the picks rather than leaving it to the full builder.
  */
 export const HERO_WORKLOADS: readonly Workload[] = [
   "rag",
@@ -39,6 +39,7 @@ export const HERO_WORKLOADS: readonly Workload[] = [
   "search",
   "llm-api",
   "finetuned",
+  "voice",
 ];
 
 /** A mid-sized product, not a prototype and not a platform team. */
@@ -74,8 +75,10 @@ export type HeroStack = {
   cost: string;
   /** Picked tools, substrate first: the one-line answer under the chips. */
   tools: string[];
+  /** Said under the answer when the stack needs a caveat the picks cannot carry. */
+  note: string | null;
   /** Section slug → the pick shown in that layer's row of the diagram. */
-  picks: Record<string, { tool: string; fit: string }>;
+  picks: Record<string, { tool: string; fit: string; tiedWith: string | null }>;
 };
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -96,6 +99,9 @@ export const heroStacks: HeroStack[] = HERO_WORKLOADS.map((id) => {
     href: `/stack-builder?${encodeStackInput(input)}`,
     cost: `${usd(result.costLow)} to ${usd(result.costHigh)} a month`,
     tools: picks.map((p) => p.tool),
-    picks: Object.fromEntries(picks.map((p) => [p.sectionSlug, { tool: p.tool, fit: p.fitLabel }])),
+    note: id === "voice" ? VOICE_CAVEAT : null,
+    picks: Object.fromEntries(
+      picks.map((p) => [p.sectionSlug, { tool: p.tool, fit: p.fitLabel, tiedWith: p.tiedWith }]),
+    ),
   };
 });
