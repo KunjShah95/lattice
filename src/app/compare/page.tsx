@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { layerStyle } from "@/lib/layer";
+import { allAlternativesPages } from "@/lib/alternatives";
 import { resolvedComparisons, type ResolvedComparison } from "@/lib/comparisons";
 import { site } from "@/lib/site";
 import { absolute, collectionPageNodes, indexCrumbs } from "@/lib/seo";
@@ -76,6 +77,20 @@ export default function CompareIndexPage() {
             Build your own comparison
           </Link>{" "}
           from any three tools, in any layers.
+        </p>
+        {/* The other half of the same decision: a comparison is for a reader
+            weighing two tools, this is for the reader who has already decided
+            to leave one. Linked here because this is the page they land on. */}
+        <p className="editorial-justify mt-3 max-w-[56ch] text-pretty text-[14px] leading-relaxed text-fg-muted">
+          Already decided to leave something?{" "}
+          <Link
+            href="/alternatives"
+            className="text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+          >
+            The alternatives index
+          </Link>{" "}
+          covers the {allAlternativesPages().length} tools with a substitutes
+          graph worth a page of its own.
         </p>
       </header>
 

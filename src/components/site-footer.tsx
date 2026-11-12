@@ -120,6 +120,9 @@ export function SiteFooter() {
             <FooterLink href="/fix">Fix a symptom</FooterLink>
             <FooterLink href="/all">All tools</FooterLink>
             <FooterLink href="/compare">Comparisons</FooterLink>
+            {/* The other half of the comparison decision: the reader who has
+                already decided to leave a tool rather than choose between two. */}
+            <FooterLink href="/alternatives">Alternatives</FooterLink>
             <FooterLink href="/blog">Essays</FooterLink>
             <FooterLink href="/roles">By role</FooterLink>
             <FooterLink href="/bands">By band</FooterLink>

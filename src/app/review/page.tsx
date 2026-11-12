@@ -108,7 +108,7 @@ export default function ReviewPage() {
       {/* ── Hero ───────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-16 text-center sm:px-6 sm:pb-20 sm:pt-24">
-          <h1 className="mx-auto max-w-3xl text-balance font-display text-[38px] font-medium leading-[1.04] tracking-[-0.03em] sm:text-[56px]">
+          <h1 className="mx-auto max-w-3xl text-balance font-display text-[42px] font-medium leading-[1.0] tracking-[-0.035em] sm:text-[62px]">
             A second opinion on your AI stack, from the engineer who mapped all of it.
           </h1>
           <p className="mx-auto mt-6 max-w-[56ch] text-pretty text-[16px] leading-relaxed text-fg-muted sm:text-[17px]">
@@ -132,6 +132,43 @@ export default function ReviewPage() {
           <p className="mt-8 font-mono text-[11px] text-fg-subtle">
             {toolCount} tools mapped · re-verified every six months · no vendor money
           </p>
+
+          {/* The exhibit, moved up into the fold: the claim above it is
+              abstract ("a written review") until a reader sees the shape one
+              actually takes. Rows stamp in top to bottom on load, the same
+              device the homepage console uses, so the two live exhibits on
+              the site read as one hand rather than two different demos. */}
+          <figure className="crop crop-static relative mx-auto mt-12 max-w-2xl rounded-2xl bg-bg-elevated p-6 text-left shadow-lift [--crop-inset:-8px] sm:p-7">
+            <figcaption className="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">
+              <span>Example excerpt</span>
+              <span>RAG support assistant · 400k req/mo</span>
+            </figcaption>
+            <div className="mt-5 space-y-4 text-[13.5px] leading-relaxed">
+              {[
+                ["Keep", "band-state", "pgvector on your existing Postgres. At 2M chunks with tenant filters, a dedicated vector DB buys you an extra system to run, not recall."],
+                ["Swap", "accent", "Direct OpenAI calls → a gateway. You have three providers in the roadmap and no fallback today; one outage takes the product down."],
+                ["Add", "band-control", "An eval set before the next prompt change. You cannot tell whether last week's prompt edit helped, and neither can anyone else."],
+              ].map(([verb, color, text], i) => (
+                <div
+                  key={verb}
+                  className="stamp-row flex gap-3"
+                  style={{ "--row-delay": `${300 + i * 90}ms` } as React.CSSProperties}
+                >
+                  <span
+                    className="mt-0.5 h-fit shrink-0 rounded-md px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-fg"
+                    style={{ backgroundColor: `color-mix(in oklch, var(--${color}) 18%, transparent)` }}
+                  >
+                    {verb}
+                  </span>
+                  <p className="text-fg-muted">{text}</p>
+                </div>
+              ))}
+              <div className="flex items-center justify-between border-t border-border pt-4 font-mono text-[11px] text-fg-subtle">
+                <span>Est. cost band · $1.1k–$1.6k / mo</span>
+                <span>Biggest risk · no fallback</span>
+              </div>
+            </div>
+          </figure>
         </div>
       </section>
 
@@ -156,37 +193,8 @@ export default function ReviewPage() {
           <SectionHeading
             id="deliverable"
             title="A decision document, not a call you have to take notes on."
-            lede="Every review is written down, dated and yours to keep. Each recommendation carries the trade-off behind it, so the reasoning survives the person who read it."
+            lede="Every review is written down, dated and yours to keep. Each recommendation carries the trade-off behind it, so the reasoning survives the person who read it, long after the excerpt above."
           />
-          {/* An excerpt in the shape a review arrives in. Labelled as an
-              example; it is not a client's review. */}
-          <figure className="crop crop-static relative mx-auto mt-12 max-w-2xl rounded-2xl bg-bg-elevated p-6 shadow-lift [--crop-inset:-8px] sm:p-7">
-            <figcaption className="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.14em] text-fg-subtle">
-              <span>Example excerpt</span>
-              <span>RAG support assistant · 400k req/mo</span>
-            </figcaption>
-            <div className="mt-5 space-y-4 text-[13.5px] leading-relaxed">
-              {[
-                ["Keep", "band-state", "pgvector on your existing Postgres. At 2M chunks with tenant filters, a dedicated vector DB buys you an extra system to run, not recall."],
-                ["Swap", "accent", "Direct OpenAI calls → a gateway. You have three providers in the roadmap and no fallback today; one outage takes the product down."],
-                ["Add", "band-control", "An eval set before the next prompt change. You cannot tell whether last week's prompt edit helped, and neither can anyone else."],
-              ].map(([verb, color, text]) => (
-                <div key={verb} className="flex gap-3">
-                  <span
-                    className="mt-0.5 h-fit shrink-0 rounded-md px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-fg"
-                    style={{ backgroundColor: `color-mix(in oklch, var(--${color}) 18%, transparent)` }}
-                  >
-                    {verb}
-                  </span>
-                  <p className="text-fg-muted">{text}</p>
-                </div>
-              ))}
-              <div className="flex items-center justify-between border-t border-border pt-4 font-mono text-[11px] text-fg-subtle">
-                <span>Est. cost band · $1.1k–$1.6k / mo</span>
-                <span>Biggest risk · no fallback</span>
-              </div>
-            </div>
-          </figure>
         </section>
 
         {/* ── How it works ──────────────────────────────────────────── */}

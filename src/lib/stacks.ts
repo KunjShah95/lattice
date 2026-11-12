@@ -101,6 +101,13 @@ type WorkloadProfile = {
   id: Workload;
   label: string;
   detail: string;
+  /**
+   * The label in a sentence: "a RAG application", "an AI agent". Written out
+   * rather than derived, because the article depends on how the label is
+   * pronounced ("a RAG", "an LLM API"), which no casing rule can infer, and
+   * because lowercasing the label turns RAG, AI and LLM into words.
+   */
+  noun: string;
   /** Stack sections this workload needs, substrate first. Slugs only: no tools. */
   sections: string[];
   /** Affinity keywords matched against each tool's own prose. */
@@ -112,6 +119,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "rag",
     label: "RAG application",
     detail: "Grounded answers over my data",
+    noun: "a RAG application",
     sections: [
       "routing-gateways",
       "retrieval-vector-stores",
@@ -125,6 +133,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "agent",
     label: "AI agent",
     detail: "Multi-step, tool use, long-running",
+    noun: "an AI agent",
     sections: [
       "routing-gateways",
       "agent-frameworks",
@@ -139,6 +148,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "chatbot",
     label: "AI chatbot",
     detail: "One call, maybe a system prompt",
+    noun: "an AI chatbot",
     sections: [
       "routing-gateways",
       "inference-serving",
@@ -152,6 +162,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "voice",
     label: "Voice agent",
     detail: "Realtime audio in/out",
+    noun: "a voice agent",
     sections: [
       "routing-gateways",
       "inference-serving",
@@ -164,6 +175,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "search",
     label: "AI search",
     detail: "Hybrid retrieval at scale",
+    noun: "an AI search",
     sections: [
       "retrieval-vector-stores",
       "inference-serving",
@@ -176,6 +188,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "llm-api",
     label: "LLM API",
     detail: "Volume, latency or cost constrained",
+    noun: "an LLM API",
     sections: ["routing-gateways", "inference-serving", "evaluation-observability"],
     keywords: ["throughput", "cost", "caching", "batching", "latency", "provider", "spend"],
   },
@@ -183,6 +196,7 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
     id: "finetuned",
     label: "Fine-tuned model",
     detail: "Adapt open weights to my data",
+    noun: "a fine-tuned model",
     sections: [
       "fine-tuning",
       "inference-serving",
@@ -193,8 +207,13 @@ const WORKLOAD_PROFILES: WorkloadProfile[] = [
   },
 ];
 
-export const WORKLOADS: Array<Pick<WorkloadProfile, "id" | "label" | "detail">> =
-  WORKLOAD_PROFILES.map(({ id, label, detail }) => ({ id, label, detail }));
+export const WORKLOADS: Array<Pick<WorkloadProfile, "id" | "label" | "detail" | "noun">> =
+  WORKLOAD_PROFILES.map(({ id, label, detail, noun }) => ({ id, label, detail, noun }));
+
+/** "a RAG application" → "A RAG application", for a heading or a title. */
+export function capitalized(noun: string): string {
+  return noun.charAt(0).toUpperCase() + noun.slice(1);
+}
 
 const OPEN_LICENSES = new Set([
   "MIT",

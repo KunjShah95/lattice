@@ -51,6 +51,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.85,
     },
+    // The alternatives index. Above the 39 pages it lists: it is their only
+    // global parent, and the query shape it collects is the one a vendor cannot
+    // answer honestly about a competitor.
+    {
+      url: `${site.url}/alternatives`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     {
       url: `${site.url}/review`,
       lastModified,

@@ -161,3 +161,32 @@ export function alternativesBySection() {
     tools: allTools.filter((t) => t.category.slug === c.slug),
   }));
 }
+
+/**
+ * The alternatives pages as one index, grouped by stack section.
+ *
+ * Each page was reachable only from the tool page it proposes leaving, which is
+ * a link a reader follows only if they already know the tool exists. The query
+ * shape is the one a vendor cannot answer honestly about a competitor, so the
+ * pages are worth a crawl path that does not assume prior knowledge.
+ *
+ * Built from the same predicate that drives `generateStaticParams`, so the
+ * index cannot list a page that does not exist or miss one that does. Sections
+ * with nothing in them are dropped rather than rendered as empty headings:
+ * guardrails and the off-stack reading section have no qualifying tool.
+ */
+export function alternativesIndex() {
+  const pages = new Set(allAlternativesPages().map((p) => `${p.slug}/${p.tool}`));
+
+  return stackLayers
+    .map((category) => ({
+      category,
+      entries: category.tools
+        .filter((t) => pages.has(`${category.slug}/${t.slug}`))
+        .map((t) => ({
+          tool: t,
+          substitutes: getSubstitutes(category.slug, t.slug),
+        })),
+    }))
+    .filter((section) => section.entries.length > 0);
+}

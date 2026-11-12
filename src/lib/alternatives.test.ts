@@ -3,6 +3,7 @@ import { BANDS, bandOf, hatchClass } from "./layer";
 import {
   MIN_ALTERNATIVES,
   allAlternativesPages,
+  alternativesIndex,
   getSubstitutes,
   hasAlternativesPage,
   verdictFor,
@@ -153,5 +154,27 @@ describe("verdictFor", () => {
   it("is empty rather than misleading when there is nothing to say", () => {
     const found = getTool("inference-serving", "vllm")!;
     expect(verdictFor(found.tool, found.category, [])).toBe("");
+  });
+});
+
+describe("alternativesIndex", () => {
+  it("lists every page that exists, exactly once", () => {
+    // Derived from the same predicate as `generateStaticParams`, so the index
+    // cannot advertise a page the build does not produce, or hide one it does.
+    const listed = alternativesIndex().flatMap((s) =>
+      s.entries.map((e) => `${s.category.slug}/${e.tool.slug}`),
+    );
+    const pages = allAlternativesPages().map((p) => `${p.slug}/${p.tool}`);
+    expect(listed.sort()).toEqual(pages.sort());
+    expect(new Set(listed).size).toBe(listed.length);
+  });
+
+  it("groups every entry under its own section and drops empty sections", () => {
+    for (const { category, entries } of alternativesIndex()) {
+      expect(entries.length).toBeGreaterThan(0);
+      for (const e of entries) {
+        expect(category.tools.some((t) => t.slug === e.tool.slug)).toBe(true);
+      }
+    }
   });
 });

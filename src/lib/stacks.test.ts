@@ -65,6 +65,17 @@ describe("recommendStack: genuine subsystem search", () => {
     expect(a).toEqual(b);
   });
 
+  it("names each workload in a sentence with its own casing and article", () => {
+    for (const w of WORKLOADS) {
+      // The heading and the meta description both read from `noun`. Deriving it
+      // by lowercasing the label produced "A rag application stack." and
+      // "for a ai agent": acronyms became words and the article was fixed at "a".
+      expect(w.noun, w.id).toMatch(/^(a|an) /);
+      expect(w.noun.toLowerCase()).toContain(w.label.toLowerCase());
+      expect(w.noun, w.id).not.toMatch(/\b(rag|ai|llm|api)\b/);
+    }
+  });
+
   it("returns a cost band, confidence and composed risk", () => {
     const r = recommendStack({ workload: "rag", queriesPerMonth: 500_000 });
     expect(r.costLow).toBeLessThan(r.costHigh);

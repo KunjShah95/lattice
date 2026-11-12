@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { metadata as allMetadata } from "@/app/all/page";
 import { metadata as blogMetadata } from "@/app/blog/page";
 import { metadata as compareMetadata } from "@/app/compare/page";
+import { metadata as alternativesIndexMetadata } from "@/app/alternatives/page";
 import { metadata as fixMetadata } from "@/app/fix/page";
 import { metadata as glossaryMetadata } from "@/app/glossary/page";
 import { metadata as methodologyMetadata } from "@/app/methodology/page";
@@ -105,6 +106,7 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
     ["/blog", blogMetadata as Metadata],
     ["/compare", compareMetadata as Metadata],
     ["/compare/build", compareBuildMetadata as Metadata],
+    ["/alternatives", alternativesIndexMetadata as Metadata],
     ["/fix", fixMetadata as Metadata],
     ["/glossary", glossaryMetadata as Metadata],
     ["/methodology", methodologyMetadata as Metadata],
@@ -208,11 +210,11 @@ async function allRoutes(): Promise<Array<{ path: string; meta: Metadata }>> {
 describe("route metadata, across every route", () => {
   it("covers every route type the sitemap publishes", async () => {
     const routes = await allRoutes();
-    // 20, not 21: the home page carries no metadata of its own and is covered by
+    // 21, not 22: the home page carries no metadata of its own and is covered by
     // `absolute("/")` in seo.test.ts instead. Matches the `staticRoutes` list in
     // `allRoutes()` above, so adding a static route means touching both.
     const expected =
-      20 +
+      21 +
       categories.length +
       categories.reduce((n, c) => n + c.tools.length, 0) +
       allAlternativesPages().length +
@@ -290,6 +292,7 @@ const SEGMENTS_WITH_CARDS = [
   "blog",
   "compare",
   "compare/build",
+  "alternatives",
   "fix",
   "glossary",
   "methodology",
@@ -400,6 +403,7 @@ const INDEX_ROUTES: Array<[string, boolean]> = [
   ["all", true],
   ["blog", true],
   ["compare", true],
+  ["alternatives", true],
   ["fix", true],
   ["glossary", true],
   ["methodology", false],
